@@ -1,0 +1,86 @@
+#
+# WILLYMOD - An unofficial Crash Bandicoot level editor
+# Copyright (C) 2016  WILLYMOD project contributors
+#
+# See the AUTHORS.md file for more details.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+cmake_minimum_required (VERSION 3.5)
+project (WILLYMOD)
+
+add_subdirectory (modules)
+include (CMakeLists-imgui.txt)
+
+add_executable (willymod
+	src/main.cc
+
+	src/common.hh
+
+	src/util.hh
+	src/util.cc
+	src/util_binreader.cc
+
+	src/gui.hh
+
+	src/edit.hh
+	src/edit_core.cc
+	src/edit_module.cc
+	src/edit_module_info.cc
+	src/edit_mode.cc
+	src/edit_panel.cc
+
+	src/transact.hh
+	src/transact_teller.cc
+	src/transact_transaction.cc
+	src/transact_nexus.cc
+
+	src/res.hh
+	src/res_name.cc
+	src/res_asset.cc
+
+	src/gfx.hh
+
+	src/misc.hh
+
+	src/nsf.hh
+	src/nsf_spage.cc
+	src/nsf_raw_entry.cc
+	src/nsf_wgeo_v2.cc
+
+	src/module.hh
+
+	$<TARGET_OBJECTS:willymod_modules>
+	$<TARGET_OBJECTS:imgui>
+)
+
+# Dependency: SDL2
+find_package (SDL2 REQUIRED)
+# Fix an SDL2 bug (error CMP0004).
+# https://bugzilla.libsdl.org/show_bug.cgi?id=3295
+string (STRIP "${SDL2_LIBRARIES}" SDL2_LIBRARIES)
+target_include_directories (willymod PRIVATE ${SDL2_INCLUDE_DIRS})
+target_link_libraries (willymod PRIVATE ${SDL2_LIBRARIES})
+
+# Dependency: OpenGL
+find_package (OpenGL REQUIRED)
+target_include_directories (willymod PRIVATE ${OPENGL_INCLUDE_DIRS})
+target_link_libraries (willymod PRIVATE ${OPENGL_LIBRARIES})
+
+# GCC Warnings
+if (CMAKE_COMPILER_IS_GNUCXX)
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter")
+endif ()

@@ -1,0 +1,4 @@
+# GITIGNORE file for WILLYMOD
+
+# `build' directory - reserved for user
+/build
