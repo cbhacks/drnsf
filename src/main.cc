@@ -1,6 +1,6 @@
 //
-// WILLYMOD - An unofficial Crash Bandicoot level editor
-// Copyright (C) 2016  WILLYMOD project contributors
+// DRNSF - An unofficial Crash Bandicoot level editor
+// Copyright (C) 2017  DRNSF contributors
 //
 // See the AUTHORS.md file for more details.
 //
@@ -40,7 +40,7 @@ int main(int argc,char *argv[])
 
 	// Create the main window.
 	SDL_Window *wnd = SDL_CreateWindow(
-			"WILLYMOD",
+			"DRNSF",
 			SDL_WINDOWPOS_CENTERED,
 			SDL_WINDOWPOS_CENTERED,
 			DISPLAYWIDTH,

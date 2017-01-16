@@ -1,6 +1,6 @@
 //
-// WILLYMOD - An unofficial Crash Bandicoot level editor
-// Copyright (C) 2016  WILLYMOD project contributors
+// DRNSF - An unofficial Crash Bandicoot level editor
+// Copyright (C) 2017  DRNSF contributors
 //
 // See the AUTHORS.md file for more details.
 //

@@ -1,6 +1,6 @@
 #
-# WILLYMOD - An unofficial Crash Bandicoot level editor
-# Copyright (C) 2016  WILLYMOD project contributors
+# DRNSF - An unofficial Crash Bandicoot level editor
+# Copyright (C) 2017  DRNSF contributors
 #
 # See the AUTHORS.md file for more details.
 #
@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-add_library (willymod_modules OBJECT
+add_library (drnsf_modules OBJECT
 	mod_modctl.cc
 
 	panels/asset_list.cc
@@ -35,14 +35,14 @@ add_library (willymod_modules OBJECT
 )
 
 # Allow includes from /modules root
-target_include_directories (willymod_modules PRIVATE ${PROJECT_SOURCE_DIR}/modules)
+target_include_directories (drnsf_modules PRIVATE ${PROJECT_SOURCE_DIR}/modules)
 
 # Allow includes from /src
-target_include_directories (willymod_modules PRIVATE ${PROJECT_SOURCE_DIR}/src)
+target_include_directories (drnsf_modules PRIVATE ${PROJECT_SOURCE_DIR}/src)
 
 # Dependency: OpenGL (headers)
 find_package (OpenGL REQUIRED)
-target_include_directories (willymod_modules PRIVATE ${OPENGL_INCLUDE_DIRS})
+target_include_directories (drnsf_modules PRIVATE ${OPENGL_INCLUDE_DIRS})
 
 # GCC Warnings
 if (CMAKE_COMPILER_IS_GNUCXX)

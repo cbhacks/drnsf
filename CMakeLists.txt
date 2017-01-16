@@ -1,6 +1,6 @@
 #
-# WILLYMOD - An unofficial Crash Bandicoot level editor
-# Copyright (C) 2016  WILLYMOD project contributors
+# DRNSF - An unofficial Crash Bandicoot level editor
+# Copyright (C) 2017  DRNSF contributors
 #
 # See the AUTHORS.md file for more details.
 #
@@ -19,12 +19,12 @@
 #
 
 cmake_minimum_required (VERSION 3.5)
-project (WILLYMOD)
+project (DRNSF)
 
 add_subdirectory (modules)
 include (CMakeLists-imgui.txt)
 
-add_executable (willymod
+add_executable (drnsf
 	src/main.cc
 
 	src/common.hh
@@ -62,7 +62,7 @@ add_executable (willymod
 
 	src/module.hh
 
-	$<TARGET_OBJECTS:willymod_modules>
+	$<TARGET_OBJECTS:drnsf_modules>
 	$<TARGET_OBJECTS:imgui>
 )
 
@@ -71,13 +71,13 @@ find_package (SDL2 REQUIRED)
 # Fix an SDL2 bug (error CMP0004).
 # https://bugzilla.libsdl.org/show_bug.cgi?id=3295
 string (STRIP "${SDL2_LIBRARIES}" SDL2_LIBRARIES)
-target_include_directories (willymod PRIVATE ${SDL2_INCLUDE_DIRS})
-target_link_libraries (willymod PRIVATE ${SDL2_LIBRARIES})
+target_include_directories (drnsf PRIVATE ${SDL2_INCLUDE_DIRS})
+target_link_libraries (drnsf PRIVATE ${SDL2_LIBRARIES})
 
 # Dependency: OpenGL
 find_package (OpenGL REQUIRED)
-target_include_directories (willymod PRIVATE ${OPENGL_INCLUDE_DIRS})
-target_link_libraries (willymod PRIVATE ${OPENGL_LIBRARIES})
+target_include_directories (drnsf PRIVATE ${OPENGL_INCLUDE_DIRS})
+target_link_libraries (drnsf PRIVATE ${OPENGL_LIBRARIES})
 
 # GCC Warnings
 if (CMAKE_COMPILER_IS_GNUCXX)
