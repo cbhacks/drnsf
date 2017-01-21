@@ -40,6 +40,7 @@ void spage::import_file(TRANSACT,const std::vector<unsigned char> &data)
 	auto type          = r.read_u16();
 	auto cid           = r.read_u32();
 	auto pagelet_count = r.read_u32();
+	auto checksum      = r.read_u32();
 
 	// Read the pagelet offsets. Pagelets should be entries, but we treat
 	// them as blobs instead so they can be totally unprocessed, etc.
