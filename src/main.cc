@@ -37,12 +37,49 @@ public:
 	explicit main_window(SDL_Window *wnd,SDL_GLContext glctx);
 
 	edit::core &get_editor() { return m_editor; }
+
+	void on_key(SDL_Keysym keysym,bool down);
+	void on_text(const char *text);
+	void on_mousemove(int x,int y);
+	void on_mousewheel(int y);
+	void on_mousebutton(int button,bool down);
+	void on_resize(int width,int height);
 };
 
 main_window::main_window(SDL_Window *wnd,SDL_GLContext glctx) :
 	m_wnd(wnd),
 	m_glctx(glctx)
 {
+}
+
+void main_window::on_key(SDL_Keysym keysym,bool down)
+{
+	m_editor.key(keysym.sym,down);
+}
+
+void main_window::on_text(const char *text)
+{
+	m_editor.text(text);
+}
+
+void main_window::on_mousemove(int x,int y)
+{
+	m_editor.mouse_move(x,y);
+}
+
+void main_window::on_mousewheel(int y)
+{
+	m_editor.mouse_scroll(y);
+}
+
+void main_window::on_mousebutton(int button,bool down)
+{
+	m_editor.mouse_button(button,down);
+}
+
+void main_window::on_resize(int width,int height)
+{
+	m_editor.window_resize(width,height);
 }
 
 int main(int argc,char *argv[])
@@ -106,33 +143,30 @@ int main(int argc,char *argv[])
 		while (SDL_PollEvent(&ev)) {
 			switch (ev.type) {
 			case SDL_KEYDOWN:
-				mw.get_editor().key(ev.key.keysym.sym,true);
+				mw.on_key(ev.key.keysym,true);
 				break;
 			case SDL_KEYUP:
-				mw.get_editor().key(ev.key.keysym.sym,false);
+				mw.on_key(ev.key.keysym,false);
 				break;
 			case SDL_TEXTINPUT:
-				mw.get_editor().text(ev.text.text);
+				mw.on_text(ev.text.text);
 				break;
 			case SDL_MOUSEMOTION:
-				mw.get_editor().mouse_move(
-					ev.motion.x,
-					ev.motion.y
-				);
+				mw.on_mousemove(ev.motion.x,ev.motion.y);
 				break;
 			case SDL_MOUSEWHEEL:
-				mw.get_editor().mouse_scroll(ev.wheel.y);
+				mw.on_mousewheel(ev.wheel.y);
 				break;
 			case SDL_MOUSEBUTTONDOWN:
-				mw.get_editor().mouse_button(ev.button.button,true);
+				mw.on_mousebutton(ev.button.button,true);
 				break;
 			case SDL_MOUSEBUTTONUP:
-				mw.get_editor().mouse_button(ev.button.button,false);
+				mw.on_mousebutton(ev.button.button,false);
 				break;
 			case SDL_WINDOWEVENT:
 				switch (ev.window.event) {
 				case SDL_WINDOWEVENT_SIZE_CHANGED:
-					mw.get_editor().window_resize(
+					mw.on_resize(
 						ev.window.data1,
 						ev.window.data2
 					);
