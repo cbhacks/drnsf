@@ -23,41 +23,30 @@
 #include <GL/gl.h>
 #include <iostream>
 #include "edit.hh"
+#include "sys.hh"
 
 #define DISPLAYWIDTH  800
 #define DISPLAYHEIGHT 600
 
-class main_window : util::not_copyable {
+class main_window : public sys::window {
 private:
-	SDL_Window *m_wnd;
-	SDL_GLContext m_glctx;
 	edit::core m_editor;
 
 public:
-	explicit main_window(SDL_Window *wnd);
+	main_window() :
+		window("DRNSF",DISPLAYWIDTH,DISPLAYHEIGHT) {}
 
 	edit::core &get_editor() { return m_editor; }
 
-	void on_key(SDL_Keysym keysym,bool down);
-	void on_text(const char *text);
-	void on_mousemove(int x,int y);
-	void on_mousewheel(int y);
-	void on_mousebutton(int button,bool down);
-	void on_resize(int width,int height);
+	void on_key(SDL_Keysym keysym,bool down) override;
+	void on_text(const char *text) override;
+	void on_mousemove(int x,int y) override;
+	void on_mousewheel(int y) override;
+	void on_mousebutton(int button,bool down) override;
+	void on_resize(int width,int height) override;
 
-	void on_event(const SDL_Event &ev);
-	void on_windowevent(const SDL_WindowEvent &ev);
+	void on_frame(int delta_time) override;
 };
-
-main_window::main_window(SDL_Window *wnd) :
-	m_wnd(wnd)
-{
-	// Create the OpenGL context.
-	m_glctx = SDL_GL_CreateContext(wnd);
-	if (!m_glctx) {
-		throw 0; // FIXME
-	}
-}
 
 void main_window::on_key(SDL_Keysym keysym,bool down)
 {
@@ -89,43 +78,10 @@ void main_window::on_resize(int width,int height)
 	m_editor.window_resize(width,height);
 }
 
-void main_window::on_event(const SDL_Event &ev)
+void main_window::on_frame(int delta_time)
 {
-	switch (ev.type) {
-	case SDL_KEYDOWN:
-		on_key(ev.key.keysym,true);
-		break;
-	case SDL_KEYUP:
-		on_key(ev.key.keysym,false);
-		break;
-	case SDL_TEXTINPUT:
-		on_text(ev.text.text);
-		break;
-	case SDL_MOUSEMOTION:
-		on_mousemove(ev.motion.x,ev.motion.y);
-		break;
-	case SDL_MOUSEWHEEL:
-		on_mousewheel(ev.wheel.y);
-		break;
-	case SDL_MOUSEBUTTONDOWN:
-		on_mousebutton(ev.button.button,true);
-		break;
-	case SDL_MOUSEBUTTONUP:
-		on_mousebutton(ev.button.button,false);
-		break;
-	case SDL_WINDOWEVENT:
-		on_windowevent(ev.window);
-		break;
-	}
-}
-
-void main_window::on_windowevent(const SDL_WindowEvent &ev)
-{
-	switch (ev.event) {
-	case SDL_WINDOWEVENT_SIZE_CHANGED:
-		on_resize(ev.data1,ev.data2);
-		break;
-	}
+	m_editor.frame(delta_time);
+	SDL_GL_SwapWindow(m_wnd);
 }
 
 int main(int argc,char *argv[])
@@ -140,33 +96,7 @@ int main(int argc,char *argv[])
 	}
 
 	// Create the main window.
-	SDL_Window *wnd = SDL_CreateWindow(
-			"DRNSF",
-			SDL_WINDOWPOS_CENTERED,
-			SDL_WINDOWPOS_CENTERED,
-			DISPLAYWIDTH,
-			DISPLAYHEIGHT,
-			SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
-		);
-	if (!wnd) {
-		std::cerr <<
-			"Error creating the main window: " <<
-			SDL_GetError() <<
-			std::endl;
-		SDL_Quit();
-		return EXIT_FAILURE;
-	}
-
-	// Create the main window.
-	main_window mw(wnd); // FIXME rename to wnd
-
-	// Enable v-sync.
-	if (SDL_GL_SetSwapInterval(1) != 0) {
-		std::cerr <<
-			"Error enabling v-sync: " <<
-			SDL_GetError() <<
-			std::endl;
-	}
+	main_window mw; // FIXME rename to wnd
 
 	// Inform the editor about the initial window size.
 	mw.get_editor().window_resize(DISPLAYWIDTH,DISPLAYHEIGHT);
@@ -185,11 +115,8 @@ int main(int argc,char *argv[])
 		Uint32 delta_time = current_update - last_update;
 		last_update = current_update;
 
-		// Update the engine.
-		mw.get_editor().frame(delta_time);
-
-		// Present the finished render output to the user's display.
-		SDL_GL_SwapWindow(wnd);
+		// Update the window and engine.
+		mw.on_frame(delta_time);
 	}
 
 	// Clean-up.
