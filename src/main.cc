@@ -44,6 +44,8 @@ public:
 	void on_mousewheel(int y);
 	void on_mousebutton(int button,bool down);
 	void on_resize(int width,int height);
+
+	void on_event(const SDL_Event &ev);
 };
 
 main_window::main_window(SDL_Window *wnd,SDL_GLContext glctx) :
@@ -80,6 +82,40 @@ void main_window::on_mousebutton(int button,bool down)
 void main_window::on_resize(int width,int height)
 {
 	m_editor.window_resize(width,height);
+}
+
+void main_window::on_event(const SDL_Event &ev)
+{
+	switch (ev.type) {
+	case SDL_KEYDOWN:
+		on_key(ev.key.keysym,true);
+		break;
+	case SDL_KEYUP:
+		on_key(ev.key.keysym,false);
+		break;
+	case SDL_TEXTINPUT:
+		on_text(ev.text.text);
+		break;
+	case SDL_MOUSEMOTION:
+		on_mousemove(ev.motion.x,ev.motion.y);
+		break;
+	case SDL_MOUSEWHEEL:
+		on_mousewheel(ev.wheel.y);
+		break;
+	case SDL_MOUSEBUTTONDOWN:
+		on_mousebutton(ev.button.button,true);
+		break;
+	case SDL_MOUSEBUTTONUP:
+		on_mousebutton(ev.button.button,false);
+		break;
+	case SDL_WINDOWEVENT:
+		switch (ev.window.event) {
+		case SDL_WINDOWEVENT_SIZE_CHANGED:
+			on_resize(ev.window.data1,ev.window.data2);
+			break;
+		}
+		break;
+	}
 }
 
 int main(int argc,char *argv[])
@@ -141,39 +177,7 @@ int main(int argc,char *argv[])
 		// Handle all of the pending events.
 		SDL_Event ev;
 		while (SDL_PollEvent(&ev)) {
-			switch (ev.type) {
-			case SDL_KEYDOWN:
-				mw.on_key(ev.key.keysym,true);
-				break;
-			case SDL_KEYUP:
-				mw.on_key(ev.key.keysym,false);
-				break;
-			case SDL_TEXTINPUT:
-				mw.on_text(ev.text.text);
-				break;
-			case SDL_MOUSEMOTION:
-				mw.on_mousemove(ev.motion.x,ev.motion.y);
-				break;
-			case SDL_MOUSEWHEEL:
-				mw.on_mousewheel(ev.wheel.y);
-				break;
-			case SDL_MOUSEBUTTONDOWN:
-				mw.on_mousebutton(ev.button.button,true);
-				break;
-			case SDL_MOUSEBUTTONUP:
-				mw.on_mousebutton(ev.button.button,false);
-				break;
-			case SDL_WINDOWEVENT:
-				switch (ev.window.event) {
-				case SDL_WINDOWEVENT_SIZE_CHANGED:
-					mw.on_resize(
-						ev.window.data1,
-						ev.window.data2
-					);
-					break;
-				}
-				break;
-			}
+			mw.on_event(ev);
 		}
 
 		// Calculate the time passed since the last frame.
