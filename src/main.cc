@@ -95,14 +95,14 @@ int main(int argc,char *argv[])
 	}
 
 	// Create the main window.
-	main_window mw; // FIXME rename to wnd
+	main_window wnd;
 
 	// Inform the editor about the initial window size.
-	mw.get_editor().window_resize(DISPLAYWIDTH,DISPLAYHEIGHT);
+	wnd.get_editor().window_resize(DISPLAYWIDTH,DISPLAYHEIGHT);
 
 	// Run the main application/game loop.
 	while (true) {
-		mw.run_once();
+		wnd.run_once();
 	}
 
 	// Clean-up.
