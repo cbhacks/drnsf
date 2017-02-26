@@ -81,7 +81,6 @@ void main_window::on_resize(int width,int height)
 void main_window::on_frame(int delta_time)
 {
 	m_editor.frame(delta_time);
-	SDL_GL_SwapWindow(m_wnd);
 }
 
 int main(int argc,char *argv[])
@@ -103,20 +102,7 @@ int main(int argc,char *argv[])
 
 	// Run the main application/game loop.
 	while (true) {
-		// Handle all of the pending events.
-		SDL_Event ev;
-		while (SDL_PollEvent(&ev)) {
-			mw.on_event(ev);
-		}
-
-		// Calculate the time passed since the last frame.
-		static Uint32 last_update = 0;
-		Uint32 current_update = SDL_GetTicks();
-		Uint32 delta_time = current_update - last_update;
-		last_update = current_update;
-
-		// Update the window and engine.
-		mw.on_frame(delta_time);
+		mw.run_once();
 	}
 
 	// Clean-up.

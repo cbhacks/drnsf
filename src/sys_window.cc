@@ -25,6 +25,45 @@
 
 namespace sys {
 
+void window::on_event(const SDL_Event &ev)
+{
+	switch (ev.type) {
+	case SDL_KEYDOWN:
+		on_key(ev.key.keysym,true);
+		break;
+	case SDL_KEYUP:
+		on_key(ev.key.keysym,false);
+		break;
+	case SDL_TEXTINPUT:
+		on_text(ev.text.text);
+		break;
+	case SDL_MOUSEMOTION:
+		on_mousemove(ev.motion.x,ev.motion.y);
+		break;
+	case SDL_MOUSEWHEEL:
+		on_mousewheel(ev.wheel.y);
+		break;
+	case SDL_MOUSEBUTTONDOWN:
+		on_mousebutton(ev.button.button,true);
+		break;
+	case SDL_MOUSEBUTTONUP:
+		on_mousebutton(ev.button.button,false);
+		break;
+	case SDL_WINDOWEVENT:
+		on_windowevent(ev.window);
+		break;
+	}
+}
+
+void window::on_windowevent(const SDL_WindowEvent &ev)
+{
+	switch (ev.event) {
+	case SDL_WINDOWEVENT_SIZE_CHANGED:
+		on_resize(ev.data1,ev.data2);
+		break;
+	}
+}
+
 window::window(const std::string &title,int width,int height)
 {
 	// Create the window.
@@ -73,43 +112,23 @@ window::~window()
 	SDL_DestroyWindow(m_wnd);
 }
 
-void window::on_event(const SDL_Event &ev)
+void window::run_once()
 {
-	switch (ev.type) {
-	case SDL_KEYDOWN:
-		on_key(ev.key.keysym,true);
-		break;
-	case SDL_KEYUP:
-		on_key(ev.key.keysym,false);
-		break;
-	case SDL_TEXTINPUT:
-		on_text(ev.text.text);
-		break;
-	case SDL_MOUSEMOTION:
-		on_mousemove(ev.motion.x,ev.motion.y);
-		break;
-	case SDL_MOUSEWHEEL:
-		on_mousewheel(ev.wheel.y);
-		break;
-	case SDL_MOUSEBUTTONDOWN:
-		on_mousebutton(ev.button.button,true);
-		break;
-	case SDL_MOUSEBUTTONUP:
-		on_mousebutton(ev.button.button,false);
-		break;
-	case SDL_WINDOWEVENT:
-		on_windowevent(ev.window);
-		break;
+	// Handle all of the pending events.
+	SDL_Event ev;
+	while (SDL_PollEvent(&ev)) {
+		on_event(ev);
 	}
-}
 
-void window::on_windowevent(const SDL_WindowEvent &ev)
-{
-	switch (ev.event) {
-	case SDL_WINDOWEVENT_SIZE_CHANGED:
-		on_resize(ev.data1,ev.data2);
-		break;
-	}
+	// Calculate the time passed since the last frame.
+	static Uint32 last_update = 0;
+	Uint32 current_update = SDL_GetTicks();
+	Uint32 delta_time = current_update - last_update;
+	last_update = current_update;
+
+	// Update the window.
+	on_frame(delta_time);
+	SDL_GL_SwapWindow(m_wnd);
 }
 
 }

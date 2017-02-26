@@ -25,9 +25,12 @@
 namespace sys {
 
 class window : util::not_copyable {
-public: // FIXME
+private:
 	SDL_Window *m_wnd;
 	SDL_GLContext m_glctx;
+
+	void on_event(const SDL_Event &ev);
+	void on_windowevent(const SDL_WindowEvent &ev);
 
 protected:
 	explicit window(const std::string &title,int width,int height);
@@ -43,8 +46,7 @@ protected:
 	virtual void on_frame(int delta_time) {}
 
 public:
-	void on_event(const SDL_Event &ev);
-	void on_windowevent(const SDL_WindowEvent &ev);
+	void run_once();
 };
 
 }
