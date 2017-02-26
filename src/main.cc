@@ -46,6 +46,7 @@ public:
 	void on_resize(int width,int height);
 
 	void on_event(const SDL_Event &ev);
+	void on_windowevent(const SDL_WindowEvent &ev);
 };
 
 main_window::main_window(SDL_Window *wnd,SDL_GLContext glctx) :
@@ -109,11 +110,16 @@ void main_window::on_event(const SDL_Event &ev)
 		on_mousebutton(ev.button.button,false);
 		break;
 	case SDL_WINDOWEVENT:
-		switch (ev.window.event) {
-		case SDL_WINDOWEVENT_SIZE_CHANGED:
-			on_resize(ev.window.data1,ev.window.data2);
-			break;
-		}
+		on_windowevent(ev.window);
+		break;
+	}
+}
+
+void main_window::on_windowevent(const SDL_WindowEvent &ev)
+{
+	switch (ev.event) {
+	case SDL_WINDOWEVENT_SIZE_CHANGED:
+		on_resize(ev.data1,ev.data2);
 		break;
 	}
 }
