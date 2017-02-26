@@ -34,7 +34,7 @@ private:
 	edit::core m_editor;
 
 public:
-	explicit main_window(SDL_Window *wnd,SDL_GLContext glctx);
+	explicit main_window(SDL_Window *wnd);
 
 	edit::core &get_editor() { return m_editor; }
 
@@ -49,10 +49,14 @@ public:
 	void on_windowevent(const SDL_WindowEvent &ev);
 };
 
-main_window::main_window(SDL_Window *wnd,SDL_GLContext glctx) :
-	m_wnd(wnd),
-	m_glctx(glctx)
+main_window::main_window(SDL_Window *wnd) :
+	m_wnd(wnd)
 {
+	// Create the OpenGL context.
+	m_glctx = SDL_GL_CreateContext(wnd);
+	if (!m_glctx) {
+		throw 0; // FIXME
+	}
 }
 
 void main_window::on_key(SDL_Keysym keysym,bool down)
@@ -153,16 +157,8 @@ int main(int argc,char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	// Create an OpenGL context.
-	SDL_GLContext glctx = SDL_GL_CreateContext(wnd);
-	if (!glctx) {
-		std::cerr <<
-			"Error creating the OpenGL context: " <<
-			SDL_GetError() <<
-			std::endl;
-		SDL_Quit();
-		return EXIT_FAILURE;
-	}
+	// Create the main window.
+	main_window mw(wnd); // FIXME rename to wnd
 
 	// Enable v-sync.
 	if (SDL_GL_SetSwapInterval(1) != 0) {
@@ -171,9 +167,6 @@ int main(int argc,char *argv[])
 			SDL_GetError() <<
 			std::endl;
 	}
-
-	// Create the main window.
-	main_window mw(wnd,glctx); // FIXME rename to wnd
 
 	// Inform the editor about the initial window size.
 	mw.get_editor().window_resize(DISPLAYWIDTH,DISPLAYHEIGHT);
