@@ -27,6 +27,24 @@
 #define DISPLAYWIDTH  800
 #define DISPLAYHEIGHT 600
 
+class main_window : util::not_copyable {
+private:
+	SDL_Window *m_wnd;
+	SDL_GLContext m_glctx;
+	edit::core m_editor;
+
+public:
+	explicit main_window(SDL_Window *wnd,SDL_GLContext glctx);
+
+	edit::core &get_editor() { return m_editor; }
+};
+
+main_window::main_window(SDL_Window *wnd,SDL_GLContext glctx) :
+	m_wnd(wnd),
+	m_glctx(glctx)
+{
+}
+
 int main(int argc,char *argv[])
 {
 	// Initialize SDL.
@@ -75,11 +93,11 @@ int main(int argc,char *argv[])
 			std::endl;
 	}
 
-	// Create and initialize the editor.
-	edit::core editor;
+	// Create the main window.
+	main_window mw(wnd,glctx); // FIXME rename to wnd
 
 	// Inform the editor about the initial window size.
-	editor.window_resize(DISPLAYWIDTH,DISPLAYHEIGHT);
+	mw.get_editor().window_resize(DISPLAYWIDTH,DISPLAYHEIGHT);
 
 	// Run the main application/game loop.
 	while (true) {
@@ -88,37 +106,37 @@ int main(int argc,char *argv[])
 		while (SDL_PollEvent(&ev)) {
 			switch (ev.type) {
 			case SDL_KEYDOWN:
-				editor.key(ev.key.keysym.sym,true);
+				mw.get_editor().key(ev.key.keysym.sym,true);
 				break;
 			case SDL_KEYUP:
-				editor.key(ev.key.keysym.sym,false);
+				mw.get_editor().key(ev.key.keysym.sym,false);
 				break;
 			case SDL_TEXTINPUT:
-				editor.text(ev.text.text);
+				mw.get_editor().text(ev.text.text);
 				break;
 			case SDL_MOUSEMOTION:
-				editor.mouse_move(
+				mw.get_editor().mouse_move(
 					ev.motion.x,
 					ev.motion.y
 				);
-				editor.mouse_move_rel(
+				mw.get_editor().mouse_move_rel(
 					ev.motion.xrel,
 					ev.motion.yrel
 				);
 				break;
 			case SDL_MOUSEWHEEL:
-				editor.mouse_scroll(ev.wheel.y);
+				mw.get_editor().mouse_scroll(ev.wheel.y);
 				break;
 			case SDL_MOUSEBUTTONDOWN:
-				editor.mouse_button(ev.button.button,true);
+				mw.get_editor().mouse_button(ev.button.button,true);
 				break;
 			case SDL_MOUSEBUTTONUP:
-				editor.mouse_button(ev.button.button,false);
+				mw.get_editor().mouse_button(ev.button.button,false);
 				break;
 			case SDL_WINDOWEVENT:
 				switch (ev.window.event) {
 				case SDL_WINDOWEVENT_SIZE_CHANGED:
-					editor.window_resize(
+					mw.get_editor().window_resize(
 						ev.window.data1,
 						ev.window.data2
 					);
@@ -135,7 +153,7 @@ int main(int argc,char *argv[])
 		last_update = current_update;
 
 		// Update the engine.
-		editor.frame(delta_time);
+		mw.get_editor().frame(delta_time);
 
 		// Present the finished render output to the user's display.
 		SDL_GL_SwapWindow(wnd);
