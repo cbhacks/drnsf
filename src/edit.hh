@@ -71,7 +71,6 @@ public:
 	void text(const char *text);
 
 	void mouse_move(int x,int y);
-	void mouse_move_rel(int x,int y);
 	void mouse_scroll(int vscroll);
 	void mouse_button(int btn,bool down);
 

@@ -119,10 +119,6 @@ int main(int argc,char *argv[])
 					ev.motion.x,
 					ev.motion.y
 				);
-				mw.get_editor().mouse_move_rel(
-					ev.motion.xrel,
-					ev.motion.yrel
-				);
 				break;
 			case SDL_MOUSEWHEEL:
 				mw.get_editor().mouse_scroll(ev.wheel.y);

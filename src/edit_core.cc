@@ -414,10 +414,6 @@ void core::mouse_move(int x,int y)
 	m_io.MousePos.y = y;
 }
 
-void core::mouse_move_rel(int x,int y)
-{
-}
-
 void core::mouse_scroll(int vscroll)
 {
 	m_io.MouseWheel += vscroll;
