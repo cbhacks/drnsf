@@ -33,10 +33,7 @@ private:
 	edit::core m_editor;
 
 public:
-	main_window() :
-		window("DRNSF",DISPLAYWIDTH,DISPLAYHEIGHT) {}
-
-	edit::core &get_editor() { return m_editor; }
+	main_window();
 
 	void on_key(SDL_Keysym keysym,bool down) override;
 	void on_text(const char *text) override;
@@ -47,6 +44,13 @@ public:
 
 	void on_frame(int delta_time) override;
 };
+
+main_window::main_window() :
+	window("DRNSF",DISPLAYWIDTH,DISPLAYHEIGHT)
+{
+	// Inform the editor about the initial window size.
+	m_editor.window_resize(DISPLAYWIDTH,DISPLAYHEIGHT);
+}
 
 void main_window::on_key(SDL_Keysym keysym,bool down)
 {
@@ -96,9 +100,6 @@ int main(int argc,char *argv[])
 
 	// Create the main window.
 	main_window wnd;
-
-	// Inform the editor about the initial window size.
-	wnd.get_editor().window_resize(DISPLAYWIDTH,DISPLAYHEIGHT);
 
 	// Run the main application/game loop.
 	while (true) {
