@@ -23,10 +23,6 @@
 #include <GL/gl.h>
 #include <iostream>
 #include "edit.hh"
-#include "sys.hh"
-
-class main_window : public edit::core {
-};
 
 int main(int argc,char *argv[])
 {
@@ -39,12 +35,12 @@ int main(int argc,char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	// Create the main window.
-	main_window wnd;
+	// Create the editor.
+	edit::core editor;
 
 	// Run the main application/game loop.
 	while (true) {
-		wnd.run_once();
+		editor.run_once();
 	}
 
 	// Clean-up.
