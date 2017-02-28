@@ -25,67 +25,8 @@
 #include "edit.hh"
 #include "sys.hh"
 
-#define DISPLAYWIDTH  800
-#define DISPLAYHEIGHT 600
-
-class main_window : public sys::window {
-private:
-	edit::core m_editor;
-
-public:
-	main_window();
-
-	void on_key(SDL_Keysym keysym,bool down) override;
-	void on_text(const char *text) override;
-	void on_mousemove(int x,int y) override;
-	void on_mousewheel(int y) override;
-	void on_mousebutton(int button,bool down) override;
-	void on_resize(int width,int height) override;
-
-	void on_frame(int delta_time) override;
+class main_window : public edit::core {
 };
-
-main_window::main_window() :
-	window("DRNSF",DISPLAYWIDTH,DISPLAYHEIGHT)
-{
-	// Inform the editor about the initial window size.
-	m_editor.window_resize(DISPLAYWIDTH,DISPLAYHEIGHT);
-}
-
-void main_window::on_key(SDL_Keysym keysym,bool down)
-{
-	m_editor.key(keysym.sym,down);
-}
-
-void main_window::on_text(const char *text)
-{
-	m_editor.text(text);
-}
-
-void main_window::on_mousemove(int x,int y)
-{
-	m_editor.mouse_move(x,y);
-}
-
-void main_window::on_mousewheel(int y)
-{
-	m_editor.mouse_scroll(y);
-}
-
-void main_window::on_mousebutton(int button,bool down)
-{
-	m_editor.mouse_button(button,down);
-}
-
-void main_window::on_resize(int width,int height)
-{
-	m_editor.window_resize(width,height);
-}
-
-void main_window::on_frame(int delta_time)
-{
-	m_editor.frame(delta_time);
-}
 
 int main(int argc,char *argv[])
 {

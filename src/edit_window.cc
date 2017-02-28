@@ -18,35 +18,54 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#pragma once
+#include "common.hh"
+#include "../imgui/imgui.h"
+#include "edit.hh"
 
-#include <SDL.h>
+#define DISPLAYWIDTH  800
+#define DISPLAYHEIGHT 600
 
-namespace sys {
+namespace edit {
 
-class window : util::not_copyable {
-private:
-	SDL_Window *m_wnd;
-	SDL_GLContext m_glctx;
+window::window() :
+	sys::window("DRNSF",DISPLAYWIDTH,DISPLAYHEIGHT)
+{
+	// FIXME window_resize(DISPLAYWIDTH,DISPLAYHEIGHT);
+}
 
-	void on_event(const SDL_Event &ev);
-	void on_windowevent(const SDL_WindowEvent &ev);
+void window::on_key(SDL_Keysym keysym,bool down)
+{
+	key(keysym.sym,down);
+}
 
-protected:
-	explicit window(const std::string &title,int width,int height);
-	~window() noexcept;
+void window::on_text(const char *text)
+{
+	this->text(text);
+}
 
-	virtual void on_key(SDL_Keysym keysym,bool down) = 0;
-	virtual void on_text(const char *text) = 0;
-	virtual void on_mousemove(int x,int y) = 0;
-	virtual void on_mousewheel(int y) = 0;
-	virtual void on_mousebutton(int button,bool down) = 0;
-	virtual void on_resize(int width,int height) = 0;
+void window::on_mousemove(int x,int y)
+{
+	mouse_move(x,y);
+}
 
-	virtual void on_frame(int delta_time) = 0;
+void window::on_mousewheel(int y)
+{
+	mouse_scroll(y);
+}
 
-public:
-	void run_once();
-};
+void window::on_mousebutton(int button,bool down)
+{
+	mouse_button(button,down);
+}
+
+void window::on_resize(int width,int height)
+{
+	window_resize(width,height);
+}
+
+void window::on_frame(int delta_time)
+{
+	frame(delta_time);
+}
 
 }

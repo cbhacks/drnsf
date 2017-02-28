@@ -40,6 +40,10 @@ target_include_directories (drnsf_modules PRIVATE ${PROJECT_SOURCE_DIR}/modules)
 # Allow includes from /src
 target_include_directories (drnsf_modules PRIVATE ${PROJECT_SOURCE_DIR}/src)
 
+# Dependency: SDL2 (headers)
+find_package (SDL2 REQUIRED)
+target_include_directories (drnsf_modules PRIVATE ${SDL2_INCLUDE_DIRS})
+
 # Dependency: OpenGL (headers)
 find_package (OpenGL REQUIRED)
 target_include_directories (drnsf_modules PRIVATE ${OPENGL_INCLUDE_DIRS})
