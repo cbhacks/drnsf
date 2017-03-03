@@ -26,6 +26,9 @@
 namespace gui {
 
 class window : public sys::window {
+protected: // FIXME
+	ImGuiIO &m_io;
+
 protected:
 	void on_key(SDL_Keysym keysym,bool down) override;
 	void on_text(const char *text) override;

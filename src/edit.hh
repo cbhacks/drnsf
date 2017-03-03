@@ -51,7 +51,6 @@ class core : public gui::window {
 private:
 	res::name::space m_ns;
 	transact::nexus m_nx;
-	ImGuiIO &m_io;
 	int m_wnd_width;
 	int m_wnd_height;
 	bool m_wnd_textinput_active = false;

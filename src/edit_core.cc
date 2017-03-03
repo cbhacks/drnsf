@@ -28,8 +28,7 @@
 
 namespace edit {
 
-core::core() :
-	m_io(ImGui::GetIO())
+core::core()
 {
 	// Disable the ImGui settings INI.
 	m_io.IniFilename = nullptr;

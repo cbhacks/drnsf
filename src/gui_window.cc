@@ -28,7 +28,8 @@
 namespace gui {
 
 window::window() :
-	sys::window("DRNSF",DISPLAYWIDTH,DISPLAYHEIGHT)
+	sys::window("DRNSF",DISPLAYWIDTH,DISPLAYHEIGHT),
+	m_io(ImGui::GetIO())
 {
 	// FIXME window_resize(DISPLAYWIDTH,DISPLAYHEIGHT);
 }
