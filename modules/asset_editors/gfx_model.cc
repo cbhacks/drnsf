@@ -35,12 +35,10 @@ void on_assets_window_body()
 	gfx::anim::ref anim = m->get_anim();
 	ImGui::Text("Anim:");
 	ImGui::SameLine();
-	gui::asset_ref_input(anim);
 
 	gfx::mesh::ref mesh = m->get_mesh();
 	ImGui::Text("Mesh:");
 	ImGui::SameLine();
-	gui::asset_ref_input(mesh);
 
 	ImGui::BeginChild("Render",{0,0},true);
 	if (anim.ok() && mesh.ok()) {

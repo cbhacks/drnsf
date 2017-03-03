@@ -25,7 +25,7 @@
 #include <experimental/any>
 #include "res.hh"
 #include "transact.hh"
-#include "sys.hh"
+#include "gui.hh"
 
 struct ImGuiIO;
 struct ImDrawData;
@@ -44,33 +44,7 @@ struct cam {
 class module;
 class module_info;
 
-class window : public sys::window {
-protected:
-	void on_key(SDL_Keysym keysym,bool down) override;
-	void on_text(const char *text) override;
-	void on_mousemove(int x,int y) override;
-	void on_mousewheel(int y) override;
-	void on_mousebutton(int button,bool down) override;
-	void on_resize(int width,int height) override;
-
-	void on_frame(int delta_time) override;
-
-public:
-	window();
-
-	virtual void frame(int delta) = 0;
-
-	virtual void key(int key,bool down) = 0;
-	virtual void text(const char *text) = 0;
-
-	virtual void mouse_move(int x,int y) = 0;
-	virtual void mouse_scroll(int vscroll) = 0;
-	virtual void mouse_button(int btn,bool down) = 0;
-
-	virtual void window_resize(int width,int height) = 0;
-};
-
-class core : public window {
+class core : public gui::window {
 	friend class module;
 	friend class ::mod_module_list;
 

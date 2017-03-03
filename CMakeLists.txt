@@ -37,12 +37,12 @@ add_executable (drnsf
 	src/sys_window.cc
 
 	src/gui.hh
+	src/gui_window.cc
 
 	src/edit.hh
 	src/edit_core.cc
 	src/edit_module.cc
 	src/edit_module_info.cc
-	src/edit_window.cc
 	src/edit_mode.cc
 	src/edit_panel.cc
 

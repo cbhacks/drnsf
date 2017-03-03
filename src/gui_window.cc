@@ -20,12 +20,12 @@
 
 #include "common.hh"
 #include "../imgui/imgui.h"
-#include "edit.hh"
+#include "gui.hh"
 
 #define DISPLAYWIDTH  800
 #define DISPLAYHEIGHT 600
 
-namespace edit {
+namespace gui {
 
 window::window() :
 	sys::window("DRNSF",DISPLAYWIDTH,DISPLAYHEIGHT)

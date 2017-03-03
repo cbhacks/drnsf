@@ -21,49 +21,34 @@
 #pragma once
 
 #include "../imgui/imgui.h"
+#include "sys.hh"
 
 namespace gui {
 
-static void tooltip(const std::string &text)
-{
-	if (!ImGui::IsItemHovered())
-		return;
+class window : public sys::window {
+protected:
+	void on_key(SDL_Keysym keysym,bool down) override;
+	void on_text(const char *text) override;
+	void on_mousemove(int x,int y) override;
+	void on_mousewheel(int y) override;
+	void on_mousebutton(int button,bool down) override;
+	void on_resize(int width,int height) override;
 
-	ImGui::BeginTooltip();
-	ImGui::PushTextWrapPos(200);
-	ImGui::Text(text.c_str());
-	ImGui::PopTextWrapPos();
-	ImGui::EndTooltip();
-}
+	void on_frame(int delta_time) override;
 
-static void hint(const std::string &text)
-{
-	ImGui::TextDisabled("(?)");
-	tooltip(text);
-}
+public:
+	window();
 
-template <typename T>
-static bool asset_ref_input(res::ref<T> &ref)
-{
-	if (ref == nullptr) {
-		ImGui::Text("(null)");
-	} else {
-		ImGui::Text(ref.c_str());
-		ImGui::SameLine();
-		if (ref.ok()) {
-			ImGui::TextColored({0,1,0,1},"OK");
-		} else if (static_cast<res::name>(ref).has_asset()) {
-			ImGui::TextColored({1,0.5,0,1},"Type mismatch");
-			ImGui::SameLine();
-			hint(
-				"An asset exists with this name, but its type "
-				"is not acceptable for this field."
-			);
-		} else {
-			ImGui::TextColored({1,0,0,1},"No such asset");
-		}
-	}
-	return false;
-}
+	virtual void frame(int delta) = 0;
+
+	virtual void key(int key,bool down) = 0;
+	virtual void text(const char *text) = 0;
+
+	virtual void mouse_move(int x,int y) = 0;
+	virtual void mouse_scroll(int vscroll) = 0;
+	virtual void mouse_button(int btn,bool down) = 0;
+
+	virtual void window_resize(int width,int height) = 0;
+};
 
 }
