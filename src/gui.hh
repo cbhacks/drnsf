@@ -45,10 +45,7 @@ public:
 	virtual void frame(int delta) = 0;
 
 	virtual void key(int key,bool down) = 0;
-	virtual void text(const char *text) = 0;
 
-	virtual void mouse_move(int x,int y) = 0;
-	virtual void mouse_scroll(int vscroll) = 0;
 	virtual void mouse_button(int btn,bool down) = 0;
 
 	virtual void window_resize(int width,int height) = 0;

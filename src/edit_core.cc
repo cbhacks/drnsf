@@ -401,23 +401,6 @@ void core::key(int key,bool down)
 	}
 }
 
-void core::text(const char *text)
-{
-	m_io.AddInputCharactersUTF8(text);
-}
-
-void core::mouse_move(int x,int y)
-{
-	// Update the mouse position in ImGui.
-	m_io.MousePos.x = x;
-	m_io.MousePos.y = y;
-}
-
-void core::mouse_scroll(int vscroll)
-{
-	m_io.MouseWheel += vscroll;
-}
-
 void core::mouse_button(int btn,bool down)
 {
 	// Update the mouse button status in ImGui.

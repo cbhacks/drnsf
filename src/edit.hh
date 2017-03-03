@@ -68,10 +68,7 @@ public:
 	void frame(int delta);
 
 	void key(int key,bool down);
-	void text(const char *text);
 
-	void mouse_move(int x,int y);
-	void mouse_scroll(int vscroll);
 	void mouse_button(int btn,bool down);
 
 	void window_resize(int width,int height);

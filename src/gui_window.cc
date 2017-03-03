@@ -41,17 +41,18 @@ void window::on_key(SDL_Keysym keysym,bool down)
 
 void window::on_text(const char *text)
 {
-	this->text(text);
+	m_io.AddInputCharactersUTF8(text);
 }
 
 void window::on_mousemove(int x,int y)
 {
-	mouse_move(x,y);
+	m_io.MousePos.x = x;
+	m_io.MousePos.y = y;
 }
 
 void window::on_mousewheel(int y)
 {
-	mouse_scroll(y);
+	m_io.MouseWheel += y;
 }
 
 void window::on_mousebutton(int button,bool down)
