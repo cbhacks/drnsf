@@ -28,6 +28,9 @@ namespace gui {
 class window : public sys::window {
 protected: // FIXME
 	ImGuiIO &m_io;
+	int m_width;
+	int m_height;
+	bool m_textinput_active;
 
 protected:
 	void on_key(SDL_Keysym keysym,bool down) override;
@@ -43,8 +46,6 @@ public:
 	window(const std::string &title,int width,int height);
 
 	virtual void frame(int delta) = 0;
-
-	virtual void window_resize(int width,int height) = 0;
 };
 
 }

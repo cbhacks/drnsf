@@ -51,23 +51,16 @@ class core : public gui::window {
 private:
 	res::name::space m_ns;
 	transact::nexus m_nx;
-	int m_wnd_width;
-	int m_wnd_height;
-	bool m_wnd_textinput_active = false;
 	std::map<const module_info *,std::unique_ptr<module>> m_modules;
 	std::map<std::string,std::experimental::any> m_module_shares;
 	const module_info *m_selected_module = nullptr;
 	cam m_cam;
 	bool m_firstframe = true;
 
-	void render(ImDrawData *draw_data);
-
 public:
 	core();
 
 	void frame(int delta);
-
-	void window_resize(int width,int height);
 
 	const decltype(m_modules) &get_modules() const;
 };
