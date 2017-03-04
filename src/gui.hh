@@ -40,13 +40,9 @@ protected:
 	void on_frame(int delta_time) override;
 
 public:
-	window();
+	window(const std::string &title,int width,int height);
 
 	virtual void frame(int delta) = 0;
-
-	virtual void key(int key,bool down) = 0;
-
-	virtual void mouse_button(int btn,bool down) = 0;
 
 	virtual void window_resize(int width,int height) = 0;
 };

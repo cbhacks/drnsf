@@ -26,9 +26,13 @@
 #include "res.hh"
 #include "gfx.hh"
 
+#define DISPLAYWIDTH 800
+#define DISPLAYHEIGHT 600
+
 namespace edit {
 
-core::core()
+core::core() :
+	window("DRNSF",DISPLAYWIDTH,DISPLAYHEIGHT)
 {
 	// Disable the ImGui settings INI.
 	m_io.IniFilename = nullptr;
@@ -320,101 +324,6 @@ void core::render(ImDrawData *draw_data)
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
-}
-
-void core::key(int key,bool down)
-{
-	switch (key) {
-	case SDLK_LSHIFT:
-	case SDLK_RSHIFT:
-		m_io.KeyShift = down;
-		break;
-	case SDLK_LCTRL:
-	case SDLK_RCTRL:
-		m_io.KeyCtrl = down;
-		break;
-	case SDLK_LALT:
-	case SDLK_RALT:
-		m_io.KeyAlt = down;
-		break;
-	case SDLK_LGUI:
-	case SDLK_RGUI:
-		m_io.KeySuper = down;
-		break;
-	case SDLK_TAB:
-		m_io.KeysDown[ImGuiKey_Tab] = down;
-		break;
-	case SDLK_LEFT:
-		m_io.KeysDown[ImGuiKey_LeftArrow] = down;
-		break;
-	case SDLK_RIGHT:
-		m_io.KeysDown[ImGuiKey_RightArrow] = down;
-		break;
-	case SDLK_UP:
-		m_io.KeysDown[ImGuiKey_UpArrow] = down;
-		break;
-	case SDLK_DOWN:
-		m_io.KeysDown[ImGuiKey_DownArrow] = down;
-		break;
-	case SDLK_PAGEUP:
-		m_io.KeysDown[ImGuiKey_PageUp] = down;
-		break;
-	case SDLK_PAGEDOWN:
-		m_io.KeysDown[ImGuiKey_PageDown] = down;
-		break;
-	case SDLK_HOME:
-		m_io.KeysDown[ImGuiKey_Home] = down;
-		break;
-	case SDLK_END:
-		m_io.KeysDown[ImGuiKey_End] = down;
-		break;
-	case SDLK_DELETE:
-		m_io.KeysDown[ImGuiKey_Delete] = down;
-		break;
-	case SDLK_BACKSPACE:
-		m_io.KeysDown[ImGuiKey_Backspace] = down;
-		break;
-	case SDLK_RETURN:
-		m_io.KeysDown[ImGuiKey_Enter] = down;
-		break;
-	case SDLK_ESCAPE:
-		m_io.KeysDown[ImGuiKey_Escape] = down;
-		break;
-	case SDLK_a:
-		m_io.KeysDown[ImGuiKey_A] = down;
-		break;
-	case SDLK_c:
-		m_io.KeysDown[ImGuiKey_C] = down;
-		break;
-	case SDLK_v:
-		m_io.KeysDown[ImGuiKey_V] = down;
-		break;
-	case SDLK_x:
-		m_io.KeysDown[ImGuiKey_X] = down;
-		break;
-	case SDLK_y:
-		m_io.KeysDown[ImGuiKey_Y] = down;
-		break;
-	case SDLK_z:
-		m_io.KeysDown[ImGuiKey_Z] = down;
-		break;
-	}
-}
-
-void core::mouse_button(int btn,bool down)
-{
-	// Update the mouse button status in ImGui.
-	switch (btn) {
-	case SDL_BUTTON_LEFT:
-		m_io.MouseDown[0] = down;
-		break;
-	case SDL_BUTTON_RIGHT:
-		m_io.MouseDown[1] = down;
-		break;
-	case SDL_BUTTON_MIDDLE:
-		m_io.MouseDown[2] = down;
-		break;
-	}
 }
 
 void core::window_resize(int width,int height)

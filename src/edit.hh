@@ -67,10 +67,6 @@ public:
 
 	void frame(int delta);
 
-	void key(int key,bool down);
-
-	void mouse_button(int btn,bool down);
-
 	void window_resize(int width,int height);
 
 	const decltype(m_modules) &get_modules() const;
