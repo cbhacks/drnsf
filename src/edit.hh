@@ -33,6 +33,13 @@ class mod_module_list;
 
 namespace edit {
 
+class window : public gui::window {
+public:
+	window();
+
+	void frame(int delta_time) override;
+};
+
 struct cam {
 	float pitch = 30;
 	float lens_near = 1.8;
@@ -56,6 +63,7 @@ private:
 	const module_info *m_selected_module = nullptr;
 	cam m_cam;
 	bool m_firstframe = true;
+	edit::window m_wnd;
 
 public:
 	core();

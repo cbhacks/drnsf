@@ -21,6 +21,7 @@
 #pragma once
 
 #include "common.hh"
+#include "../imgui/imgui.h"
 #include "edit.hh"
 #include "gui.hh"
 

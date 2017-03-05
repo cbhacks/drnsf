@@ -66,7 +66,7 @@ public:
 
 	DEFINE_APROP_GETTER(cid);
 	DEFINE_APROP_SETTER(cid);
-	
+
 	void import_file(TRANSACT,const std::vector<unsigned char> &data);
 };
 
@@ -129,8 +129,6 @@ public:
 		destroy(ts);
 		result->rename(ts,name);
 	}
-
-	void run_gui() override;
 };
 
 class wgeo_v2 : public entry {

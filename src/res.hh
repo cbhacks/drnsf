@@ -153,8 +153,6 @@ public:
 
 	DEFINE_APROP_GETTER(name);
 	// No setter for names. Use rename() instead.
-
-	virtual void run_gui();
 };
 
 template <typename T = asset>

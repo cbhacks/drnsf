@@ -18,38 +18,22 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#pragma once
+#include "common.hh"
+#include "../imgui/imgui.h"
+#include "edit.hh"
 
-#include "sys.hh"
+namespace edit {
 
-struct ImGuiContext;
-struct ImGuiIO;
+window::window() :
+	gui::window("DRNSF",800,600)
+{
+}
 
-namespace gui {
-
-class window : public sys::window {
-protected: // FIXME
-	ImGuiContext *m_im;
-	ImGuiIO *m_io;
-	int m_width;
-	int m_height;
-	bool m_textinput_active = false;
-
-protected:
-	void on_key(SDL_Keysym keysym,bool down) override;
-	void on_text(const char *text) override;
-	void on_mousemove(int x,int y) override;
-	void on_mousewheel(int y) override;
-	void on_mousebutton(int button,bool down) override;
-	void on_resize(int width,int height) override;
-
-	void on_frame(int delta_time) override;
-
-public:
-	window(const std::string &title,int width,int height);
-	~window();
-
-	virtual void frame(int delta) = 0;
-};
+void window::frame(int delta_time)
+{
+	ImGui::Begin("Snappy");
+	ImGui::Text("Big snap");
+	ImGui::End();
+}
 
 }

@@ -77,7 +77,7 @@ window::window(const std::string &title,int width,int height)
 	);
 	if (!m_wnd) {
 		std::cerr <<
-			"Error creating the window: " <<
+			"Error creating window: " <<
 			SDL_GetError() <<
 			std::endl;
 		throw 0; // FIXME
@@ -127,6 +127,7 @@ void window::run_once()
 	last_update = current_update;
 
 	// Update the window.
+	SDL_GL_MakeCurrent(m_wnd,m_glctx);
 	on_frame(delta_time);
 	SDL_GL_SwapWindow(m_wnd);
 }

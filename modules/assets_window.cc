@@ -48,8 +48,6 @@ void frame(int delta) override
 	ImGui::SameLine();
 	ImGui::BeginGroup();
 	if (selected_asset.ok()) {
-		selected_asset->run_gui();
-		
 		ImGui::Separator();
 		ImGui::Separator();
 		ImGui::Separator();

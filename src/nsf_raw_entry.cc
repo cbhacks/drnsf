@@ -74,15 +74,4 @@ void raw_entry::import_file(TRANSACT,const std::vector<unsigned char> &data)
 	set_items(ts,std::move(items));
 }
 
-void raw_entry::run_gui()
-{
-	entry::run_gui();
-
-	ImGui::Text(util::format("Type: $",get_type()).c_str());
-
-	if (ImGui::Button("Process as WGEOv2")) {
-		// TODO
-	}
-}
-
 }

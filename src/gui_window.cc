@@ -31,27 +31,29 @@ namespace gui {
 
 window::window(const std::string &title,int width,int height) :
 	sys::window(title,width,height),
-	m_io(ImGui::GetIO()),
 	m_width(width),
-	m_height(height),
-	m_textinput_active(false)
+	m_height(height)
 {
-	// Disable the ImGui settings INI.
-	m_io.IniFilename = nullptr;
+	m_im = ImGui::CreateContext();
+	ImGui::SetCurrentContext(m_im);
+	m_io = &ImGui::GetIO();
 
-	m_io.DisplaySize.x = width;
-	m_io.DisplaySize.y = height;
+	// Disable the ImGui settings INI.
+	m_io->IniFilename = nullptr;
+
+	m_io->DisplaySize.x = width;
+	m_io->DisplaySize.y = height;
 
 	// Configure the ImGui keymap.
 	for (int i = 0;i < ImGuiKey_COUNT;i++) {
-		m_io.KeyMap[i] = i;
+		m_io->KeyMap[i] = i;
 	}
 
 	// Get the ImGui font.
 	unsigned char *font_pixels;
 	int font_width;
 	int font_height;
-	m_io.Fonts->GetTexDataAsRGBA32(&font_pixels,&font_width,&font_height);
+	m_io->Fonts->GetTexDataAsRGBA32(&font_pixels,&font_width,&font_height);
 
 	// Upload the font as a texture to OpenGL.
 	GLuint font_gltex;
@@ -74,7 +76,12 @@ window::window(const std::string &title,int width,int height) :
 
 	// Save the font texture's name (id) in ImGui to be used later when
 	// rendering the GUI's.
-	m_io.Fonts->TexID = reinterpret_cast<void*>(font_gltex);
+	m_io->Fonts->TexID = reinterpret_cast<void*>(font_gltex);
+}
+
+window::~window()
+{
+	ImGui::DestroyContext(m_im);
 }
 
 void window::on_key(SDL_Keysym keysym,bool down)
@@ -82,107 +89,107 @@ void window::on_key(SDL_Keysym keysym,bool down)
 	switch (keysym.sym) {
 	case SDLK_LSHIFT:
 	case SDLK_RSHIFT:
-		m_io.KeyShift = down;
+		m_io->KeyShift = down;
 		break;
 	case SDLK_LCTRL:
 	case SDLK_RCTRL:
-		m_io.KeyCtrl = down;
+		m_io->KeyCtrl = down;
 		break;
 	case SDLK_LALT:
 	case SDLK_RALT:
-		m_io.KeyAlt = down;
+		m_io->KeyAlt = down;
 		break;
 	case SDLK_LGUI:
 	case SDLK_RGUI:
-		m_io.KeySuper = down;
+		m_io->KeySuper = down;
 		break;
 	case SDLK_TAB:
-		m_io.KeysDown[ImGuiKey_Tab] = down;
+		m_io->KeysDown[ImGuiKey_Tab] = down;
 		break;
 	case SDLK_LEFT:
-		m_io.KeysDown[ImGuiKey_LeftArrow] = down;
+		m_io->KeysDown[ImGuiKey_LeftArrow] = down;
 		break;
 	case SDLK_RIGHT:
-		m_io.KeysDown[ImGuiKey_RightArrow] = down;
+		m_io->KeysDown[ImGuiKey_RightArrow] = down;
 		break;
 	case SDLK_UP:
-		m_io.KeysDown[ImGuiKey_UpArrow] = down;
+		m_io->KeysDown[ImGuiKey_UpArrow] = down;
 		break;
 	case SDLK_DOWN:
-		m_io.KeysDown[ImGuiKey_DownArrow] = down;
+		m_io->KeysDown[ImGuiKey_DownArrow] = down;
 		break;
 	case SDLK_PAGEUP:
-		m_io.KeysDown[ImGuiKey_PageUp] = down;
+		m_io->KeysDown[ImGuiKey_PageUp] = down;
 		break;
 	case SDLK_PAGEDOWN:
-		m_io.KeysDown[ImGuiKey_PageDown] = down;
+		m_io->KeysDown[ImGuiKey_PageDown] = down;
 		break;
 	case SDLK_HOME:
-		m_io.KeysDown[ImGuiKey_Home] = down;
+		m_io->KeysDown[ImGuiKey_Home] = down;
 		break;
 	case SDLK_END:
-		m_io.KeysDown[ImGuiKey_End] = down;
+		m_io->KeysDown[ImGuiKey_End] = down;
 		break;
 	case SDLK_DELETE:
-		m_io.KeysDown[ImGuiKey_Delete] = down;
+		m_io->KeysDown[ImGuiKey_Delete] = down;
 		break;
 	case SDLK_BACKSPACE:
-		m_io.KeysDown[ImGuiKey_Backspace] = down;
+		m_io->KeysDown[ImGuiKey_Backspace] = down;
 		break;
 	case SDLK_RETURN:
-		m_io.KeysDown[ImGuiKey_Enter] = down;
+		m_io->KeysDown[ImGuiKey_Enter] = down;
 		break;
 	case SDLK_ESCAPE:
-		m_io.KeysDown[ImGuiKey_Escape] = down;
+		m_io->KeysDown[ImGuiKey_Escape] = down;
 		break;
 	case SDLK_a:
-		m_io.KeysDown[ImGuiKey_A] = down;
+		m_io->KeysDown[ImGuiKey_A] = down;
 		break;
 	case SDLK_c:
-		m_io.KeysDown[ImGuiKey_C] = down;
+		m_io->KeysDown[ImGuiKey_C] = down;
 		break;
 	case SDLK_v:
-		m_io.KeysDown[ImGuiKey_V] = down;
+		m_io->KeysDown[ImGuiKey_V] = down;
 		break;
 	case SDLK_x:
-		m_io.KeysDown[ImGuiKey_X] = down;
+		m_io->KeysDown[ImGuiKey_X] = down;
 		break;
 	case SDLK_y:
-		m_io.KeysDown[ImGuiKey_Y] = down;
+		m_io->KeysDown[ImGuiKey_Y] = down;
 		break;
 	case SDLK_z:
-		m_io.KeysDown[ImGuiKey_Z] = down;
+		m_io->KeysDown[ImGuiKey_Z] = down;
 		break;
 	}
 }
 
 void window::on_text(const char *text)
 {
-	m_io.AddInputCharactersUTF8(text);
+	m_io->AddInputCharactersUTF8(text);
 }
 
 void window::on_mousemove(int x,int y)
 {
-	m_io.MousePos.x = x;
-	m_io.MousePos.y = y;
+	m_io->MousePos.x = x;
+	m_io->MousePos.y = y;
 }
 
 void window::on_mousewheel(int y)
 {
-	m_io.MouseWheel += y;
+	m_io->MouseWheel += y;
 }
 
 void window::on_mousebutton(int button,bool down)
 {
 	switch (button) {
 	case SDL_BUTTON_LEFT:
-		m_io.MouseDown[0] = down;
+		m_io->MouseDown[0] = down;
 		break;
 	case SDL_BUTTON_RIGHT:
-		m_io.MouseDown[1] = down;
+		m_io->MouseDown[1] = down;
 		break;
 	case SDL_BUTTON_MIDDLE:
-		m_io.MouseDown[2] = down;
+		m_io->MouseDown[2] = down;
 		break;
 	}
 }
@@ -192,23 +199,25 @@ void window::on_resize(int width,int height)
 	m_width = width;
 	m_height = height;
 
-	m_io.DisplaySize.x = width;
-	m_io.DisplaySize.y = height;
+	m_io->DisplaySize.x = width;
+	m_io->DisplaySize.y = height;
 }
 
 void window::on_frame(int delta_time)
 {
+	ImGui::SetCurrentContext(m_im);
+
 	// Begin/end text input according to ImGui.
-	if (m_io.WantTextInput && !m_textinput_active) {
+	if (m_io->WantTextInput && !m_textinput_active) {
 		SDL_StartTextInput();
 		m_textinput_active = true;
-	} else if (!m_io.WantTextInput && m_textinput_active) {
+	} else if (!m_io->WantTextInput && m_textinput_active) {
 		SDL_StopTextInput();
 		m_textinput_active = false;
 	}
 
 	// Start the new frame in ImGui.
-	m_io.DeltaTime = delta_time / 1000.0;
+	m_io->DeltaTime = delta_time / 1000.0;
 	ImGui::NewFrame();
 
 	glViewport(0,0,m_width,m_height);

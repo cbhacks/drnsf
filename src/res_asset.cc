@@ -20,7 +20,6 @@
 
 #include "common.hh"
 #include "res.hh"
-#include "gui.hh"
 
 namespace res {
 
@@ -54,19 +53,6 @@ void asset::destroy(TRANSACT)
 
 	ts.set(m_name.m_sym->m_asset,nullptr);
 	ts.set(m_name,nullptr);
-}
-
-void asset::run_gui()
-{
-	assert_alive();
-
-	if (ImGui::Button("Rename")) {
-		// TODO
-	}
-
-	if (ImGui::Button("Delete")) {
-		// TODO
-	}
 }
 
 }
