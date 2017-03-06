@@ -126,10 +126,12 @@ void window::run_once()
 	Uint32 delta_time = current_update - last_update;
 	last_update = current_update;
 
-	// Update the window.
-	SDL_GL_MakeCurrent(m_wnd,m_glctx);
-	on_frame(delta_time);
-	SDL_GL_SwapWindow(m_wnd);
+	// Update each window.
+	for (auto &&window : s_window_list) {
+		SDL_GL_MakeCurrent(m_wnd,m_glctx);
+		on_frame(delta_time);
+		SDL_GL_SwapWindow(m_wnd);
+	}
 }
 
 }
