@@ -25,28 +25,6 @@
 namespace sys {
 
 class window : util::not_copyable {
-private:
-	SDL_Window *m_wnd;
-	SDL_GLContext m_glctx;
-
-	void on_event(const SDL_Event &ev);
-	void on_windowevent(const SDL_WindowEvent &ev);
-
-protected:
-	explicit window(const std::string &title,int width,int height);
-	~window() noexcept;
-
-	virtual void on_key(SDL_Keysym keysym,bool down) = 0;
-	virtual void on_text(const char *text) = 0;
-	virtual void on_mousemove(int x,int y) = 0;
-	virtual void on_mousewheel(int y) = 0;
-	virtual void on_mousebutton(int button,bool down) = 0;
-	virtual void on_resize(int width,int height) = 0;
-
-	virtual void on_frame(int delta_time) = 0;
-
-public:
-	void run_once();
 };
 
 }

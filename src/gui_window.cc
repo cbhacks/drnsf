@@ -21,6 +21,7 @@
 #include "common.hh"
 #include <SDL.h>
 #include <GL/gl.h>
+#include <iostream>
 #include "../imgui/imgui.h"
 #include "gui.hh"
 
@@ -33,6 +34,8 @@ class window_impl : public sys::window {
 	friend class gui::window; // FIXME no namespace operator `::'
 
 private:
+	SDL_Window *m_wnd;
+	SDL_GLContext m_glctx;
 	ImGuiContext *m_im;
 	ImGuiIO *m_io;
 	int m_width;
@@ -40,13 +43,15 @@ private:
 	bool m_textinput_active = false;
 	std::function<void(int)> m_frame_proc;
 
-	void on_key(SDL_Keysym keysym,bool down) override;
-	void on_text(const char *text) override;
-	void on_mousemove(int x,int y) override;
-	void on_mousewheel(int y) override;
-	void on_mousebutton(int button,bool down) override;
-	void on_resize(int width,int height) override;
-	void on_frame(int delta_time) override;
+	void on_event(const SDL_Event &ev);
+	void on_key(SDL_Keysym keysym,bool down);
+	void on_text(const char *text);
+	void on_mousemove(int x,int y);
+	void on_mousewheel(int y);
+	void on_mousebutton(int button,bool down);
+	void on_windowevent(const SDL_WindowEvent &ev);
+	void on_resize(int width,int height);
+	void on_frame(int delta_time);
 
 public:
 	window_impl(
@@ -58,65 +63,34 @@ public:
 	~window_impl();
 };
 
-window_impl::window_impl(
-	const std::string &title,
-	int width,
-	int height,
-	decltype(m_frame_proc) frame_proc
-) :
-	sys::window(title,width,height),
-	m_width(width),
-	m_height(height),
-	m_frame_proc(frame_proc)
+void window_impl::on_event(const SDL_Event &ev)
 {
-	m_im = ImGui::CreateContext();
-	ImGui::SetCurrentContext(m_im);
-	m_io = &ImGui::GetIO();
-
-	// Disable the ImGui settings INI.
-	m_io->IniFilename = nullptr;
-
-	m_io->DisplaySize.x = width;
-	m_io->DisplaySize.y = height;
-
-	// Configure the ImGui keymap.
-	for (int i = 0;i < ImGuiKey_COUNT;i++) {
-		m_io->KeyMap[i] = i;
+	switch (ev.type) {
+	case SDL_KEYDOWN:
+		on_key(ev.key.keysym,true);
+		break;
+	case SDL_KEYUP:
+		on_key(ev.key.keysym,false);
+		break;
+	case SDL_TEXTINPUT:
+		on_text(ev.text.text);
+		break;
+	case SDL_MOUSEMOTION:
+		on_mousemove(ev.motion.x,ev.motion.y);
+		break;
+	case SDL_MOUSEWHEEL:
+		on_mousewheel(ev.wheel.y);
+		break;
+	case SDL_MOUSEBUTTONDOWN:
+		on_mousebutton(ev.button.button,true);
+		break;
+	case SDL_MOUSEBUTTONUP:
+		on_mousebutton(ev.button.button,false);
+		break;
+	case SDL_WINDOWEVENT:
+		on_windowevent(ev.window);
+		break;
 	}
-
-	// Get the ImGui font.
-	unsigned char *font_pixels;
-	int font_width;
-	int font_height;
-	m_io->Fonts->GetTexDataAsRGBA32(&font_pixels,&font_width,&font_height);
-
-	// Upload the font as a texture to OpenGL.
-	GLuint font_gltex;
-	glGenTextures(1,&font_gltex);
-	glBindTexture(GL_TEXTURE_2D,font_gltex);
-	glTexImage2D(
-		GL_TEXTURE_2D,
-		0,
-		GL_RGBA,
-		font_width,
-		font_height,
-		0,
-		GL_RGBA,
-		GL_UNSIGNED_BYTE,
-		font_pixels
-	);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-	glBindTexture(GL_TEXTURE_2D,0);
-
-	// Save the font texture's name (id) in ImGui to be used later when
-	// rendering the GUI's.
-	m_io->Fonts->TexID = reinterpret_cast<void*>(font_gltex);
-}
-
-window_impl::~window_impl()
-{
-	ImGui::DestroyContext(m_im);
 }
 
 void window_impl::on_key(SDL_Keysym keysym,bool down)
@@ -225,6 +199,15 @@ void window_impl::on_mousebutton(int button,bool down)
 		break;
 	case SDL_BUTTON_MIDDLE:
 		m_io->MouseDown[2] = down;
+		break;
+	}
+}
+
+void window_impl::on_windowevent(const SDL_WindowEvent &ev)
+{
+	switch (ev.event) {
+	case SDL_WINDOWEVENT_SIZE_CHANGED:
+		on_resize(ev.data1,ev.data2);
 		break;
 	}
 }
@@ -371,6 +354,108 @@ void window_impl::on_frame(int delta_time)
 	glMatrixMode(GL_MODELVIEW);
 }
 
+window_impl::window_impl(
+	const std::string &title,
+	int width,
+	int height,
+	decltype(m_frame_proc) frame_proc
+) :
+	m_width(width),
+	m_height(height),
+	m_frame_proc(frame_proc)
+{
+	// Create the window.
+	m_wnd = SDL_CreateWindow(
+		title.c_str(),
+		SDL_WINDOWPOS_CENTERED,
+		SDL_WINDOWPOS_CENTERED,
+		width,
+		height,
+		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
+	);
+	if (!m_wnd) {
+		std::cerr <<
+			"Error creating window: " <<
+			SDL_GetError() <<
+			std::endl;
+		throw 0; // FIXME
+	}
+
+	// Create the OpenGL context.
+	m_glctx = SDL_GL_CreateContext(m_wnd);
+	if (!m_glctx) {
+		std::cerr <<
+			"Error creating OpenGL context: " <<
+			SDL_GetError() <<
+			std::endl;
+		SDL_DestroyWindow(m_wnd);
+		throw 0; // FIXME
+	}
+
+	// Enable v-sync.
+	if (SDL_GL_SetSwapInterval(1) != 0) {
+		std::cerr <<
+			"Error enabling v-sync: " <<
+			SDL_GetError() <<
+			std::endl;
+	}
+
+	m_im = ImGui::CreateContext();
+	ImGui::SetCurrentContext(m_im);
+	m_io = &ImGui::GetIO();
+
+	// Disable the ImGui settings INI.
+	m_io->IniFilename = nullptr;
+
+	m_io->DisplaySize.x = width;
+	m_io->DisplaySize.y = height;
+
+	// Configure the ImGui keymap.
+	for (int i = 0;i < ImGuiKey_COUNT;i++) {
+		m_io->KeyMap[i] = i;
+	}
+
+	// Get the ImGui font.
+	unsigned char *font_pixels;
+	int font_width;
+	int font_height;
+	m_io->Fonts->GetTexDataAsRGBA32(&font_pixels,&font_width,&font_height);
+
+	// Upload the font as a texture to OpenGL.
+	GLuint font_gltex;
+	glGenTextures(1,&font_gltex);
+	glBindTexture(GL_TEXTURE_2D,font_gltex);
+	glTexImage2D(
+		GL_TEXTURE_2D,
+		0,
+		GL_RGBA,
+		font_width,
+		font_height,
+		0,
+		GL_RGBA,
+		GL_UNSIGNED_BYTE,
+		font_pixels
+	);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glBindTexture(GL_TEXTURE_2D,0);
+
+	// Save the font texture's name (id) in ImGui to be used later when
+	// rendering the GUI's.
+	m_io->Fonts->TexID = reinterpret_cast<void*>(font_gltex);
+}
+
+window_impl::~window_impl()
+{
+	ImGui::DestroyContext(m_im);
+
+	// Clean up the OpenGL context.
+	SDL_GL_DeleteContext(m_glctx);
+
+	// Close and remove the window.
+	SDL_DestroyWindow(m_wnd);
+}
+
 window::window(const std::string &title,int width,int height)
 {
 	M = new window_impl(
@@ -398,7 +483,26 @@ int window::get_height() const
 
 void window::run_once()
 {
-	M->run_once();
+	// Handle all of the pending events.
+	SDL_Event ev;
+	while (SDL_PollEvent(&ev)) {
+		M->on_event(ev);
+	}
+
+	// Calculate the time passed since the last frame.
+	static Uint32 last_update = 0;
+	Uint32 current_update = SDL_GetTicks();
+	Uint32 delta_time = current_update - last_update;
+	last_update = current_update;
+
+	// Update each window.
+	//for (auto &&kv : s_windows) {
+	//	auto &&wnd = kv.second;
+		auto wnd = M;
+		SDL_GL_MakeCurrent(wnd->m_wnd,wnd->m_glctx);
+		wnd->on_frame(delta_time);
+		SDL_GL_SwapWindow(wnd->m_wnd);
+	//}
 }
 
 }
