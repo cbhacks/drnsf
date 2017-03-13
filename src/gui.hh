@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include "sys.hh"
-
 namespace gui {
 
 class window_impl;

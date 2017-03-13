@@ -30,7 +30,7 @@
 
 namespace gui {
 
-class window_impl : public sys::window {
+class window_impl : public util::not_copyable {
 	friend class gui::window; // FIXME no namespace operator `::'
 
 private:
