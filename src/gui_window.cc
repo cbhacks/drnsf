@@ -29,10 +29,45 @@
 
 namespace gui {
 
-window::window(const std::string &title,int width,int height) :
+class window_impl : public sys::window {
+	friend class gui::window; // FIXME no namespace operator `::'
+
+private:
+	ImGuiContext *m_im;
+	ImGuiIO *m_io;
+	int m_width;
+	int m_height;
+	bool m_textinput_active = false;
+	std::function<void(int)> m_frame_proc;
+
+	void on_key(SDL_Keysym keysym,bool down) override;
+	void on_text(const char *text) override;
+	void on_mousemove(int x,int y) override;
+	void on_mousewheel(int y) override;
+	void on_mousebutton(int button,bool down) override;
+	void on_resize(int width,int height) override;
+	void on_frame(int delta_time) override;
+
+public:
+	window_impl(
+		const std::string &title,
+		int width,
+		int height,
+		decltype(m_frame_proc) frame_proc
+	);
+	~window_impl();
+};
+
+window_impl::window_impl(
+	const std::string &title,
+	int width,
+	int height,
+	decltype(m_frame_proc) frame_proc
+) :
 	sys::window(title,width,height),
 	m_width(width),
-	m_height(height)
+	m_height(height),
+	m_frame_proc(frame_proc)
 {
 	m_im = ImGui::CreateContext();
 	ImGui::SetCurrentContext(m_im);
@@ -79,12 +114,12 @@ window::window(const std::string &title,int width,int height) :
 	m_io->Fonts->TexID = reinterpret_cast<void*>(font_gltex);
 }
 
-window::~window()
+window_impl::~window_impl()
 {
 	ImGui::DestroyContext(m_im);
 }
 
-void window::on_key(SDL_Keysym keysym,bool down)
+void window_impl::on_key(SDL_Keysym keysym,bool down)
 {
 	switch (keysym.sym) {
 	case SDLK_LSHIFT:
@@ -163,23 +198,23 @@ void window::on_key(SDL_Keysym keysym,bool down)
 	}
 }
 
-void window::on_text(const char *text)
+void window_impl::on_text(const char *text)
 {
 	m_io->AddInputCharactersUTF8(text);
 }
 
-void window::on_mousemove(int x,int y)
+void window_impl::on_mousemove(int x,int y)
 {
 	m_io->MousePos.x = x;
 	m_io->MousePos.y = y;
 }
 
-void window::on_mousewheel(int y)
+void window_impl::on_mousewheel(int y)
 {
 	m_io->MouseWheel += y;
 }
 
-void window::on_mousebutton(int button,bool down)
+void window_impl::on_mousebutton(int button,bool down)
 {
 	switch (button) {
 	case SDL_BUTTON_LEFT:
@@ -194,7 +229,7 @@ void window::on_mousebutton(int button,bool down)
 	}
 }
 
-void window::on_resize(int width,int height)
+void window_impl::on_resize(int width,int height)
 {
 	m_width = width;
 	m_height = height;
@@ -203,7 +238,7 @@ void window::on_resize(int width,int height)
 	m_io->DisplaySize.y = height;
 }
 
-void window::on_frame(int delta_time)
+void window_impl::on_frame(int delta_time)
 {
 	ImGui::SetCurrentContext(m_im);
 
@@ -222,7 +257,7 @@ void window::on_frame(int delta_time)
 
 	glViewport(0,0,m_width,m_height);
 
-	frame(delta_time);
+	m_frame_proc(delta_time);
 
 	ImGui::Render();
 
@@ -334,6 +369,36 @@ void window::on_frame(int delta_time)
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
+}
+
+window::window(const std::string &title,int width,int height)
+{
+	M = new window_impl(
+		title,
+		width,
+		height,
+		[this](int delta_time) { frame(delta_time); }
+	);
+}
+
+window::~window()
+{
+	delete M;
+}
+
+int window::get_width() const
+{
+	return M->m_width;
+}
+
+int window::get_height() const
+{
+	return M->m_height;
+}
+
+void window::run_once()
+{
+	M->run_once();
 }
 
 }

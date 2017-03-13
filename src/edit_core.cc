@@ -57,7 +57,7 @@ void core::frame(int delta)
 
 	// Calculate the normalized display size.
 	double norm_width = 1;
-	double norm_height = (double)m_height / m_width;
+	double norm_height = (double)get_height() / get_width();
 	if (norm_height < 1) {
 		norm_width /= norm_height;
 		norm_height = 1;

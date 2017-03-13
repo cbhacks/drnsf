@@ -22,34 +22,25 @@
 
 #include "sys.hh"
 
-struct ImGuiContext;
-struct ImGuiIO;
-
 namespace gui {
 
-class window : public sys::window {
-protected: // FIXME
-	ImGuiContext *m_im;
-	ImGuiIO *m_io;
-	int m_width;
-	int m_height;
-	bool m_textinput_active = false;
+class window_impl;
+
+class window {
+private:
+	window_impl *M;
 
 protected:
-	void on_key(SDL_Keysym keysym,bool down) override;
-	void on_text(const char *text) override;
-	void on_mousemove(int x,int y) override;
-	void on_mousewheel(int y) override;
-	void on_mousebutton(int button,bool down) override;
-	void on_resize(int width,int height) override;
-
-	void on_frame(int delta_time) override;
+	virtual void frame(int delta_time) = 0;
 
 public:
-	window(const std::string &title,int width,int height);
+	explicit window(const std::string &title,int width,int height);
 	~window();
 
-	virtual void frame(int delta) = 0;
+	int get_width() const;
+	int get_height() const;
+
+	void run_once();
 };
 
 }

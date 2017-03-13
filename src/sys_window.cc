@@ -127,10 +127,11 @@ void window::run_once()
 	last_update = current_update;
 
 	// Update each window.
-	for (auto &&window : s_window_list) {
-		SDL_GL_MakeCurrent(m_wnd,m_glctx);
-		on_frame(delta_time);
-		SDL_GL_SwapWindow(m_wnd);
+	for (auto &&kv : s_windows) {
+		auto &&wnd = kv.second;
+		SDL_GL_MakeCurrent(wnd->m_wnd,wnd->m_glctx);
+		wnd->on_frame(delta_time);
+		SDL_GL_SwapWindow(wnd->m_wnd);
 	}
 }
 
