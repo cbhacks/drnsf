@@ -22,6 +22,7 @@
 #include <SDL.h>
 #include <GL/gl.h>
 #include <iostream>
+#include <map>
 #include "../imgui/imgui.h"
 #include "gui.hh"
 
@@ -80,6 +81,14 @@ public:
 				std::endl;
 			throw 0; // FIXME
 		}
+
+		// Enable v-sync.
+		if (SDL_GL_SetSwapInterval(1) != 0) {
+			std::cerr <<
+				"Error enabling v-sync: " <<
+				SDL_GetError() <<
+				std::endl;
+		}
 	}
 
 	~sdl_glcontext()
@@ -97,12 +106,15 @@ public:
 
 namespace gui {
 
+static std::map<Uint32,window_impl*> s_windows;
+
 class window_impl : public util::not_copyable {
 	friend class window;
 
 private:
 	sdl_window m_wnd;
 	sdl_glcontext m_glctx;
+	decltype(s_windows)::iterator m_iter;
 	ImGuiContext *m_im;
 	ImGuiIO *m_io;
 	int m_width;
@@ -433,13 +445,16 @@ window_impl::window_impl(
 	m_height(height),
 	m_frame_proc(frame_proc)
 {
-	// Enable v-sync.
-	if (SDL_GL_SetSwapInterval(1) != 0) {
+	auto window_id = SDL_GetWindowID(m_wnd);
+	auto insert_result = s_windows.insert({window_id,this});
+	if (!insert_result.second) {
 		std::cerr <<
-			"Error enabling v-sync: " <<
-			SDL_GetError() <<
+			"Error with newly created window; window ID already in"
+			" use!" <<
 			std::endl;
+		throw 0; // FIXME
 	}
+	m_iter = insert_result.first;
 
 	m_im = ImGui::CreateContext();
 	ImGui::SetCurrentContext(m_im);
@@ -488,6 +503,7 @@ window_impl::window_impl(
 
 window_impl::~window_impl()
 {
+	s_windows.erase(m_iter);
 	ImGui::DestroyContext(m_im);
 }
 
@@ -531,13 +547,12 @@ void window::run_once()
 	last_update = current_update;
 
 	// Update each window.
-	//for (auto &&kv : s_windows) {
-	//	auto &&wnd = kv.second;
-		auto wnd = M;
+	for (auto &&kv : s_windows) {
+		auto &&wnd = kv.second;
 		SDL_GL_MakeCurrent(wnd->m_wnd,wnd->m_glctx);
 		wnd->on_frame(delta_time);
 		SDL_GL_SwapWindow(wnd->m_wnd);
-	//}
+	}
 }
 
 }
