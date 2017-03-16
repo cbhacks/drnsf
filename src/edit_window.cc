@@ -19,8 +19,8 @@
 //
 
 #include "common.hh"
-#include "../imgui/imgui.h"
 #include "edit.hh"
+#include "gui.hh"
 
 namespace edit {
 
@@ -31,9 +31,9 @@ window::window() :
 
 void window::frame(int delta_time)
 {
-	ImGui::Begin("Snappy");
-	ImGui::Text("Big snap");
-	ImGui::End();
+	gui::im::Begin("Snappy");
+	gui::im::Text("Big snap");
+	gui::im::End();
 }
 
 }

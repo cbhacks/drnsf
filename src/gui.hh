@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "../imgui/imgui.h"
+
 namespace gui {
 
 class window_impl;
@@ -40,5 +42,11 @@ public:
 
 	void run_once();
 };
+
+namespace im {
+
+using namespace ImGui;
+
+}
 
 }
