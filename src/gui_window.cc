@@ -28,14 +28,81 @@
 #define DISPLAYWIDTH  800
 #define DISPLAYHEIGHT 600
 
+namespace {
+
+class sdl_window : public util::not_copyable {
+private:
+	SDL_Window *m_wnd;
+
+public:
+	explicit sdl_window(const std::string &title,int width,int height)
+	{
+		m_wnd = SDL_CreateWindow(
+			title.c_str(),
+			SDL_WINDOWPOS_CENTERED,
+			SDL_WINDOWPOS_CENTERED,
+			width,
+			height,
+			SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
+		);
+		if (!m_wnd) {
+			std::cerr <<
+				"Error creating window: " <<
+				SDL_GetError() <<
+				std::endl;
+			throw 0; // FIXME
+		}
+	}
+
+	~sdl_window()
+	{
+		SDL_DestroyWindow(m_wnd);
+	}
+
+	operator SDL_Window *()
+	{
+		return m_wnd;
+	}
+};
+
+class sdl_glcontext : public util::not_copyable {
+private:
+	SDL_GLContext m_glctx;
+
+public:
+	explicit sdl_glcontext(sdl_window &wnd)
+	{
+		m_glctx = SDL_GL_CreateContext(wnd);
+		if (!m_glctx) {
+			std::cerr <<
+				"Error creating OpenGL context: " <<
+				SDL_GetError() <<
+				std::endl;
+			throw 0; // FIXME
+		}
+	}
+
+	~sdl_glcontext()
+	{
+		SDL_GL_DeleteContext(m_glctx);
+	}
+
+	operator SDL_GLContext()
+	{
+		return m_glctx;
+	}
+};
+
+}
+
 namespace gui {
 
 class window_impl : public util::not_copyable {
-	friend class gui::window; // FIXME no namespace operator `::'
+	friend class window;
 
 private:
-	SDL_Window *m_wnd;
-	SDL_GLContext m_glctx;
+	sdl_window m_wnd;
+	sdl_glcontext m_glctx;
 	ImGuiContext *m_im;
 	ImGuiIO *m_io;
 	int m_width;
@@ -360,38 +427,12 @@ window_impl::window_impl(
 	int height,
 	decltype(m_frame_proc) frame_proc
 ) :
+	m_wnd(title,width,height),
+	m_glctx(m_wnd),
 	m_width(width),
 	m_height(height),
 	m_frame_proc(frame_proc)
 {
-	// Create the window.
-	m_wnd = SDL_CreateWindow(
-		title.c_str(),
-		SDL_WINDOWPOS_CENTERED,
-		SDL_WINDOWPOS_CENTERED,
-		width,
-		height,
-		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
-	);
-	if (!m_wnd) {
-		std::cerr <<
-			"Error creating window: " <<
-			SDL_GetError() <<
-			std::endl;
-		throw 0; // FIXME
-	}
-
-	// Create the OpenGL context.
-	m_glctx = SDL_GL_CreateContext(m_wnd);
-	if (!m_glctx) {
-		std::cerr <<
-			"Error creating OpenGL context: " <<
-			SDL_GetError() <<
-			std::endl;
-		SDL_DestroyWindow(m_wnd);
-		throw 0; // FIXME
-	}
-
 	// Enable v-sync.
 	if (SDL_GL_SetSwapInterval(1) != 0) {
 		std::cerr <<
@@ -448,12 +489,6 @@ window_impl::window_impl(
 window_impl::~window_impl()
 {
 	ImGui::DestroyContext(m_im);
-
-	// Clean up the OpenGL context.
-	SDL_GL_DeleteContext(m_glctx);
-
-	// Close and remove the window.
-	SDL_DestroyWindow(m_wnd);
 }
 
 window::window(const std::string &title,int width,int height)
