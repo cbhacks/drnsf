@@ -38,6 +38,10 @@ void menu(
 	const std::string &text,
 	const std::function<void()> &f)
 {
+	if (!f) {
+		BeginMenu(text.c_str(),false);
+		return;
+	}
 	if (BeginMenu(text.c_str())) {
 		f();
 		EndMenu();
@@ -48,9 +52,18 @@ void menu_item(
 	const std::string &text,
 	const std::function<void()> &f)
 {
+	if (!f) {
+		MenuItem(text.c_str(),nullptr,false,false);
+		return;
+	}
 	if (MenuItem(text.c_str())) {
 		f();
 	}
+}
+
+void menu_separator()
+{
+	Separator();
 }
 
 }

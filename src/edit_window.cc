@@ -38,13 +38,28 @@ void window::frame(int delta_time)
 	// Clear the screen.
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	// Do the main menu.
 	im::main_menu_bar([&]{
 		im::menu("File",[&]{
-			im::menu_item("Quit",[&]{
+			im::menu_item("New Project");
+			im::menu_item("Open Project");
+			im::menu("Recent Projects");
+			im::menu_item("Close Project");
+			im::menu_separator();
+			im::menu_item("Save Project");
+			im::menu_item("Save Project As");
+			im::menu_separator();
+			im::menu_item("Exit DRNSF",[&]{
 				SDL_Quit();
 				std::exit(EXIT_SUCCESS);
 			});
+		});
+		im::menu("Edit",[&]{
+			im::menu_item("Undo: x");
+			im::menu_item("Redo: x");
+			im::menu_separator();
+			im::menu_item("Mode: x");
+			im::menu_separator();
+			im::menu_item("x");
 		});
 	});
 }

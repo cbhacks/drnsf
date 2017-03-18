@@ -52,11 +52,13 @@ void main_menu_bar(
 
 void menu(
 	const std::string &text,
-	const std::function<void()> &f);
+	const std::function<void()> &f = nullptr);
 
 void menu_item(
 	const std::string &text,
-	const std::function<void()> &f);
+	const std::function<void()> &f = nullptr);
+
+void menu_separator();
 
 }
 
