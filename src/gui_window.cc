@@ -108,6 +108,16 @@ namespace gui {
 
 static std::map<Uint32,window_impl*> s_windows;
 
+template <typename T>
+static void with_windowid(Uint32 id,const T &f)
+{
+	auto it = s_windows.find(id);
+
+	if (it != s_windows.end()) {
+		f(it->second);
+	}
+}
+
 class window_impl : public util::not_copyable {
 	friend class window;
 
@@ -146,28 +156,60 @@ void window_impl::on_event(const SDL_Event &ev)
 {
 	switch (ev.type) {
 	case SDL_KEYDOWN:
-		on_key(ev.key.keysym,true);
+		with_windowid(
+			ev.key.windowID,
+			[ev](window_impl *wnd){
+				wnd->on_key(ev.key.keysym,true);
+			});
 		break;
 	case SDL_KEYUP:
-		on_key(ev.key.keysym,false);
+		with_windowid(
+			ev.key.windowID,
+			[ev](window_impl *wnd){
+				wnd->on_key(ev.key.keysym,false);
+			});
 		break;
 	case SDL_TEXTINPUT:
-		on_text(ev.text.text);
+		with_windowid(
+			ev.text.windowID,
+			[ev](window_impl *wnd){
+				wnd->on_text(ev.text.text);
+			});
 		break;
 	case SDL_MOUSEMOTION:
-		on_mousemove(ev.motion.x,ev.motion.y);
+		with_windowid(
+			ev.motion.windowID,
+			[ev](window_impl *wnd){
+				wnd->on_mousemove(ev.motion.x,ev.motion.y);
+			});
 		break;
 	case SDL_MOUSEWHEEL:
-		on_mousewheel(ev.wheel.y);
+		with_windowid(
+			ev.wheel.windowID,
+			[ev](window_impl *wnd){
+				wnd->on_mousewheel(ev.wheel.y);
+			});
 		break;
 	case SDL_MOUSEBUTTONDOWN:
-		on_mousebutton(ev.button.button,true);
+		with_windowid(
+			ev.button.windowID,
+			[ev](window_impl *wnd){
+				wnd->on_mousebutton(ev.button.button,true);
+			});
 		break;
 	case SDL_MOUSEBUTTONUP:
-		on_mousebutton(ev.button.button,false);
+		with_windowid(
+			ev.button.windowID,
+			[ev](window_impl *wnd){
+				wnd->on_mousebutton(ev.button.button,false);
+			});
 		break;
 	case SDL_WINDOWEVENT:
-		on_windowevent(ev.window);
+		with_windowid(
+			ev.window.windowID,
+			[ev](window_impl *wnd){
+				wnd->on_windowevent(ev.window);
+			});
 		break;
 	}
 }

@@ -47,6 +47,17 @@ namespace im {
 
 using namespace ImGui;
 
+void main_menu_bar(
+	const std::function<void()> &f);
+
+void menu(
+	const std::string &text,
+	const std::function<void()> &f);
+
+void menu_item(
+	const std::string &text,
+	const std::function<void()> &f);
+
 }
 
 }

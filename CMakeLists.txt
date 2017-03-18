@@ -35,6 +35,7 @@ add_executable (drnsf
 
 	src/gui.hh
 	src/gui_window.cc
+	src/gui_im.cc
 
 	src/edit.hh
 	src/edit_core.cc

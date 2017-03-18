@@ -19,34 +19,39 @@
 //
 
 #include "common.hh"
-#include <SDL.h>
-#include <GL/gl.h>
-#include "edit.hh"
+#include "../imgui/imgui.h"
 #include "gui.hh"
 
-namespace edit {
+namespace gui {
+namespace im {
 
-window::window() :
-	gui::window("Dr. N. Essef",800,600)
+void main_menu_bar(
+	const std::function<void()> &f)
 {
+	if (BeginMainMenuBar()) {
+		f();
+		EndMainMenuBar();
+	}
 }
 
-void window::frame(int delta_time)
+void menu(
+	const std::string &text,
+	const std::function<void()> &f)
 {
-	namespace im = gui::im;
-
-	// Clear the screen.
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	// Do the main menu.
-	im::main_menu_bar([&]{
-		im::menu("File",[&]{
-			im::menu_item("Quit",[&]{
-				SDL_Quit();
-				std::exit(EXIT_SUCCESS);
-			});
-		});
-	});
+	if (BeginMenu(text.c_str())) {
+		f();
+		EndMenu();
+	}
 }
 
+void menu_item(
+	const std::string &text,
+	const std::function<void()> &f)
+{
+	if (MenuItem(text.c_str())) {
+		f();
+	}
+}
+
+}
 }
