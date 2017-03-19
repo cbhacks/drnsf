@@ -33,7 +33,30 @@ class mod_module_list;
 
 namespace edit {
 
+class project : util::not_copyable {
+private:
+	res::name::space m_asset_ns;
+	transact::nexus m_transact;
+
+public:
+	res::name::space &get_asset_ns()
+	{
+		return m_asset_ns;
+	}
+
+	transact::nexus &get_transact()
+	{
+		return m_transact;
+	}
+};
+
+class core; // FIXME
+
 class window : public gui::window {
+	friend class core; // FIXME
+private:
+	std::shared_ptr<project> m_proj;
+
 public:
 	window();
 
@@ -56,8 +79,9 @@ class core : public gui::window {
 	friend class ::mod_module_list;
 
 private:
-	res::name::space m_ns;
-	transact::nexus m_nx;
+	std::shared_ptr<project> m_proj = std::make_shared<project>();
+	res::name::space &m_ns = m_proj->get_asset_ns();
+	transact::nexus &m_nx = m_proj->get_transact();
 	std::map<const module_info *,std::unique_ptr<module>> m_modules;
 	std::map<std::string,std::experimental::any> m_module_shares;
 	const module_info *m_selected_module = nullptr;

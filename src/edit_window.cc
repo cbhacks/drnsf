@@ -40,27 +40,63 @@ void window::frame(int delta_time)
 
 	im::main_menu_bar([&]{
 		im::menu("File",[&]{
-			im::menu_item("New Project");
+			im::menu_item("New Project",[&]{
+				// Prompt the user for confirmation if there is
+				// already an open project with unsaved changes.
+				// TODO
+
+				// Create and target a new project
+				m_proj = std::make_shared<project>();
+			});
 			im::menu_item("Open Project");
-			im::menu("Recent Projects");
-			im::menu_item("Close Project");
+			im::menu_item("Close Project",m_proj ? [&]{
+				// Prompt the user for confirmation if there are
+				// unsaved changes.
+				// TODO
+
+				// Abandon the current project.
+				m_proj = nullptr;
+			} : std::function<void()>(nullptr));
 			im::menu_separator();
 			im::menu_item("Save Project");
 			im::menu_item("Save Project As");
 			im::menu_separator();
 			im::menu_item("Exit DRNSF",[&]{
+				// Prompt the user for confirmation if there are
+				// unsaved changes.
+				// TODO
+
+				// Close the program.
+				// TODO - change this to close only the one window?
 				SDL_Quit();
 				std::exit(EXIT_SUCCESS);
 			});
 		});
-		im::menu("Edit",[&]{
-			im::menu_item("Undo: x");
-			im::menu_item("Redo: x");
+		im::menu("Edit",m_proj ? [&]{
+			auto &&transact = m_proj->get_transact();
+
+			if (transact.has_undo()) {
+				im::menu_item("Undo: x",[&]{
+					transact.undo();
+				});
+			} else {
+				im::menu_item("Undo");
+			}
+
+			if (transact.has_redo()) {
+				im::menu_item("Redo: x",[&]{
+					transact.redo();
+				});
+			} else {
+				im::menu_item("Redo");
+			}
+
 			im::menu_separator();
+
 			im::menu_item("Mode: x");
 			im::menu_separator();
 			im::menu_item("x");
-		});
+		} : std::function<void()>(nullptr));
 	});
 }
 

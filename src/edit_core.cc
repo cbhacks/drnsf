@@ -38,6 +38,8 @@ core::core() :
 	for (auto &&info : module_info::get_set()) {
 		m_modules[info] = info->create(*this);
 	}
+
+	m_wnd.m_proj = m_proj;
 }
 
 void core::frame(int delta)

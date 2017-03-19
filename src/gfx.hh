@@ -117,9 +117,9 @@ private:
 	anim::ref m_anim;
 	mesh::ref m_mesh;
 
-	double m_scene_x;
-	double m_scene_y;
-	double m_scene_z;
+	double m_scene_x = 0.0;
+	double m_scene_y = 0.0;
+	double m_scene_z = 0.0;
 
 	explicit model(res::name name) :
 		asset(name) {}
