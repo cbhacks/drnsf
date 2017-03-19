@@ -51,11 +51,6 @@ cam &module::cam()
 	return m_core.m_cam;
 }
 
-const std::list<mode *> &module::get_modes() const
-{
-	return m_modes;
-}
-
 const std::list<panel *> &module::get_panels() const
 {
 	return m_panels;

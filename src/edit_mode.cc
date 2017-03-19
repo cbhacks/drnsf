@@ -23,7 +23,7 @@
 
 namespace edit {
 
-mode::mode(module &mod,std::string title,mode::func_type func) :
+/*mode::mode(module &mod,std::string title,mode::func_type func) :
 	m_mod(mod),
 	m_title(title),
 	m_func(func)
@@ -34,6 +34,6 @@ mode::mode(module &mod,std::string title,mode::func_type func) :
 mode::~mode()
 {
 	m_mod.m_modes.remove(this);
-}
+}*/
 
 }

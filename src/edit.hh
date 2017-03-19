@@ -50,10 +50,43 @@ public:
 	}
 };
 
+class mode : util::not_copyable {
+protected:
+	mode() = default;
+
+public:
+	virtual ~mode() = default;
+
+	virtual void update(double delta_time) {}
+	virtual void render() {}
+	virtual void show_gui() {}
+};
+
+class modedef : util::not_copyable {
+private:
+	std::string m_title;
+
+protected:
+	explicit modedef(std::string title);
+	~modedef() = default;
+
+	virtual std::unique_ptr<mode> create(project &proj) const = 0;
+};
+
+template <typename T>
+class modedef_of : private modedef {
+protected:
+	std::unique_ptr<mode> create(project &proj) const override
+	{
+		return new T(proj);
+	}
+};
+
 class core; // FIXME
 
 class window : public gui::window {
 	friend class core; // FIXME
+
 private:
 	std::shared_ptr<project> m_proj;
 
@@ -97,19 +130,16 @@ public:
 	const decltype(m_modules) &get_modules() const;
 };
 
-class mode;
 class panel;
 
 class module : util::not_copyable {
 	friend class core;
 	friend class ::mod_module_list;
-	friend class mode;
 	friend class panel;
 
 private:
 	core &m_core;
 
-	std::list<mode *> m_modes;
 	std::list<panel *> m_panels;
 
 	std::map<std::string,std::function<void()>> m_hooks;
@@ -154,7 +184,6 @@ protected:
 public:
 	virtual ~module() = default;
 
-	const std::list<mode *> &get_modes() const;
 	const std::list<panel *> &get_panels() const;
 };
 
@@ -203,21 +232,6 @@ public:
 	{
 		return std::unique_ptr<module>(new M(core));
 	}
-};
-
-class mode : util::not_copyable {
-private:
-	using func_type = std::function<void()>;
-
-	module &m_mod;
-	std::string m_title;
-	func_type m_func;
-
-public:
-	mode(module &mod,std::string title,func_type func);
-	~mode();
-
-	const std::string &get_title() const;
 };
 
 class panel : util::not_copyable {
