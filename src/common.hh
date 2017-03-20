@@ -31,3 +31,8 @@
 #define STRINGIFY_(x) #x
 
 #include "util.hh"
+
+inline auto operator "" _fmt(const char *s,long unsigned int sz)
+{
+	return util::fmt(s);
+}

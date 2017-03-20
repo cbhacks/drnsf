@@ -23,17 +23,46 @@
 
 namespace edit {
 
-/*mode::mode(module &mod,std::string title,mode::func_type func) :
-	m_mod(mod),
-	m_title(title),
-	m_func(func)
+static std::set<modedef *> s_modedef_list;
+
+modedef::modedef(std::string title) :
+	m_title(title)
 {
-	m_mod.m_modes.push_back(this);
+	s_modedef_list.insert(this);
 }
 
-mode::~mode()
+modedef::~modedef()
 {
-	m_mod.m_modes.remove(this);
-}*/
+	s_modedef_list.erase(this);
+}
+
+class mode_example : public mode {
+private:
+	project &m_proj;
+
+public:
+	explicit mode_example(project &proj);
+
+	void show_gui() override;
+};
+
+static modedef_of<mode_example> g_mode_example_def("Example");
+
+mode_example::mode_example(project &proj) :
+	m_proj(proj)
+{
+}
+
+void mode_example::show_gui()
+{
+	namespace im = gui::im;
+
+	im::Button("slewpy");
+}
+
+const std::set<modedef*> &modedef::get_list()
+{
+	return s_modedef_list;
+}
 
 }

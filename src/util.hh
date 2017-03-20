@@ -54,6 +54,21 @@ static std::string format(std::string fmt,T t,Args... args)
 		format(fmt.substr(delim_pos + 1),std::forward<Args>(args)...);
 }
 
+class fmt {
+private:
+	std::string m_format;
+
+public:
+	explicit fmt(std::string format) :
+		m_format(format) {}
+
+	template <typename... Args>
+	std::string operator()(Args... args) const
+	{
+		return format(m_format,std::forward<Args>(args)...);
+	}
+};
+
 template <typename T>
 static inline auto range(T lbound,T ubound,T step = 1)
 {

@@ -22,6 +22,7 @@
 
 #include <list>
 #include <unordered_set>
+#include <set>
 #include <experimental/any>
 #include "res.hh"
 #include "transact.hh"
@@ -68,19 +69,32 @@ private:
 
 protected:
 	explicit modedef(std::string title);
-	~modedef() = default;
+	~modedef();
+
+public:
+	static const std::set<modedef*> &get_list();
+
+	const std::string &get_title() const
+	{
+		return m_title;
+	}
 
 	virtual std::unique_ptr<mode> create(project &proj) const = 0;
 };
 
 template <typename T>
 class modedef_of : private modedef {
-protected:
+public:
 	std::unique_ptr<mode> create(project &proj) const override
 	{
-		return new T(proj);
+		return std::unique_ptr<mode>(new T(proj));
 	}
+
+	explicit modedef_of(std::string title) :
+		modedef(title) {}
 };
+
+class pane;
 
 class core; // FIXME
 
@@ -89,11 +103,15 @@ class window : public gui::window {
 
 private:
 	std::shared_ptr<project> m_proj;
+	std::unique_ptr<mode> m_mode;
 
 public:
 	window();
 
 	void frame(int delta_time) override;
+};
+
+class pane : private util::not_copyable {
 };
 
 struct cam {

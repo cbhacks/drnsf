@@ -45,6 +45,9 @@ void window::frame(int delta_time)
 				// already an open project with unsaved changes.
 				// TODO
 
+				// Discard the current mode.
+				m_mode = nullptr;
+
 				// Create and target a new project
 				m_proj = std::make_shared<project>();
 			});
@@ -53,6 +56,9 @@ void window::frame(int delta_time)
 				// Prompt the user for confirmation if there are
 				// unsaved changes.
 				// TODO
+
+				// Discard the current mode.
+				m_mode = nullptr;
 
 				// Abandon the current project.
 				m_proj = nullptr;
@@ -76,7 +82,9 @@ void window::frame(int delta_time)
 			auto &&transact = m_proj->get_transact();
 
 			if (transact.has_undo()) {
-				im::menu_item("Undo: x",[&]{
+				auto title = transact.get_undo().describe();
+
+				im::menu_item("Undo: $"_fmt(title),[&]{
 					transact.undo();
 				});
 			} else {
@@ -84,7 +92,9 @@ void window::frame(int delta_time)
 			}
 
 			if (transact.has_redo()) {
-				im::menu_item("Redo: x",[&]{
+				auto title = transact.get_redo().describe();
+
+				im::menu_item("Redo: $"_fmt(title),[&]{
 					transact.redo();
 				});
 			} else {
@@ -93,11 +103,20 @@ void window::frame(int delta_time)
 
 			im::menu_separator();
 
-			im::menu_item("Mode: x");
-			im::menu_separator();
-			im::menu_item("x");
+			for (auto &&modedef : modedef::get_list()) {
+				auto title = modedef->get_title();
+				im::menu_item("Mode: $"_fmt(title),[&]{
+					m_mode = modedef->create(*m_proj);
+				});
+			}
 		} : std::function<void()>(nullptr));
 	});
+
+	if (m_mode) {
+		m_mode->update(delta_time);
+		m_mode->render();
+		m_mode->show_gui();
+	}
 }
 
 }
