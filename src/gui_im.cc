@@ -25,6 +25,19 @@
 namespace gui {
 namespace im {
 
+void subwindow(
+	const std::string &id,
+	const std::string &title,
+	const std::function<void()> &f)
+{
+	auto str = "$###subwnd_$"_fmt(title,id);
+
+	if (Begin(str.c_str())) {
+		f();
+	}
+	End();
+}
+
 void main_menu_bar(
 	const std::function<void()> &f)
 {

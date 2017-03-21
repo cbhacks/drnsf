@@ -70,6 +70,8 @@ public:
 	window();
 
 	void frame(int delta_time) override;
+
+	project &get_project() const;
 };
 
 using editor = window;
@@ -77,14 +79,16 @@ using editor = window;
 class pane : private util::not_copyable {
 private:
 	editor &m_ed;
+	std::string m_id;
 	decltype(window::m_panes)::iterator m_iter;
 
 public:
-	explicit pane(editor &ed);
+	explicit pane(editor &ed,std::string id);
 	~pane();
 
 	virtual void show() = 0;
 
+	const std::string &get_id() const;
 	virtual std::string get_title() const = 0;
 };
 

@@ -120,10 +120,15 @@ void window::frame(int delta_time)
 	}
 
 	for (auto &&pane : m_panes) {
-		im::Begin(pane->get_title().c_str());
-		pane->show();
-		im::End();
+		im::subwindow(pane->get_id(),pane->get_title(),[&]{
+			pane->show();
+		});
 	}
+}
+
+project &window::get_project() const
+{
+	return *m_proj;
 }
 
 }

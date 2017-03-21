@@ -23,8 +23,9 @@
 
 namespace edit {
 
-pane::pane(editor &ed) :
-	m_ed(ed)
+pane::pane(editor &ed,std::string id) :
+	m_ed(ed),
+	m_id(id)
 {
 	m_ed.m_panes.push_front(this);
 	m_iter = m_ed.m_panes.begin();
@@ -33,6 +34,11 @@ pane::pane(editor &ed) :
 pane::~pane()
 {
 	m_ed.m_panes.erase(m_iter);
+}
+
+const std::string &pane::get_id() const
+{
+	return m_id;
 }
 
 }

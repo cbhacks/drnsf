@@ -47,6 +47,11 @@ namespace im {
 
 using namespace ImGui;
 
+void subwindow(
+	const std::string &id,
+	const std::string &title,
+	const std::function<void()> &f);
+
 void main_menu_bar(
 	const std::function<void()> &f);
 

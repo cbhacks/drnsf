@@ -50,13 +50,18 @@ private:
 	editor &m_ed;
 
 public:
-	explicit example_pane(editor &ed) :
-		pane(ed),
+	explicit example_pane(editor &ed,std::string id) :
+		pane(ed,id),
 		m_ed(ed) {}
 
 	void show() override
 	{
-		gui::im::Text("Ahhhhhhhhhhh scrump!");
+		namespace im = gui::im;
+
+		auto &&proj = m_ed.get_project();
+		for (auto &&name : proj.get_asset_ns().get_asset_names()) {
+			im::TextUnformatted(name.c_str());
+		}
 	}
 
 	std::string get_title() const override
@@ -71,11 +76,13 @@ class mode_example : public mode {
 private:
 	editor &m_ed;
 	example_pane m_pane;
+	example_pane m_pane2;
 
 public:
 	explicit mode_example(editor &ed) :
 		m_ed(ed),
-		m_pane(ed) {}
+		m_pane(ed,"example"),
+		m_pane2(ed,"example2") {}
 };
 
 static modedef_of<mode_example> g_mode_example_def("Example");
