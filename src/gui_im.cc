@@ -28,6 +28,7 @@ namespace im {
 void label(
 	const std::string &text)
 {
+	AlignFirstTextHeightToWidgets();
 	TextUnformatted(text.c_str());
 }
 
@@ -83,6 +84,21 @@ void menu_item(
 void menu_separator()
 {
 	Separator();
+}
+
+scope::scope(int id)
+{
+	PushID(id);
+}
+
+scope::scope(void *ptr)
+{
+	PushID(ptr);
+}
+
+scope::~scope()
+{
+	PopID();
 }
 
 }

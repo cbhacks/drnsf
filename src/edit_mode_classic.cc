@@ -58,9 +58,7 @@ public:
 	template <typename T>
 	bool editable_value(T &value,std::string label)
 	{
-		gui::im::AlignFirstTextHeightToWidgets();
-		gui::im::Bullet();
-		gui::im::Selectable(label.c_str());
+		gui::im::label(label);
 		gui::im::NextColumn();
 		gui::im::AlignFirstTextHeightToWidgets();
 		gui::im::label("[[ $ ]]"_fmt(typeid(T).name()));
@@ -70,9 +68,7 @@ public:
 
 	bool editable_value(int &value,std::string label)
 	{
-		gui::im::AlignFirstTextHeightToWidgets();
-		gui::im::Bullet();
-		gui::im::Selectable(label.c_str());
+		gui::im::label(label);
 		gui::im::NextColumn();
 		bool changed = gui::im::InputInt("##value",&value);
 		gui::im::NextColumn();
@@ -81,9 +77,7 @@ public:
 
 	bool editable_value(float &value,std::string label)
 	{
-		gui::im::AlignFirstTextHeightToWidgets();
-		gui::im::Bullet();
-		gui::im::Selectable(label.c_str());
+		gui::im::label(label);
 		gui::im::NextColumn();
 		bool changed = gui::im::InputFloat("##value",&value);
 		gui::im::NextColumn();
@@ -93,12 +87,29 @@ public:
 	bool editable_value(double &value,std::string label)
 	{
 		float fvalue = value;
-		gui::im::PushID(&value);
 		bool changed = editable_value(fvalue,label);
-		gui::im::PopID();
 		if (changed) {
 			value = fvalue;
 		}
+		return changed;
+	}
+
+	bool editable_value(gfx::color &value,std::string label)
+	{
+		gui::im::label(label);
+		gui::im::NextColumn();
+		float fcolor[3] = {
+			value.r / 255.0f,
+			value.g / 255.0f,
+			value.b / 255.0f
+		};
+		bool changed = gui::im::ColorEdit3("",fcolor);
+		if (changed) {
+			value.r = fcolor[0] * 255;
+			value.g = fcolor[1] * 255;
+			value.b = fcolor[2] * 255;
+		}
+		gui::im::NextColumn();
 		return changed;
 	}
 
@@ -109,14 +120,18 @@ public:
 		bool is_open = gui::im::TreeNode(label.c_str());
 		if (!is_open) {
 			gui::im::NextColumn();
-			gui::im::AlignFirstTextHeightToWidgets();
 			gui::im::label("[ List of $ ]"_fmt(list.size()));
 			gui::im::NextColumn();
 			return false;
 		}
+		gui::im::NextColumn();
+		gui::im::AlignFirstTextHeightToWidgets();
+		gui::im::label("");
+		gui::im::NextColumn();
 		bool changed = false;
 		for (auto &&i : util::range_of(list)) {
-			changed |= editable_value(list[i],util::to_string(i));
+			gui::im::scope index_scope(i);
+			changed |= editable_value(list[i],"[$]"_fmt(i));
 		}
 		gui::im::TreePop();
 		return changed;
@@ -125,10 +140,9 @@ public:
 	template <typename T>
 	void property(res::prop<T> &prop,std::string label)
 	{
+		gui::im::scope prop_scope(&prop);
 		auto value = prop.get();
-		gui::im::PushID(&prop);
 		bool changed = editable_value(value,label);
-		gui::im::PopID();
 		if (changed) {
 			m_ed.get_project().get_transact() << [&](TRANSACT) {
 				TS.describef("Edit '$'",label);
