@@ -78,9 +78,11 @@ using editor = window;
 
 class pane : private util::not_copyable {
 private:
-	editor &m_ed;
 	std::string m_id;
 	decltype(window::m_panes)::iterator m_iter;
+
+protected:
+	editor &m_ed;
 
 public:
 	explicit pane(editor &ed,std::string id);

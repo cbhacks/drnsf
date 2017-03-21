@@ -46,13 +46,9 @@ const std::set<modedef*> &modedef::get_list()
 namespace {
 
 class example_pane : public pane {
-private:
-	editor &m_ed;
-
 public:
 	explicit example_pane(editor &ed,std::string id) :
-		pane(ed,id),
-		m_ed(ed) {}
+		pane(ed,id) {}
 
 	void show() override
 	{
