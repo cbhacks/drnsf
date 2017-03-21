@@ -106,15 +106,6 @@ void core::frame(int delta)
 		if (ImGui::BeginMenu("View")) {
 			for (auto &&kv : m_modules) {
 				auto &&mod = kv.second;
-				for (auto &&pn : mod->get_panels()) {
-					ImGui::PushID(pn);
-					ImGui::MenuItem(
-						pn->get_title().c_str(),
-						nullptr,
-						&pn->visible
-					);
-					ImGui::PopID();
-				}
 				mod->show_view_menu();
 			}
 			ImGui::EndMenu();
@@ -127,28 +118,6 @@ void core::frame(int delta)
 			ImGui::EndMenu();
 		}
 		ImGui::EndMainMenuBar();
-	}
-
-	// Show all of the visible editor panels.
-	for (auto &&kv : m_modules) {
-		auto &&mod = kv.second;
-		for (auto &&pn : mod->get_panels()) {
-			if (!pn->visible)
-				continue;
-
-			ImGui::PushID(pn);
-
-			if (!ImGui::Begin(pn->get_title().c_str(),&pn->visible)) { //FIXME 80 col
-				ImGui::End();
-				ImGui::PopID();
-				continue;
-			}
-
-			pn->show();
-
-			ImGui::End();
-			ImGui::PopID();
-		}
 	}
 
 	// Run all of the enabled editor modules.

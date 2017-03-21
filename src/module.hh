@@ -46,13 +46,3 @@
 
 #define END_TRANSACTION \
 	};
-
-#define BEGIN_MODE(id,title) \
-	edit::mode id = {*this,title,[this]() {
-
-#define END_MODE }};
-
-#define BEGIN_PANEL(id,title) \
-	edit::panel id = {*this,title,[this]() {
-
-#define END_PANEL }};

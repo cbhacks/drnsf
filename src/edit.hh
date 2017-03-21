@@ -181,8 +181,6 @@ class module : util::not_copyable {
 private:
 	core &m_core;
 
-	std::list<panel *> m_panels;
-
 	std::map<std::string,std::function<void()>> m_hooks;
 
 	virtual void firstframe() {}
@@ -224,8 +222,6 @@ protected:
 
 public:
 	virtual ~module() = default;
-
-	const std::list<panel *> &get_panels() const;
 };
 
 class module_info : util::not_copyable {
@@ -273,25 +269,6 @@ public:
 	{
 		return std::unique_ptr<module>(new M(core));
 	}
-};
-
-class panel : util::not_copyable {
-private:
-	using func_type = std::function<void()>;
-
-	module &m_mod;
-	std::string m_title;
-	func_type m_func;
-
-public:
-	bool visible = false;
-
-	panel(module &mod,std::string title,func_type func);
-	~panel();
-
-	void show() const;
-
-	const std::string &get_title() const;
 };
 
 }

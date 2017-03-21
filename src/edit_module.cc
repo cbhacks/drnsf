@@ -51,9 +51,4 @@ cam &module::cam()
 	return m_core.m_cam;
 }
 
-const std::list<panel *> &module::get_panels() const
-{
-	return m_panels;
-}
-
 }

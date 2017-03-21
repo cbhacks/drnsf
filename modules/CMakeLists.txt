@@ -19,16 +19,11 @@
 #
 
 add_library (drnsf_modules OBJECT
-	mod_modctl.cc
-
-	panels/asset_list.cc
-
 	assets_window.cc
 
 	asset_editors/gfx_frame.cc
 	asset_editors/gfx_model.cc
 
-	legacy/mod_undo.cc
 	legacy/mod_camera_ctrl.cc
 	legacy/mod_imgui_demo.cc
 	legacy/mod_testbox.cc
