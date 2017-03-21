@@ -22,7 +22,14 @@ cmake_minimum_required (VERSION 3.5)
 project (DRNSF)
 
 add_subdirectory (modules)
-include (CMakeLists-imgui.txt)
+
+add_library (imgui OBJECT
+	imgui/imgui.h
+	imgui/imconfig.h
+	imgui/imgui.cpp
+	imgui/imgui_draw.cpp
+	imgui/imgui_demo.cpp
+)
 
 add_executable (drnsf
 	src/main.cc
