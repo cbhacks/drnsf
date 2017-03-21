@@ -39,7 +39,6 @@ core::core() :
 		m_modules[info] = info->create(*this);
 	}
 
-	m_wnd.m_proj = m_proj;
 	m_wnd.m_ed = std::make_shared<editor>(m_proj);
 }
 

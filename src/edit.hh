@@ -61,7 +61,6 @@ class window : public gui::window {
 	friend class pane;
 
 private:
-	std::shared_ptr<project> m_proj;
 	std::shared_ptr<editor> m_ed;
 
 public:

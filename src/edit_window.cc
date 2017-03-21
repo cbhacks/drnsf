@@ -50,18 +50,17 @@ void window::frame(int delta_time)
 				m_ed = nullptr;
 
 				// Create a new project and editor.
-				m_proj = std::make_shared<project>();
-				m_ed = std::make_shared<editor>(m_proj);
+				auto proj = std::make_shared<project>();
+				m_ed = std::make_shared<editor>(proj);
 			});
 			im::menu_item("Open Project");
-			im::menu_item("Close Project",m_proj ? [&]{
+			im::menu_item("Close Project",m_ed ? [&]{
 				// Prompt the user for confirmation if there are
 				// unsaved changes.
 				// TODO
 
-				// Abandon the current editor and project.
+				// Abandon the current editor.
 				m_ed = nullptr;
-				m_proj = nullptr;
 			} : std::function<void()>(nullptr));
 			im::menu_separator();
 			im::menu_item("Save Project");
@@ -79,7 +78,7 @@ void window::frame(int delta_time)
 			});
 		});
 		im::menu("Edit",m_ed ? [&]{
-			auto &&transact = m_proj->get_transact();
+			auto &&transact = m_ed->m_proj->get_transact();
 
 			if (transact.has_undo()) {
 				auto title = transact.get_undo().describe();
