@@ -60,8 +60,6 @@ public:
 	using ref = res::ref<frame>;
 
 	DEFINE_APROP(vertices);
-	DEFINE_APROP_GETTER(vertices);
-	DEFINE_APROP_SETTER(vertices);
 };
 
 class anim : public res::asset {
@@ -77,8 +75,6 @@ public:
 	using ref = res::ref<anim>;
 
 	DEFINE_APROP(frames);
-	DEFINE_APROP_GETTER(frames);
-	DEFINE_APROP_SETTER(frames);
 };
 
 enum class polytype {
@@ -106,12 +102,7 @@ public:
 	using ref = res::ref<mesh>;
 
 	DEFINE_APROP(polys);
-	DEFINE_APROP_GETTER(polys);
-	DEFINE_APROP_SETTER(polys);
-
 	DEFINE_APROP(colors);
-	DEFINE_APROP_GETTER(colors);
-	DEFINE_APROP_SETTER(colors);
 };
 
 class model : public res::asset {
@@ -132,24 +123,10 @@ public:
 	using ref = res::ref<model>;
 
 	DEFINE_APROP(anim);
-	DEFINE_APROP_GETTER(anim);
-	DEFINE_APROP_SETTER(anim);
-
 	DEFINE_APROP(mesh);
-	DEFINE_APROP_GETTER(mesh);
-	DEFINE_APROP_SETTER(mesh);
-
 	DEFINE_APROP(scene_x);
-	DEFINE_APROP_GETTER(scene_x);
-	DEFINE_APROP_SETTER(scene_x);
-
 	DEFINE_APROP(scene_y);
-	DEFINE_APROP_GETTER(scene_y);
-	DEFINE_APROP_SETTER(scene_y);
-
 	DEFINE_APROP(scene_z);
-	DEFINE_APROP_GETTER(scene_z);
-	DEFINE_APROP_SETTER(scene_z);
 };
 
 }

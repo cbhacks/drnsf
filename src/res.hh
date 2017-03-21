@@ -25,15 +25,11 @@
 #include "transact.hh"
 
 #define DEFINE_APROP(name) \
-	::res::prop<decltype(m_##name)> p_##name = { *this, m_##name }
-
-#define DEFINE_APROP_GETTER(name) \
+	::res::prop<decltype(m_##name)> p_##name = { *this, m_##name }; \
 	const decltype(m_##name) &get_##name() const \
 	{ \
 		return p_##name.get(); \
-	}
-
-#define DEFINE_APROP_SETTER(name) \
+	} \
 	void set_##name(TRANSACT,decltype(m_##name) value) \
 	{ \
 		p_##name.set(TS,std::move(value)); \
