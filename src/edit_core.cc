@@ -85,13 +85,6 @@ void core::frame(int delta)
 
 	// Run the core GUI menus.
 	if (ImGui::BeginMainMenuBar()) {
-		if (ImGui::BeginMenu("File")) {
-			if (ImGui::MenuItem("Quit","Ctrl+Q")) {
-				SDL_Quit();
-				std::exit(EXIT_SUCCESS);
-			}
-			ImGui::EndMenu();
-		}
 		if (ImGui::BeginMenu("View")) {
 			for (auto &&kv : m_modules) {
 				auto &&mod = kv.second;
