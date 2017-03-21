@@ -40,6 +40,7 @@ private:
 public:
 	using ref = res::ref<archive>;
 
+	DEFINE_APROP(pages);
 	DEFINE_APROP_GETTER(pages);
 	DEFINE_APROP_SETTER(pages);
 };
@@ -58,12 +59,15 @@ private:
 public:
 	using ref = res::ref<spage>;
 
+	DEFINE_APROP(pagelets);
 	DEFINE_APROP_GETTER(pagelets);
 	DEFINE_APROP_SETTER(pagelets);
 
+	DEFINE_APROP(type);
 	DEFINE_APROP_GETTER(type);
 	DEFINE_APROP_SETTER(type);
 
+	DEFINE_APROP(cid);
 	DEFINE_APROP_GETTER(cid);
 	DEFINE_APROP_SETTER(cid);
 
@@ -81,6 +85,7 @@ protected:
 public:
 	using ref = res::ref<entry>;
 
+	DEFINE_APROP(eid);
 	DEFINE_APROP_GETTER(eid);
 	DEFINE_APROP_SETTER(eid);
 };
@@ -101,9 +106,11 @@ private:
 public:
 	using ref = res::ref<raw_entry>;
 
+	DEFINE_APROP(items);
 	DEFINE_APROP_GETTER(items);
 	DEFINE_APROP_SETTER(items);
 
+	DEFINE_APROP(type);
 	DEFINE_APROP_GETTER(type);
 	DEFINE_APROP_SETTER(type);
 
@@ -147,15 +154,19 @@ private:
 public:
 	using ref = res::ref<wgeo_v2>;
 
+	DEFINE_APROP(item0);
 	DEFINE_APROP_GETTER(item0);
 	DEFINE_APROP_SETTER(item0);
 
+	DEFINE_APROP(item4);
 	DEFINE_APROP_GETTER(item4);
 	DEFINE_APROP_SETTER(item4);
 
+	DEFINE_APROP(item6);
 	DEFINE_APROP_GETTER(item6);
 	DEFINE_APROP_SETTER(item6);
 
+	DEFINE_APROP(model);
 	DEFINE_APROP_GETTER(model);
 	DEFINE_APROP_SETTER(model);
 

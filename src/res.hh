@@ -24,18 +24,19 @@
 #include <vector>
 #include "transact.hh"
 
-#define DEFINE_APROP_GETTER(prop) \
-	const decltype(m_##prop) &get_##prop() const \
+#define DEFINE_APROP(name) \
+	::res::prop<decltype(m_##name)> p_##name = { *this, m_##name }
+
+#define DEFINE_APROP_GETTER(name) \
+	const decltype(m_##name) &get_##name() const \
 	{ \
-		assert_alive(); \
-		return m_##prop; \
+		return p_##name.get(); \
 	}
 
-#define DEFINE_APROP_SETTER(prop) \
-	void set_##prop(TRANSACT,decltype(m_##prop) prop) \
+#define DEFINE_APROP_SETTER(name) \
+	void set_##name(TRANSACT,decltype(m_##name) value) \
 	{ \
-		assert_alive(); \
-		TS.set(m_##prop,std::move(prop)); \
+		p_##name.set(TS,std::move(value)); \
 	}
 
 namespace res {
@@ -129,10 +130,10 @@ private:
 protected:
 	explicit asset(name name);
 
-	void assert_alive() const;
-
 public:
 	virtual ~asset() = default;
+
+	void assert_alive() const;
 
 	template <typename T>
 	static void create(TRANSACT,name name)
@@ -151,8 +152,31 @@ public:
 	void rename(TRANSACT,name name);
 	void destroy(TRANSACT);
 
-	DEFINE_APROP_GETTER(name);
-	// No setter for names. Use rename() instead.
+	const name &get_name() const;
+};
+
+template <typename T>
+class prop : util::not_copyable {
+private:
+	asset &m_owner;
+	T &m_value;
+
+public:
+	prop(asset &owner,T &value) :
+		m_owner(owner),
+		m_value(value) {}
+
+	const T &get() const
+	{
+		m_owner.assert_alive();
+		return m_value;
+	}
+
+	void set(TRANSACT,T value)
+	{
+		m_owner.assert_alive();
+		TS.set(m_value,std::move(value));
+	}
 };
 
 template <typename T = asset>

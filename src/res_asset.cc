@@ -55,4 +55,11 @@ void asset::destroy(TRANSACT)
 	TS.set(m_name,nullptr);
 }
 
+const name &asset::get_name() const
+{
+	assert_alive();
+
+	return m_name;
+}
+
 }

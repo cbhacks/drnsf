@@ -37,6 +37,7 @@ private:
 public:
 	using ref = res::ref<raw_data>;
 
+	DEFINE_APROP(data);
 	DEFINE_APROP_GETTER(data);
 	DEFINE_APROP_SETTER(data);
 };
