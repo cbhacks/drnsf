@@ -58,8 +58,11 @@ public:
 	template <typename T>
 	bool editable_value(T &value,std::string label)
 	{
-		gui::im::label(label);
+		gui::im::AlignFirstTextHeightToWidgets();
+		gui::im::Bullet();
+		gui::im::Selectable(label.c_str());
 		gui::im::NextColumn();
+		gui::im::AlignFirstTextHeightToWidgets();
 		gui::im::label("[[ $ ]]"_fmt(typeid(T).name()));
 		gui::im::NextColumn();
 		return false;
@@ -67,7 +70,9 @@ public:
 
 	bool editable_value(int &value,std::string label)
 	{
-		gui::im::label(label);
+		gui::im::AlignFirstTextHeightToWidgets();
+		gui::im::Bullet();
+		gui::im::Selectable(label.c_str());
 		gui::im::NextColumn();
 		bool changed = gui::im::InputInt("##value",&value);
 		gui::im::NextColumn();
@@ -76,7 +81,9 @@ public:
 
 	bool editable_value(float &value,std::string label)
 	{
-		gui::im::label(label);
+		gui::im::AlignFirstTextHeightToWidgets();
+		gui::im::Bullet();
+		gui::im::Selectable(label.c_str());
 		gui::im::NextColumn();
 		bool changed = gui::im::InputFloat("##value",&value);
 		gui::im::NextColumn();
@@ -92,6 +99,26 @@ public:
 		if (changed) {
 			value = fvalue;
 		}
+		return changed;
+	}
+
+	template <typename T>
+	bool editable_value(std::vector<T> &list,std::string label)
+	{
+		gui::im::AlignFirstTextHeightToWidgets();
+		bool is_open = gui::im::TreeNode(label.c_str());
+		if (!is_open) {
+			gui::im::NextColumn();
+			gui::im::AlignFirstTextHeightToWidgets();
+			gui::im::label("[ List of $ ]"_fmt(list.size()));
+			gui::im::NextColumn();
+			return false;
+		}
+		bool changed = false;
+		for (auto &&i : util::range_of(list)) {
+			changed |= editable_value(list[i],util::to_string(i));
+		}
+		gui::im::TreePop();
 		return changed;
 	}
 
