@@ -60,6 +60,13 @@ public:
 	using ref = res::ref<frame>;
 
 	DEFINE_APROP(vertices);
+
+	template <typename Reflector>
+	void reflect(Reflector &rfl)
+	{
+		asset::reflect(rfl);
+		rfl.property(p_vertices,"Vertices");
+	}
 };
 
 class anim : public res::asset {
@@ -75,6 +82,13 @@ public:
 	using ref = res::ref<anim>;
 
 	DEFINE_APROP(frames);
+
+	template <typename Reflector>
+	void reflect(Reflector &rfl)
+	{
+		asset::reflect(rfl);
+		rfl.property(p_frames,"Frames");
+	}
 };
 
 enum class polytype {
@@ -103,6 +117,14 @@ public:
 
 	DEFINE_APROP(polys);
 	DEFINE_APROP(colors);
+
+	template <typename Reflector>
+	void reflect(Reflector &rfl)
+	{
+		asset::reflect(rfl);
+		rfl.property(p_polys,"Polygons");
+		rfl.property(p_colors,"Colors");
+	}
 };
 
 class model : public res::asset {
@@ -127,6 +149,17 @@ public:
 	DEFINE_APROP(scene_x);
 	DEFINE_APROP(scene_y);
 	DEFINE_APROP(scene_z);
+
+	template <typename Reflector>
+	void reflect(Reflector &rfl)
+	{
+		asset::reflect(rfl);
+		rfl.property(p_anim,"Animation");
+		rfl.property(p_mesh,"Mesh");
+		rfl.property(p_scene_x,"Scene X");
+		rfl.property(p_scene_y,"Scene Y");
+		rfl.property(p_scene_z,"Scene Z");
+	}
 };
 
 }

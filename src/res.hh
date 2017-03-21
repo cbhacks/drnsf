@@ -149,6 +149,11 @@ public:
 	void destroy(TRANSACT);
 
 	const name &get_name() const;
+
+	template <typename Reflector>
+	void reflect(Reflector &rfl)
+	{
+	}
 };
 
 template <typename T>

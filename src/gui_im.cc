@@ -25,6 +25,12 @@
 namespace gui {
 namespace im {
 
+void label(
+	const std::string &text)
+{
+	TextUnformatted(text.c_str());
+}
+
 void subwindow(
 	const std::string &id,
 	const std::string &title,

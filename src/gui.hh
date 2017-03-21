@@ -47,6 +47,9 @@ namespace im {
 
 using namespace ImGui;
 
+void label(
+	const std::string &text);
+
 void subwindow(
 	const std::string &id,
 	const std::string &title,

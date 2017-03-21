@@ -20,6 +20,7 @@
 
 #include "common.hh"
 #include "edit.hh"
+#include "gfx.hh"
 
 namespace edit {
 
@@ -53,6 +54,61 @@ public:
 	void show() override;
 
 	std::string get_title() const override;
+
+	template <typename T>
+	bool editable_value(T &value,std::string label)
+	{
+		gui::im::label(label);
+		gui::im::NextColumn();
+		gui::im::label("[[ $ ]]"_fmt(typeid(T).name()));
+		gui::im::NextColumn();
+		return false;
+	}
+
+	bool editable_value(int &value,std::string label)
+	{
+		gui::im::label(label);
+		gui::im::NextColumn();
+		bool changed = gui::im::InputInt("##value",&value);
+		gui::im::NextColumn();
+		return changed;
+	}
+
+	bool editable_value(float &value,std::string label)
+	{
+		gui::im::label(label);
+		gui::im::NextColumn();
+		bool changed = gui::im::InputFloat("##value",&value);
+		gui::im::NextColumn();
+		return changed;
+	}
+
+	bool editable_value(double &value,std::string label)
+	{
+		float fvalue = value;
+		gui::im::PushID(&value);
+		bool changed = editable_value(fvalue,label);
+		gui::im::PopID();
+		if (changed) {
+			value = fvalue;
+		}
+		return changed;
+	}
+
+	template <typename T>
+	void property(res::prop<T> &prop,std::string label)
+	{
+		auto value = prop.get();
+		gui::im::PushID(&prop);
+		bool changed = editable_value(value,label);
+		gui::im::PopID();
+		if (changed) {
+			m_ed.get_project().get_transact() << [&](TRANSACT) {
+				TS.describef("Edit '$'",label);
+				prop.set(TS,std::move(value));
+			};
+		}
+	}
 };
 
 }
@@ -95,17 +151,33 @@ void asset_pane::show()
 {
 	namespace im = gui::im;
 
-	if (!m_mode.m_selected_asset) {
+	auto &&sel = m_mode.m_selected_asset;
+
+	if (!sel) {
 		im::Text("No selected asset.");
 		return;
 	}
 
-	if (!m_mode.m_selected_asset.has_asset()) {
+	if (!sel.has_asset()) {
 		im::Text("No asset currently exists with this name.");
 		return;
 	}
 
-	im::Text("Selected asset exists.");
+	im::Columns(2);
+	gfx::frame::ref frame(sel);
+	gfx::anim::ref anim(sel);
+	gfx::mesh::ref mesh(sel);
+	gfx::model::ref model(sel);
+	if (frame.ok()) {
+		frame->reflect(*this);
+	} else if (anim.ok()) {
+		anim->reflect(*this);
+	} else if (mesh.ok()) {
+		mesh->reflect(*this);
+	} else if (model.ok()) {
+		model->reflect(*this);
+	}
+	im::Columns(1);
 }
 
 std::string asset_pane::get_title() const
