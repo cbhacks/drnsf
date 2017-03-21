@@ -35,7 +35,7 @@
 	void set_##prop(TRANSACT,decltype(m_##prop) prop) \
 	{ \
 		assert_alive(); \
-		ts.set(m_##prop,std::move(prop)); \
+		TS.set(m_##prop,std::move(prop)); \
 	}
 
 namespace res {
@@ -144,8 +144,8 @@ public:
 			throw 0; // FIXME
 
 		std::unique_ptr<asset> t(new T(name));
-		ts.set(t->m_name,name);
-		ts.set(name.m_sym->m_asset,std::move(t));
+		TS.set(t->m_name,name);
+		TS.set(name.m_sym->m_asset,std::move(t));
 	}
 
 	void rename(TRANSACT,name name);
@@ -186,7 +186,7 @@ public:
 
 	void create(TRANSACT) const
 	{
-		res::asset::create<T>(ts,*this);
+		res::asset::create<T>(TS,*this);
 	}
 
 	const name &get_name() const

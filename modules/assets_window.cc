@@ -52,11 +52,11 @@ void frame(int delta) override
 		ImGui::Separator();
 		ImGui::Separator();
 
-		ImGui::Text(selected_asset.c_str()); // FIXME 80 col
+		ImGui::Text(selected_asset.c_str());
 		if (ImGui::Button("Delete")) {
 			nx << [&](TRANSACT) {
-				ts.describef("Delete '$'",selected_asset);
-				selected_asset->destroy(ts);
+				TS.describef("Delete '$'",selected_asset);
+				selected_asset->destroy(TS);
 			};
 		}
 

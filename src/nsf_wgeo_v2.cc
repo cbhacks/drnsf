@@ -206,38 +206,38 @@ void wgeo_v2::import_entry(TRANSACT,const raw_item_list &items,res::name::space 
 
 	// Create the frame which will contain this scene's vertex positions.
 	gfx::frame::ref frame = basename / "frame";
-	frame.create(ts);
-	frame->set_vertices(ts,std::move(vertices));
+	frame.create(TS);
+	frame->set_vertices(TS,std::move(vertices));
 
 	// Create the animation for this scene (just one frame, scenes are not
 	// vertex-animated).
 	gfx::anim::ref anim = basename / "anim";
-	anim.create(ts);
-	anim->set_frames(ts,{frame});
+	anim.create(TS);
+	anim->set_frames(TS,{frame});
 
 	// Create the mesh for this scene.
 	gfx::mesh::ref mesh = basename / "mesh";
-	mesh.create(ts);
+	mesh.create(TS);
 	std::vector<gfx::poly> polys;
 	polys.insert(polys.end(),triangles.begin(),triangles.end());
 	polys.insert(polys.end(),quads.begin(),quads.end());
-	mesh->set_polys(ts,std::move(polys));
-	mesh->set_colors(ts,std::move(colors));
+	mesh->set_polys(TS,std::move(polys));
+	mesh->set_colors(TS,std::move(colors));
 
 	// Create the model for this scene.
 	gfx::model::ref model = basename;
-	model.create(ts);
-	model->set_anim(ts,anim);
-	model->set_mesh(ts,mesh);
-	model->set_scene_x(ts,scene_x / 32768.0);
-	model->set_scene_y(ts,scene_y / 32768.0);
-	model->set_scene_z(ts,scene_z / 32768.0);
+	model.create(TS);
+	model->set_anim(TS,anim);
+	model->set_mesh(TS,mesh);
+	model->set_scene_x(TS,scene_x / 32768.0);
+	model->set_scene_y(TS,scene_y / 32768.0);
+	model->set_scene_z(TS,scene_z / 32768.0);
 
 	// Finish importing.
-	set_item0(ts,items[0]);
-	set_item4(ts,items[4]);
-	set_item6(ts,items[6]);
-	set_model(ts,model);
+	set_item0(TS,items[0]);
+	set_item4(TS,items[4]);
+	set_item6(TS,items[6]);
+	set_model(TS,model);
 }
 
 }

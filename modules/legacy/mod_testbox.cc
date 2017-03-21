@@ -85,69 +85,69 @@ void frame(int delta) override
 			gfx::mesh::ref mesh(ns,"testbox/mesh");
 			gfx::model::ref model(ns,"testbox");
 
-			ts.describe("Create test box");
-			frame.create(ts);
-			frame->set_vertices(ts,testbox_vertices);
+			TS.describe("Create test box");
+			frame.create(TS);
+			frame->set_vertices(TS,testbox_vertices);
 
-			anim.create(ts);
-			anim->set_frames(ts,std::vector<gfx::frame::ref>{frame});
+			anim.create(TS);
+			anim->set_frames(TS,std::vector<gfx::frame::ref>{frame});
 
-			mesh.create(ts);
-			mesh->set_polys(ts,testbox_polys);
-			mesh->set_colors(ts,testbox_colors);
+			mesh.create(TS);
+			mesh->set_polys(TS,testbox_polys);
+			mesh->set_colors(TS,testbox_colors);
 
-			model.create(ts);
-			model->set_anim(ts,anim);
-			model->set_mesh(ts,mesh);
+			model.create(TS);
+			model->set_anim(TS,anim);
+			model->set_mesh(TS,mesh);
 		};
 	}
 
 	if (ImGui::Button("Load test scene")) {
 		nx << [&](TRANSACT) {
-			ts.describe("Load test scenery file");
+			TS.describe("Load test scenery file");
 			nsf::raw_entry::ref raw(ns,"raw");
-			raw.create(ts);
-			raw->import_file(ts,read_file("/tmp/scene.nsentry"));
-			raw->process_as<nsf::wgeo_v2>(ts,ns);
+			raw.create(TS);
+			raw->import_file(TS,read_file("/tmp/scene.nsentry"));
+			raw->process_as<nsf::wgeo_v2>(TS,ns);
 		};
 	}
 
 	if (ImGui::Button("Load wr scenery")) {
 		nx << [&](TRANSACT) {
-			ts.describe("Load warp room scenery (test)");
+			TS.describe("Load warp room scenery (test)");
 			for (auto &&i : util::range(0,16)) {
 				nsf::raw_entry::ref raw(ns,util::format("wr-wgeo-$",i));
-				raw.create(ts);
-				raw->import_file(ts,read_file(util::format("/tmp/s$.nsentry",i)));
-				raw->process_as<nsf::wgeo_v2>(ts,ns);
+				raw.create(TS);
+				raw->import_file(TS,read_file(util::format("/tmp/s$.nsentry",i)));
+				raw->process_as<nsf::wgeo_v2>(TS,ns);
 			}
 		};
 	}
 
 	if (ImGui::Button("Load /tmp/nsentry")) {
 		nx << [&](TRANSACT) {
-			ts.describe("Load /tmp/nsentry");
+			TS.describe("Load /tmp/nsentry");
 			nsf::raw_entry::ref raw(ns,"nsentry");
-			raw.create(ts);
-			raw->import_file(ts,read_file("/tmp/nsentry"));
+			raw.create(TS);
+			raw->import_file(TS,read_file("/tmp/nsentry"));
 		};
 	}
 
 	if (ImGui::Button("Load /tmp/nspage")) {
 		nx << [&](TRANSACT) {
-			ts.describe("Load /tmp/nspage");
+			TS.describe("Load /tmp/nspage");
 			nsf::spage::ref raw(ns,"nspage");
-			raw.create(ts);
-			raw->import_file(ts,read_file("/tmp/nspage"));
+			raw.create(TS);
+			raw->import_file(TS,read_file("/tmp/nspage"));
 		};
 	}
 
 	if (ImGui::Button("Load /tmp/nsfile")) {
 		nx << [&](TRANSACT) {
-			ts.describe("Load /tmp/nsfile");
+			TS.describe("Load /tmp/nsfile");
 			nsf::raw_entry::ref raw(ns,"nsfile");
-			raw.create(ts);
-			raw->import_file(ts,read_file("/tmp/nsfile"));
+			raw.create(TS);
+			raw->import_file(TS,read_file("/tmp/nsfile"));
 		};
 	}
 

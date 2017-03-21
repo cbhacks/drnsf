@@ -39,8 +39,8 @@ void on_assets_window_body()
 			auto new_vertices = vertices;
 			new_vertices[i] = vert;
 			nx << [&](TRANSACT) {
-				ts.describef("Move vertex $ in '$'",i,as);
-				as->set_vertices(ts,new_vertices);
+				TS.describef("Move vertex $ in '$'",i,as);
+				as->set_vertices(TS,new_vertices);
 			};
 		}
 	}

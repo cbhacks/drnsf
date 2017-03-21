@@ -117,17 +117,17 @@ public:
 		// Create the output entry under a reserved name,
 		// '_PROCESS_OUTPUT'.
 		res::ref<T> result(ns,"_PROCESS_OUTPUT");
-		result.create(ts);
+		result.create(TS);
 
 		// Process the raw items into the output entry.
-		result->set_eid(ts,get_eid());
-		result->import_entry(ts,get_items(),ns);
+		result->set_eid(TS,get_eid());
+		result->import_entry(TS,get_items(),ns);
 
 		// Delete the raw entry (this) and rename the output entry over
 		// this one's name.
 		auto name = get_name();
-		destroy(ts);
-		result->rename(ts,name);
+		destroy(TS);
+		result->rename(TS,name);
 	}
 };
 

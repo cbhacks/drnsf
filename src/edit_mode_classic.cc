@@ -23,12 +23,18 @@
 
 namespace edit {
 
+class mode_classic;
+
 namespace {
 
 class tree_pane : public pane {
+private:
+	mode_classic &m_mode;
+
 public:
-	explicit tree_pane(editor &ed) :
-		pane(ed,"classic_tree") {}
+	explicit tree_pane(editor &ed,mode_classic &mode) :
+		pane(ed,"classic_tree"),
+		m_mode(mode) {}
 
 	void show() override;
 
@@ -36,9 +42,13 @@ public:
 };
 
 class asset_pane : public pane {
+private:
+	mode_classic &m_mode;
+
 public:
-	explicit asset_pane(editor &ed) :
-		pane(ed,"classic_asset") {}
+	explicit asset_pane(editor &ed,mode_classic &mode) :
+		pane(ed,"classic_asset"),
+		m_mode(mode) {}
 
 	void show() override;
 
@@ -53,10 +63,12 @@ private:
 	asset_pane m_asset;
 
 public:
+	res::name m_selected_asset;
+
 	explicit mode_classic(editor &ed) :
 		mode(ed),
-		m_tree(ed),
-		m_asset(ed) {}
+		m_tree(ed,*this),
+		m_asset(ed,*this) {}
 };
 
 static modedef_of<mode_classic> g_mode_classic_def("Classic");
@@ -67,7 +79,10 @@ void tree_pane::show()
 	auto &&proj = m_ed.get_project();
 
 	for (auto &&name : proj.get_asset_ns().get_asset_names()) {
-		im::TextUnformatted(name.c_str());
+		bool is_selected = (name == m_mode.m_selected_asset);
+		if (im::Selectable(name.c_str(),is_selected)) {
+			m_mode.m_selected_asset = name;
+		}
 	}
 }
 
@@ -80,12 +95,26 @@ void asset_pane::show()
 {
 	namespace im = gui::im;
 
-	im::Text("Nothing to see here.");
+	if (!m_mode.m_selected_asset) {
+		im::Text("No selected asset.");
+		return;
+	}
+
+	if (!m_mode.m_selected_asset.has_asset()) {
+		im::Text("No asset currently exists with this name.");
+		return;
+	}
+
+	im::Text("Selected asset exists.");
 }
 
 std::string asset_pane::get_title() const
 {
-	return "Asset: [No selection]";
+	if (m_mode.m_selected_asset) {
+		return "Asset: $"_fmt(m_mode.m_selected_asset);
+	} else {
+		return "Asset: [No selection]";
+	}
 }
 
 }

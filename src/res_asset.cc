@@ -43,16 +43,16 @@ void asset::rename(TRANSACT,name name)
 		throw 0; // FIXME
 	}
 
-	ts.swap(m_name.m_sym->m_asset,name.m_sym->m_asset);
-	ts.set(m_name,name);
+	TS.swap(m_name.m_sym->m_asset,name.m_sym->m_asset);
+	TS.set(m_name,name);
 }
 
 void asset::destroy(TRANSACT)
 {
 	assert_alive();
 
-	ts.set(m_name.m_sym->m_asset,nullptr);
-	ts.set(m_name,nullptr);
+	TS.set(m_name.m_sym->m_asset,nullptr);
+	TS.set(m_name,nullptr);
 }
 
 }

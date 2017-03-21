@@ -69,9 +69,9 @@ void raw_entry::import_file(TRANSACT,const std::vector<unsigned char> &data)
 	}
 
 	// Finish importing.
-	set_eid(ts,eid);
-	set_type(ts,type);
-	set_items(ts,std::move(items));
+	set_eid(TS,eid);
+	set_type(TS,type);
+	set_items(TS,std::move(items));
 }
 
 }

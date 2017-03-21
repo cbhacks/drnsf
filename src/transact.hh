@@ -22,7 +22,7 @@
 
 #include <list>
 
-#define TRANSACT transact::teller &ts
+#define TRANSACT transact::teller &TS
 
 namespace transact {
 

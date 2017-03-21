@@ -74,18 +74,18 @@ void spage::import_file(TRANSACT,const std::vector<unsigned char> &data)
 
 		// Create the pagelet asset.
 		pagelet = get_name() / util::format("pagelet-$",i);
-		pagelet.create(ts);
+		pagelet.create(TS);
 
 		// Copy the pagelet data into the asset.
-		pagelet->set_data(ts,
+		pagelet->set_data(TS,
 			{&data[pagelet_start_offset],&data[pagelet_end_offset]}
 		);
 	}
 
 	// Finish importing.
-	set_type(ts,type);
-	set_cid(ts,cid);
-	set_pagelets(ts,{pagelets.begin(),pagelets.end()});
+	set_type(TS,type);
+	set_cid(TS,cid);
+	set_pagelets(TS,{pagelets.begin(),pagelets.end()});
 }
 
 }
