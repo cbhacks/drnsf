@@ -36,6 +36,7 @@ void window::frame(int delta_time)
 	namespace im = gui::im;
 
 	// Clear the screen.
+	glClearColor(0.1,0.1,0.1,0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	im::main_menu_bar([&]{
@@ -106,7 +107,7 @@ void window::frame(int delta_time)
 			for (auto &&modedef : modedef::get_list()) {
 				auto title = modedef->get_title();
 				im::menu_item("Mode: $"_fmt(title),[&]{
-					m_mode = modedef->create(*m_proj);
+					m_mode = modedef->create(*this);
 				});
 			}
 		} : std::function<void()>(nullptr));
@@ -116,6 +117,12 @@ void window::frame(int delta_time)
 		m_mode->update(delta_time);
 		m_mode->render();
 		m_mode->show_gui();
+	}
+
+	for (auto &&pane : m_panes) {
+		im::Begin(pane->get_title().c_str());
+		pane->show();
+		im::End();
 	}
 }
 

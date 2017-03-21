@@ -23,63 +23,16 @@
 
 namespace edit {
 
-static std::set<modedef *> s_modedef_list;
-
-modedef::modedef(std::string title) :
-	m_title(title)
+pane::pane(editor &ed) :
+	m_ed(ed)
 {
-	s_modedef_list.insert(this);
+	m_ed.m_panes.push_front(this);
+	m_iter = m_ed.m_panes.begin();
 }
 
-modedef::~modedef()
+pane::~pane()
 {
-	s_modedef_list.erase(this);
+	m_ed.m_panes.erase(m_iter);
 }
-
-const std::set<modedef*> &modedef::get_list()
-{
-	return s_modedef_list;
-}
-
-
-/* *** EXAMPLE CODE BELOW *** FIXME */
-namespace {
-
-class example_pane : public pane {
-private:
-	editor &m_ed;
-
-public:
-	explicit example_pane(editor &ed) :
-		pane(ed),
-		m_ed(ed) {}
-
-	void show() override
-	{
-		gui::im::Text("Ahhhhhhhhhhh scrump!");
-	}
-
-	std::string get_title() const override
-	{
-		return "Example pane";
-	}
-};
-
-}
-
-class mode_example : public mode {
-private:
-	editor &m_ed;
-	example_pane m_pane;
-
-public:
-	explicit mode_example(editor &ed) :
-		m_ed(ed),
-		m_pane(ed) {}
-};
-
-static modedef_of<mode_example> g_mode_example_def("Example");
-
-/* *** END EXAMPLE *** FIXME */
 
 }

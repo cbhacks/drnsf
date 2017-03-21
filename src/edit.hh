@@ -51,6 +51,43 @@ public:
 	}
 };
 
+class pane;
+class mode;
+
+class core; // FIXME
+
+class window : public gui::window {
+	friend class core; // FIXME
+
+	friend class pane;
+
+private:
+	std::shared_ptr<project> m_proj;
+	std::list<pane *> m_panes;
+	std::unique_ptr<mode> m_mode;
+
+public:
+	window();
+
+	void frame(int delta_time) override;
+};
+
+using editor = window;
+
+class pane : private util::not_copyable {
+private:
+	editor &m_ed;
+	decltype(window::m_panes)::iterator m_iter;
+
+public:
+	explicit pane(editor &ed);
+	~pane();
+
+	virtual void show() = 0;
+
+	virtual std::string get_title() const = 0;
+};
+
 class mode : util::not_copyable {
 protected:
 	mode() = default;
@@ -79,39 +116,19 @@ public:
 		return m_title;
 	}
 
-	virtual std::unique_ptr<mode> create(project &proj) const = 0;
+	virtual std::unique_ptr<mode> create(editor &ed) const = 0;
 };
 
 template <typename T>
 class modedef_of : private modedef {
 public:
-	std::unique_ptr<mode> create(project &proj) const override
+	std::unique_ptr<mode> create(editor &ed) const override
 	{
-		return std::unique_ptr<mode>(new T(proj));
+		return std::unique_ptr<mode>(new T(ed));
 	}
 
 	explicit modedef_of(std::string title) :
 		modedef(title) {}
-};
-
-class pane;
-
-class core; // FIXME
-
-class window : public gui::window {
-	friend class core; // FIXME
-
-private:
-	std::shared_ptr<project> m_proj;
-	std::unique_ptr<mode> m_mode;
-
-public:
-	window();
-
-	void frame(int delta_time) override;
-};
-
-class pane : private util::not_copyable {
 };
 
 struct cam {
