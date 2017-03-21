@@ -49,13 +49,12 @@ public:
 
 class mode_classic : public mode {
 private:
-	editor &m_ed;
 	tree_pane m_tree;
 	asset_pane m_asset;
 
 public:
 	explicit mode_classic(editor &ed) :
-		m_ed(ed),
+		mode(ed),
 		m_tree(ed),
 		m_asset(ed) {}
 };

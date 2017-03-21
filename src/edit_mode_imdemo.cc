@@ -25,7 +25,8 @@ namespace edit {
 
 class mode_imdemo : public mode {
 public:
-	explicit mode_imdemo(editor &ed) {}
+	explicit mode_imdemo(editor &ed) :
+		mode(ed) {}
 
 	void render() override
 	{

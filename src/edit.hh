@@ -96,7 +96,10 @@ public:
 
 class mode : util::not_copyable {
 protected:
-	mode() = default;
+	editor &m_ed;
+
+	explicit mode(editor &ed) :
+		m_ed(ed) {}
 
 public:
 	virtual ~mode() = default;
