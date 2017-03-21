@@ -103,12 +103,21 @@ public:
 			value.g / 255.0f,
 			value.b / 255.0f
 		};
-		bool changed = gui::im::ColorEdit3("",fcolor);
+		bool changed = gui::im::ColorEdit3("##value",fcolor);
 		if (changed) {
 			value.r = fcolor[0] * 255;
 			value.g = fcolor[1] * 255;
 			value.b = fcolor[2] * 255;
 		}
+		gui::im::NextColumn();
+		return changed;
+	}
+
+	bool editable_value(gfx::vertex &value,std::string label)
+	{
+		gui::im::label(label);
+		gui::im::NextColumn();
+		bool changed = gui::im::InputFloat3("##value",value.v);
 		gui::im::NextColumn();
 		return changed;
 	}
