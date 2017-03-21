@@ -40,6 +40,7 @@ core::core() :
 	}
 
 	m_wnd.m_proj = m_proj;
+	m_wnd.m_ed = std::make_shared<editor>(*m_proj);
 }
 
 void core::frame(int delta)

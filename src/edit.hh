@@ -51,10 +51,9 @@ public:
 	}
 };
 
-class pane;
-class mode;
-
 class core; // FIXME
+
+class editor;
 
 class window : public gui::window {
 	friend class core; // FIXME
@@ -63,23 +62,36 @@ class window : public gui::window {
 
 private:
 	std::shared_ptr<project> m_proj;
-	std::list<pane *> m_panes;
-	std::unique_ptr<mode> m_mode;
+	std::shared_ptr<editor> m_ed;
 
 public:
 	window();
 
 	void frame(int delta_time) override;
+};
+
+class pane;
+class mode;
+
+class editor : private util::not_copyable {
+	friend class window;
+	friend class pane;
+
+private:
+	project &m_proj;
+	std::list<pane *> m_panes;
+	std::unique_ptr<mode> m_mode;
+
+public:
+	explicit editor(project &proj);
 
 	project &get_project() const;
 };
 
-using editor = window;
-
 class pane : private util::not_copyable {
 private:
 	std::string m_id;
-	decltype(window::m_panes)::iterator m_iter;
+	decltype(editor::m_panes)::iterator m_iter;
 
 protected:
 	editor &m_ed;

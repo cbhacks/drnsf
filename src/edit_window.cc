@@ -46,11 +46,12 @@ void window::frame(int delta_time)
 				// already an open project with unsaved changes.
 				// TODO
 
-				// Discard the current mode.
-				m_mode = nullptr;
+				// Discard the current editor.
+				m_ed = nullptr;
 
-				// Create and target a new project
+				// Create a new project and editor.
 				m_proj = std::make_shared<project>();
+				m_ed = std::make_shared<editor>(*m_proj);
 			});
 			im::menu_item("Open Project");
 			im::menu_item("Close Project",m_proj ? [&]{
@@ -58,10 +59,8 @@ void window::frame(int delta_time)
 				// unsaved changes.
 				// TODO
 
-				// Discard the current mode.
-				m_mode = nullptr;
-
-				// Abandon the current project.
+				// Abandon the current editor and project.
+				m_ed = nullptr;
 				m_proj = nullptr;
 			} : std::function<void()>(nullptr));
 			im::menu_separator();
@@ -79,7 +78,7 @@ void window::frame(int delta_time)
 				std::exit(EXIT_SUCCESS);
 			});
 		});
-		im::menu("Edit",m_proj ? [&]{
+		im::menu("Edit",m_ed ? [&]{
 			auto &&transact = m_proj->get_transact();
 
 			if (transact.has_undo()) {
@@ -107,28 +106,26 @@ void window::frame(int delta_time)
 			for (auto &&modedef : modedef::get_list()) {
 				auto title = modedef->get_title();
 				im::menu_item("Mode: $"_fmt(title),[&]{
-					m_mode = modedef->create(*this);
+					m_ed->m_mode = modedef->create(*m_ed);
 				});
 			}
 		} : std::function<void()>(nullptr));
 	});
 
-	if (m_mode) {
-		m_mode->update(delta_time);
-		m_mode->render();
-		m_mode->show_gui();
-	}
+	if (m_ed) {
+		if (m_ed->m_mode) {
+			auto &&mode = m_ed->m_mode;
+			mode->update(delta_time);
+			mode->render();
+			mode->show_gui();
+		}
 
-	for (auto &&pane : m_panes) {
-		im::subwindow(pane->get_id(),pane->get_title(),[&]{
-			pane->show();
-		});
+		for (auto &&pane : m_ed->m_panes) {
+			im::subwindow(pane->get_id(),pane->get_title(),[&]{
+				pane->show();
+			});
+		}
 	}
-}
-
-project &window::get_project() const
-{
-	return *m_proj;
 }
 
 }
