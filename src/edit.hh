@@ -78,12 +78,12 @@ class editor : private util::not_copyable {
 	friend class pane;
 
 private:
-	project &m_proj;
+	const std::shared_ptr<project> m_proj;
 	std::list<pane *> m_panes;
 	std::unique_ptr<mode> m_mode;
 
 public:
-	explicit editor(project &proj);
+	explicit editor(std::shared_ptr<project> proj);
 
 	project &get_project() const;
 };

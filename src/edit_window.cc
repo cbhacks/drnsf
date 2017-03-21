@@ -51,7 +51,7 @@ void window::frame(int delta_time)
 
 				// Create a new project and editor.
 				m_proj = std::make_shared<project>();
-				m_ed = std::make_shared<editor>(*m_proj);
+				m_ed = std::make_shared<editor>(m_proj);
 			});
 			im::menu_item("Open Project");
 			im::menu_item("Close Project",m_proj ? [&]{

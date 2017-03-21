@@ -23,14 +23,17 @@
 
 namespace edit {
 
-editor::editor(project &proj) :
+editor::editor(std::shared_ptr<project> proj) :
 	m_proj(proj)
 {
+	// Enforce that the project pointer must not be null.
+	if (!proj)
+		throw 0; // FIXME
 }
 
 project &editor::get_project() const
 {
-	return m_proj;
+	return *m_proj;
 }
 
 }
