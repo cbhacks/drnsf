@@ -18,26 +18,21 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "module.hh"
+#include "common.hh"
+#include "edit.hh"
 
-#include "begin.hh"
+namespace edit {
 
-constexpr static const char *mod_name = "ImGui Demo";
+class mode_imdemo : public mode {
+public:
+	explicit mode_imdemo(editor &ed) {}
 
-bool show_demo_wnd = false;
-
-void frame(int delta) override
-{
-	if (show_demo_wnd) {
-		ImGui::ShowTestWindow(&show_demo_wnd);
+	void render() override
+	{
+		gui::im::ShowTestWindow();
 	}
-}
+};
 
-void show_tools_menu() override
-{
-	if (ImGui::MenuItem("Show ImGui Demo")) {
-		show_demo_wnd = true;
-	}
-}
+static modedef_of<mode_imdemo> g_mode_imdemo_def("Imgui Demo");
 
-END_MODULE
+}
