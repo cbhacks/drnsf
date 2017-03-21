@@ -187,10 +187,7 @@ private:
 
 	virtual void frame(int delta) {}
 
-	virtual void show_file_menu() {}
-	virtual void show_edit_menu() {}
 	virtual void show_view_menu() {}
-	virtual void show_tools_menu() {}
 
 protected:
 	explicit module(core &core);

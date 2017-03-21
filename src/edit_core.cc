@@ -90,30 +90,12 @@ void core::frame(int delta)
 				SDL_Quit();
 				std::exit(EXIT_SUCCESS);
 			}
-			for (auto &&kv : m_modules) {
-				auto &&mod = kv.second;
-				mod->show_file_menu();
-			}
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Edit")) {
-			for (auto &&kv : m_modules) {
-				auto &&mod = kv.second;
-				mod->show_edit_menu();
-			}
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("View")) {
 			for (auto &&kv : m_modules) {
 				auto &&mod = kv.second;
 				mod->show_view_menu();
-			}
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Tools")) {
-			for (auto &&kv : m_modules) {
-				auto &&mod = kv.second;
-				mod->show_tools_menu();
 			}
 			ImGui::EndMenu();
 		}
