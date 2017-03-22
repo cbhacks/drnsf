@@ -21,6 +21,8 @@
 #include "common.hh"
 #include "edit.hh"
 #include "gfx.hh"
+#include "misc.hh"
+#include "nsf.hh"
 
 namespace edit {
 
@@ -161,6 +163,23 @@ public:
 	}
 };
 
+template <typename Reflector,typename Base>
+static void dyn_reflect(Reflector &rfl,Base &value)
+{
+	// None of the given types match this.
+}
+
+template <typename Reflector,typename Base,typename T,typename... Remaining>
+static void dyn_reflect(Reflector &rfl,Base &value)
+{
+	T *t = dynamic_cast<T *>(&value);
+	if (t) {
+		return t->reflect(rfl);
+	} else {
+		return dyn_reflect<Reflector,Base,Remaining...>(rfl,value);
+	}
+}
+
 }
 
 class mode_classic : public mode {
@@ -218,15 +237,19 @@ void asset_pane::show()
 	gfx::anim::ref anim(sel);
 	gfx::mesh::ref mesh(sel);
 	gfx::model::ref model(sel);
-	if (frame.ok()) {
-		frame->reflect(*this);
-	} else if (anim.ok()) {
-		anim->reflect(*this);
-	} else if (mesh.ok()) {
-		mesh->reflect(*this);
-	} else if (model.ok()) {
-		model->reflect(*this);
-	}
+	dyn_reflect<
+		asset_pane,
+		res::asset,
+		gfx::frame,
+		gfx::anim,
+		gfx::mesh,
+		gfx::model,
+		misc::raw_data,
+		nsf::archive,
+		nsf::spage,
+		nsf::raw_entry,
+		nsf::wgeo_v2,
+		nsf::entry> (*this,sel.get_asset());
 	im::Columns(1);
 }
 

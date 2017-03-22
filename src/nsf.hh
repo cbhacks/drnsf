@@ -41,6 +41,13 @@ public:
 	using ref = res::ref<archive>;
 
 	DEFINE_APROP(pages);
+
+	template <typename Reflector>
+	void reflect(Reflector &rfl)
+	{
+		asset::reflect(rfl);
+		rfl.property(p_pages,"Pages");
+	}
 };
 
 class spage : public res::asset {
@@ -62,6 +69,15 @@ public:
 	DEFINE_APROP(cid);
 
 	void import_file(TRANSACT,const std::vector<unsigned char> &data);
+
+	template <typename Reflector>
+	void reflect(Reflector &rfl)
+	{
+		asset::reflect(rfl);
+		rfl.property(p_cid,"CID");
+		rfl.property(p_type,"Type");
+		rfl.property(p_pagelets,"Pagelets");
+	}
 };
 
 class entry : public res::asset {
@@ -76,6 +92,13 @@ public:
 	using ref = res::ref<entry>;
 
 	DEFINE_APROP(eid);
+
+	template <typename Reflector>
+	void reflect(Reflector &rfl)
+	{
+		asset::reflect(rfl);
+		rfl.property(p_eid,"EID");
+	}
 };
 
 using raw_item = std::vector<unsigned char>;
@@ -119,6 +142,14 @@ public:
 		destroy(TS);
 		result->rename(TS,name);
 	}
+
+	template <typename Reflector>
+	void reflect(Reflector &rfl)
+	{
+		entry::reflect(rfl);
+		rfl.property(p_items,"Items");
+		rfl.property(p_type,"Type");
+	}
 };
 
 class wgeo_v2 : public entry {
@@ -143,6 +174,16 @@ public:
 	DEFINE_APROP(model);
 
 	void import_entry(TRANSACT,const raw_item_list &items,res::name::space &ns); // FIXME 80 col
+
+	template <typename Reflector>
+	void reflect(Reflector &rfl)
+	{
+		entry::reflect(rfl);
+		rfl.property(p_model,"Model");
+		rfl.property(p_item0,"Item 0");
+		rfl.property(p_item4,"Item 4");
+		rfl.property(p_item6,"Item 6");
+	}
 };
 
 }

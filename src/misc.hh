@@ -38,6 +38,13 @@ public:
 	using ref = res::ref<raw_data>;
 
 	DEFINE_APROP(data);
+
+	template <typename Reflector>
+	void reflect(Reflector &rfl)
+	{
+		asset::reflect(rfl);
+		rfl.property(p_data,"Data");
+	}
 };
 
 }
