@@ -125,6 +125,30 @@ public:
 	}
 
 	template <typename T>
+	bool editable_value(res::ref<T> &value,std::string label)
+	{
+		gui::im::label(label);
+		gui::im::NextColumn();
+		if (value) {
+			gui::im::label(value.get_str());
+			if (value.ok()) {
+				gui::im::SameLine();
+				gui::im::label("( OK )");
+			} else if (value.get_name().has_asset()) {
+				gui::im::SameLine();
+				gui::im::label("( Wrong Type! )");
+			} else {
+				gui::im::SameLine();
+				gui::im::label("( Not Found )");
+			}
+		} else {
+			gui::im::label("[ null ]");
+		}
+		gui::im::NextColumn();
+		return false;
+	}
+
+	template <typename T>
 	bool editable_value(std::vector<T> &list,std::string label)
 	{
 		gui::im::AlignFirstTextHeightToWidgets();
