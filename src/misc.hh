@@ -43,7 +43,7 @@ public:
 	void reflect(Reflector &rfl)
 	{
 		asset::reflect(rfl);
-		rfl.property(p_data,"Data");
+		rfl.field(p_data,"Data");
 	}
 };
 

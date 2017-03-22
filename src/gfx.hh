@@ -65,7 +65,7 @@ public:
 	void reflect(Reflector &rfl)
 	{
 		asset::reflect(rfl);
-		rfl.property(p_vertices,"Vertices");
+		rfl.field(p_vertices,"Vertices");
 	}
 };
 
@@ -87,7 +87,7 @@ public:
 	void reflect(Reflector &rfl)
 	{
 		asset::reflect(rfl);
-		rfl.property(p_frames,"Frames");
+		rfl.field(p_frames,"Frames");
 	}
 };
 
@@ -122,8 +122,8 @@ public:
 	void reflect(Reflector &rfl)
 	{
 		asset::reflect(rfl);
-		rfl.property(p_polys,"Polygons");
-		rfl.property(p_colors,"Colors");
+		rfl.field(p_polys,"Polygons");
+		rfl.field(p_colors,"Colors");
 	}
 };
 
@@ -154,11 +154,11 @@ public:
 	void reflect(Reflector &rfl)
 	{
 		asset::reflect(rfl);
-		rfl.property(p_anim,"Animation");
-		rfl.property(p_mesh,"Mesh");
-		rfl.property(p_scene_x,"Scene X");
-		rfl.property(p_scene_y,"Scene Y");
-		rfl.property(p_scene_z,"Scene Z");
+		rfl.field(p_anim,"Animation");
+		rfl.field(p_mesh,"Mesh");
+		rfl.field(p_scene_x,"Scene X");
+		rfl.field(p_scene_y,"Scene Y");
+		rfl.field(p_scene_z,"Scene Z");
 	}
 };
 

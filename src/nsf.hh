@@ -46,7 +46,7 @@ public:
 	void reflect(Reflector &rfl)
 	{
 		asset::reflect(rfl);
-		rfl.property(p_pages,"Pages");
+		rfl.field(p_pages,"Pages");
 	}
 };
 
@@ -74,9 +74,9 @@ public:
 	void reflect(Reflector &rfl)
 	{
 		asset::reflect(rfl);
-		rfl.property(p_cid,"CID");
-		rfl.property(p_type,"Type");
-		rfl.property(p_pagelets,"Pagelets");
+		rfl.field(p_cid,"CID");
+		rfl.field(p_type,"Type");
+		rfl.field(p_pagelets,"Pagelets");
 	}
 };
 
@@ -97,7 +97,7 @@ public:
 	void reflect(Reflector &rfl)
 	{
 		asset::reflect(rfl);
-		rfl.property(p_eid,"EID");
+		rfl.field(p_eid,"EID");
 	}
 };
 
@@ -147,8 +147,8 @@ public:
 	void reflect(Reflector &rfl)
 	{
 		entry::reflect(rfl);
-		rfl.property(p_items,"Items");
-		rfl.property(p_type,"Type");
+		rfl.field(p_items,"Items");
+		rfl.field(p_type,"Type");
 	}
 };
 
@@ -179,10 +179,10 @@ public:
 	void reflect(Reflector &rfl)
 	{
 		entry::reflect(rfl);
-		rfl.property(p_model,"Model");
-		rfl.property(p_item0,"Item 0");
-		rfl.property(p_item4,"Item 4");
-		rfl.property(p_item6,"Item 6");
+		rfl.field(p_model,"Model");
+		rfl.field(p_item0,"Item 0");
+		rfl.field(p_item4,"Item 4");
+		rfl.field(p_item6,"Item 6");
 	}
 };
 

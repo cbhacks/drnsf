@@ -58,7 +58,7 @@ public:
 	std::string get_title() const override;
 
 	template <typename T>
-	bool editable_value(T &value,std::string label)
+	bool field(const T &value,std::string label)
 	{
 		gui::im::label(label);
 		gui::im::NextColumn();
@@ -68,35 +68,37 @@ public:
 		return false;
 	}
 
-	bool editable_value(int &value,std::string label)
+	template <typename T>
+	std::enable_if_t<std::is_integral<T>::value,bool>
+		field(T &value,std::string label)
 	{
+		int ivalue = value;
 		gui::im::label(label);
 		gui::im::NextColumn();
-		bool changed = gui::im::InputInt("##value",&value);
+		bool changed = gui::im::InputInt("##value",&ivalue);
 		gui::im::NextColumn();
+		if (changed) {
+			value = ivalue;
+		}
 		return changed;
 	}
 
-	bool editable_value(float &value,std::string label)
-	{
-		gui::im::label(label);
-		gui::im::NextColumn();
-		bool changed = gui::im::InputFloat("##value",&value);
-		gui::im::NextColumn();
-		return changed;
-	}
-
-	bool editable_value(double &value,std::string label)
+	template <typename T>
+	std::enable_if_t<std::is_floating_point<T>::value,bool>
+		field(T &value,std::string label)
 	{
 		float fvalue = value;
-		bool changed = editable_value(fvalue,label);
+		gui::im::label(label);
+		gui::im::NextColumn();
+		bool changed = gui::im::InputFloat("##value",&fvalue);
+		gui::im::NextColumn();
 		if (changed) {
 			value = fvalue;
 		}
 		return changed;
 	}
 
-	bool editable_value(gfx::color &value,std::string label)
+	bool field(gfx::color &value,std::string label)
 	{
 		gui::im::label(label);
 		gui::im::NextColumn();
@@ -115,7 +117,7 @@ public:
 		return changed;
 	}
 
-	bool editable_value(gfx::vertex &value,std::string label)
+	bool field(gfx::vertex &value,std::string label)
 	{
 		gui::im::label(label);
 		gui::im::NextColumn();
@@ -125,7 +127,7 @@ public:
 	}
 
 	template <typename T>
-	bool editable_value(res::ref<T> &value,std::string label)
+	bool field(res::ref<T> &value,std::string label)
 	{
 		gui::im::label(label);
 		gui::im::NextColumn();
@@ -149,7 +151,7 @@ public:
 	}
 
 	template <typename T>
-	bool editable_value(std::vector<T> &list,std::string label)
+	bool field(std::vector<T> &list,std::string label)
 	{
 		gui::im::AlignFirstTextHeightToWidgets();
 		bool is_open = gui::im::TreeNode(label.c_str());
@@ -166,18 +168,18 @@ public:
 		bool changed = false;
 		for (auto &&i : util::range_of(list)) {
 			gui::im::scope index_scope(i);
-			changed |= editable_value(list[i],"[$]"_fmt(i));
+			changed |= field(list[i],"[$]"_fmt(i));
 		}
 		gui::im::TreePop();
 		return changed;
 	}
 
 	template <typename T>
-	void property(res::prop<T> &prop,std::string label)
+	void field(res::prop<T> &prop,std::string label)
 	{
 		gui::im::scope prop_scope(&prop);
 		auto value = prop.get();
-		bool changed = editable_value(value,label);
+		bool changed = field(value,label);
 		if (changed) {
 			m_ed.get_project().get_transact() << [&](TRANSACT) {
 				TS.describef("Edit '$'",label);

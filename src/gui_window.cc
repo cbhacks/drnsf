@@ -502,8 +502,7 @@ window_impl::window_impl(
 	ImGui::SetCurrentContext(m_im);
 	m_io = &ImGui::GetIO();
 
-	// Disable the ImGui settings INI.
-	m_io->IniFilename = nullptr;
+	m_io->IniFilename = "imgui.ini";
 
 	m_io->DisplaySize.x = width;
 	m_io->DisplaySize.y = height;

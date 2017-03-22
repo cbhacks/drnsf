@@ -26,6 +26,7 @@
 #include <utility>
 #include <string>
 #include <functional>
+#include <type_traits>
 
 #define STRINGIFY(x) STRINGIFY_(x)
 #define STRINGIFY_(x) #x
