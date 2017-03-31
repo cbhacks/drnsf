@@ -195,8 +195,6 @@ class module : util::not_copyable {
 private:
 	core &m_core;
 
-	std::map<std::string,std::function<void()>> m_hooks;
-
 	virtual void firstframe() {}
 
 	virtual void frame(int delta) {}
@@ -222,9 +220,6 @@ protected:
 		);
 		return std::experimental::any_cast<T &>(pair.first->second);
 	}
-
-	void hook(std::string name,std::function<void()> f);
-	void raise(std::string name);
 
 	transact::nexus &nx = m_core.m_nx;
 	res::name::space &ns = m_core.m_ns;

@@ -34,7 +34,6 @@ void frame(int delta) override
 
 	ImGui::Begin("Assets",&visible);
 
-	ImGui::BeginChild("Tree",{200,0},true);
 	for (auto &&name : ns.get_asset_names()) {
 		if (ImGui::Selectable(
 			name.c_str(),
@@ -43,30 +42,6 @@ void frame(int delta) override
 			selected_asset = name;
 		}
 	}
-	ImGui::EndChild();
-
-	ImGui::SameLine();
-	ImGui::BeginGroup();
-	if (selected_asset.ok()) {
-		ImGui::Separator();
-		ImGui::Separator();
-		ImGui::Separator();
-
-		ImGui::Text(selected_asset.c_str());
-		if (ImGui::Button("Delete")) {
-			nx << [&](TRANSACT) {
-				TS.describef("Delete '$'",selected_asset);
-				selected_asset->destroy(TS);
-			};
-		}
-
-		ImGui::SameLine();
-		ImGui::Button("Rename");
-
-		ImGui::Separator();
-		raise("assets_window_body");
-	}
-	ImGui::EndGroup();
 
 	ImGui::End();
 }

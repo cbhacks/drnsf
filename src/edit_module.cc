@@ -28,24 +28,6 @@ module::module(core &core) :
 {
 }
 
-void module::hook(std::string name,std::function<void()> f)
-{
-	m_hooks.insert(
-		std::pair<std::string,std::function<void()>>(name,f)
-	);
-}
-
-void module::raise(std::string name)
-{
-	for (auto &&kv : m_core.m_modules) {
-		auto &&mod = kv.second;
-		auto it = mod->m_hooks.find(name);
-		if (it == mod->m_hooks.end())
-			continue;
-		it->second();
-	}
-}
-
 cam &module::cam()
 {
 	return m_core.m_cam;
