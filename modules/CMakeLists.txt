@@ -21,9 +21,6 @@
 add_library (drnsf_modules OBJECT
 	assets_window.cc
 
-	asset_editors/gfx_frame.cc
-	asset_editors/gfx_model.cc
-
 	legacy/mod_camera_ctrl.cc
 	legacy/mod_testbox.cc
 )
