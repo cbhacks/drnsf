@@ -94,6 +94,6 @@ target_link_libraries (drnsf PRIVATE ${OPENGL_LIBRARIES})
 
 # GCC Warnings
 if (CMAKE_COMPILER_IS_GNUCXX)
-	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
-	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter")
+	target_compile_options (drnsf PRIVATE -Wall -Wextra)
+	target_compile_options (drnsf PRIVATE -Wno-unused-parameter)
 endif ()
