@@ -79,6 +79,12 @@ add_executable (drnsf
 	$<TARGET_OBJECTS:imgui>
 )
 
+# Enable C++14
+set_target_properties (drnsf PROPERTIES
+	CXX_STANDARD 14
+	CXX_STANDARD_REQUIRED ON
+)
+
 # Dependency: SDL2
 find_package (SDL2 REQUIRED)
 # Fix an SDL2 bug (error CMP0004).
