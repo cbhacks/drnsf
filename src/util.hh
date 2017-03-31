@@ -43,7 +43,7 @@ std::string to_string(long long ll);
 std::string format(std::string fmt);
 
 template <typename T,typename... Args>
-static std::string format(std::string fmt,T t,Args... args)
+inline std::string format(std::string fmt,T t,Args... args)
 {
 	auto delim_pos = fmt.find('$');
 	if (delim_pos == std::string::npos)
@@ -70,7 +70,7 @@ public:
 };
 
 template <typename T>
-static inline auto range(T lbound,T ubound,T step = 1)
+inline auto range(T lbound,T ubound,T step = 1)
 {
 	class range_type {
 	private:
@@ -128,7 +128,7 @@ static inline auto range(T lbound,T ubound,T step = 1)
 }
 
 template <typename T>
-static inline auto range_of(T &container)
+inline auto range_of(T &container)
 {
 	return range<typename T::size_type>(0,container.size() - 1);
 }
