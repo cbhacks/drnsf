@@ -395,6 +395,10 @@ void window_impl::on_frame(int delta_time)
 	// Enable texture-mapping. ImGui also uses this for fonts.
 	glEnable(GL_TEXTURE_2D);
 
+	// Enable the GL scissor test. This is used to clip gui widgets to only
+	// render within their given area.
+	glEnable(GL_SCISSOR_TEST);
+
 	// Draw each of the command lists. Each list contains a set of draw
 	// commands associated with a particular set of vertex arrays.
 	for (int i = 0;i < draw_data->CmdListsCount;i++) {
@@ -438,6 +442,12 @@ void window_impl::on_frame(int delta_time)
 						c.TextureId
 					)
 				);
+				glScissor(
+					c.ClipRect.x,
+					m_height - c.ClipRect.w,
+					c.ClipRect.z - c.ClipRect.x,
+					c.ClipRect.w - c.ClipRect.y
+				);
 				glDrawElements(
 					GL_TRIANGLES,
 					c.ElemCount,
@@ -453,6 +463,9 @@ void window_impl::on_frame(int delta_time)
 			index_array += c.ElemCount;
 		}
 	}
+
+	// Re-disable scissor test.
+	glDisable(GL_SCISSOR_TEST);
 
 	// Unbind whatever texture was bound by the last draw command.
 	glBindTexture(GL_TEXTURE_2D,0);
