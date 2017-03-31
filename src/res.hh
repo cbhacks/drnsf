@@ -47,7 +47,7 @@ private:
 	struct sym;
 
 public:
-	class space : util::not_copyable {
+	class space : private util::nocopy {
 		friend class name;
 
 	private:
@@ -119,7 +119,7 @@ public:
 
 std::string to_string(const name &name);
 
-class asset : util::not_copyable {
+class asset : private util::nocopy {
 private:
 	name m_name;
 
@@ -157,7 +157,7 @@ public:
 };
 
 template <typename T>
-class prop : util::not_copyable {
+class prop : private util::nocopy {
 private:
 	asset &m_owner;
 	T &m_value;

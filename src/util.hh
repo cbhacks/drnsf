@@ -25,16 +25,16 @@
 
 namespace util {
 
-class not_copyable {
+class nocopy {
 private:
-	not_copyable(const not_copyable &) = delete;
-	not_copyable(not_copyable &&) = delete;
+	nocopy(const nocopy &) = delete;
+	nocopy(nocopy &&) = delete;
 
-	not_copyable &operator =(const not_copyable &) = delete;
-	not_copyable &operator =(not_copyable &&) = delete;
+	nocopy &operator =(const nocopy &) = delete;
+	nocopy &operator =(nocopy &&) = delete;
 
 protected:
-	not_copyable() = default;
+	nocopy() = default;
 };
 
 std::string to_string(std::string s);
@@ -133,7 +133,7 @@ inline auto range_of(T &container)
 	return range<typename T::size_type>(0,container.size() - 1);
 }
 
-class binreader : not_copyable {
+class binreader : private nocopy {
 private:
 	const unsigned char *m_data;
 	std::size_t m_size;

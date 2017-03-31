@@ -34,7 +34,7 @@ class mod_module_list;
 
 namespace edit {
 
-class project : util::not_copyable {
+class project : private util::nocopy {
 private:
 	res::name::space m_asset_ns;
 	transact::nexus m_transact;
@@ -72,7 +72,7 @@ public:
 class pane;
 class mode;
 
-class editor : private util::not_copyable {
+class editor : private util::nocopy {
 	friend class window;
 	friend class pane;
 
@@ -87,7 +87,7 @@ public:
 	project &get_project() const;
 };
 
-class pane : private util::not_copyable {
+class pane : private util::nocopy {
 private:
 	std::string m_id;
 	decltype(editor::m_panes)::iterator m_iter;
@@ -105,7 +105,7 @@ public:
 	virtual std::string get_title() const = 0;
 };
 
-class mode : util::not_copyable {
+class mode : private util::nocopy {
 protected:
 	editor &m_ed;
 
@@ -120,7 +120,7 @@ public:
 	virtual void show_gui() {}
 };
 
-class modedef : util::not_copyable {
+class modedef : private util::nocopy {
 private:
 	std::string m_title;
 
@@ -187,7 +187,7 @@ public:
 
 class panel;
 
-class module : util::not_copyable {
+class module : private util::nocopy {
 	friend class core;
 	friend class ::mod_module_list;
 	friend class panel;
@@ -230,7 +230,7 @@ public:
 	virtual ~module() = default;
 };
 
-class module_info : util::not_copyable {
+class module_info : private util::nocopy {
 public:
 	using set = std::unordered_set<module_info *>;
 

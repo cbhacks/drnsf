@@ -68,7 +68,7 @@ void menu_item(
 
 void menu_separator();
 
-class scope : util::not_copyable {
+class scope : private util::nocopy {
 public:
 	explicit scope(int id);
 	explicit scope(void *ptr);

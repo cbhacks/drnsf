@@ -31,7 +31,7 @@
 
 namespace {
 
-class sdl_window : public util::not_copyable {
+class sdl_window : private util::nocopy {
 private:
 	SDL_Window *m_wnd;
 
@@ -66,7 +66,7 @@ public:
 	}
 };
 
-class sdl_glcontext : public util::not_copyable {
+class sdl_glcontext : private util::nocopy {
 private:
 	SDL_GLContext m_glctx;
 
@@ -118,7 +118,7 @@ static void with_windowid(Uint32 id,const T &f)
 	}
 }
 
-class window_impl : public util::not_copyable {
+class window_impl : private util::nocopy {
 	friend class window;
 
 private:

@@ -28,7 +28,7 @@ namespace transact {
 
 typedef std::function<void()> operation;
 
-class transaction : util::not_copyable {
+class transaction : private util::nocopy {
 	friend class nexus;
 	friend class teller;
 
@@ -43,7 +43,7 @@ public:
 	const char *describe() const;
 };
 
-class teller : util::not_copyable {
+class teller : private util::nocopy {
 	friend class nexus;
 
 private:
@@ -87,7 +87,7 @@ public:
 	}
 };
 
-class nexus : util::not_copyable {
+class nexus : private util::nocopy {
 private:
 	std::unique_ptr<transaction> m_undo;
 	std::unique_ptr<transaction> m_redo;
