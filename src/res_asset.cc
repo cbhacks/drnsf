@@ -42,14 +42,10 @@ void asset::rename(TRANSACT,atom name)
 		throw 0;//FIXME
 	}
 
-	// FIXME :: major problem here
-	// :: temporary `name' var is destroyed...how does this affect `TS.swap()' ?
-
 	TS.push_op([this,name]{
 		using std::swap;
 		swap(m_name.get_internal_asset_ptr(),name.get_internal_asset_ptr());
 	});
-	//TS.swap(m_name.get_internal_asset_ptr(),name.get_internal_asset_ptr());
 	TS.set(m_name,name);
 }
 
