@@ -61,7 +61,7 @@ add_executable (drnsf
 	src/transact_nexus.cc
 
 	src/res.hh
-	src/res_name.cc
+	src/res_atom.cc
 	src/res_asset.cc
 
 	src/gfx.hh

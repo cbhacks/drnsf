@@ -36,13 +36,16 @@ namespace edit {
 
 class project : private util::nocopy {
 private:
-	res::name::space m_asset_ns;
+	res::atom m_asset_root;
 	transact::nexus m_transact;
 
 public:
-	res::name::space &get_asset_ns()
+	project() :
+		m_asset_root(res::atom::make_root()) {}
+
+	res::atom &get_asset_root()
 	{
-		return m_asset_ns;
+		return m_asset_root;
 	}
 
 	transact::nexus &get_transact()
@@ -168,7 +171,7 @@ class core : public gui::window {
 
 private:
 	std::shared_ptr<project> m_proj = std::make_shared<project>();
-	res::name::space &m_ns = m_proj->get_asset_ns();
+	res::atom &m_ns = m_proj->get_asset_root();
 	transact::nexus &m_nx = m_proj->get_transact();
 	std::map<const module_info *,std::unique_ptr<module>> m_modules;
 	std::map<std::string,std::experimental::any> m_module_shares;
@@ -222,7 +225,7 @@ protected:
 	}
 
 	transact::nexus &nx = m_core.m_nx;
-	res::name::space &ns = m_core.m_ns;
+	res::atom &ns = m_core.m_ns;
 
 	auto cam() -> cam &;
 

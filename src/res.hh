@@ -38,93 +38,77 @@
 namespace res {
 
 class asset;
-class ns;
 
-class name {
+class atom {
 	friend class asset;
 
-private:
-	struct sym;
-
-public:
-	class space : private util::nocopy {
-		friend class name;
-
-	private:
-		std::map<std::string,sym *> m_map;
-
-	public:
-		space() = default;
-
-		~space();
-
-		std::vector<name> get_asset_names();
-
-		name operator /(const std::string &s);
-	};
+	class nucleus;
 
 private:
-	struct sym {
-		int m_refcount;
+	nucleus *m_nuc;
 
-		space *m_ns;
-		std::string m_str;
-		decltype(space::m_map)::iterator m_map_iter;
+	explicit atom(nucleus *nuc);
 
-		std::unique_ptr<asset> m_asset;
-	};
-
-	sym *m_sym;
+	std::unique_ptr<asset> &get_internal_asset_ptr();
 
 public:
-	name();
-	name(nullptr_t null);
-	name(const name &other);
-	name(name &&other);
-	explicit name(space &ns,const std::string &str);
-	name(sym *sym);
+	static atom make_root();
 
-	~name();
+	atom();
+	atom(std::nullptr_t);
+	atom(const atom &other);
+	atom(atom &&other);
+	~atom();
 
-	auto get_ns() const -> space &;
-	auto get_str() const -> const std::string &;
-	auto get_asset() const -> asset &;
+	atom &operator =(atom other);
 
-	const char *c_str() const;
+	bool operator ==(const atom &other) const;
+	bool operator ==(std::nullptr_t) const;
+	bool operator !=(const atom &other) const;
+	bool operator !=(std::nullptr_t) const;
 
-	bool has_asset() const;
+	explicit operator bool() const;
+	bool operator !() const;
+
+	atom operator /(const std::string &s) const;
+
+	asset *get() const;
+
+	template <typename T>
+	T *get_as() const
+	{
+		return dynamic_cast<T*>(get());
+	}
 
 	template <typename T>
 	bool is_a() const
 	{
-		if (!m_sym)
-			return false;
-		if (dynamic_cast<T*>(m_sym->m_asset.get()) == nullptr)
-			return false;
-		return true;
+		return (get_as<T>() != nullptr);
 	}
 
-	name &operator =(std::nullptr_t null);
-	name &operator =(name other);
+	std::string name() const;
+	std::string full_path() const;
 
-	bool operator ==(const name &other) const;
-	bool operator ==(std::nullptr_t null) const;
-	bool operator !=(const name &other) const;
-	bool operator !=(std::nullptr_t null) const;
-	operator bool() const;
-	bool operator !() const;
+	std::vector<atom> get_children() const;
+	std::vector<atom> get_children_recursive() const;
 
-	name operator /(const std::string &s) const;
+	std::vector<atom> get_asset_names() const
+	{
+		return get_children_recursive();
+	}
+
+	friend std::string to_string(const atom &atom)
+	{
+		return atom.full_path();
+	}
 };
-
-std::string to_string(const name &name);
 
 class asset : private util::nocopy {
 private:
-	name m_name;
+	atom m_atom;
 
 protected:
-	explicit asset(name name);
+	explicit asset() = default;
 
 public:
 	virtual ~asset() = default;
@@ -132,23 +116,23 @@ public:
 	void assert_alive() const;
 
 	template <typename T>
-	static void create(TRANSACT,name name)
+	static void create(TRANSACT,atom atom)
 	{
-		if (!name)
+		if (!atom)
 			throw 0; // FIXME
 
-		if (name.has_asset())
+		if (atom.get())
 			throw 0; // FIXME
 
-		std::unique_ptr<asset> t(new T(name));
-		TS.set(t->m_name,name);
-		TS.set(name.m_sym->m_asset,std::move(t));
+		std::unique_ptr<asset> t(new T());
+		TS.set(t->m_atom,atom);
+		TS.set(atom.get_internal_asset_ptr(),std::move(t));
 	}
 
-	void rename(TRANSACT,name name);
+	void rename(TRANSACT,atom atom);
 	void destroy(TRANSACT);
 
-	const name &get_name() const;
+	const atom &get_name() const;
 
 	template <typename Reflector>
 	void reflect(Reflector &rfl)
@@ -180,112 +164,25 @@ public:
 	}
 };
 
-template <typename T = asset>
-class ref {
-	template <typename T2>
-	friend class res::ref;
-
-private:
-	name m_name;
-
+template <typename T>
+class ref : public atom {
 public:
-	ref() :
-		m_name(nullptr) {}
+	ref() = default;
 
-	ref(std::nullptr_t null) :
-		m_name(nullptr) {}
+	ref(const atom &other) :
+		atom(other) {}
 
-	template <typename T2>
-	ref(const ref<T2> &other) :
-		m_name(other.m_name) {}
-
-	template <typename T2>
-	ref(ref<T2> &&other) :
-		m_name(std::move(other.m_name)) {}
-
-	ref(name name) :
-		m_name(name) {}
-
-	ref(name::space &ns,const std::string &str) :
-		m_name(ns,str) {}
+	ref(atom &&other) :
+		atom(std::move(other)) {}
 
 	void create(TRANSACT) const
 	{
 		res::asset::create<T>(TS,*this);
 	}
 
-	const name &get_name() const
-	{
-		return m_name;
-	}
-
-	name::space &get_ns() const
-	{
-		return m_name.get_ns();
-	}
-
-	std::string get_str() const
-	{
-		return m_name.get_str();
-	}
-
-	const char *c_str() const
-	{
-		return m_name.c_str();
-	}
-
 	bool ok() const
 	{
-		return m_name.is_a<T>();
-	}
-
-	template <typename T2>
-	ref &operator =(ref<T2> other)
-	{
-		m_name = std::move(other.m_name);
-		return *this;
-	}
-
-	template <typename T2>
-	bool operator ==(const ref<T2> &other) const
-	{
-		return (m_name == other.m_name);
-	}
-
-	bool operator==(const name &name) const
-	{
-		return (m_name == name);
-	}
-
-	bool operator==(std::nullptr_t null) const
-	{
-		return (m_name == nullptr);
-	}
-
-	template <typename T2>
-	bool operator !=(const ref<T2> &other) const
-	{
-		return (m_name != other.m_name);
-	}
-
-	bool operator !=(const name &name) const
-	{
-		return (m_name != name);
-	}
-
-	bool operator !=(std::nullptr_t null) const
-	{
-		return (m_name != nullptr);
-	}
-
-	explicit operator bool() const
-	{
-		return static_cast<bool>(m_name);
-	}
-
-	bool operator !() const
-	{
-		return !m_name;
+		return (static_cast<bool>(*this) && is_a<T>());
 	}
 
 	T *operator ->() const
@@ -295,12 +192,11 @@ public:
 
 	T &operator *() const
 	{
-		return dynamic_cast<T&>(m_name.get_asset());
-	}
-
-	operator name() const
-	{
-		return m_name;
+		auto result = get_as<T>();
+		if (!result) {
+			throw 0;//FIXME
+		}
+		return *result;
 	}
 };
 

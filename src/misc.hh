@@ -27,12 +27,10 @@ namespace misc {
 
 class raw_data : public res::asset {
 	friend class res::asset;
+	using asset::asset;
 
 private:
 	std::vector<unsigned char> m_data;
-
-	explicit raw_data(res::name name) :
-		asset(name) {}
 
 public:
 	using ref = res::ref<raw_data>;

@@ -49,12 +49,10 @@ struct color {
 
 class frame : public res::asset {
 	friend class res::asset;
+	using asset::asset;
 
 private:
 	std::vector<vertex> m_vertices;
-
-	explicit frame(res::name name) :
-		asset(name) {}
 
 public:
 	using ref = res::ref<frame>;
@@ -71,12 +69,10 @@ public:
 
 class anim : public res::asset {
 	friend class res::asset;
+	using asset::asset;
 
 private:
 	std::vector<frame::ref> m_frames;
-
-	explicit anim(res::name name) :
-		asset(name) {}
 
 public:
 	using ref = res::ref<anim>;
@@ -104,13 +100,11 @@ struct poly {
 
 class mesh : public res::asset {
 	friend class res::asset;
+	using asset::asset;
 
 private:
 	std::vector<poly> m_polys;
 	std::vector<color> m_colors;
-
-	explicit mesh(res::name name) :
-		asset(name) {}
 
 public:
 	using ref = res::ref<mesh>;
@@ -129,6 +123,7 @@ public:
 
 class model : public res::asset {
 	friend class res::asset;
+	using asset::asset;
 
 private:
 	anim::ref m_anim;
@@ -137,9 +132,6 @@ private:
 	double m_scene_x = 0.0;
 	double m_scene_y = 0.0;
 	double m_scene_z = 0.0;
-
-	explicit model(res::name name) :
-		asset(name) {}
 
 public:
 	using ref = res::ref<model>;

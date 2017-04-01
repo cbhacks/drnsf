@@ -30,12 +30,10 @@ constexpr std::size_t page_size = 65536;
 
 class archive : public res::asset {
 	friend class res::asset;
+	using asset::asset;
 
 private:
 	std::vector<res::anyref> m_pages;
-
-	explicit archive(res::name name) :
-		asset(name) {}
 
 public:
 	using ref = res::ref<archive>;
@@ -52,14 +50,12 @@ public:
 
 class spage : public res::asset {
 	friend class res::asset;
+	using asset::asset;
 
 private:
 	std::vector<res::anyref> m_pagelets;
 	uint16_t m_type = 0;
 	uint32_t m_cid = 0;
-
-	explicit spage(res::name name) :
-		asset(name) {}
 
 public:
 	using ref = res::ref<spage>;
@@ -81,12 +77,10 @@ public:
 };
 
 class entry : public res::asset {
+	using asset::asset;
+
 private:
 	std::uint32_t m_eid = 0;
-
-protected:
-	explicit entry(res::name name) :
-		asset(name) {}
 
 public:
 	using ref = res::ref<entry>;
@@ -106,13 +100,11 @@ using raw_item_list = std::vector<raw_item>;
 
 class raw_entry : public entry {
 	friend class res::asset;
+	using asset::asset;
 
 private:
 	raw_item_list m_items;
 	uint32_t m_type = 0;
-
-	explicit raw_entry(res::name name) :
-		entry(name) {}
 
 public:
 	using ref = res::ref<raw_entry>;
@@ -123,18 +115,18 @@ public:
 	void import_file(TRANSACT,const std::vector<unsigned char> &data);
 
 	template <typename T>
-	void process_as(TRANSACT,res::name::space &ns)
+	void process_as(TRANSACT,res::atom &atom)
 	{
 		assert_alive();
 
 		// Create the output entry under a reserved name,
 		// '_PROCESS_OUTPUT'.
-		res::ref<T> result(ns,"_PROCESS_OUTPUT");
+		res::ref<T> result = atom / "_PROCESS_OUTPUT";
 		result.create(TS);
 
 		// Process the raw items into the output entry.
 		result->set_eid(TS,get_eid());
-		result->import_entry(TS,get_items(),ns);
+		result->import_entry(TS,get_items(),atom);
 
 		// Delete the raw entry (this) and rename the output entry over
 		// this one's name.
@@ -154,6 +146,7 @@ public:
 
 class wgeo_v2 : public entry {
 	friend class res::asset;
+	using asset::asset;
 
 private:
 	raw_item m_item0;
@@ -161,9 +154,6 @@ private:
 	raw_item m_item6;
 
 	gfx::model::ref m_model;
-
-	explicit wgeo_v2(res::name name) :
-		entry(name) {}
 
 public:
 	using ref = res::ref<wgeo_v2>;
@@ -173,7 +163,7 @@ public:
 	DEFINE_APROP(item6);
 	DEFINE_APROP(model);
 
-	void import_entry(TRANSACT,const raw_item_list &items,res::name::space &ns); // FIXME 80 col
+	void import_entry(TRANSACT,const raw_item_list &items,res::atom root);
 
 	template <typename Reflector>
 	void reflect(Reflector &rfl)

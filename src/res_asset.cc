@@ -23,43 +23,38 @@
 
 namespace res {
 
-asset::asset(name name) :
-	m_name(name)
-{
-}
-
 void asset::assert_alive() const
 {
-	if (!m_name) {
+	if (!m_atom) {
 		throw 0; // FIXME
 	}
 }
 
-void asset::rename(TRANSACT,name name)
+void asset::rename(TRANSACT,atom atom)
 {
 	assert_alive();
 
-	if (!name) {
+	if (!atom) {
 		throw 0; // FIXME
 	}
 
-	TS.swap(m_name.m_sym->m_asset,name.m_sym->m_asset);
-	TS.set(m_name,name);
+	TS.swap(m_atom.get_internal_asset_ptr(),atom.get_internal_asset_ptr());
+	TS.set(m_atom,atom);
 }
 
 void asset::destroy(TRANSACT)
 {
 	assert_alive();
 
-	TS.set(m_name.m_sym->m_asset,nullptr);
-	TS.set(m_name,nullptr);
+	TS.set(m_atom.get_internal_asset_ptr(),nullptr);
+	TS.set(m_atom,nullptr);
 }
 
-const name &asset::get_name() const
+const atom &asset::get_name() const
 {
 	assert_alive();
 
-	return m_name;
+	return m_atom;
 }
 
 }

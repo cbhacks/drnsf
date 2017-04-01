@@ -23,7 +23,7 @@
 
 namespace nsf {
 
-void wgeo_v2::import_entry(TRANSACT,const raw_item_list &items,res::name::space &ns)
+void wgeo_v2::import_entry(TRANSACT,const raw_item_list &items,res::atom root)
 {
 	assert_alive();
 
@@ -202,21 +202,21 @@ void wgeo_v2::import_entry(TRANSACT,const raw_item_list &items,res::name::space 
 	// Parse the tpag references.
 	// TODO
 
-	res::name basename = ns / "scenery" / util::format("$",get_eid());
+	res::atom atom = root / "scenery" / util::format("$",get_eid());
 
 	// Create the frame which will contain this scene's vertex positions.
-	gfx::frame::ref frame = basename / "frame";
+	gfx::frame::ref frame = atom / "frame";
 	frame.create(TS);
 	frame->set_vertices(TS,std::move(vertices));
 
 	// Create the animation for this scene (just one frame, scenes are not
 	// vertex-animated).
-	gfx::anim::ref anim = basename / "anim";
+	gfx::anim::ref anim = atom / "anim";
 	anim.create(TS);
 	anim->set_frames(TS,{frame});
 
 	// Create the mesh for this scene.
-	gfx::mesh::ref mesh = basename / "mesh";
+	gfx::mesh::ref mesh = atom / "mesh";
 	mesh.create(TS);
 	std::vector<gfx::poly> polys;
 	polys.insert(polys.end(),triangles.begin(),triangles.end());
@@ -225,7 +225,7 @@ void wgeo_v2::import_entry(TRANSACT,const raw_item_list &items,res::name::space 
 	mesh->set_colors(TS,std::move(colors));
 
 	// Create the model for this scene.
-	gfx::model::ref model = basename;
+	gfx::model::ref model = atom;
 	model.create(TS);
 	model->set_anim(TS,anim);
 	model->set_mesh(TS,mesh);

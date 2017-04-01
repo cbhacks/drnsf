@@ -35,8 +35,9 @@ void frame(int delta) override
 	ImGui::Begin("Assets",&visible);
 
 	for (auto &&name : ns.get_asset_names()) {
+		std::string path = name.full_path();
 		if (ImGui::Selectable(
-			name.c_str(),
+			path.c_str(),
 			selected_asset == name
 		)) {
 			selected_asset = name;

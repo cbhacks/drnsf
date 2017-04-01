@@ -132,11 +132,11 @@ public:
 		gui::im::label(label);
 		gui::im::NextColumn();
 		if (value) {
-			gui::im::label(value.get_str());
+			gui::im::label(value.full_path());
 			if (value.ok()) {
 				gui::im::SameLine();
 				gui::im::label("( OK )");
-			} else if (value.get_name().has_asset()) {
+			} else if (value.get()) {
 				gui::im::SameLine();
 				gui::im::label("( Wrong Type! )");
 			} else {
@@ -214,7 +214,7 @@ private:
 	asset_pane m_asset;
 
 public:
-	res::name m_selected_asset;
+	res::atom m_selected_asset;
 
 	explicit mode_classic(editor &ed) :
 		mode(ed),
@@ -229,9 +229,10 @@ void tree_pane::show()
 	namespace im = gui::im;
 	auto &&proj = m_ed.get_project();
 
-	for (auto &&name : proj.get_asset_ns().get_asset_names()) {
+	for (auto &&name : proj.get_asset_root().get_asset_names()) {
 		bool is_selected = (name == m_mode.m_selected_asset);
-		if (im::Selectable(name.c_str(),is_selected)) {
+		auto path = name.full_path();
+		if (im::Selectable(path.c_str(),is_selected)) {
 			m_mode.m_selected_asset = name;
 		}
 	}
@@ -253,7 +254,7 @@ void asset_pane::show()
 		return;
 	}
 
-	if (!sel.has_asset()) {
+	if (!sel.get()) {
 		im::Text("No asset currently exists with this name.");
 		return;
 	}
@@ -275,7 +276,7 @@ void asset_pane::show()
 		nsf::spage,
 		nsf::raw_entry,
 		nsf::wgeo_v2,
-		nsf::entry> (*this,sel.get_asset());
+		nsf::entry> (*this,*sel.get());
 	im::Columns(1);
 }
 
