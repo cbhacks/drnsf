@@ -71,7 +71,7 @@ public:
 	void set(T &dest,T2 src)
 	{
 		auto newsrc = std::make_shared<T>(std::move(src));
-		push_op([&dest,newsrc]() {
+		push_op([&dest,newsrc]{
 			using std::swap;
 			swap(dest,*newsrc);
 		});
@@ -80,7 +80,7 @@ public:
 	template <typename T>
 	void swap(T &a,T &b)
 	{
-		push_op([&a,&b]() {
+		push_op([&a,&b]{
 			using std::swap;
 			swap(a,b);
 		});

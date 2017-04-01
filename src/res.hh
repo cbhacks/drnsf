@@ -49,7 +49,7 @@ private:
 
 	explicit atom(nucleus *nuc);
 
-	std::unique_ptr<asset> &get_internal_asset_ptr();
+	std::unique_ptr<asset> &get_internal_asset_ptr() const;
 
 public:
 	static atom make_root();
@@ -105,7 +105,7 @@ public:
 
 class asset : private util::nocopy {
 private:
-	atom m_atom;
+	atom m_name;
 
 protected:
 	explicit asset() = default;
@@ -116,20 +116,20 @@ public:
 	void assert_alive() const;
 
 	template <typename T>
-	static void create(TRANSACT,atom atom)
+	static void create(TRANSACT,atom name)
 	{
-		if (!atom)
+		if (!name)
 			throw 0; // FIXME
 
-		if (atom.get())
+		if (name.get())
 			throw 0; // FIXME
 
 		std::unique_ptr<asset> t(new T());
-		TS.set(t->m_atom,atom);
-		TS.set(atom.get_internal_asset_ptr(),std::move(t));
+		TS.set(t->m_name,name);
+		TS.set(name.get_internal_asset_ptr(),std::move(t));
 	}
 
-	void rename(TRANSACT,atom atom);
+	void rename(TRANSACT,atom name);
 	void destroy(TRANSACT);
 
 	const atom &get_name() const;

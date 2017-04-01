@@ -96,7 +96,7 @@ atom::atom(nucleus *nuc) :
 	}
 }
 
-std::unique_ptr<asset> &atom::get_internal_asset_ptr()
+std::unique_ptr<asset> &atom::get_internal_asset_ptr() const
 {
 	if (!m_nuc) {
 		throw 0;//FIXME

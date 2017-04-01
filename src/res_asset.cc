@@ -25,36 +25,47 @@ namespace res {
 
 void asset::assert_alive() const
 {
-	if (!m_atom) {
+	if (!m_name) {
 		throw 0; // FIXME
 	}
 }
 
-void asset::rename(TRANSACT,atom atom)
+void asset::rename(TRANSACT,atom name)
 {
 	assert_alive();
 
-	if (!atom) {
+	if (!name) {
 		throw 0; // FIXME
 	}
 
-	TS.swap(m_atom.get_internal_asset_ptr(),atom.get_internal_asset_ptr());
-	TS.set(m_atom,atom);
+	if (name.get()) {
+		throw 0;//FIXME
+	}
+
+	// FIXME :: major problem here
+	// :: temporary `name' var is destroyed...how does this affect `TS.swap()' ?
+
+	TS.push_op([this,name]{
+		using std::swap;
+		swap(m_name.get_internal_asset_ptr(),name.get_internal_asset_ptr());
+	});
+	//TS.swap(m_name.get_internal_asset_ptr(),name.get_internal_asset_ptr());
+	TS.set(m_name,name);
 }
 
 void asset::destroy(TRANSACT)
 {
 	assert_alive();
 
-	TS.set(m_atom.get_internal_asset_ptr(),nullptr);
-	TS.set(m_atom,nullptr);
+	TS.set(m_name.get_internal_asset_ptr(),nullptr);
+	TS.set(m_name,nullptr);
 }
 
 const atom &asset::get_name() const
 {
 	assert_alive();
 
-	return m_atom;
+	return m_name;
 }
 
 }
