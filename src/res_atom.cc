@@ -21,8 +21,6 @@
 #include "common.hh"
 #include "res.hh"
 
-#include <iostream>//FIXME
-
 namespace res {
 
 class atom::nucleus : private util::nocopy {
@@ -65,23 +63,11 @@ public:
 	void incref()
 	{
 		m_refcount++;
-		std::cout
-			<< "INCREF("
-			<< m_refcount
-			<< ") "
-			<< m_name
-			<< std::endl;
 	}
 
 	void decref()
 	{
 		m_refcount--;
-		std::cout
-			<< "DECREF("
-			<< m_refcount
-			<< ") "
-			<< m_name
-			<< std::endl;
 		if (m_refcount <= 0) {
 			delete this;
 		}
