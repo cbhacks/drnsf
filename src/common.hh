@@ -20,6 +20,16 @@
 
 #pragma once
 
+/*
+ * common.hh
+ *
+ * This header file is the first #include in every source file, even before any
+ * system headers.
+ *
+ * `common.hh' provides a common set of definitions and includes which are
+ * likely to be needed across the entire project.
+ */
+
 #include <cstddef>
 #include <cstdlib>
 #include <memory>
@@ -36,6 +46,10 @@
 
 #include "util.hh"
 
+// User-defined literal for strings. This allows one to use a construct such as
+// `auto s = "Size: $, $"_fmt(width,height);' to format strings. This code is
+// equivalent to `auto s = util::fmt("Size: $, $")(width,height);' but is
+// shorter and perhaps easier to read.
 inline auto operator "" _fmt(const char *s,long unsigned int sz)
 {
 	return util::fmt(s);

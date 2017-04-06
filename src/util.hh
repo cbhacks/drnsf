@@ -20,11 +20,32 @@
 
 #pragma once
 
+/*
+ * util.hh
+ *
+ * This header file provides, under the `util' namespace, numerous types and
+ * functions which may be useful for general programming. This code is intended
+ * to fill in any "gaps" or "missing features" from the standard library, such
+ * as less-terrible string formatting.
+ */
+
 #include <vector>
 #include <string>
 
 namespace util {
 
+/*
+ * util::nocopy
+ *
+ * This is a base class for any type which should not be copyable or movable.
+ * By default, a type in C++ gets an implicitly defined copy constructor, move
+ * constructor, copy assignment operator, and move assignment operator. This
+ * type removes those default behaviors by defining them as deleted.
+ *
+ * Very common base class. Does not provide any behavior.
+ *
+ * Inherit as private.
+ */
 class nocopy {
 private:
 	nocopy(const nocopy &) = delete;
@@ -37,11 +58,37 @@ protected:
 	nocopy() = default;
 };
 
+/*
+ * util::to_string
+ *
+ * These functions provide a mechanism for converting some known common types
+ * to strings. Any code using these should consider allowing for ADL using the
+ * same idiom as the `using std::swap; swap(x,y);' concept.
+ *
+ * This code actually already exists in the standard library, so it should be
+ * removed from here. [ FIXME ]
+ */
 std::string to_string(std::string s);
 std::string to_string(long long ll);
 
+/*
+ * util::format
+ *
+ * This function is the base overload for `format(std::string,...)' when there
+ * are no more arguments present. See below.
+ */
 std::string format(std::string fmt);
 
+/*
+ * util::format
+ *
+ * This templated function provides string formatting. The format string uses
+ * individual dollar signs ($) as placeholders for arguments. Arguments are
+ * taken in successive order like %s or %d in printf but without regard to
+ * type. No format specifiers are supported yet.
+ *
+ * Example usage: `format("Pos: $,$  Size: $,$",x,y,width,height)'
+ */
 template <typename T,typename... Args>
 inline std::string format(std::string fmt,T t,Args... args)
 {
@@ -54,6 +101,23 @@ inline std::string format(std::string fmt,T t,Args... args)
 		format(fmt.substr(delim_pos + 1),std::forward<Args>(args)...);
 }
 
+/*
+ * util::fmt
+ *
+ * An instance of this class represents a "format string", similar to as used
+ * in C `printf'. Format strings can be constructed from standard strings using
+ * the explicit constructor provided in this class.
+ *
+ * A format string object is used by applying the arguments to it using the call
+ * operator (as one would call a function, `f(a,b,c)') which yields the string
+ * produced by the formatting. The format string is not altered or destroyed by
+ * this operation, and may be reused as many times as desired.
+ *
+ * The format string's format is described in `util::format' above.
+ *
+ * This class is also available using the _fmt user-defined literal defined in
+ * `common.hh'. See that definition for more details.
+ */
 class fmt {
 private:
 	std::string m_format;
@@ -69,6 +133,32 @@ public:
 	}
 };
 
+/*
+ * util::range
+ *
+ * This function returns an instance of an object which represents an iterable
+ * range of values, generally intended for use in for-range loops. This
+ * construct works like this:
+ *
+ * `for (auto x : range(1,9,2)) { ... }'
+ *
+ * Which would work the same as the common BASIC language for loop:
+ *
+ * `FOR x = 1 TO 9 STEP 2'
+ *
+ * This loop would yield the values 1, 3, 5, 7, and 9 in order.
+ *
+ * The concept is to define an iterable object which returns the values from the
+ * lower bound to the upper bound, inclusive, in whatever increments desired (by
+ * default this is 1). Note that if the lower bound is greater than the upper
+ * bound, in most such cases you should provide a negative step value.
+ *
+ * range<T> is generic, and could be used presumably for any type which properly
+ * implements the operators `!=', `+', `+=', and is copyable.
+ *
+ * FIXME: Stepping over the upper range will actually not end the loop, as `end'
+ * returns `ubound + step' which will only match exact hits.
+ */
 template <typename T>
 inline auto range(T lbound,T ubound,T step = 1)
 {
@@ -127,12 +217,49 @@ inline auto range(T lbound,T ubound,T step = 1)
 	return range_type(lbound,ubound,step);
 }
 
+/*
+ * util::range_of
+ *
+ * This function returns a range type, similar to `util::range' described above,
+ * but which uses a range matching the range of a given container. This is most
+ * useful in for-range loops over `std::vector' types where one wishes to get
+ * the index rather than a reference to the element.
+ */
 template <typename T>
 inline auto range_of(T &container)
 {
 	return range<typename T::size_type>(0,container.size() - 1);
 }
 
+/*
+ * util::binreader
+ *
+ * This class provides a mechanism for reading and parsing binary data.
+ *
+ * Usage of this class goes as follows:
+ *
+ * 1. `begin' is called on an instance of `binreader'. This binds the reader to
+ * a particular block of bytes, which it will read from.
+ *
+ * 2. Various methods on the binreader are called, such as `read_u8', `read_s32'
+ * or `read_ubits(n)'. The binreader automatically range-checks these against
+ * the size given to `begin'.
+ *
+ * 3. The binreader is closed by calling `end'. This will throw an exception if
+ * the entire input data has not been read completely. Alternatively, the method
+ * `end_early' may be called if this is an expected case.
+ *
+ * 4. At this point, the object may be reused by repeating from step 1 if
+ * desired.
+ *
+ * When reading, additional methods are available, such as `discard' for reading
+ * data but discarding it, and various `expect_' methods for reading data and
+ * throwing an exception if the data does not match the given value.
+ *
+ * When reading bit values, one must not call a non-bit read/expect/discard
+ * method while part-way into a given byte of data. This use case is not
+ * supported, and an exception will be thrown.
+ */
 class binreader : private nocopy {
 private:
 	const unsigned char *m_data;
