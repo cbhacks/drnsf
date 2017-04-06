@@ -20,11 +20,35 @@
 
 #pragma once
 
+/*
+ * misc.hh
+ *
+ * Not to be confused with `util.hh'.
+ *
+ * This header defines miscellaneous asset types which don't fit into any other
+ * existing category.
+ *
+ * For more information on the asset system, see `asset.hh'.
+ */
+
 #include <vector>
 #include "res.hh"
 
 namespace misc {
 
+/*
+ * misc::raw_data
+ *
+ * This asset type represents a series of bytes of no particular purpose or no
+ * known purpose.
+ *
+ * For example, when importing a file for processing, this type is likely to be
+ * the interrim format after importing the data but before parsing it into its
+ * actual intended asset type.
+ *
+ * A real asset which does not yet have an internal supported format may be held
+ * as a `misc::raw_data' asset as this also fits that purpose.
+ */
 class raw_data : public res::asset {
 	friend class res::asset;
 	using asset::asset;
