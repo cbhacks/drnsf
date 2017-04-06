@@ -27,7 +27,7 @@
 namespace edit {
 
 window::window() :
-	gui::window("Dr. N. Essef",800,600)
+	gui::window(APP_TITLE,800,600)
 {
 }
 
@@ -66,7 +66,7 @@ void window::frame(int delta_time)
 			im::menu_item("Save Project");
 			im::menu_item("Save Project As");
 			im::menu_separator();
-			im::menu_item("Exit DRNSF",[&]{
+			im::menu_item("Exit " APP_NAME,[&]{
 				// Prompt the user for confirmation if there are
 				// unsaved changes.
 				// TODO

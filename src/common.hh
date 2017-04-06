@@ -28,6 +28,9 @@
 #include <functional>
 #include <type_traits>
 
+#define APP_NAME "DRNSF"
+#define APP_TITLE "Dr. N. Essef"
+
 #define STRINGIFY(x) STRINGIFY_(x)
 #define STRINGIFY_(x) #x
 
