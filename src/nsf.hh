@@ -115,18 +115,18 @@ public:
 	void import_file(TRANSACT,const std::vector<unsigned char> &data);
 
 	template <typename T>
-	void process_as(TRANSACT,res::atom &atom)
+	void process_as(TRANSACT,res::atom &root)
 	{
 		assert_alive();
 
 		// Create the output entry under a reserved name,
 		// '_PROCESS_OUTPUT'.
-		res::ref<T> result = atom / "_PROCESS_OUTPUT";
+		res::ref<T> result = root / "_PROCESS_OUTPUT";
 		result.create(TS);
 
 		// Process the raw items into the output entry.
 		result->set_eid(TS,get_eid());
-		result->import_entry(TS,get_items(),atom);
+		result->import_entry(TS,get_items(),root);
 
 		// Delete the raw entry (this) and rename the output entry over
 		// this one's name.

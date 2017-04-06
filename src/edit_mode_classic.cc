@@ -260,10 +260,6 @@ void asset_pane::show()
 	}
 
 	im::Columns(2);
-	gfx::frame::ref frame(sel);
-	gfx::anim::ref anim(sel);
-	gfx::mesh::ref mesh(sel);
-	gfx::model::ref model(sel);
 	dyn_reflect<
 		asset_pane,
 		res::asset,
