@@ -19,70 +19,35 @@
 //
 
 #include "common.hh"
+#include <cstring>
 #include "res.hh"
 
 namespace res {
 
-class atom::nucleus : private util::nocopy {
-	friend class atom;
-
-private:
-	nucleus *m_parent;
-	int m_refcount;
-	std::string m_name;
-	std::unique_ptr<asset> m_asset;
-	std::map<std::string,nucleus *> m_children;
-	decltype(m_children)::iterator m_iter;
-
-public:
-	explicit nucleus() :
-		m_parent(nullptr),
-		m_refcount(0),
-		m_name("root")
+struct nucleus_name_comparator {
+	bool operator()(const char *lhs,const char *rhs)
 	{
-	}
-
-	explicit nucleus(nucleus *parent,std::string name) :
-		m_parent(parent),
-		m_refcount(0),
-		m_name(name)
-	{
-		auto result = parent->m_children.insert({m_name,this});
-		m_iter = result.first;
-		parent->incref();
-	}
-
-	~nucleus()
-	{
-		if (m_parent) {
-			m_parent->m_children.erase(m_iter);
-			m_parent->decref();
-		}
-	}
-
-	void incref()
-	{
-		m_refcount++;
-	}
-
-	void decref()
-	{
-		m_refcount--;
-		if (m_refcount <= 0) {
-			delete this;
-		}
+		return (std::strcmp(lhs,rhs) < 0);
 	}
 };
 
-atom::atom(nucleus *nuc) :
+struct atom::nucleus {
+	int m_refcount;
+	const char *m_name;
+	nucleus *m_parent;
+	asset *m_asset;
+	std::map<const char *,nucleus *,nucleus_name_comparator> m_children;
+};
+
+atom::atom(nucleus *nuc) noexcept :
 	m_nuc(nuc)
 {
-	if (nuc) {
-		nuc->incref();
+	if (m_nuc) {
+		m_nuc->m_refcount++;
 	}
 }
 
-std::unique_ptr<asset> &atom::get_internal_asset_ptr() const
+asset *&atom::get_internal_asset_ptr() const
 {
 	if (!m_nuc) {
 		throw 0;//FIXME
@@ -92,37 +57,60 @@ std::unique_ptr<asset> &atom::get_internal_asset_ptr() const
 
 atom atom::make_root()
 {
-	return atom(new nucleus());
+	auto nuc_space = std::malloc(sizeof(nucleus));
+	if (!nuc_space) {
+		throw 0;//FIXME
+	}
+
+	nucleus *nuc;
+	try {
+		nuc = new(nuc_space) nucleus;
+	} catch (...) {
+		std::free(nuc_space);
+		throw;
+	}
+	nuc->m_refcount = 0;
+	nuc->m_name = "_ROOT";
+	nuc->m_parent = nullptr;
+	nuc->m_asset = nullptr;
+	return atom(nuc);
 }
 
-atom::atom() :
+atom::atom() noexcept :
 	m_nuc(nullptr)
 {
 }
 
-atom::atom(std::nullptr_t) :
+atom::atom(std::nullptr_t) noexcept :
 	m_nuc(nullptr)
 {
 }
 
-atom::atom(const atom &other) :
+atom::atom(const atom &other) noexcept :
 	m_nuc(other.m_nuc)
 {
 	if (m_nuc) {
-		m_nuc->incref();
+		m_nuc->m_refcount++;
 	}
 }
 
-atom::atom(atom &&other) :
+atom::atom(atom &&other) noexcept :
 	m_nuc(other.m_nuc)
 {
 	other.m_nuc = nullptr;
 }
 
-atom::~atom()
+atom::~atom() noexcept
 {
-	if (m_nuc) {
-		m_nuc->decref();
+	nucleus *nuc = m_nuc;
+	while (nuc && --nuc->m_refcount == 0) {
+		nucleus *parent = nuc->m_parent;
+		if (parent) {
+			parent->m_children.erase(nuc->m_name);
+		}
+		nuc->~nucleus();
+		std::free(nuc);
+		nuc = parent;
 	}
 }
 
@@ -132,50 +120,88 @@ atom &atom::operator =(atom other)
 	return *this;
 }
 
-bool atom::operator ==(const atom &other) const
+bool atom::operator ==(const atom &other) const noexcept
 {
 	return (m_nuc == other.m_nuc);
 }
 
-bool atom::operator ==(std::nullptr_t) const
+bool atom::operator ==(std::nullptr_t) const noexcept
 {
 	return (m_nuc == nullptr);
 }
 
-bool atom::operator !=(const atom &other) const
+bool atom::operator !=(const atom &other) const noexcept
 {
 	return (m_nuc != other.m_nuc);
 }
 
-bool atom::operator !=(std::nullptr_t) const
+bool atom::operator !=(std::nullptr_t) const noexcept
 {
 	return (m_nuc != nullptr);
 }
 
-atom::operator bool() const
+atom::operator bool() const noexcept
 {
 	return (m_nuc != nullptr);
 }
 
-bool atom::operator !() const
+bool atom::operator !() const noexcept
 {
 	return !m_nuc;
 }
 
-atom atom::operator /(const std::string &s) const
+atom atom::operator /(const char *s) const
 {
 	if (!m_nuc) {
 		throw 0;//FIXME
 	}
 
-	auto iter = m_nuc->m_children.find(s);
-	if (iter == m_nuc->m_children.end()) {
-		auto nuc = new nucleus(m_nuc,s);
-		return atom(nuc);
-	} else {
-		auto nuc = iter->second;
-		return atom(nuc);
+	auto name_len = std::strlen(s);
+	if (name_len == 0) {
+		throw 0;//FIXME
 	}
+
+	auto iter = m_nuc->m_children.find(s);
+	if (iter != m_nuc->m_children.end()) {
+		return atom(iter->second);
+	}
+
+	auto newnuc_space = std::malloc(sizeof(nucleus) + name_len + 1);
+	if (!newnuc_space) {
+		throw 0;//FIXME
+	}
+
+	nucleus *newnuc;
+	try {
+		newnuc = new(newnuc_space) nucleus;
+	} catch (...) {
+		std::free(newnuc_space);
+		throw;
+	}
+
+	auto name = static_cast<char *>(newnuc_space) + sizeof(nucleus);
+	newnuc->m_refcount = 0;
+	newnuc->m_name = name;
+	newnuc->m_parent = m_nuc;
+	newnuc->m_asset = nullptr;
+	std::strcpy(name,s);
+
+	try {
+		m_nuc->m_children.insert({name,newnuc});
+	} catch (...) {
+		newnuc->~nucleus();
+		std::free(newnuc_space);
+		throw;
+	}
+
+	m_nuc->m_refcount++;
+
+	return atom(newnuc);
+}
+
+atom atom::operator /(const std::string &s) const
+{
+	return operator /(s.c_str());
 }
 
 asset *atom::get() const
@@ -183,7 +209,7 @@ asset *atom::get() const
 	if (!m_nuc) {
 		throw 0;//FIXME
 	}
-	return m_nuc->m_asset.get();
+	return m_nuc->m_asset;
 }
 
 std::string atom::name() const

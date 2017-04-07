@@ -42,34 +42,35 @@ class asset;
 class atom {
 	friend class asset;
 
-	class nucleus;
+	struct nucleus;
 
 private:
 	nucleus *m_nuc;
 
-	explicit atom(nucleus *nuc);
+	explicit atom(nucleus *nuc) noexcept;
 
-	std::unique_ptr<asset> &get_internal_asset_ptr() const;
+	asset *&get_internal_asset_ptr() const;
 
 public:
 	static atom make_root();
 
-	atom();
-	atom(std::nullptr_t);
-	atom(const atom &other);
-	atom(atom &&other);
-	~atom();
+	atom() noexcept;
+	atom(std::nullptr_t) noexcept;
+	atom(const atom &other) noexcept;
+	atom(atom &&other) noexcept;
+	~atom() noexcept;
 
 	atom &operator =(atom other);
 
-	bool operator ==(const atom &other) const;
-	bool operator ==(std::nullptr_t) const;
-	bool operator !=(const atom &other) const;
-	bool operator !=(std::nullptr_t) const;
+	bool operator ==(const atom &other) const noexcept;
+	bool operator ==(std::nullptr_t) const noexcept;
+	bool operator !=(const atom &other) const noexcept;
+	bool operator !=(std::nullptr_t) const noexcept;
 
-	explicit operator bool() const;
-	bool operator !() const;
+	explicit operator bool() const noexcept;
+	bool operator !() const noexcept;
 
+	atom operator /(const char *s) const;
 	atom operator /(const std::string &s) const;
 
 	asset *get() const;
@@ -124,9 +125,12 @@ public:
 		if (name.get())
 			throw 0; // FIXME
 
-		std::unique_ptr<asset> t(new T());
+		auto t = new T;
 		TS.set(t->m_name,name);
-		TS.set(name.get_internal_asset_ptr(),std::move(t));
+		TS.set(name.get_internal_asset_ptr(),t);
+		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
+		// at what point do we free t now? used to be a unique_ptr...
+		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
 	}
 
 	void rename(TRANSACT,atom name);
