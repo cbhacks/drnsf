@@ -115,7 +115,7 @@ public:
 	void import_file(TRANSACT,const std::vector<unsigned char> &data);
 
 	template <typename T>
-	void process_as(TRANSACT,res::atom &root)
+	void process_as(TRANSACT,res::atom root)
 	{
 		assert_alive();
 

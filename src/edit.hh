@@ -34,25 +34,7 @@ class mod_module_list;
 
 namespace edit {
 
-class project : private util::nocopy {
-private:
-	res::atom m_asset_root;
-	transact::nexus m_transact;
-
-public:
-	project() :
-		m_asset_root(res::atom::make_root()) {}
-
-	res::atom &get_asset_root()
-	{
-		return m_asset_root;
-	}
-
-	transact::nexus &get_transact()
-	{
-		return m_transact;
-	}
-};
+using res::project;
 
 class core; // FIXME
 
@@ -171,7 +153,7 @@ class core : public gui::window {
 
 private:
 	std::shared_ptr<project> m_proj = std::make_shared<project>();
-	res::atom &m_ns = m_proj->get_asset_root();
+	const res::atom &m_ns = m_proj->get_asset_root();
 	transact::nexus &m_nx = m_proj->get_transact();
 	std::map<const module_info *,std::unique_ptr<module>> m_modules;
 	std::map<std::string,std::experimental::any> m_module_shares;
@@ -225,7 +207,7 @@ protected:
 	}
 
 	transact::nexus &nx = m_core.m_nx;
-	res::atom &ns = m_core.m_ns;
+	const res::atom &ns = m_core.m_ns;
 
 	auto cam() -> cam &;
 

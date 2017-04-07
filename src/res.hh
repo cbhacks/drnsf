@@ -144,6 +144,32 @@ public:
 	}
 };
 
+class project : private util::nocopy {
+private:
+	atom m_root;
+	std::list<std::unique_ptr<asset>> m_assets;
+	transact::nexus m_transact;
+
+public:
+	project() :
+		m_root(atom::make_root()) {}
+
+	const atom &get_asset_root()
+	{
+		return m_root;
+	}
+
+	const decltype(m_assets) &get_asset_list()
+	{
+		return m_assets;
+	}
+
+	transact::nexus &get_transact()
+	{
+		return m_transact;
+	}
+};
+
 template <typename T>
 class prop : private util::nocopy {
 private:
