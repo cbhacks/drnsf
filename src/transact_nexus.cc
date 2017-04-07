@@ -21,6 +21,7 @@
 #include "common.hh"
 #include "transact.hh"
 
+namespace drnsf {
 namespace transact {
 
 bool nexus::has_undo() const
@@ -135,4 +136,5 @@ nexus &nexus::operator <<(std::function<void(TRANSACT)> job)
 	return *this;
 }
 
+}
 }

@@ -24,6 +24,7 @@
 #include "misc.hh"
 #include "nsf.hh"
 
+namespace drnsf {
 namespace edit {
 
 class mode_classic;
@@ -285,4 +286,5 @@ std::string asset_pane::get_title() const
 	}
 }
 
+}
 }

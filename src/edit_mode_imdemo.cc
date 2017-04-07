@@ -21,6 +21,7 @@
 #include "common.hh"
 #include "edit.hh"
 
+namespace drnsf {
 namespace edit {
 
 class mode_imdemo : public mode {
@@ -36,4 +37,5 @@ public:
 
 static modedef_of<mode_imdemo> g_mode_imdemo_def("Imgui Demo");
 
+}
 }

@@ -21,6 +21,7 @@
 #include "common.hh"
 #include "transact.hh"
 
+namespace drnsf {
 namespace transact {
 
 transaction::transaction(std::list<operation> &&ops,std::string desc) :
@@ -34,4 +35,5 @@ const char *transaction::describe() const
 	return m_desc.c_str();
 }
 
+}
 }

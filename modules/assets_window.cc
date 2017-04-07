@@ -20,6 +20,8 @@
 
 #include "module.hh"
 
+namespace drnsf {
+
 BEGIN_MODULE
 
 bool visible = false;
@@ -51,4 +53,6 @@ END_MODULE
 std::unique_ptr<edit::module> create_assets_window(edit::core &core)
 {
 	return std::unique_ptr<edit::module>(new mod(core));
+}
+
 }

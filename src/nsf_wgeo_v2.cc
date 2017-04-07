@@ -21,6 +21,7 @@
 #include "common.hh"
 #include "nsf.hh"
 
+namespace drnsf {
 namespace nsf {
 
 void wgeo_v2::import_entry(TRANSACT,const raw_item_list &items,res::atom root)
@@ -240,4 +241,5 @@ void wgeo_v2::import_entry(TRANSACT,const raw_item_list &items,res::atom root)
 	set_model(TS,model);
 }
 
+}
 }

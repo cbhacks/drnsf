@@ -21,6 +21,7 @@
 #include "common.hh"
 #include "edit.hh"
 
+namespace drnsf {
 namespace edit {
 
 pane::pane(editor &ed,std::string id) :
@@ -41,4 +42,5 @@ const std::string &pane::get_id() const
 	return m_id;
 }
 
+}
 }

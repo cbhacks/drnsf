@@ -21,6 +21,7 @@
 #include "common.hh"
 #include "edit.hh"
 
+namespace drnsf {
 namespace edit {
 
 editor::editor(std::shared_ptr<project> proj) :
@@ -36,4 +37,5 @@ project &editor::get_project() const
 	return *m_proj;
 }
 
+}
 }

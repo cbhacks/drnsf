@@ -46,6 +46,8 @@
 
 #include "util.hh"
 
+namespace drnsf {
+
 // User-defined literal for strings. This allows one to use a construct such as
 // `auto s = "Size: $, $"_fmt(width,height);' to format strings. This code is
 // equivalent to `auto s = util::fmt("Size: $, $")(width,height);' but is
@@ -53,4 +55,6 @@
 inline auto operator "" _fmt(const char *s,long unsigned int sz)
 {
 	return util::fmt(s);
+}
+
 }

@@ -21,6 +21,7 @@
 #include "common.hh"
 #include "transact.hh"
 
+namespace drnsf {
 namespace transact {
 
 teller::teller() :
@@ -86,4 +87,5 @@ void teller::push_op(operation op)
 	m_ops.front()();
 }
 
+}
 }

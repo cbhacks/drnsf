@@ -24,6 +24,7 @@
 
 #define TRANSACT transact::teller &TS
 
+namespace drnsf {
 namespace transact {
 
 typedef std::function<void()> operation;
@@ -105,4 +106,5 @@ public:
 	nexus &operator <<(std::function<void(TRANSACT)> job);
 };
 
+}
 }

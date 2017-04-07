@@ -21,6 +21,7 @@
 #include "common.hh"
 #include "edit.hh"
 
+namespace drnsf {
 namespace edit {
 
 static std::set<modedef *> s_modedef_list;
@@ -41,4 +42,5 @@ const std::set<modedef*> &modedef::get_list()
 	return s_modedef_list;
 }
 
+}
 }

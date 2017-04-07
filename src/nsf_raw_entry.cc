@@ -22,6 +22,7 @@
 #include "nsf.hh"
 #include "gui.hh"
 
+namespace drnsf {
 namespace nsf {
 
 void raw_entry::import_file(TRANSACT,const std::vector<unsigned char> &data)
@@ -74,4 +75,5 @@ void raw_entry::import_file(TRANSACT,const std::vector<unsigned char> &data)
 	set_items(TS,std::move(items));
 }
 
+}
 }

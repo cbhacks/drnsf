@@ -23,6 +23,7 @@
 #include <vector>
 #include "res.hh"
 
+namespace drnsf {
 namespace gfx {
 
 struct vertex {
@@ -154,4 +155,5 @@ public:
 	}
 };
 
+}
 }

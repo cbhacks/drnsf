@@ -22,6 +22,7 @@
 
 #include "../imgui/imgui.h"
 
+namespace drnsf {
 namespace gui {
 
 class window_impl;
@@ -77,4 +78,5 @@ public:
 
 }
 
+}
 }

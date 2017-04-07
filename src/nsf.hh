@@ -24,6 +24,7 @@
 #include "res.hh"
 #include "gfx.hh"
 
+namespace drnsf {
 namespace nsf {
 
 constexpr std::size_t page_size = 65536;
@@ -176,4 +177,5 @@ public:
 	}
 };
 
+}
 }

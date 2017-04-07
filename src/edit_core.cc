@@ -29,6 +29,8 @@
 #define DISPLAYWIDTH 800
 #define DISPLAYHEIGHT 600
 
+namespace drnsf {
+
 std::unique_ptr<edit::module> create_assets_window(edit::core &);
 std::unique_ptr<edit::module> create_mod_testbox(edit::core &);
 std::unique_ptr<edit::module> create_mod_camera_ctrl(edit::core &);
@@ -92,4 +94,5 @@ void core::frame(int delta)
 	glMatrixMode(GL_MODELVIEW);
 }
 
+}
 }

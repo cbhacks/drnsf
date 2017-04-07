@@ -21,6 +21,7 @@
 #include "common.hh"
 #include "res.hh"
 
+namespace drnsf {
 namespace res {
 
 void asset::assert_alive() const
@@ -64,4 +65,5 @@ const atom &asset::get_name() const
 	return m_name;
 }
 
+}
 }

@@ -22,6 +22,7 @@
 #include <sstream>
 #include "util.hh"
 
+namespace drnsf {
 namespace util {
 
 std::string to_string(std::string s)
@@ -45,4 +46,5 @@ std::string format(std::string fmt)
 	return fmt;
 }
 
+}
 }

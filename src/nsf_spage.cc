@@ -22,6 +22,7 @@
 #include "nsf.hh"
 #include "misc.hh"
 
+namespace drnsf {
 namespace nsf {
 
 void spage::import_file(TRANSACT,const std::vector<unsigned char> &data)
@@ -88,4 +89,5 @@ void spage::import_file(TRANSACT,const std::vector<unsigned char> &data)
 	set_pagelets(TS,{pagelets.begin(),pagelets.end()});
 }
 
+}
 }

@@ -29,6 +29,8 @@
 #define DISPLAYWIDTH  800
 #define DISPLAYHEIGHT 600
 
+namespace drnsf {
+
 namespace {
 
 class sdl_window : private util::nocopy {
@@ -609,4 +611,5 @@ void window::run_once()
 	}
 }
 
+}
 }

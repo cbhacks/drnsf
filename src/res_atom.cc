@@ -22,6 +22,7 @@
 #include <cstring>
 #include "res.hh"
 
+namespace drnsf {
 namespace res {
 
 struct nucleus_name_comparator {
@@ -268,4 +269,5 @@ std::vector<atom> atom::get_children_recursive() const
 	return result;
 }
 
+}
 }

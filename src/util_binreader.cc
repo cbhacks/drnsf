@@ -22,6 +22,7 @@
 #include <sstream>
 #include "util.hh"
 
+namespace drnsf {
 namespace util {
 
 binreader::binreader() :
@@ -226,4 +227,5 @@ void binreader::discard_bits(int bits)
 	read_ubits(bits);
 }
 
+}
 }

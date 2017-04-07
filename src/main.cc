@@ -26,6 +26,8 @@
 
 int main(int argc,char *argv[])
 {
+	using namespace drnsf;
+
 	// Initialize SDL.
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
 		std::cerr <<

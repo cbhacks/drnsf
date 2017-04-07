@@ -26,6 +26,8 @@
 
 static double angle = 0;
 
+namespace drnsf {
+
 BEGIN_MODULE
 
 static std::vector<unsigned char> read_file(const std::string &filename)
@@ -245,4 +247,6 @@ END_MODULE
 std::unique_ptr<edit::module> create_mod_testbox(edit::core &core)
 {
 	return std::unique_ptr<edit::module>(new mod(core));
+}
+
 }

@@ -25,7 +25,7 @@
 #include "transact.hh"
 
 #define DEFINE_APROP(name) \
-	::res::prop<decltype(m_##name)> p_##name = { *this, m_##name }; \
+	::drnsf::res::prop<decltype(m_##name)> p_##name = { *this, m_##name }; \
 	const decltype(m_##name) &get_##name() const \
 	{ \
 		return p_##name.get(); \
@@ -35,6 +35,7 @@
 		p_##name.set(TS,std::move(value)); \
 	}
 
+namespace drnsf {
 namespace res {
 
 class asset;
@@ -232,4 +233,5 @@ public:
 
 using anyref = ref<asset>;
 
+}
 }

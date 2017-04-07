@@ -22,6 +22,7 @@
 #include "../imgui/imgui.h"
 #include "gui.hh"
 
+namespace drnsf {
 namespace gui {
 namespace im {
 
@@ -101,5 +102,6 @@ scope::~scope()
 	PopID();
 }
 
+}
 }
 }

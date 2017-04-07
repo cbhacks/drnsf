@@ -24,6 +24,7 @@
 #include "edit.hh"
 #include "gui.hh"
 
+namespace drnsf {
 namespace edit {
 
 window::window() :
@@ -127,4 +128,5 @@ void window::frame(int delta_time)
 	}
 }
 
+}
 }

@@ -32,6 +32,7 @@
 #include <vector>
 #include <string>
 
+namespace drnsf {
 namespace util {
 
 /*
@@ -305,4 +306,5 @@ public:
 	void discard_bits(int bits);
 };
 
+}
 }

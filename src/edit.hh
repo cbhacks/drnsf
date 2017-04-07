@@ -28,8 +28,8 @@
 
 struct ImGuiIO;
 struct ImDrawData;
-class mod_module_list;
 
+namespace drnsf {
 namespace edit {
 
 using res::project;
@@ -147,7 +147,6 @@ class module_info;
 
 class core : public gui::window {
 	friend class module;
-	friend class ::mod_module_list;
 
 private:
 	std::shared_ptr<project> m_proj = std::make_shared<project>();
@@ -185,4 +184,5 @@ public:
 	virtual ~module() = default;
 };
 
+}
 }
