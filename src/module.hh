@@ -27,12 +27,12 @@
 
 #define BEGIN_MODULE \
 	namespace { \
-	class mod : public edit::module { \
-	public: \
-		mod(edit::core &core) : \
-			module(core) {}
+	struct mod { \
+		edit::core &m_core; \
+		\
+		explicit mod(edit::core &core) : \
+			m_core(core) {}
 
 #define END_MODULE \
-	private: \
 	}; \
 	}

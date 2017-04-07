@@ -44,8 +44,13 @@ static std::vector<unsigned char> read_file(const std::string &filename)
 	return data;
 }
 
-void frame(int delta) override
+void frame(int delta)
 {
+	auto &&nx = m_core.m_nx;
+	auto &&ns = m_core.m_ns;
+	auto &&selected_asset = m_core.m_selected_asset;
+	auto &&cam = m_core.m_cam;
+
 	static std::vector<gfx::vertex> testbox_vertices = {
 		{ -1, -1, -1 },
 		{ +1, -1, -1 },

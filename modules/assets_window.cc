@@ -26,8 +26,11 @@ BEGIN_MODULE
 
 bool visible = false;
 
-void frame(int delta) override
+void frame(int delta)
 {
+	auto &&ns = m_core.m_ns;
+	auto &&selected_asset = m_core.m_selected_asset;
+
 	ImGui::Checkbox("Assets",&visible);
 
 	if (!visible)

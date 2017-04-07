@@ -142,13 +142,8 @@ struct cam {
 	float lens_focus = 1.0;
 };
 
-class module;
-class module_info;
-
 class core : public gui::window {
-	friend class module;
-
-private:
+public:
 	std::shared_ptr<project> m_proj = std::make_shared<project>();
 	const res::atom &m_ns = m_proj->get_asset_root();
 	transact::nexus &m_nx = m_proj->get_transact();
@@ -157,31 +152,9 @@ private:
 	cam m_cam;
 	edit::window m_wnd;
 
-public:
 	core();
 
 	void frame(int delta);
-};
-
-class module {
-	friend class core;
-
-private:
-	core &m_core;
-
-	virtual void frame(int delta) {}
-
-protected:
-	explicit module(core &core) :
-		m_core(core) {}
-
-	transact::nexus &nx = m_core.m_nx;
-	const res::atom &ns = m_core.m_ns;
-	edit::cam &cam = m_core.m_cam;
-	res::anyref &selected_asset = m_core.m_selected_asset;
-
-public:
-	virtual ~module() = default;
 };
 
 }

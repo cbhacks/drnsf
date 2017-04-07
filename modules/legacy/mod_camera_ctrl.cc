@@ -26,8 +26,10 @@ BEGIN_MODULE
 
 bool visible = false;
 
-void frame(int delta) override
+void frame(int delta)
 {
+	auto &&cam = m_core.m_cam;
+
 	ImGui::Checkbox("Camera Control",&visible);
 
 	if (!visible)
