@@ -113,7 +113,7 @@ void frame(int delta)
 			nsf::raw_entry::ref raw = ns / "raw";
 			raw.create(TS,proj);
 			raw->import_file(TS,read_file("/tmp/scene.nsentry"));
-			raw->process_as<nsf::wgeo_v2>(TS,ns);
+			raw->process_as<nsf::wgeo_v2>(TS);
 		};
 	}
 
@@ -124,7 +124,7 @@ void frame(int delta)
 				nsf::raw_entry::ref raw = ns / util::format("wr-wgeo-$",i);
 				raw.create(TS,proj);
 				raw->import_file(TS,read_file(util::format("/tmp/s$.nsentry",i)));
-				raw->process_as<nsf::wgeo_v2>(TS,ns);
+				raw->process_as<nsf::wgeo_v2>(TS);
 			}
 		};
 	}

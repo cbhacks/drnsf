@@ -24,7 +24,7 @@
 namespace drnsf {
 namespace nsf {
 
-void wgeo_v2::import_entry(TRANSACT,const raw_item_list &items,res::atom root)
+void wgeo_v2::import_entry(TRANSACT,const raw_item_list &items)
 {
 	assert_alive();
 
@@ -203,7 +203,9 @@ void wgeo_v2::import_entry(TRANSACT,const raw_item_list &items,res::atom root)
 	// Parse the tpag references.
 	// TODO
 
-	res::atom atom = root / "scenery" / util::format("$",get_eid());
+	res::atom atom = get_proj().get_asset_root()
+		/ "scenery"
+		/ util::format("$",get_eid());
 
 	// Create the frame which will contain this scene's vertex positions.
 	gfx::frame::ref frame = atom / "frame";

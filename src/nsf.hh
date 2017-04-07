@@ -124,7 +124,7 @@ public:
 	void import_file(TRANSACT,const std::vector<unsigned char> &data);
 
 	template <typename T>
-	void process_as(TRANSACT,res::atom root)
+	void process_as(TRANSACT)
 	{
 		assert_alive();
 
@@ -135,7 +135,7 @@ public:
 
 		// Process the raw items into the output entry.
 		result->set_eid(TS,get_eid());
-		result->import_entry(TS,get_items(),root);
+		result->import_entry(TS,get_items());
 
 		// Delete the raw entry (this) and rename the output entry over
 		// this one's name.
@@ -174,7 +174,7 @@ public:
 	DEFINE_APROP(item6);
 	DEFINE_APROP(model);
 
-	void import_entry(TRANSACT,const raw_item_list &items,res::atom root);
+	void import_entry(TRANSACT,const raw_item_list &items);
 
 	template <typename Reflector>
 	void reflect(Reflector &rfl)
