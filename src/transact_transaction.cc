@@ -24,8 +24,8 @@
 namespace drnsf {
 namespace transact {
 
-transaction::transaction(std::list<operation> &&ops,std::string desc) :
-	m_ops(ops),
+transaction::transaction(std::list<operation> ops,std::string desc) :
+	m_ops(std::move(ops)),
 	m_desc(desc)
 {
 }

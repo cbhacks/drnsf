@@ -43,10 +43,8 @@ void asset::rename(TRANSACT,atom name)
 		throw 0;//FIXME
 	}
 
-	TS.push_op([this,name]{
-		using std::swap;
-		swap(m_name.get_internal_asset_ptr(),name.get_internal_asset_ptr());
-	});
+	TS.set(name.get_internal_asset_ptr(),this);
+	TS.set(m_name.get_internal_asset_ptr(),nullptr);
 	TS.set(m_name,name);
 }
 
