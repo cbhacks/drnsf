@@ -86,18 +86,18 @@ atom::atom(std::nullptr_t) noexcept :
 {
 }
 
-atom::atom(const atom &other) noexcept :
-	m_nuc(other.m_nuc)
+atom::atom(const atom &src) noexcept :
+	m_nuc(src.m_nuc)
 {
 	if (m_nuc) {
 		m_nuc->m_refcount++;
 	}
 }
 
-atom::atom(atom &&other) noexcept :
-	m_nuc(other.m_nuc)
+atom::atom(atom &&src) noexcept :
+	m_nuc(src.m_nuc)
 {
-	other.m_nuc = nullptr;
+	src.m_nuc = nullptr;
 }
 
 atom::~atom() noexcept
@@ -114,15 +114,15 @@ atom::~atom() noexcept
 	}
 }
 
-atom &atom::operator =(atom other)
+atom &atom::operator =(atom rhs)
 {
-	std::swap(m_nuc,other.m_nuc);
+	std::swap(m_nuc,rhs.m_nuc);
 	return *this;
 }
 
-bool atom::operator ==(const atom &other) const noexcept
+bool atom::operator ==(const atom &rhs) const noexcept
 {
-	return (m_nuc == other.m_nuc);
+	return (m_nuc == rhs.m_nuc);
 }
 
 bool atom::operator ==(std::nullptr_t) const noexcept
@@ -130,9 +130,9 @@ bool atom::operator ==(std::nullptr_t) const noexcept
 	return (m_nuc == nullptr);
 }
 
-bool atom::operator !=(const atom &other) const noexcept
+bool atom::operator !=(const atom &rhs) const noexcept
 {
-	return (m_nuc != other.m_nuc);
+	return (m_nuc != rhs.m_nuc);
 }
 
 bool atom::operator !=(std::nullptr_t) const noexcept

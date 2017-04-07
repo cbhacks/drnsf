@@ -192,9 +192,9 @@ inline auto range(T lbound,T ubound,T step = 1)
 				return *this;
 			}
 
-			bool operator !=(const iterator &other) const
+			bool operator !=(const iterator &rhs) const
 			{
-				return m_value != other.m_value;
+				return m_value != rhs.m_value;
 			}
 		};
 

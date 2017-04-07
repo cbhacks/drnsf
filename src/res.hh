@@ -56,15 +56,15 @@ public:
 
 	atom() noexcept;
 	atom(std::nullptr_t) noexcept;
-	atom(const atom &other) noexcept;
-	atom(atom &&other) noexcept;
+	atom(const atom &src) noexcept;
+	atom(atom &&src) noexcept;
 	~atom() noexcept;
 
-	atom &operator =(atom other);
+	atom &operator =(atom rhs);
 
-	bool operator ==(const atom &other) const noexcept;
+	bool operator ==(const atom &rhs) const noexcept;
 	bool operator ==(std::nullptr_t) const noexcept;
-	bool operator !=(const atom &other) const noexcept;
+	bool operator !=(const atom &rhs) const noexcept;
 	bool operator !=(std::nullptr_t) const noexcept;
 
 	explicit operator bool() const noexcept;
@@ -199,11 +199,11 @@ class ref : public atom {
 public:
 	ref() = default;
 
-	ref(const atom &other) :
-		atom(other) {}
+	ref(const atom &src) :
+		atom(src) {}
 
-	ref(atom &&other) :
-		atom(std::move(other)) {}
+	ref(atom &&src) :
+		atom(std::move(src)) {}
 
 	void create(TRANSACT) const
 	{
