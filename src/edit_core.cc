@@ -29,15 +29,19 @@
 #define DISPLAYWIDTH 800
 #define DISPLAYHEIGHT 600
 
+std::unique_ptr<edit::module> create_assets_window(edit::core &);
+std::unique_ptr<edit::module> create_mod_testbox(edit::core &);
+std::unique_ptr<edit::module> create_mod_camera_ctrl(edit::core &);
+
 namespace edit {
 
 core::core() :
 	window("DRNSF",DISPLAYWIDTH,DISPLAYHEIGHT)
 {
 	// Create all of the editor modules.
-	for (auto &&info : module_info::get_set()) {
-		m_modules[info] = info->create(*this);
-	}
+	m_modules.push_back(create_assets_window(*this));
+	m_modules.push_back(create_mod_testbox(*this));
+	m_modules.push_back(create_mod_camera_ctrl(*this));
 
 	m_wnd.m_ed = std::make_shared<editor>(m_proj);
 }
@@ -75,8 +79,7 @@ void core::frame(int delta)
 	glEnable(GL_DEPTH_TEST);
 
 	// Run all of the enabled editor modules.
-	for (auto &&kv : m_modules) {
-		auto &&mod = kv.second;
+	for (auto &&mod : m_modules) {
 		mod->frame(delta);
 	}
 

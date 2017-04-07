@@ -155,9 +155,8 @@ private:
 	std::shared_ptr<project> m_proj = std::make_shared<project>();
 	const res::atom &m_ns = m_proj->get_asset_root();
 	transact::nexus &m_nx = m_proj->get_transact();
-	std::map<const module_info *,std::unique_ptr<module>> m_modules;
+	std::list<std::unique_ptr<module>> m_modules;
 	std::map<std::string,std::experimental::any> m_module_shares;
-	const module_info *m_selected_module = nullptr;
 	cam m_cam;
 	edit::window m_wnd;
 
@@ -202,32 +201,6 @@ protected:
 
 public:
 	virtual ~module() = default;
-};
-
-class module_info : private util::nocopy {
-public:
-	using set = std::unordered_set<module_info *>;
-
-private:
-	static std::unique_ptr<set> m_set;
-
-protected:
-	module_info();
-	~module_info();
-
-public:
-	static const set &get_set();
-
-	virtual std::unique_ptr<module> create(core &core) const = 0;
-};
-
-template <typename M>
-class module_info_impl : public module_info {
-public:
-	std::unique_ptr<module> create(core &core) const override
-	{
-		return std::unique_ptr<module>(new M(core));
-	}
 };
 
 }

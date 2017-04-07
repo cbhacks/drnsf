@@ -49,7 +49,6 @@ add_executable (drnsf
 	src/edit_pane.cc
 	src/edit_core.cc
 	src/edit_module.cc
-	src/edit_module_info.cc
 	src/edit_mode.cc
 	src/edit_window.cc
 	src/edit_mode_classic.cc

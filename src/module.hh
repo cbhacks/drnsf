@@ -35,6 +35,7 @@
 #define END_MODULE \
 	private: \
 	}; \
-\
-	edit::module_info_impl<mod> info; \
 	}
+
+#define DEFINE_SHARED(type,var) type &var = share<type>(#var)
+#define DEFINE_SHARED_V(type,var,...) type &var = share<type>(#var,__VA_ARGS__)

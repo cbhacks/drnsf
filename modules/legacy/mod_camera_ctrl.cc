@@ -20,7 +20,7 @@
 
 #include "module.hh"
 
-#include "begin.hh"
+BEGIN_MODULE
 
 bool visible = false;
 
@@ -43,3 +43,8 @@ void frame(int delta) override
 }
 
 END_MODULE
+
+std::unique_ptr<edit::module> create_mod_camera_ctrl(edit::core &core)
+{
+	return std::unique_ptr<edit::module>(new mod(core));
+}

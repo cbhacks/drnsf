@@ -19,7 +19,8 @@
 //
 
 #include "module.hh"
-#include "begin.hh"
+
+BEGIN_MODULE
 
 DEFINE_SHARED(res::ref<res::asset>,selected_asset);
 
@@ -48,3 +49,8 @@ void frame(int delta) override
 }
 
 END_MODULE
+
+std::unique_ptr<edit::module> create_assets_window(edit::core &core)
+{
+	return std::unique_ptr<edit::module>(new mod(core));
+}

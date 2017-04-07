@@ -20,12 +20,13 @@
 
 #include "module.hh"
 #include <stdio.h>
+#include <GL/gl.h>
 #include "gfx.hh"
 #include "nsf.hh"
 
 static double angle = 0;
 
-#include "begin.hh"
+BEGIN_MODULE
 
 static std::vector<unsigned char> read_file(const std::string &filename)
 {
@@ -242,3 +243,8 @@ void frame(int delta) override
 }
 
 END_MODULE
+
+std::unique_ptr<edit::module> create_mod_testbox(edit::core &core)
+{
+	return std::unique_ptr<edit::module>(new mod(core));
+}
