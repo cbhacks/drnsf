@@ -44,15 +44,6 @@ core::core() :
 
 void core::frame(int delta)
 {
-	// Inform all of the modules if this is the first frame. FIXME doesn't work anymore
-	if (m_firstframe) {
-		for (auto &&kv : m_modules) {
-			auto &&mod = kv.second;
-			mod->firstframe();
-		}
-		m_firstframe = false;
-	}
-
 	// Clear the screen.
 	glClearColor(0.5,0.5,0.5,0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -83,18 +74,6 @@ void core::frame(int delta)
 	// Enable z-buffering.
 	glEnable(GL_DEPTH_TEST);
 
-	// Run the core GUI menus.
-	if (ImGui::BeginMainMenuBar()) {
-		if (ImGui::BeginMenu("View")) {
-			for (auto &&kv : m_modules) {
-				auto &&mod = kv.second;
-				mod->show_view_menu();
-			}
-			ImGui::EndMenu();
-		}
-		ImGui::EndMainMenuBar();
-	}
-
 	// Run all of the enabled editor modules.
 	for (auto &&kv : m_modules) {
 		auto &&mod = kv.second;
@@ -108,11 +87,6 @@ void core::frame(int delta)
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
-}
-
-const decltype(core::m_modules) &core::get_modules() const
-{
-	return m_modules;
 }
 
 }

@@ -159,15 +159,12 @@ private:
 	std::map<std::string,std::experimental::any> m_module_shares;
 	const module_info *m_selected_module = nullptr;
 	cam m_cam;
-	bool m_firstframe = true;
 	edit::window m_wnd;
 
 public:
 	core();
 
 	void frame(int delta);
-
-	const decltype(m_modules) &get_modules() const;
 };
 
 class panel;
@@ -180,11 +177,7 @@ class module : private util::nocopy {
 private:
 	core &m_core;
 
-	virtual void firstframe() {}
-
 	virtual void frame(int delta) {}
-
-	virtual void show_view_menu() {}
 
 protected:
 	explicit module(core &core);

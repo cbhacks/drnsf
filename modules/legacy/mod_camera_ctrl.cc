@@ -28,6 +28,8 @@ bool visible = false;
 
 void frame(int delta) override
 {
+	ImGui::Checkbox("Camera Control",&visible);
+
 	if (!visible)
 		return;
 
@@ -40,11 +42,6 @@ void frame(int delta) override
 	ImGui::InputFloat("Lens Focus",&cam().lens_focus,0.01);
 
 	ImGui::End();
-}
-
-void show_view_menu() override
-{
-	ImGui::MenuItem("Camera Control",nullptr,&visible);
 }
 
 END_MODULE

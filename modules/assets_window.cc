@@ -29,6 +29,8 @@ bool visible = false;
 
 void frame(int delta) override
 {
+	ImGui::Checkbox("Assets",&visible);
+
 	if (!visible)
 		return;
 
@@ -45,11 +47,6 @@ void frame(int delta) override
 	}
 
 	ImGui::End();
-}
-
-void show_view_menu() override
-{
-	ImGui::MenuItem("Assets",nullptr,&visible);
 }
 
 END_MODULE
