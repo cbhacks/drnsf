@@ -22,8 +22,6 @@
 
 BEGIN_MODULE
 
-DEFINE_SHARED(res::ref<res::asset>,selected_asset);
-
 bool visible = false;
 
 void frame(int delta) override

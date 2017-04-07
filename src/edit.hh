@@ -21,9 +21,7 @@
 #pragma once
 
 #include <list>
-#include <unordered_set>
 #include <set>
-#include <experimental/any>
 #include "res.hh"
 #include "transact.hh"
 #include "gui.hh"
@@ -156,7 +154,7 @@ private:
 	const res::atom &m_ns = m_proj->get_asset_root();
 	transact::nexus &m_nx = m_proj->get_transact();
 	std::list<std::unique_ptr<module>> m_modules;
-	std::map<std::string,std::experimental::any> m_module_shares;
+	res::anyref m_selected_asset;
 	cam m_cam;
 	edit::window m_wnd;
 
@@ -178,26 +176,10 @@ protected:
 	explicit module(core &core) :
 		m_core(core) {}
 
-	template <typename T,typename... Args>
-	T &share(std::string name,Args... args)
-	{
-		auto it = m_core.m_module_shares.find(name);
-		if (it != m_core.m_module_shares.end())
-			return std::experimental::any_cast<T &>(it->second);
-		auto pair = m_core.m_module_shares.insert(
-			typename decltype(m_core.m_module_shares)::value_type(
-				name,
-				std::experimental::any(
-					T(std::forward<Args>(args)...)
-				)
-			)
-		);
-		return std::experimental::any_cast<T &>(pair.first->second);
-	}
-
 	transact::nexus &nx = m_core.m_nx;
 	const res::atom &ns = m_core.m_ns;
 	edit::cam &cam = m_core.m_cam;
+	res::anyref &selected_asset = m_core.m_selected_asset;
 
 public:
 	virtual ~module() = default;

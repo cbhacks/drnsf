@@ -42,8 +42,6 @@ static std::vector<unsigned char> read_file(const std::string &filename)
 	return data;
 }
 
-DEFINE_SHARED(res::anyref,selected_asset);
-
 void frame(int delta) override
 {
 	static std::vector<gfx::vertex> testbox_vertices = {
