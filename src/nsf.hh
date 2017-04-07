@@ -31,10 +31,12 @@ constexpr std::size_t page_size = 65536;
 
 class archive : public res::asset {
 	friend class res::asset;
-	using asset::asset;
 
 private:
 	std::vector<res::anyref> m_pages;
+
+	explicit archive(res::project &proj) :
+		asset(proj) {}
 
 public:
 	using ref = res::ref<archive>;
@@ -51,12 +53,14 @@ public:
 
 class spage : public res::asset {
 	friend class res::asset;
-	using asset::asset;
 
 private:
 	std::vector<res::anyref> m_pagelets;
 	uint16_t m_type = 0;
 	uint32_t m_cid = 0;
+
+	explicit spage(res::project &proj) :
+		asset(proj) {}
 
 public:
 	using ref = res::ref<spage>;
@@ -78,10 +82,12 @@ public:
 };
 
 class entry : public res::asset {
-	using asset::asset;
-
 private:
 	std::uint32_t m_eid = 0;
+
+protected:
+	explicit entry(res::project &proj) :
+		asset(proj) {}
 
 public:
 	using ref = res::ref<entry>;
@@ -101,11 +107,13 @@ using raw_item_list = std::vector<raw_item>;
 
 class raw_entry : public entry {
 	friend class res::asset;
-	using asset::asset;
 
 private:
 	raw_item_list m_items;
 	uint32_t m_type = 0;
+
+	explicit raw_entry(res::project &proj) :
+		entry(proj) {}
 
 public:
 	using ref = res::ref<raw_entry>;
@@ -123,7 +131,7 @@ public:
 		// Create the output entry under a reserved name,
 		// '_PROCESS_OUTPUT'.
 		res::ref<T> result = get_name() / "_PROCESS_OUTPUT";
-		result.create(TS);
+		result.create(TS,get_proj());
 
 		// Process the raw items into the output entry.
 		result->set_eid(TS,get_eid());
@@ -147,7 +155,6 @@ public:
 
 class wgeo_v2 : public entry {
 	friend class res::asset;
-	using asset::asset;
 
 private:
 	raw_item m_item0;
@@ -155,6 +162,9 @@ private:
 	raw_item m_item6;
 
 	gfx::model::ref m_model;
+
+	explicit wgeo_v2(res::project &proj) :
+		entry(proj) {}
 
 public:
 	using ref = res::ref<wgeo_v2>;

@@ -50,6 +50,7 @@ void frame(int delta)
 	auto &&ns = m_core.m_ns;
 	auto &&selected_asset = m_core.m_selected_asset;
 	auto &&cam = m_core.m_cam;
+	auto &&proj = *m_core.m_proj;
 
 	static std::vector<gfx::vertex> testbox_vertices = {
 		{ -1, -1, -1 },
@@ -90,17 +91,17 @@ void frame(int delta)
 			gfx::model::ref model = ns / "testbox";
 
 			TS.describe("Create test box");
-			frame.create(TS);
+			frame.create(TS,proj);
 			frame->set_vertices(TS,testbox_vertices);
 
-			anim.create(TS);
+			anim.create(TS,proj);
 			anim->set_frames(TS,std::vector<gfx::frame::ref>{frame});
 
-			mesh.create(TS);
+			mesh.create(TS,proj);
 			mesh->set_polys(TS,testbox_polys);
 			mesh->set_colors(TS,testbox_colors);
 
-			model.create(TS);
+			model.create(TS,proj);
 			model->set_anim(TS,anim);
 			model->set_mesh(TS,mesh);
 		};
@@ -110,7 +111,7 @@ void frame(int delta)
 		nx << [&](TRANSACT) {
 			TS.describe("Load test scenery file");
 			nsf::raw_entry::ref raw = ns / "raw";
-			raw.create(TS);
+			raw.create(TS,proj);
 			raw->import_file(TS,read_file("/tmp/scene.nsentry"));
 			raw->process_as<nsf::wgeo_v2>(TS,ns);
 		};
@@ -121,7 +122,7 @@ void frame(int delta)
 			TS.describe("Load warp room scenery (test)");
 			for (auto &&i : util::range(0,16)) {
 				nsf::raw_entry::ref raw = ns / util::format("wr-wgeo-$",i);
-				raw.create(TS);
+				raw.create(TS,proj);
 				raw->import_file(TS,read_file(util::format("/tmp/s$.nsentry",i)));
 				raw->process_as<nsf::wgeo_v2>(TS,ns);
 			}
@@ -132,7 +133,7 @@ void frame(int delta)
 		nx << [&](TRANSACT) {
 			TS.describe("Load /tmp/nsentry");
 			nsf::raw_entry::ref raw = ns / "nsentry";
-			raw.create(TS);
+			raw.create(TS,proj);
 			raw->import_file(TS,read_file("/tmp/nsentry"));
 		};
 	}
@@ -141,7 +142,7 @@ void frame(int delta)
 		nx << [&](TRANSACT) {
 			TS.describe("Load /tmp/nspage");
 			nsf::spage::ref raw = ns / "nspage";
-			raw.create(TS);
+			raw.create(TS,proj);
 			raw->import_file(TS,read_file("/tmp/nspage"));
 		};
 	}
@@ -150,7 +151,7 @@ void frame(int delta)
 		nx << [&](TRANSACT) {
 			TS.describe("Load /tmp/nsfile");
 			nsf::raw_entry::ref raw = ns / "nsfile";
-			raw.create(TS);
+			raw.create(TS,proj);
 			raw->import_file(TS,read_file("/tmp/nsfile"));
 		};
 	}

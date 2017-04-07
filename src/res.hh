@@ -105,47 +105,11 @@ public:
 	}
 };
 
-class asset : private util::nocopy {
-private:
-	atom m_name;
-
-protected:
-	explicit asset() = default;
-
-public:
-	virtual ~asset() = default;
-
-	void assert_alive() const;
-
-	template <typename T>
-	static void create(TRANSACT,atom name)
-	{
-		if (!name)
-			throw 0; // FIXME
-
-		if (name.get())
-			throw 0; // FIXME
-
-		auto t = new T;
-		TS.set(t->m_name,name);
-		TS.set(name.get_internal_asset_ptr(),t);
-		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-		// at what point do we free t now? used to be a unique_ptr...
-		// FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-	}
-
-	void rename(TRANSACT,atom name);
-	void destroy(TRANSACT);
-
-	const atom &get_name() const;
-
-	template <typename Reflector>
-	void reflect(Reflector &rfl)
-	{
-	}
-};
+class asset;
 
 class project : private util::nocopy {
+	friend class asset;
+
 private:
 	atom m_root;
 	std::list<std::unique_ptr<asset>> m_assets;
@@ -168,6 +132,52 @@ public:
 	transact::nexus &get_transact()
 	{
 		return m_transact;
+	}
+};
+
+class asset : private util::nocopy {
+private:
+	atom m_name;
+	project &m_proj;
+	std::list<std::unique_ptr<asset>>::iterator m_iter;
+
+protected:
+	explicit asset(project &proj) :
+		m_proj(proj) {}
+
+public:
+	virtual ~asset() = default;
+
+	void assert_alive() const;
+
+	template <typename T>
+	static void create(TRANSACT,atom name,project &proj)
+	{
+		if (!name)
+			throw 0; // FIXME
+
+		if (name.get())
+			throw 0; // FIXME
+
+		auto t = std::unique_ptr<asset>(new T(proj));
+		TS.set(t->m_name,name);
+		TS.set(name.get_internal_asset_ptr(),t.get());
+		t->m_iter = TS.insert(
+			proj.m_assets,
+			proj.m_assets.end(),
+			std::move(t)
+		);
+	}
+
+	void rename(TRANSACT,atom name);
+	void destroy(TRANSACT);
+
+	const atom &get_name() const;
+	project &get_proj() const;
+
+	template <typename Reflector>
+	void reflect(Reflector &rfl)
+	{
 	}
 };
 
@@ -206,9 +216,9 @@ public:
 	ref(atom &&src) :
 		atom(std::move(src)) {}
 
-	void create(TRANSACT) const
+	void create(TRANSACT,project &proj) const
 	{
-		res::asset::create<T>(TS,*this);
+		res::asset::create<T>(TS,*this,proj);
 	}
 
 	bool ok() const

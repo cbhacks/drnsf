@@ -53,6 +53,71 @@ public:
 	}
 };
 
+template <typename T>
+class insert_op_impl : public base_op_impl {
+private:
+	std::list<T> m_temp;
+	typename std::list<T>::iterator m_value_iter;
+	std::list<T> *m_dest_list;
+	typename std::list<T>::iterator m_dest_iter;
+	std::list<T> *m_src_list;
+	typename std::list<T>::iterator m_src_iter;
+
+public:
+	explicit insert_op_impl(
+		std::list<T> &list,
+		typename std::list<T>::iterator pos,
+		T value) :
+		m_dest_list(&list),
+		m_dest_iter(pos),
+		m_src_list(&m_temp),
+		m_src_iter(m_temp.end())
+	{
+		m_temp.push_back(std::move(value));
+		m_value_iter = m_temp.begin();
+	}
+
+	void execute() noexcept override
+	{
+		m_dest_list->splice(m_dest_iter,*m_src_list,m_value_iter);
+		std::swap(m_dest_list,m_src_list);
+		std::swap(m_dest_iter,m_src_iter);
+	}
+
+	typename std::list<T>::iterator get_value_iterator() const
+	{
+		return m_value_iter;
+	}
+};
+
+template <typename T>
+class erase_op_impl : public base_op_impl {
+private:
+	std::list<T> m_temp;
+	typename std::list<T>::iterator m_value_iter;
+	std::list<T> *m_dest_list;
+	typename std::list<T>::iterator m_dest_iter;
+	std::list<T> *m_src_list;
+	typename std::list<T>::iterator m_src_iter;
+
+public:
+	explicit erase_op_impl(
+		std::list<T> &list,
+		typename std::list<T>::iterator pos) :
+		m_value_iter(pos),
+		m_dest_list(&m_temp),
+		m_dest_iter(m_temp.end()),
+		m_src_list(&list),
+		m_src_iter(std::next(pos)) {}
+
+	void execute() noexcept override
+	{
+		m_dest_list->splice(m_dest_iter,*m_src_list,m_value_iter);
+		std::swap(m_dest_list,m_src_list);
+		std::swap(m_dest_iter,m_src_iter);
+	}
+};
+
 class operation : private util::nocopy {
 private:
 	std::unique_ptr<base_op_impl> m_impl;
@@ -113,6 +178,24 @@ public:
 	void set(T &dest,T2 src)
 	{
 		auto impl = new assign_op_impl<T>(dest,std::move(src));
+		push_op(std::unique_ptr<base_op_impl>(impl));
+	}
+
+	template <typename T,typename T2>
+	typename std::list<T>::iterator insert(
+		std::list<T> &list,
+		typename std::list<T>::iterator pos,
+		T2 value)
+	{
+		auto impl = new insert_op_impl<T>(list,pos,std::move(value));
+		push_op(std::unique_ptr<base_op_impl>(impl));
+		return impl->get_value_iterator();
+	}
+
+	template <typename T>
+	void erase(std::list<T> &list,typename std::list<T>::iterator pos)
+	{
+		auto impl = new erase_op_impl<T>(list,pos);
 		push_op(std::unique_ptr<base_op_impl>(impl));
 	}
 };

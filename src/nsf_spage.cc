@@ -75,7 +75,7 @@ void spage::import_file(TRANSACT,const std::vector<unsigned char> &data)
 
 		// Create the pagelet asset.
 		pagelet = get_name() / util::format("pagelet-$",i);
-		pagelet.create(TS);
+		pagelet.create(TS,get_proj());
 
 		// Copy the pagelet data into the asset.
 		pagelet->set_data(TS,

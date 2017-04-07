@@ -54,6 +54,7 @@ void asset::destroy(TRANSACT)
 
 	TS.set(m_name.get_internal_asset_ptr(),nullptr);
 	TS.set(m_name,nullptr);
+	TS.erase(m_proj.m_assets,m_iter);
 }
 
 const atom &asset::get_name() const
@@ -61,6 +62,13 @@ const atom &asset::get_name() const
 	assert_alive();
 
 	return m_name;
+}
+
+project &asset::get_proj() const
+{
+	assert_alive();
+
+	return m_proj;
 }
 
 }

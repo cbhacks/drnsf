@@ -207,18 +207,18 @@ void wgeo_v2::import_entry(TRANSACT,const raw_item_list &items,res::atom root)
 
 	// Create the frame which will contain this scene's vertex positions.
 	gfx::frame::ref frame = atom / "frame";
-	frame.create(TS);
+	frame.create(TS,get_proj());
 	frame->set_vertices(TS,std::move(vertices));
 
 	// Create the animation for this scene (just one frame, scenes are not
 	// vertex-animated).
 	gfx::anim::ref anim = atom / "anim";
-	anim.create(TS);
+	anim.create(TS,get_proj());
 	anim->set_frames(TS,{frame});
 
 	// Create the mesh for this scene.
 	gfx::mesh::ref mesh = atom / "mesh";
-	mesh.create(TS);
+	mesh.create(TS,get_proj());
 	std::vector<gfx::poly> polys;
 	polys.insert(polys.end(),triangles.begin(),triangles.end());
 	polys.insert(polys.end(),quads.begin(),quads.end());
@@ -227,7 +227,7 @@ void wgeo_v2::import_entry(TRANSACT,const raw_item_list &items,res::atom root)
 
 	// Create the model for this scene.
 	gfx::model::ref model = atom;
-	model.create(TS);
+	model.create(TS,get_proj());
 	model->set_anim(TS,anim);
 	model->set_mesh(TS,mesh);
 	model->set_scene_x(TS,scene_x / 32768.0);
