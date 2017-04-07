@@ -22,8 +22,6 @@
 
 #include "begin.hh"
 
-constexpr static const char *mod_name = "Camera Control";
-
 bool visible = false;
 
 void frame(int delta) override

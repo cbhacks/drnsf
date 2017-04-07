@@ -167,12 +167,8 @@ public:
 	void frame(int delta);
 };
 
-class panel;
-
 class module : private util::nocopy {
 	friend class core;
-	friend class ::mod_module_list;
-	friend class panel;
 
 private:
 	core &m_core;
@@ -222,33 +218,12 @@ protected:
 public:
 	static const set &get_set();
 
-	virtual const char *get_name() const = 0;
-	virtual const char *get_title() const = 0;
-	virtual const char *get_description() const = 0;
-
 	virtual std::unique_ptr<module> create(core &core) const = 0;
 };
 
 template <typename M>
 class module_info_impl : public module_info {
 public:
-	constexpr static const char *description = "No description available.";
-
-	const char *get_name() const override
-	{
-		return M::name;
-	}
-
-	const char *get_title() const override
-	{
-		return M::mod_name;
-	}
-
-	const char *get_description() const override
-	{
-		return description;
-	}
-
 	std::unique_ptr<module> create(core &core) const override
 	{
 		return std::unique_ptr<module>(new M(core));

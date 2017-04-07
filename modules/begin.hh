@@ -26,12 +26,4 @@
 #define DEFINE_SHARED(type,var) type &var = share<type>(#var)
 #define DEFINE_SHARED_V(type,var,...) type &var = share<type>(#var,__VA_ARGS__)
 
-#define HOOK_EVENT(name) \
-	struct ev_handler_class__##name { \
-		ev_handler_class__##name(mod &m) \
-		{ \
-			m.hook(#name,[&m](){ m.on_##name(); }); \
-		} \
-	} ev_handler_class_inst__##name{*this}
-
-BEGIN_MODULE(muh_module)
+BEGIN_MODULE

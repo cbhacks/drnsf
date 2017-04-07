@@ -25,24 +25,16 @@
 #include "edit.hh"
 #include "gui.hh"
 
-#define BEGIN_MODULE(modname) \
-	namespace { namespace mod_##modname { \
+#define BEGIN_MODULE \
+	namespace { \
 	class mod : public edit::module { \
 	public: \
 		mod(edit::core &core) : \
-			module(core) {} \
-\
-		constexpr static const char *name = #modname;
+			module(core) {}
 
 #define END_MODULE \
 	private: \
 	}; \
 \
 	edit::module_info_impl<mod> info; \
-	} }
-
-#define BEGIN_TRANSACTION \
-	nx << [&](TRANSACT) {
-
-#define END_TRANSACTION \
-	};
+	}

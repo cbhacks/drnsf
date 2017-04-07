@@ -21,8 +21,6 @@
 #include "module.hh"
 #include "begin.hh"
 
-constexpr static const char *mod_name = "Assets Window";
-
 DEFINE_SHARED(res::ref<res::asset>,selected_asset);
 
 bool visible = false;

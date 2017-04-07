@@ -27,8 +27,6 @@ static double angle = 0;
 
 #include "begin.hh"
 
-constexpr static const char *mod_name = "Spinning Test Box";
-
 static std::vector<unsigned char> read_file(const std::string &filename)
 {
 	std::vector<unsigned char> data;
