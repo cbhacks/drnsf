@@ -31,9 +31,9 @@
 
 namespace drnsf {
 
-std::unique_ptr<edit::module> create_assets_window(edit::core &);
-std::unique_ptr<edit::module> create_mod_testbox(edit::core &);
-std::unique_ptr<edit::module> create_mod_camera_ctrl(edit::core &);
+std::function<void(int)> create_assets_window(edit::core &);
+std::function<void(int)> create_mod_testbox(edit::core &);
+std::function<void(int)> create_mod_camera_ctrl(edit::core &);
 
 namespace edit {
 
@@ -82,7 +82,7 @@ void core::frame(int delta)
 
 	// Run all of the enabled editor modules.
 	for (auto &&mod : m_modules) {
-		mod->frame(delta);
+		mod(delta);
 	}
 
 	// Disable the previously-enabled z-buffering.

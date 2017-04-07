@@ -152,7 +152,7 @@ private:
 	std::shared_ptr<project> m_proj = std::make_shared<project>();
 	const res::atom &m_ns = m_proj->get_asset_root();
 	transact::nexus &m_nx = m_proj->get_transact();
-	std::list<std::unique_ptr<module>> m_modules;
+	std::list<std::function<void(int)>> m_modules;
 	res::anyref m_selected_asset;
 	cam m_cam;
 	edit::window m_wnd;
@@ -163,7 +163,7 @@ public:
 	void frame(int delta);
 };
 
-class module : private util::nocopy {
+class module {
 	friend class core;
 
 private:

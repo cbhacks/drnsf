@@ -46,9 +46,11 @@ void frame(int delta) override
 
 END_MODULE
 
-std::unique_ptr<edit::module> create_mod_camera_ctrl(edit::core &core)
+std::function<void(int)> create_mod_camera_ctrl(edit::core &core)
 {
-	return std::unique_ptr<edit::module>(new mod(core));
+	return [m = mod(core)](int delta_time) mutable {
+		m.frame(delta_time);
+	};
 }
 
 }
