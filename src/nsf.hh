@@ -121,7 +121,7 @@ public:
 
 		// Create the output entry under a reserved name,
 		// '_PROCESS_OUTPUT'.
-		res::ref<T> result = root / "_PROCESS_OUTPUT";
+		res::ref<T> result = get_name() / "_PROCESS_OUTPUT";
 		result.create(TS);
 
 		// Process the raw items into the output entry.
