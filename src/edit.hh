@@ -175,7 +175,8 @@ private:
 	virtual void frame(int delta) {}
 
 protected:
-	explicit module(core &core);
+	explicit module(core &core) :
+		m_core(core) {}
 
 	template <typename T,typename... Args>
 	T &share(std::string name,Args... args)
@@ -196,8 +197,7 @@ protected:
 
 	transact::nexus &nx = m_core.m_nx;
 	const res::atom &ns = m_core.m_ns;
-
-	auto cam() -> cam &;
+	edit::cam &cam = m_core.m_cam;
 
 public:
 	virtual ~module() = default;

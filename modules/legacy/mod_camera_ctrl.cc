@@ -33,11 +33,11 @@ void frame(int delta) override
 
 	ImGui::Begin("Camera Control",&visible);
 
-	ImGui::InputFloat("Pitch",&cam().pitch,5);
-	ImGui::InputFloat("Lens Near",&cam().lens_near,0.1);
-	ImGui::InputFloat("Lens Far",&cam().lens_far,10);
-	ImGui::InputFloat("Lens Adjust",&cam().lens_adjust,0.05);
-	ImGui::InputFloat("Lens Focus",&cam().lens_focus,0.01);
+	ImGui::InputFloat("Pitch",&cam.pitch,5);
+	ImGui::InputFloat("Lens Near",&cam.lens_near,0.1);
+	ImGui::InputFloat("Lens Far",&cam.lens_far,10);
+	ImGui::InputFloat("Lens Adjust",&cam.lens_adjust,0.05);
+	ImGui::InputFloat("Lens Focus",&cam.lens_focus,0.01);
 
 	ImGui::End();
 }

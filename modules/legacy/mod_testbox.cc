@@ -156,7 +156,7 @@ void frame(int delta) override
 		return;
 
 	glPushMatrix();
-	glRotatef(cam().pitch,1,0,0);
+	glRotatef(cam.pitch,1,0,0);
 	glRotatef(angle,0,1,0);
 
 	for (gfx::model::ref model : ns.get_asset_names()) {
