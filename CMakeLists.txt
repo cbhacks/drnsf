@@ -21,8 +21,6 @@
 cmake_minimum_required (VERSION 3.5)
 project (DRNSF)
 
-add_subdirectory (modules)
-
 add_library (imgui OBJECT
 	imgui/imgui.h
 	imgui/imconfig.h
@@ -72,8 +70,10 @@ add_executable (drnsf
 	src/nsf_wgeo_v2.cc
 
 	src/module.hh
+	src/module_assets_window.cc
+	src/module_testbox.cc
+	src/module_camera_ctrl.cc
 
-	$<TARGET_OBJECTS:drnsf_modules>
 	$<TARGET_OBJECTS:imgui>
 )
 
