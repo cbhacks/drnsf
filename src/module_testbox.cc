@@ -183,9 +183,6 @@ void frame(int delta)
 
 	gfx::model::ref smodel = selected_asset;
 
-	if (!smodel.ok())
-		return;
-
 	glPushMatrix();
 	glRotatef(cam.pitch,1,0,0);
 	glRotatef(angle,0,1,0);
@@ -211,7 +208,9 @@ void frame(int delta)
 			continue;
 
 		glPushMatrix();
-		glTranslatef(-smodel->get_scene_x(),-smodel->get_scene_y(),-smodel->get_scene_z());
+		if (smodel.ok()) {
+			glTranslatef(-smodel->get_scene_x(),-smodel->get_scene_y(),-smodel->get_scene_z());
+		}
 		glTranslatef(model->get_scene_x(),model->get_scene_y(),model->get_scene_z());
 
 		auto &&colors = mesh->get_colors();
