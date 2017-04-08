@@ -27,6 +27,41 @@
 namespace drnsf {
 namespace nsf {
 
+class eid {
+private:
+	std::uint32_t m_value;
+
+public:
+	eid() = default;
+
+	eid(std::uint32_t value) :
+		m_value(value) {}
+
+	operator std::uint32_t() const
+	{
+		return m_value;
+	}
+
+	friend std::string to_string(eid value)
+	{
+		static const char dictionary[] =
+			"0123456789"
+			"abcdefghijklmnopqrstuvwxyz"
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+			"_!";
+
+		char result[5];
+
+		result[0] = dictionary[(value >> 25) & 0x3F];
+		result[1] = dictionary[(value >> 19) & 0x3F];
+		result[2] = dictionary[(value >> 13) & 0x3F];
+		result[3] = dictionary[(value >> 7) & 0x3F];
+		result[4] = dictionary[(value >> 1) & 0x3F];
+
+		return std::string(result,5);
+	}
+};
+
 constexpr std::size_t page_size = 65536;
 
 class archive : public res::asset {
@@ -83,7 +118,7 @@ public:
 
 class entry : public res::asset {
 private:
-	std::uint32_t m_eid = 0;
+	eid m_eid = 0;
 
 protected:
 	explicit entry(res::project &proj) :
