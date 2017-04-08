@@ -23,6 +23,7 @@
 #include <GL/gl.h>
 #include "gfx.hh"
 #include "nsf.hh"
+#include "misc.hh"
 
 static double angle = 0;
 
@@ -150,9 +151,33 @@ void frame(int delta)
 	if (ImGui::Button("Load /tmp/nsfile")) {
 		nx << [&](TRANSACT) {
 			TS.describe("Load /tmp/nsfile");
-			nsf::raw_entry::ref raw = ns / "nsfile";
+			nsf::archive::ref raw = ns / "nsfile";
 			raw.create(TS,proj);
 			raw->import_file(TS,read_file("/tmp/nsfile"));
+			for (misc::raw_data::ref page : raw->get_pages()) {
+				if (page->get_data()[2] == 1)
+					continue;
+
+				nsf::spage::ref spage = page / "hewm";
+				spage.create(TS,proj);
+				spage->import_file(TS,page->get_data());
+				page->destroy(TS);
+				spage->rename(TS,page);
+				spage = page;
+
+				for (misc::raw_data::ref pagelet : spage->get_pagelets()) {
+					nsf::raw_entry::ref entry = pagelet / "hewmy";
+					entry.create(TS,proj);
+					entry->import_file(TS,pagelet->get_data());
+					pagelet->destroy(TS);
+					entry->rename(TS,pagelet);
+					entry = pagelet;
+
+					if (entry->get_type() == 3) {
+						entry->process_as<nsf::wgeo_v2>(TS);
+					}
+				}
+			}
 		};
 	}
 

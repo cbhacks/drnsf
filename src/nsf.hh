@@ -78,6 +78,8 @@ public:
 
 	DEFINE_APROP(pages);
 
+	void import_file(TRANSACT,const std::vector<unsigned char> &data);
+
 	template <typename Reflector>
 	void reflect(Reflector &rfl)
 	{

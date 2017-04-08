@@ -37,6 +37,8 @@ void binreader::begin(const unsigned char *data,std::size_t size)
 {
 	if (m_data)
 		throw 0; // FIXME
+	if (!data)
+		throw 0; // FIXME
 
 	m_data = data;
 	m_size = size;
@@ -47,8 +49,14 @@ void binreader::begin(const std::vector<unsigned char> &data)
 	if (m_data)
 		throw 0; // FIXME
 
-	m_data = &data[0];
-	m_size = data.size();
+	if (data.size() == 0) {
+		static unsigned char garbage[1];
+		m_data = garbage;
+		m_size = 0;
+	} else {
+		m_data = data.data();
+		m_size = data.size();
+	}
 }
 
 void binreader::end()
