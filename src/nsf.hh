@@ -27,6 +27,12 @@
 namespace drnsf {
 namespace nsf {
 
+enum class game_ver {
+	crash1,
+	crash2,
+	crash3
+};
+
 class eid {
 private:
 	std::uint32_t m_value;
@@ -180,6 +186,8 @@ public:
 		destroy(TS);
 		result->rename(TS,name);
 	}
+
+	bool process_by_type(TRANSACT,game_ver ver);
 
 	template <typename Reflector>
 	void reflect(Reflector &rfl)

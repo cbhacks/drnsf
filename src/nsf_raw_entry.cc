@@ -75,5 +75,26 @@ void raw_entry::import_file(TRANSACT,const std::vector<unsigned char> &data)
 	set_items(TS,std::move(items));
 }
 
+bool raw_entry::process_by_type(TRANSACT,game_ver ver)
+{
+	assert_alive();
+
+	switch (ver) {
+	case game_ver::crash1:
+		break;
+	case game_ver::crash2:
+		switch (get_type()) {
+		case 3:
+			process_as<wgeo_v2>(TS);
+			return true;
+		}
+		break;
+	case game_ver::crash3:
+		break;
+	}
+
+	return false;
+}
+
 }
 }

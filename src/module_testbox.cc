@@ -172,10 +172,7 @@ void frame(int delta)
 					pagelet->destroy(TS);
 					entry->rename(TS,pagelet);
 					entry = pagelet;
-
-					if (entry->get_type() == 3) {
-						entry->process_as<nsf::wgeo_v2>(TS);
-					}
+					entry->process_by_type(TS,nsf::game_ver::crash2);
 				}
 			}
 		};
