@@ -28,7 +28,7 @@ bool visible = false;
 
 void frame(int delta)
 {
-	auto &&ns = m_core.m_ns;
+	auto &&ns = m_core.m_proj->get_asset_root();
 	auto &&selected_asset = m_core.m_selected_asset;
 
 	ImGui::Checkbox("Assets",&visible);

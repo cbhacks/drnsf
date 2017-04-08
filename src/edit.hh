@@ -145,8 +145,6 @@ struct cam {
 class core : public gui::window {
 public:
 	std::shared_ptr<project> m_proj = std::make_shared<project>();
-	const res::atom &m_ns = m_proj->get_asset_root();
-	transact::nexus &m_nx = m_proj->get_transact();
 	std::list<std::function<void(int)>> m_modules;
 	res::anyref m_selected_asset;
 	cam m_cam;
