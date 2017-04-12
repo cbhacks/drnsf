@@ -46,7 +46,9 @@ int main(int argc,char *argv[])
 
 	// Run the main application/game loop.
 	while (true) {
-		gtk_main_iteration_do(false);
+		while (gtk_events_pending()) {
+			gtk_main_iteration();
+		}
 		editor.run_once();
 	}
 

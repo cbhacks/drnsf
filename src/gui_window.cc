@@ -124,7 +124,6 @@ class window_impl : private util::nocopy {
 	friend class window;
 
 private:
-	GtkWidget *M;
 	sdl_window m_wnd;
 	sdl_glcontext m_glctx;
 	decltype(s_windows)::iterator m_iter;
@@ -556,18 +555,36 @@ window_impl::window_impl(
 	// Save the font texture's name (id) in ImGui to be used later when
 	// rendering the GUI's.
 	m_io->Fonts->TexID = reinterpret_cast<void*>(font_gltex);
-
-	M = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(M),title.c_str());
-	gtk_window_set_default_size(GTK_WINDOW(M),width,height);
-	gtk_widget_show(M);
 }
 
 window_impl::~window_impl()
 {
 	s_windows.erase(m_iter);
 	ImGui::DestroyContext(m_im);
-	gtk_widget_destroy(M);
+}
+
+template <typename MFT,MFT MF>
+struct proxy;
+
+template <typename T,typename R,typename... Args,R (T::*MF)(Args...)>
+struct proxy<R (T::*)(Args...),MF> {
+	static R call(Args... args,gpointer user_data)
+	{
+		return (static_cast<T *>(user_data)->*MF)(args...);
+	}
+};
+
+gboolean window::on_render(GtkGLArea *area,GdkGLContext *context)
+{
+	glClearColor(1,0,0,0);
+	glClear(GL_COLOR_BUFFER_BIT);
+	return false;
+}
+
+void window::on_resize(GtkGLArea *area,int width,int height)
+{
+	m_canvas_width = width;
+	m_canvas_height = height;
 }
 
 window::window(const std::string &title,int width,int height)
@@ -578,21 +595,48 @@ window::window(const std::string &title,int width,int height)
 		height,
 		[this](int delta_time) { frame(delta_time); }
 	);
+
+	m_wnd = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title(GTK_WINDOW(m_wnd),title.c_str());
+	gtk_window_set_default_size(GTK_WINDOW(m_wnd),width,height);
+	m_canvas = gtk_gl_area_new();
+	g_signal_connect(
+		m_canvas,
+		"render",
+		G_CALLBACK((proxy<
+			decltype(&window::on_render),
+			&window::on_render
+		>::call)),
+		this
+	);
+	g_signal_connect(
+		m_canvas,
+		"resize",
+		G_CALLBACK((proxy<
+			decltype(&window::on_resize),
+			&window::on_resize
+		>::call)),
+		this
+	);
+	gtk_container_add(GTK_CONTAINER(m_wnd),m_canvas);
+	gtk_widget_show(m_canvas);
+	gtk_widget_show(m_wnd);
 }
 
 window::~window()
 {
 	delete M;
+	gtk_widget_destroy(m_wnd);
 }
 
 int window::get_width() const
 {
-	return M->m_width;
+	return m_canvas_width;
 }
 
 int window::get_height() const
 {
-	return M->m_height;
+	return m_canvas_height;
 }
 
 void window::run_once()

@@ -31,6 +31,19 @@ class window_impl;
 class window : private util::nocopy {
 private:
 	window_impl *M;
+	GtkWidget *m_wnd;
+	GtkWidget *m_canvas;
+	int m_canvas_width;
+	int m_canvas_height;
+
+	gboolean on_render(
+		GtkGLArea *area,
+		GdkGLContext *context);
+
+	void on_resize(
+		GtkGLArea *area,
+		gint width,
+		gint height);
 
 protected:
 	virtual void frame(int delta_time) = 0;
