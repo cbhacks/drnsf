@@ -27,7 +27,7 @@ namespace gui {
 
 class window_impl;
 
-class window {
+class window : private util::nocopy {
 private:
 	window_impl *M;
 
