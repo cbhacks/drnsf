@@ -43,7 +43,7 @@ void archive::import_file(TRANSACT,const std::vector<unsigned char> &data)
 		auto &&page = pages[i];
 
 		// Create the page asset.
-		page = get_name() / util::format("page-$",i);
+		page = get_name() / "page-$"_fmt(i);
 		page.create(TS,get_proj());
 
 		// Copy the page data into the asset.

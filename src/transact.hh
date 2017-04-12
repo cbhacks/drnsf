@@ -166,12 +166,6 @@ private:
 public:
 	void describe(std::string desc);
 
-	template <typename... Args>
-	void describef(std::string fmt,Args... args)
-	{
-		describe(util::format(fmt,std::forward<Args>(args)...));
-	}
-
 	void push_op(operation op);
 
 	template <typename T,typename T2>

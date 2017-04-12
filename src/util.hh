@@ -73,36 +73,6 @@ std::string to_string(std::string s);
 std::string to_string(long long ll);
 
 /*
- * util::format
- *
- * This function is the base overload for `format(std::string,...)' when there
- * are no more arguments present. See below.
- */
-std::string format(std::string fmt);
-
-/*
- * util::format
- *
- * This templated function provides string formatting. The format string uses
- * individual dollar signs ($) as placeholders for arguments. Arguments are
- * taken in successive order like %s or %d in printf but without regard to
- * type. No format specifiers are supported yet.
- *
- * Example usage: `format("Pos: $,$  Size: $,$",x,y,width,height)'
- */
-template <typename T,typename... Args>
-inline std::string format(std::string fmt,T t,Args... args)
-{
-	auto delim_pos = fmt.find('$');
-	if (delim_pos == std::string::npos)
-		throw 0; // FIXME
-
-	return fmt.substr(0,delim_pos) +
-		to_string(t) +
-		format(fmt.substr(delim_pos + 1),std::forward<Args>(args)...);
-}
-
-/*
  * util::fmt
  *
  * An instance of this class represents a "format string", similar to as used
@@ -114,7 +84,12 @@ inline std::string format(std::string fmt,T t,Args... args)
  * produced by the formatting. The format string is not altered or destroyed by
  * this operation, and may be reused as many times as desired.
  *
- * The format string's format is described in `util::format' above.
+ * The format string's format is any sequence of text, with dollar signs ($) as
+ * placeholders for arguments taken in successive order like %s or %d in printf
+ * but without regard to type. No format specifiers (e.g. %05d) are supported
+ * yet.
+ *
+ * Example: `fmt("pos: $,$  size: $,$")(x,y,width,height)'
  *
  * This class is also available using the _fmt user-defined literal defined in
  * `common.hh'. See that definition for more details.
@@ -127,10 +102,26 @@ public:
 	explicit fmt(std::string format) :
 		m_format(format) {}
 
-	template <typename... Args>
-	std::string operator()(Args... args) const
+	template <typename T,typename... Args>
+	std::string operator()(T t,Args... args) const
 	{
-		return format(m_format,std::forward<Args>(args)...);
+		auto delim_pos = m_format.find('$');
+		if (delim_pos == std::string::npos)
+			throw 0; // FIXME
+
+		return m_format.substr(0,delim_pos)
+			+ to_string(t)
+			+ fmt(m_format.substr(delim_pos + 1))
+				(std::forward<Args>(args)...);
+	}
+
+	std::string operator()() const
+	{
+		auto delim_pos = m_format.find('$');
+		if (delim_pos != std::string::npos)
+			throw 0; // FIXME
+
+		return m_format;
 	}
 };
 

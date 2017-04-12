@@ -122,9 +122,9 @@ void frame(int delta)
 		nx << [&](TRANSACT) {
 			TS.describe("Load warp room scenery (test)");
 			for (auto &&i : util::range(0,16)) {
-				nsf::raw_entry::ref raw = ns / util::format("wr-wgeo-$",i);
+				nsf::raw_entry::ref raw = ns / "wr-wgeo-$"_fmt(i);
 				raw.create(TS,proj);
-				raw->import_file(TS,read_file(util::format("/tmp/s$.nsentry",i)));
+				raw->import_file(TS,read_file("/tmp/s$.nsentry"_fmt(i)));
 				raw->process_as<nsf::wgeo_v2>(TS);
 			}
 		};

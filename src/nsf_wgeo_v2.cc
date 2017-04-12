@@ -205,7 +205,7 @@ void wgeo_v2::import_entry(TRANSACT,const raw_item_list &items)
 
 	res::atom atom = get_proj().get_asset_root()
 		/ "scenery"
-		/ util::format("$",get_eid());
+		/ "$"_fmt(get_eid());
 
 	// Create the frame which will contain this scene's vertex positions.
 	gfx::frame::ref frame = atom / "frame";

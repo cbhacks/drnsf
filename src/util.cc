@@ -37,14 +37,5 @@ std::string to_string(long long ll)
 	return ss.str();
 }
 
-std::string format(std::string fmt)
-{
-	auto delim_pos = fmt.find('$');
-	if (delim_pos != std::string::npos)
-		throw 0; // FIXME
-
-	return fmt;
-}
-
 }
 }
