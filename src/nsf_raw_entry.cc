@@ -25,7 +25,7 @@
 namespace drnsf {
 namespace nsf {
 
-void raw_entry::import_file(TRANSACT,const std::vector<unsigned char> &data)
+void raw_entry::import_file(TRANSACT,const util::blob &data)
 {
 	assert_alive();
 
@@ -46,7 +46,7 @@ void raw_entry::import_file(TRANSACT,const std::vector<unsigned char> &data)
 	r.end_early();
 
 	// Copy the data for each item.
-	std::vector<raw_item> items(item_count);
+	std::vector<util::blob> items(item_count);
 	for (auto &&i : util::range_of(items)) {
 		auto &&item_start_offset = item_offsets[i];
 		auto &&item_end_offset = item_offsets[i + 1];

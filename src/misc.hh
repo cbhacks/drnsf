@@ -54,7 +54,7 @@ class raw_data : public res::asset {
 	friend class res::asset;
 
 private:
-	std::vector<unsigned char> m_data;
+	util::blob m_data;
 
 	explicit raw_data(res::project &proj) :
 		asset(proj) {}

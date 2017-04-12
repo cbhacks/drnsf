@@ -44,7 +44,7 @@ void binreader::begin(const unsigned char *data,std::size_t size)
 	m_size = size;
 }
 
-void binreader::begin(const std::vector<unsigned char> &data)
+void binreader::begin(const util::blob &data)
 {
 	if (m_data)
 		throw 0; // FIXME

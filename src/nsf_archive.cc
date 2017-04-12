@@ -25,7 +25,7 @@
 namespace drnsf {
 namespace nsf {
 
-void archive::import_file(TRANSACT,const std::vector<unsigned char> &data)
+void archive::import_file(TRANSACT,const util::blob &data)
 {
 	assert_alive();
 

@@ -84,7 +84,7 @@ public:
 
 	DEFINE_APROP(pages);
 
-	void import_file(TRANSACT,const std::vector<unsigned char> &data);
+	void import_file(TRANSACT,const util::blob &data);
 
 	template <typename Reflector>
 	void reflect(Reflector &rfl)
@@ -112,7 +112,7 @@ public:
 	DEFINE_APROP(type);
 	DEFINE_APROP(cid);
 
-	void import_file(TRANSACT,const std::vector<unsigned char> &data);
+	void import_file(TRANSACT,const util::blob &data);
 
 	template <typename Reflector>
 	void reflect(Reflector &rfl)
@@ -145,14 +145,11 @@ public:
 	}
 };
 
-using raw_item = std::vector<unsigned char>;
-using raw_item_list = std::vector<raw_item>;
-
 class raw_entry : public entry {
 	friend class res::asset;
 
 private:
-	raw_item_list m_items;
+	std::vector<util::blob> m_items;
 	uint32_t m_type = 0;
 
 	explicit raw_entry(res::project &proj) :
@@ -164,7 +161,7 @@ public:
 	DEFINE_APROP(items);
 	DEFINE_APROP(type);
 
-	void import_file(TRANSACT,const std::vector<unsigned char> &data);
+	void import_file(TRANSACT,const util::blob &data);
 
 	template <typename T>
 	void process_as(TRANSACT)
@@ -202,9 +199,9 @@ class wgeo_v2 : public entry {
 	friend class res::asset;
 
 private:
-	raw_item m_item0;
-	raw_item m_item4;
-	raw_item m_item6;
+	util::blob m_item0;
+	util::blob m_item4;
+	util::blob m_item6;
 
 	gfx::model::ref m_model;
 
@@ -219,7 +216,7 @@ public:
 	DEFINE_APROP(item6);
 	DEFINE_APROP(model);
 
-	void import_entry(TRANSACT,const raw_item_list &items);
+	void import_entry(TRANSACT,const std::vector<util::blob> &items);
 
 	template <typename Reflector>
 	void reflect(Reflector &rfl)

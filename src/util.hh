@@ -36,6 +36,20 @@ namespace drnsf {
 namespace util {
 
 /*
+ * util::byte
+ * This is an alias for `unsigned char', but could be replaced with `std::byte'
+ * in future versions.
+ */
+using byte = unsigned char;
+
+/*
+ * util::blob
+ * This is an alias for a byte vector. This is a common type, used to represent
+ * raw data, raw items, etc.
+ */
+using blob = std::vector<byte>;
+
+/*
  * util::nocopy
  *
  * This is a base class for any type which should not be copyable or movable.
@@ -264,7 +278,7 @@ public:
 	binreader();
 
 	void begin(const unsigned char *data,std::size_t size);
-	void begin(const std::vector<unsigned char> &data);
+	void begin(const util::blob &data);
 
 	void end();
 	void end_early();
