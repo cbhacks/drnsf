@@ -20,6 +20,7 @@
 
 #include "common.hh"
 #include <SDL.h>
+#include <gtk/gtk.h>
 #include <GL/gl.h>
 #include <iostream>
 #include "edit.hh"
@@ -37,11 +38,15 @@ int main(int argc,char *argv[])
 		return EXIT_FAILURE;
 	}
 
+	// Initialize GTK+.
+	gtk_init(&argc,&argv);
+
 	// Create the editor.
 	edit::core editor;
 
 	// Run the main application/game loop.
 	while (true) {
+		gtk_main_iteration_do(false);
 		editor.run_once();
 	}
 

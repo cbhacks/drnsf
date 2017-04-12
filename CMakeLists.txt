@@ -84,6 +84,15 @@ set_target_properties (drnsf PROPERTIES
 	CXX_STANDARD_REQUIRED ON
 )
 
+# Dependency: pkg-config
+find_package (PkgConfig REQUIRED)
+
+# Dependency: GTK+ 3.0
+pkg_search_module (GTK3 REQUIRED gtk+-3.0)
+target_include_directories(drnsf PRIVATE ${GTK3_INCLUDE_DIRS})
+target_link_libraries(drnsf PRIVATE ${GTK3_LIBRARIES})
+target_compile_options(drnsf PRIVATE ${GTK3_CFLAGS_OTHER})
+
 # Dependency: SDL2
 find_package (SDL2 REQUIRED)
 # Fix an SDL2 bug (error CMP0004).

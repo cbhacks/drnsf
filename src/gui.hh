@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <gtk/gtk.h>
 #include "../imgui/imgui.h"
 
 namespace drnsf {

@@ -124,6 +124,7 @@ class window_impl : private util::nocopy {
 	friend class window;
 
 private:
+	GtkWidget *M;
 	sdl_window m_wnd;
 	sdl_glcontext m_glctx;
 	decltype(s_windows)::iterator m_iter;
@@ -555,12 +556,18 @@ window_impl::window_impl(
 	// Save the font texture's name (id) in ImGui to be used later when
 	// rendering the GUI's.
 	m_io->Fonts->TexID = reinterpret_cast<void*>(font_gltex);
+
+	M = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title(GTK_WINDOW(M),title.c_str());
+	gtk_window_set_default_size(GTK_WINDOW(M),width,height);
+	gtk_widget_show(M);
 }
 
 window_impl::~window_impl()
 {
 	s_windows.erase(m_iter);
 	ImGui::DestroyContext(m_im);
+	gtk_widget_destroy(M);
 }
 
 window::window(const std::string &title,int width,int height)
