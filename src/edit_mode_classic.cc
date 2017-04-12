@@ -225,18 +225,28 @@ public:
 
 static modedef_of<mode_classic> g_mode_classic_def("Classic");
 
-void tree_pane::show()
+static void tree_pane_show_atom(const res::atom &atom,res::atom &selection)
 {
 	namespace im = gui::im;
-	auto &&proj = m_ed.get_project();
 
-	for (auto &&name : proj.get_asset_root().get_asset_names()) {
-		bool is_selected = (name == m_mode.m_selected_asset);
-		auto path = name.full_path();
-		if (im::Selectable(path.c_str(),is_selected)) {
-			m_mode.m_selected_asset = name;
+	for (auto &&child : atom.get_children()) {
+		if (im::Selectable(child.name().c_str(),selection == child)) {
+			selection = child;
 		}
+		im::PushID(child.name().c_str());
+		im::Indent();
+		tree_pane_show_atom(child,selection);
+		im::Unindent();
+		im::PopID();
 	}
+}
+
+void tree_pane::show()
+{
+	tree_pane_show_atom(
+		m_ed.get_project().get_asset_root(),
+		m_mode.m_selected_asset
+	);
 }
 
 std::string tree_pane::get_title() const
