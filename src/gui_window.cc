@@ -24,6 +24,7 @@
 #include <iostream>
 #include <map>
 #include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "../imgui/imgui.h"
 #include "gui.hh"
@@ -594,14 +595,10 @@ gboolean window::on_render(GtkGLArea *area,GdkGLContext *context)
 	// bottom-to-top* which is the inverse of what we want.
 	//
 	// The Z coordinates are left as-is; they are not meaningful for ImGui.
-	glm::mat4 projection = glm::ortho(
-		0,
-		m_canvas_width,
-		m_canvas_height,
-		0,
-		-1,
-		+1
-	);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glOrtho(0,m_canvas_width,m_canvas_height,0,-1,+1);
+	glMatrixMode(GL_MODELVIEW);
 
 	// Enable the relevant vertex arrays.
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -701,6 +698,11 @@ gboolean window::on_render(GtkGLArea *area,GdkGLContext *context)
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
+
+	// Restore the previous (identity) projection.
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
 
 	return true;
 }
