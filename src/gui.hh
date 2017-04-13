@@ -84,6 +84,7 @@ public:
 	util::event<> on_render;
 	util::event<int,int> on_resize;
 	util::event<int,int> on_mousemove;
+	util::event<int> on_mousewheel;
 	util::event<int,bool> on_mousebutton;
 };
 
@@ -102,6 +103,7 @@ private:
 	decltype(m_canvas.on_render)::watch h_render;
 	decltype(m_canvas.on_resize)::watch h_resize;
 	decltype(m_canvas.on_mousemove)::watch h_mousemove;
+	decltype(m_canvas.on_mousewheel)::watch h_mousewheel;
 	decltype(m_canvas.on_mousebutton)::watch h_mousebutton;
 
 	void render();

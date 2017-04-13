@@ -140,7 +140,6 @@ private:
 	void on_event(const SDL_Event &ev);
 	void on_key(SDL_Keysym keysym,bool down);
 	void on_text(const char *text);
-	void on_mousewheel(int y);
 	void on_windowevent(const SDL_WindowEvent &ev);
 	void on_resize(int width,int height);
 	void on_frame(int delta_time);
@@ -177,13 +176,6 @@ void window_impl::on_event(const SDL_Event &ev)
 			ev.text.windowID,
 			[ev](window_impl *wnd){
 				wnd->on_text(ev.text.text);
-			});
-		break;
-	case SDL_MOUSEWHEEL:
-		with_windowid(
-			ev.wheel.windowID,
-			[ev](window_impl *wnd){
-				wnd->on_mousewheel(ev.wheel.y);
 			});
 		break;
 	case SDL_WINDOWEVENT:
@@ -278,11 +270,6 @@ void window_impl::on_key(SDL_Keysym keysym,bool down)
 void window_impl::on_text(const char *text)
 {
 	m_io->AddInputCharactersUTF8(text);
-}
-
-void window_impl::on_mousewheel(int y)
-{
-	m_io->MouseWheel += y;
 }
 
 void window_impl::on_windowevent(const SDL_WindowEvent &ev)
@@ -715,6 +702,11 @@ im_window::im_window(const std::string &title,int width,int height) :
 		M->m_io->MousePos.y = y;
 	};
 	h_mousemove.bind(m_canvas.on_mousemove);
+
+	h_mousewheel <<= [this](int delta_y) {
+		M->m_io->MouseWheel += delta_y;
+	};
+	h_mousewheel.bind(m_canvas.on_mousewheel);
 
 	h_mousebutton <<= [this](int button,bool down) {
 		switch (button) {

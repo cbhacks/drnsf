@@ -63,6 +63,13 @@ void gl_canvas::sigh_scroll_event(
 	GdkEvent *event,
 	gpointer user_data)
 {
+	if (event->scroll.direction != GDK_SCROLL_SMOOTH) {
+		return;
+	}
+
+	static_cast<gl_canvas *>(user_data)->on_mousewheel(
+		-event->scroll.delta_y
+	);
 }
 
 void gl_canvas::sigh_button_press_event(
@@ -92,9 +99,10 @@ gl_canvas::gl_canvas(window &parent)
 	M = gtk_gl_area_new();
 	gtk_widget_set_events(
 		M,
+		GDK_POINTER_MOTION_MASK |
+		GDK_SMOOTH_SCROLL_MASK |
 		GDK_BUTTON_PRESS_MASK |
-		GDK_BUTTON_RELEASE_MASK |
-		GDK_POINTER_MOTION_MASK
+		GDK_BUTTON_RELEASE_MASK
 	);
 	g_signal_connect(M,"render",G_CALLBACK(sigh_render),this);
 	g_signal_connect(M,"resize",G_CALLBACK(sigh_resize),this);
