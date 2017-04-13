@@ -124,7 +124,7 @@ static void with_windowid(Uint32 id,const T &f)
 }
 
 class window_impl : private util::nocopy {
-	friend class window;
+	friend class im_window;
 
 private:
 	sdl_window m_wnd;
@@ -576,7 +576,7 @@ struct proxy<R (T::*)(Args...),MF> {
 	}
 };
 
-gboolean window::on_render(GtkGLArea *area,GdkGLContext *context)
+gboolean im_window::on_render(GtkGLArea *area,GdkGLContext *context)
 {
 	glClearColor(1,0,0,0);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -707,14 +707,14 @@ gboolean window::on_render(GtkGLArea *area,GdkGLContext *context)
 	return true;
 }
 
-void window::on_resize(GtkGLArea *area,int width,int height)
+void im_window::on_resize(GtkGLArea *area,int width,int height)
 {
 	m_canvas_width = width;
 	m_canvas_height = height;
 	glViewport(0,0,width,height);
 }
 
-window::window(const std::string &title,int width,int height)
+im_window::im_window(const std::string &title,int width,int height)
 {
 	M = new window_impl(
 		title,
@@ -734,8 +734,8 @@ window::window(const std::string &title,int width,int height)
 		m_canvas,
 		"render",
 		G_CALLBACK((proxy<
-			decltype(&window::on_render),
-			&window::on_render
+			decltype(&im_window::on_render),
+			&im_window::on_render
 		>::call)),
 		this
 	);
@@ -743,8 +743,8 @@ window::window(const std::string &title,int width,int height)
 		m_canvas,
 		"resize",
 		G_CALLBACK((proxy<
-			decltype(&window::on_resize),
-			&window::on_resize
+			decltype(&im_window::on_resize),
+			&im_window::on_resize
 		>::call)),
 		this
 	);
@@ -753,23 +753,23 @@ window::window(const std::string &title,int width,int height)
 	gtk_widget_show(m_wnd);
 }
 
-window::~window()
+im_window::~im_window()
 {
 	delete M;
 	gtk_widget_destroy(m_wnd);
 }
 
-int window::get_width() const
+int im_window::get_width() const
 {
 	return m_canvas_width;
 }
 
-int window::get_height() const
+int im_window::get_height() const
 {
 	return m_canvas_height;
 }
 
-void window::run_once()
+void im_window::run_once()
 {
 	// Handle all of the pending events.
 	SDL_Event ev;

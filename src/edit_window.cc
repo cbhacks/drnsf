@@ -28,7 +28,7 @@ namespace drnsf {
 namespace edit {
 
 window::window() :
-	gui::window(APP_TITLE,800,600)
+	gui::im_window(APP_TITLE,800,600)
 {
 	h_frame <<= [this](int delta_time) {
 		frame(delta_time);

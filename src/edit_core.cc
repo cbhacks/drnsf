@@ -38,7 +38,7 @@ std::function<void(int)> create_mod_camera_ctrl(edit::core &);
 namespace edit {
 
 core::core() :
-	window("DRNSF",DISPLAYWIDTH,DISPLAYHEIGHT)
+	im_window("DRNSF",DISPLAYWIDTH,DISPLAYHEIGHT)
 {
 	h_frame <<= [this](int delta_time) {
 		frame(delta_time);

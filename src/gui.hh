@@ -28,7 +28,7 @@ namespace gui {
 
 class window_impl;
 
-class window : private util::nocopy {
+class im_window : private util::nocopy {
 private:
 	window_impl *M;
 	GtkWidget *m_wnd;
@@ -46,8 +46,8 @@ private:
 		gint height);
 
 public:
-	explicit window(const std::string &title,int width,int height);
-	~window();
+	explicit im_window(const std::string &title,int width,int height);
+	~im_window();
 
 	int get_width() const;
 	int get_height() const;

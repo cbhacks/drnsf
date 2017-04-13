@@ -38,7 +38,7 @@ class core; // FIXME
 
 class editor;
 
-class window : public gui::window {
+class window : public gui::im_window {
 	friend class core; // FIXME
 
 	friend class pane;
@@ -143,7 +143,7 @@ struct cam {
 	float lens_focus = 1.0;
 };
 
-class core : public gui::window {
+class core : public gui::im_window {
 public:
 	std::shared_ptr<project> m_proj = std::make_shared<project>();
 	std::list<std::function<void(int)>> m_modules;
