@@ -24,19 +24,47 @@
 namespace drnsf {
 namespace gui {
 
-window::window(const std::string &title,int width,int height)
+gboolean gl_canvas::sigh_render(
+	GtkGLArea *area,
+	GdkGLContext *context,
+	gpointer user_data)
 {
-	M = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(M),title.c_str());
-	gtk_window_set_default_size(GTK_WINDOW(M),width,height);
+	auto self = static_cast<gl_canvas *>(user_data);
+
+	if (!self->m_is_init) {
+		self->on_init();
+	}
+	self->on_render();
+	return true;
 }
 
-window::~window()
+void gl_canvas::sigh_resize(
+	GtkGLArea *area,
+	int width,
+	int height,
+	gpointer user_data)
 {
+	static_cast<gl_canvas *>(user_data)->on_resize(width,height);
+}
+
+gl_canvas::gl_canvas(window &parent)
+{
+	M = gtk_gl_area_new();
+	g_signal_connect(M,"render",G_CALLBACK(sigh_render),this);
+	g_signal_connect(M,"resize",G_CALLBACK(sigh_resize),this);
+	gtk_container_add(GTK_CONTAINER(parent.M),M);
+}
+
+gl_canvas::~gl_canvas()
+{
+	if (m_is_init) {
+		gtk_gl_area_make_current(GTK_GL_AREA(M));
+		on_cleanup();
+	}
 	gtk_widget_destroy(M);
 }
 
-void window::show()
+void gl_canvas::show()
 {
 	gtk_widget_show(M);
 }

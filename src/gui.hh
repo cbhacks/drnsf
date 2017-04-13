@@ -32,6 +32,37 @@ public:
 
 	explicit window(const std::string &title,int width,int height);
 	~window();
+
+	void show();
+};
+
+class gl_canvas : private util::nocopy {
+private:
+	bool m_is_init = false;
+
+	static gboolean sigh_render(
+		GtkGLArea *area,
+		GdkGLContext *context,
+		gpointer user_data);
+
+	static void sigh_resize(
+		GtkGLArea *area,
+		int width,
+		int height,
+		gpointer user_data);
+
+public:
+	GtkWidget *M;
+
+	explicit gl_canvas(window &parent);
+	~gl_canvas();
+
+	void show();
+
+	util::event<> on_init;
+	util::event<> on_cleanup;
+	util::event<> on_render;
+	util::event<int,int> on_resize;
 };
 
 class window_impl;
@@ -40,18 +71,16 @@ class im_window : private util::nocopy {
 private:
 	window_impl *M;
 	window m_wnd;
-	GtkWidget *m_canvas;
+	gl_canvas m_canvas;
+	unsigned int m_canvas_font;
 	int m_canvas_width;
 	int m_canvas_height;
+	decltype(m_canvas.on_init)::watch h_init;
+	decltype(m_canvas.on_cleanup)::watch h_cleanup;
+	decltype(m_canvas.on_render)::watch h_render;
+	decltype(m_canvas.on_resize)::watch h_resize;
 
-	gboolean on_render(
-		GtkGLArea *area,
-		GdkGLContext *context);
-
-	void on_resize(
-		GtkGLArea *area,
-		gint width,
-		gint height);
+	void render();
 
 public:
 	explicit im_window(const std::string &title,int width,int height);

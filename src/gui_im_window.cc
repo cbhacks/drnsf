@@ -568,18 +568,7 @@ window_impl::~window_impl()
 	ImGui::DestroyContext(m_im);
 }
 
-template <typename MFT,MFT MF>
-struct proxy;
-
-template <typename T,typename R,typename... Args,R (T::*MF)(Args...)>
-struct proxy<R (T::*)(Args...),MF> {
-	static R call(Args... args,gpointer user_data)
-	{
-		return (static_cast<T *>(user_data)->*MF)(args...);
-	}
-};
-
-gboolean im_window::on_render(GtkGLArea *area,GdkGLContext *context)
+void im_window::render()
 {
 	glClearColor(1,0,0,0);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -656,12 +645,7 @@ gboolean im_window::on_render(GtkGLArea *area,GdkGLContext *context)
 			if (c.UserCallback) {
 				c.UserCallback(draw_list,&c);
 			} else {
-				glBindTexture(
-					GL_TEXTURE_2D,
-					reinterpret_cast<std::uintptr_t>(
-						c.TextureId
-					)
-				);
+				glBindTexture(GL_TEXTURE_2D,m_canvas_font);
 				glScissor(
 					c.ClipRect.x,
 					m_canvas_height - c.ClipRect.w,
@@ -706,19 +690,11 @@ gboolean im_window::on_render(GtkGLArea *area,GdkGLContext *context)
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
-
-	return true;
-}
-
-void im_window::on_resize(GtkGLArea *area,int width,int height)
-{
-	m_canvas_width = width;
-	m_canvas_height = height;
-	glViewport(0,0,width,height);
 }
 
 im_window::im_window(const std::string &title,int width,int height) :
-	m_wnd(title,width,height)
+	m_wnd(title,width,height),
+	m_canvas(m_wnd)
 {
 	M = new window_impl(
 		title,
@@ -726,31 +702,60 @@ im_window::im_window(const std::string &title,int width,int height) :
 		height,
 		[this](int delta_time) {
 			on_frame(delta_time);
-			gtk_gl_area_queue_render(GTK_GL_AREA(m_canvas));
+			gtk_gl_area_queue_render(GTK_GL_AREA(m_canvas.M));
 		}
 	);
 
-	m_canvas = gtk_gl_area_new();
-	g_signal_connect(
-		m_canvas,
-		"render",
-		G_CALLBACK((proxy<
-			decltype(&im_window::on_render),
-			&im_window::on_render
-		>::call)),
-		this
-	);
-	g_signal_connect(
-		m_canvas,
-		"resize",
-		G_CALLBACK((proxy<
-			decltype(&im_window::on_resize),
-			&im_window::on_resize
-		>::call)),
-		this
-	);
-	gtk_container_add(GTK_CONTAINER(m_wnd.M),m_canvas);
-	gtk_widget_show(m_canvas);
+	h_init <<= [this]() {
+		// Get the ImGui font.
+		unsigned char *font_pixels;
+		int font_width;
+		int font_height;
+		M->m_io->Fonts->GetTexDataAsRGBA32(
+			&font_pixels,
+			&font_width,
+			&font_height
+		);
+
+		// Upload the font as a texture to OpenGL.
+		glGenTextures(1,&m_canvas_font);
+		glBindTexture(GL_TEXTURE_2D,m_canvas_font);
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RGBA,
+			font_width,
+			font_height,
+			0,
+			GL_RGBA,
+			GL_UNSIGNED_BYTE,
+			font_pixels
+		);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+		glBindTexture(GL_TEXTURE_2D,0);
+	};
+	h_init.bind(m_canvas.on_init);
+
+	h_cleanup <<= [this]() {
+		glDeleteTextures(1,&m_canvas_font);
+	};
+	h_cleanup.bind(m_canvas.on_cleanup);
+
+	h_render <<= [this]() {
+		render();
+	};
+	h_render.bind(m_canvas.on_render);
+
+	h_resize <<= [this](int width,int height) {
+		m_canvas_width = width;
+		m_canvas_height = height;
+		glViewport(0,0,width,height);
+	};
+	h_resize.bind(m_canvas.on_resize);
+
+	m_canvas.show();
+	m_wnd.show();
 }
 
 im_window::~im_window()
