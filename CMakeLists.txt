@@ -39,6 +39,7 @@ add_executable (drnsf
 	src/util_binreader.cc
 
 	src/gui.hh
+	src/gui_window.cc
 	src/gui_im_window.cc
 	src/gui_im.cc
 

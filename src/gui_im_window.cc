@@ -557,6 +557,9 @@ window_impl::window_impl(
 	// Save the font texture's name (id) in ImGui to be used later when
 	// rendering the GUI's.
 	m_io->Fonts->TexID = reinterpret_cast<void*>(font_gltex);
+
+	ImGui::NewFrame();
+	ImGui::Render();
 }
 
 window_impl::~window_impl()
@@ -714,7 +717,8 @@ void im_window::on_resize(GtkGLArea *area,int width,int height)
 	glViewport(0,0,width,height);
 }
 
-im_window::im_window(const std::string &title,int width,int height)
+im_window::im_window(const std::string &title,int width,int height) :
+	m_wnd(title,width,height)
 {
 	M = new window_impl(
 		title,
@@ -726,9 +730,6 @@ im_window::im_window(const std::string &title,int width,int height)
 		}
 	);
 
-	m_wnd = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(m_wnd),title.c_str());
-	gtk_window_set_default_size(GTK_WINDOW(m_wnd),width,height);
 	m_canvas = gtk_gl_area_new();
 	g_signal_connect(
 		m_canvas,
@@ -748,15 +749,13 @@ im_window::im_window(const std::string &title,int width,int height)
 		>::call)),
 		this
 	);
-	gtk_container_add(GTK_CONTAINER(m_wnd),m_canvas);
+	gtk_container_add(GTK_CONTAINER(m_wnd.M),m_canvas);
 	gtk_widget_show(m_canvas);
-	gtk_widget_show(m_wnd);
 }
 
 im_window::~im_window()
 {
 	delete M;
-	gtk_widget_destroy(m_wnd);
 }
 
 int im_window::get_width() const

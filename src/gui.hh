@@ -26,12 +26,20 @@
 namespace drnsf {
 namespace gui {
 
+class window : private util::nocopy {
+public:
+	GtkWidget *M;
+
+	explicit window(const std::string &title,int width,int height);
+	~window();
+};
+
 class window_impl;
 
 class im_window : private util::nocopy {
 private:
 	window_impl *M;
-	GtkWidget *m_wnd;
+	window m_wnd;
 	GtkWidget *m_canvas;
 	int m_canvas_width;
 	int m_canvas_height;
