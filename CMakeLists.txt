@@ -106,6 +106,10 @@ find_package (OpenGL REQUIRED)
 target_include_directories (drnsf PRIVATE ${OPENGL_INCLUDE_DIRS})
 target_link_libraries (drnsf PRIVATE ${OPENGL_LIBRARIES})
 
+# Dependency: GLM
+# (header-only, included as a git submodule)
+target_include_directories (drnsf PRIVATE ${CMAKE_SOURCE_DIR}/glm)
+
 # GCC Warnings
 if (CMAKE_COMPILER_IS_GNUCXX)
 	target_compile_options (drnsf PRIVATE -Wall -Wextra)

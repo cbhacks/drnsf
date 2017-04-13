@@ -23,6 +23,8 @@
 #include <GL/gl.h>
 #include <iostream>
 #include <map>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "../imgui/imgui.h"
 #include "gui.hh"
 
@@ -387,6 +389,7 @@ static void render_impl(int width,int height)
 	// bottom-to-top* which is the inverse of what we want.
 	//
 	// The Z coordinates are left as-is; they are not meaningful for ImGui.
+	glm::mat4 projection = glm::ortho(0,width,height,0,-1,+1);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glOrtho(0,width,height,0,-1,+1);
