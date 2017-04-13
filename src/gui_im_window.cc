@@ -140,9 +140,7 @@ private:
 	void on_event(const SDL_Event &ev);
 	void on_key(SDL_Keysym keysym,bool down);
 	void on_text(const char *text);
-	void on_mousemove(int x,int y);
 	void on_mousewheel(int y);
-	void on_mousebutton(int button,bool down);
 	void on_windowevent(const SDL_WindowEvent &ev);
 	void on_resize(int width,int height);
 	void on_frame(int delta_time);
@@ -181,32 +179,11 @@ void window_impl::on_event(const SDL_Event &ev)
 				wnd->on_text(ev.text.text);
 			});
 		break;
-	case SDL_MOUSEMOTION:
-		with_windowid(
-			ev.motion.windowID,
-			[ev](window_impl *wnd){
-				wnd->on_mousemove(ev.motion.x,ev.motion.y);
-			});
-		break;
 	case SDL_MOUSEWHEEL:
 		with_windowid(
 			ev.wheel.windowID,
 			[ev](window_impl *wnd){
 				wnd->on_mousewheel(ev.wheel.y);
-			});
-		break;
-	case SDL_MOUSEBUTTONDOWN:
-		with_windowid(
-			ev.button.windowID,
-			[ev](window_impl *wnd){
-				wnd->on_mousebutton(ev.button.button,true);
-			});
-		break;
-	case SDL_MOUSEBUTTONUP:
-		with_windowid(
-			ev.button.windowID,
-			[ev](window_impl *wnd){
-				wnd->on_mousebutton(ev.button.button,false);
 			});
 		break;
 	case SDL_WINDOWEVENT:
@@ -303,30 +280,9 @@ void window_impl::on_text(const char *text)
 	m_io->AddInputCharactersUTF8(text);
 }
 
-void window_impl::on_mousemove(int x,int y)
-{
-	m_io->MousePos.x = x;
-	m_io->MousePos.y = y;
-}
-
 void window_impl::on_mousewheel(int y)
 {
 	m_io->MouseWheel += y;
-}
-
-void window_impl::on_mousebutton(int button,bool down)
-{
-	switch (button) {
-	case SDL_BUTTON_LEFT:
-		m_io->MouseDown[0] = down;
-		break;
-	case SDL_BUTTON_RIGHT:
-		m_io->MouseDown[1] = down;
-		break;
-	case SDL_BUTTON_MIDDLE:
-		m_io->MouseDown[2] = down;
-		break;
-	}
 }
 
 void window_impl::on_windowevent(const SDL_WindowEvent &ev)
@@ -753,6 +709,27 @@ im_window::im_window(const std::string &title,int width,int height) :
 		glViewport(0,0,width,height);
 	};
 	h_resize.bind(m_canvas.on_resize);
+
+	h_mousemove <<= [this](int x,int y) {
+		M->m_io->MousePos.x = x;
+		M->m_io->MousePos.y = y;
+	};
+	h_mousemove.bind(m_canvas.on_mousemove);
+
+	h_mousebutton <<= [this](int button,bool down) {
+		switch (button) {
+		case 1:
+			M->m_io->MouseDown[0] = down;
+			break;
+		case 2:
+			M->m_io->MouseDown[2] = down;
+			break;
+		case 3:
+			M->m_io->MouseDown[1] = down;
+			break;
+		}
+	};
+	h_mousebutton.bind(m_canvas.on_mousebutton);
 
 	m_canvas.show();
 	m_wnd.show();

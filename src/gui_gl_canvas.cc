@@ -47,11 +47,81 @@ void gl_canvas::sigh_resize(
 	static_cast<gl_canvas *>(user_data)->on_resize(width,height);
 }
 
+void gl_canvas::sigh_motion_notify_event(
+	GtkWidget *widget,
+	GdkEvent *event,
+	gpointer user_data)
+{
+	static_cast<gl_canvas *>(user_data)->on_mousemove(
+		event->motion.x,
+		event->motion.y
+	);
+}
+
+void gl_canvas::sigh_scroll_event(
+	GtkWidget *widget,
+	GdkEvent *event,
+	gpointer user_data)
+{
+}
+
+void gl_canvas::sigh_button_press_event(
+	GtkWidget *widget,
+	GdkEvent *event,
+	gpointer user_data)
+{
+	static_cast<gl_canvas *>(user_data)->on_mousebutton(
+		event->button.button,
+		true
+	);
+}
+
+void gl_canvas::sigh_button_release_event(
+	GtkWidget *widget,
+	GdkEvent *event,
+	gpointer user_data)
+{
+	static_cast<gl_canvas *>(user_data)->on_mousebutton(
+		event->button.button,
+		false
+	);
+}
+
 gl_canvas::gl_canvas(window &parent)
 {
 	M = gtk_gl_area_new();
+	gtk_widget_set_events(
+		M,
+		GDK_BUTTON_PRESS_MASK |
+		GDK_BUTTON_RELEASE_MASK |
+		GDK_POINTER_MOTION_MASK
+	);
 	g_signal_connect(M,"render",G_CALLBACK(sigh_render),this);
 	g_signal_connect(M,"resize",G_CALLBACK(sigh_resize),this);
+	g_signal_connect(
+		M,
+		"motion-notify-event",
+		G_CALLBACK(sigh_motion_notify_event),
+		this
+	);
+	g_signal_connect(
+		M,
+		"scroll-event",
+		G_CALLBACK(sigh_scroll_event),
+		this
+	);
+	g_signal_connect(
+		M,
+		"button-press-event",
+		G_CALLBACK(sigh_button_press_event),
+		this
+	);
+	g_signal_connect(
+		M,
+		"button-release-event",
+		G_CALLBACK(sigh_button_release_event),
+		this
+	);
 	gtk_container_add(GTK_CONTAINER(parent.M),M);
 }
 

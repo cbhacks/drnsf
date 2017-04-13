@@ -51,6 +51,26 @@ private:
 		int height,
 		gpointer user_data);
 
+	static void sigh_motion_notify_event(
+		GtkWidget *widget,
+		GdkEvent *event,
+		gpointer user_data);
+
+	static void sigh_scroll_event(
+		GtkWidget *widget,
+		GdkEvent *event,
+		gpointer user_data);
+
+	static void sigh_button_press_event(
+		GtkWidget *widget,
+		GdkEvent *event,
+		gpointer user_data);
+
+	static void sigh_button_release_event(
+		GtkWidget *widget,
+		GdkEvent *event,
+		gpointer user_data);
+
 public:
 	GtkWidget *M;
 
@@ -63,6 +83,8 @@ public:
 	util::event<> on_cleanup;
 	util::event<> on_render;
 	util::event<int,int> on_resize;
+	util::event<int,int> on_mousemove;
+	util::event<int,bool> on_mousebutton;
 };
 
 class window_impl;
@@ -79,6 +101,8 @@ private:
 	decltype(m_canvas.on_cleanup)::watch h_cleanup;
 	decltype(m_canvas.on_render)::watch h_render;
 	decltype(m_canvas.on_resize)::watch h_resize;
+	decltype(m_canvas.on_mousemove)::watch h_mousemove;
+	decltype(m_canvas.on_mousebutton)::watch h_mousebutton;
 
 	void render();
 
