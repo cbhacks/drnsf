@@ -31,6 +31,7 @@
 
 #include <vector>
 #include <string>
+#include <list>
 
 namespace drnsf {
 namespace util {
@@ -73,6 +74,92 @@ private:
 
 protected:
 	nocopy() = default;
+};
+
+/*
+ * util::event
+ *
+ * FIXME: explain
+ */
+template <typename... Args>
+class event : private nocopy {
+public:
+	class watch : private nocopy {
+		friend class event;
+
+	private:
+		event *m_event;
+		std::list<watch *> m_hold;
+		typename std::list<watch *>::iterator m_iter;
+		std::function<void(Args...)> m_func;
+
+	public:
+		watch() :
+			m_event(nullptr)
+		{
+			m_hold.push_front(this);
+			m_iter = m_hold.begin();
+		}
+
+		~watch()
+		{
+			if (m_event) {
+				unbind();
+			}
+		}
+
+		void operator <<=(std::function<void(Args...)> func)
+		{
+			if (m_func) {
+				throw 0;//FIXME
+			}
+
+			m_func = func;
+		}
+
+		void bind(event &ev)
+		{
+			if (!m_func) {
+				throw 0;//FIXME
+			}
+
+			if (m_event) {
+				throw 0;//FIXME
+			}
+
+			m_event = &ev;
+			m_event->m_watchers.splice(
+				m_event->m_watchers.end(),
+				m_hold,
+				m_iter
+			);
+		}
+
+		void unbind()
+		{
+			if (!m_event) {
+				throw 0;//FIXME
+			}
+
+			m_hold.splice(
+				m_hold.end(),
+				m_event->m_watchers,
+				m_iter
+			);
+			m_event = nullptr;
+		}
+	};
+
+private:
+	std::list<watch *> m_watchers;
+
+public:
+	void operator ()(Args... args)
+	{
+		for (auto &&watcher : m_watchers) {
+			watcher->m_func(args...);
+		}
+	}
 };
 
 /*

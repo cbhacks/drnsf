@@ -30,6 +30,10 @@ namespace edit {
 window::window() :
 	gui::window(APP_TITLE,800,600)
 {
+	h_frame <<= [this](int delta_time) {
+		frame(delta_time);
+	};
+	h_frame.bind(on_frame);
 }
 
 void window::frame(int delta_time)

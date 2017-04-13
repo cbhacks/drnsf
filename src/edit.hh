@@ -45,11 +45,12 @@ class window : public gui::window {
 
 private:
 	std::shared_ptr<editor> m_ed;
+	decltype(on_frame)::watch h_frame;
 
 public:
 	window();
 
-	void frame(int delta_time) override;
+	void frame(int delta_time);
 };
 
 class pane;
@@ -149,6 +150,7 @@ public:
 	res::anyref m_selected_asset;
 	cam m_cam;
 	edit::window m_wnd;
+	decltype(on_frame)::watch h_frame;
 
 	core();
 

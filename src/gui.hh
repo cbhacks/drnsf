@@ -45,9 +45,6 @@ private:
 		gint width,
 		gint height);
 
-protected:
-	virtual void frame(int delta_time) = 0;
-
 public:
 	explicit window(const std::string &title,int width,int height);
 	~window();
@@ -56,6 +53,8 @@ public:
 	int get_height() const;
 
 	void run_once();
+
+	util::event<int> on_frame;
 };
 
 namespace im {

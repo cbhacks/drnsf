@@ -40,6 +40,11 @@ namespace edit {
 core::core() :
 	window("DRNSF",DISPLAYWIDTH,DISPLAYHEIGHT)
 {
+	h_frame <<= [this](int delta_time) {
+		frame(delta_time);
+	};
+	h_frame.bind(on_frame);
+
 	// Create all of the editor modules.
 	m_modules.push_back(create_assets_window(*this));
 	m_modules.push_back(create_mod_testbox(*this));

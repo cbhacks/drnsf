@@ -719,7 +719,7 @@ window::window(const std::string &title,int width,int height)
 		width,
 		height,
 		[this](int delta_time) {
-			frame(delta_time);
+			on_frame(delta_time);
 			gtk_gl_area_queue_render(GTK_GL_AREA(m_canvas));
 		}
 	);
