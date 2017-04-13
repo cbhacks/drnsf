@@ -20,7 +20,7 @@
 
 #include "common.hh"
 #include <SDL.h>
-#include <GL/gl.h>
+#include <epoxy/gl.h>
 #include <iostream>
 #include <map>
 #include <glm/glm.hpp>
@@ -346,8 +346,6 @@ void window_impl::on_resize(int width,int height)
 	m_io->DisplaySize.y = height;
 }
 
-static void render_impl(int width,int height);
-
 void window_impl::on_frame(int delta_time)
 {
 	// Begin/end text input according to ImGui.
@@ -370,12 +368,6 @@ void window_impl::on_frame(int delta_time)
 	m_frame_proc(delta_time);
 
 	ImGui::Render();
-
-	render_impl(m_width,m_height);
-}
-
-static void render_impl(int width,int height)
-{
 	ImDrawData *draw_data = ImGui::GetDrawData();
 
 	// Prepare a simple 2D orthographic projection.
@@ -389,10 +381,9 @@ static void render_impl(int width,int height)
 	// bottom-to-top* which is the inverse of what we want.
 	//
 	// The Z coordinates are left as-is; they are not meaningful for ImGui.
-	glm::mat4 projection = glm::ortho(0,width,height,0,-1,+1);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
-	glOrtho(0,width,height,0,-1,+1);
+	glOrtho(0,m_width,m_height,0,-1,+1);
 	glMatrixMode(GL_MODELVIEW);
 
 	// Enable the relevant vertex arrays.
@@ -456,7 +447,7 @@ static void render_impl(int width,int height)
 				);
 				glScissor(
 					c.ClipRect.x,
-					height - c.ClipRect.w,
+					m_height - c.ClipRect.w,
 					c.ClipRect.z - c.ClipRect.x,
 					c.ClipRect.w - c.ClipRect.y
 				);
@@ -588,8 +579,129 @@ gboolean window::on_render(GtkGLArea *area,GdkGLContext *context)
 {
 	glClearColor(1,0,0,0);
 	glClear(GL_COLOR_BUFFER_BIT);
+
 	ImGui::SetCurrentContext(M->m_im);
-	render_impl(m_canvas_width,m_canvas_height);
+	ImDrawData *draw_data = ImGui::GetDrawData();
+
+	// Prepare a simple 2D orthographic projection.
+	//
+	// This adjusts the GL vertex coordinates to be:
+	// X left-to-right as 0 to +<width>
+	// Y top-to-bottom as 0 to +<height>
+	// ImGui expects this layout.
+	//
+	// Without this, instead you get -1 to +1 left-to-right *and also
+	// bottom-to-top* which is the inverse of what we want.
+	//
+	// The Z coordinates are left as-is; they are not meaningful for ImGui.
+	glm::mat4 projection = glm::ortho(
+		0,
+		m_canvas_width,
+		m_canvas_height,
+		0,
+		-1,
+		+1
+	);
+
+	// Enable the relevant vertex arrays.
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+
+	// Enable alpha blending. ImGui requires this for its fonts.
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+	// Enable texture-mapping. ImGui also uses this for fonts.
+	glEnable(GL_TEXTURE_2D);
+
+	// Enable the GL scissor test. This is used to clip gui widgets to only
+	// render within their given area.
+	glEnable(GL_SCISSOR_TEST);
+
+	// Draw each of the command lists. Each list contains a set of draw
+	// commands associated with a particular set of vertex arrays.
+	for (int i = 0;i < draw_data->CmdListsCount;i++) {
+		ImDrawList *draw_list = draw_data->CmdLists[i];
+
+		// Prepare the vertex arrays for this list.
+		glVertexPointer(
+			2,
+			GL_FLOAT,
+			sizeof(ImDrawVert),
+			&draw_list->VtxBuffer.Data[0].pos
+		);
+		glTexCoordPointer(
+			2,
+			GL_FLOAT,
+			sizeof(ImDrawVert),
+			&draw_list->VtxBuffer.Data[0].uv
+		);
+		glColorPointer(
+			4,
+			GL_UNSIGNED_BYTE,
+			sizeof(ImDrawVert),
+			&draw_list->VtxBuffer.Data[0].col
+		);
+
+		// Get the index array (IBO-like). Each draw command pulls some
+		// amount of these elements out from the front.
+		ImDrawIdx *index_array = draw_list->IdxBuffer.Data;
+
+		// Draw each of the commands in the list.
+		for (auto &c : draw_list->CmdBuffer) {
+			// Use this command's custom drawing implementation,
+			// if there is one. Otherwise, draw it as you would
+			// normally.
+			if (c.UserCallback) {
+				c.UserCallback(draw_list,&c);
+			} else {
+				glBindTexture(
+					GL_TEXTURE_2D,
+					reinterpret_cast<std::uintptr_t>(
+						c.TextureId
+					)
+				);
+				glScissor(
+					c.ClipRect.x,
+					m_canvas_height - c.ClipRect.w,
+					c.ClipRect.z - c.ClipRect.x,
+					c.ClipRect.w - c.ClipRect.y
+				);
+				glDrawElements(
+					GL_TRIANGLES,
+					c.ElemCount,
+					sizeof(ImDrawIdx) == 2 ?
+						GL_UNSIGNED_SHORT :
+						GL_UNSIGNED_INT,
+					index_array
+				);
+			}
+
+			// Move past the indices which have already been used
+			// for drawing.
+			index_array += c.ElemCount;
+		}
+	}
+
+	// Re-disable scissor test.
+	glDisable(GL_SCISSOR_TEST);
+
+	// Unbind whatever texture was bound by the last draw command.
+	glBindTexture(GL_TEXTURE_2D,0);
+
+	// Re-disable texture mapping.
+	glDisable(GL_TEXTURE_2D);
+
+	// Restore the previous blending setup.
+	glDisable(GL_BLEND);
+	glBlendFunc(GL_ONE,GL_ZERO);
+
+	// Un-enable the vertex arrays.
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+
 	return true;
 }
 

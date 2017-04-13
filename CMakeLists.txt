@@ -89,9 +89,9 @@ find_package (PkgConfig REQUIRED)
 
 # Dependency: GTK+ 3.0
 pkg_search_module (GTK3 REQUIRED gtk+-3.0)
-target_include_directories(drnsf PRIVATE ${GTK3_INCLUDE_DIRS})
-target_link_libraries(drnsf PRIVATE ${GTK3_LIBRARIES})
-target_compile_options(drnsf PRIVATE ${GTK3_CFLAGS_OTHER})
+target_include_directories (drnsf PRIVATE ${GTK3_INCLUDE_DIRS})
+target_link_libraries (drnsf PRIVATE ${GTK3_LIBRARIES})
+target_compile_options (drnsf PRIVATE ${GTK3_CFLAGS_OTHER})
 
 # Dependency: SDL2
 find_package (SDL2 REQUIRED)
@@ -105,6 +105,12 @@ target_link_libraries (drnsf PRIVATE ${SDL2_LIBRARIES})
 find_package (OpenGL REQUIRED)
 target_include_directories (drnsf PRIVATE ${OPENGL_INCLUDE_DIRS})
 target_link_libraries (drnsf PRIVATE ${OPENGL_LIBRARIES})
+
+# Dependency: libepoxy
+pkg_search_module (EPOXY REQUIRED epoxy)
+target_include_directories (drnsf PRIVATE ${EPOXY_INCLUDE_DIRS})
+target_link_libraries (drnsf PRIVATE ${EPOXY_LIBRARIES})
+target_compile_options (drnsf PRIVATE ${EPOXY_CFLAGS_OTHER})
 
 # Dependency: GLM
 # (header-only, included as a git submodule)
