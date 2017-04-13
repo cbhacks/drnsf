@@ -344,10 +344,10 @@ void window_impl::on_resize(int width,int height)
 	m_io->DisplaySize.y = height;
 }
 
+static void render_impl(int width,int height);
+
 void window_impl::on_frame(int delta_time)
 {
-	ImGui::SetCurrentContext(m_im);
-
 	// Begin/end text input according to ImGui.
 	if (m_io->WantTextInput && !m_textinput_active) {
 		SDL_StartTextInput();
@@ -359,6 +359,8 @@ void window_impl::on_frame(int delta_time)
 
 	// Start the new frame in ImGui.
 	m_io->DeltaTime = delta_time / 1000.0;
+
+	ImGui::SetCurrentContext(m_im);
 	ImGui::NewFrame();
 
 	glViewport(0,0,m_width,m_height);
@@ -367,6 +369,11 @@ void window_impl::on_frame(int delta_time)
 
 	ImGui::Render();
 
+	render_impl(m_width,m_height);
+}
+
+static void render_impl(int width,int height)
+{
 	ImDrawData *draw_data = ImGui::GetDrawData();
 
 	// Prepare a simple 2D orthographic projection.
@@ -382,7 +389,7 @@ void window_impl::on_frame(int delta_time)
 	// The Z coordinates are left as-is; they are not meaningful for ImGui.
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
-	glOrtho(0,m_width,m_height,0,-1,+1);
+	glOrtho(0,width,height,0,-1,+1);
 	glMatrixMode(GL_MODELVIEW);
 
 	// Enable the relevant vertex arrays.
@@ -446,7 +453,7 @@ void window_impl::on_frame(int delta_time)
 				);
 				glScissor(
 					c.ClipRect.x,
-					m_height - c.ClipRect.w,
+					height - c.ClipRect.w,
 					c.ClipRect.z - c.ClipRect.x,
 					c.ClipRect.w - c.ClipRect.y
 				);
@@ -578,13 +585,16 @@ gboolean window::on_render(GtkGLArea *area,GdkGLContext *context)
 {
 	glClearColor(1,0,0,0);
 	glClear(GL_COLOR_BUFFER_BIT);
-	return false;
+	ImGui::SetCurrentContext(M->m_im);
+	render_impl(m_canvas_width,m_canvas_height);
+	return true;
 }
 
 void window::on_resize(GtkGLArea *area,int width,int height)
 {
 	m_canvas_width = width;
 	m_canvas_height = height;
+	glViewport(0,0,width,height);
 }
 
 window::window(const std::string &title,int width,int height)
@@ -593,7 +603,10 @@ window::window(const std::string &title,int width,int height)
 		title,
 		width,
 		height,
-		[this](int delta_time) { frame(delta_time); }
+		[this](int delta_time) {
+			frame(delta_time);
+			gtk_gl_area_queue_render(GTK_GL_AREA(m_canvas));
+		}
 	);
 
 	m_wnd = gtk_window_new(GTK_WINDOW_TOPLEVEL);
