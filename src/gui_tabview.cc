@@ -43,7 +43,8 @@ void tabview::show()
 tabview::page::page(tabview &view,const std::string &title) :
 	m_view(view)
 {
-	M = gtk_vbox_new(true,0);
+	M = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	gtk_box_set_homogeneous(GTK_BOX(M),true);
 	gtk_widget_show(M);
 	auto label = gtk_label_new(title.c_str());
 	gtk_widget_show(label);
