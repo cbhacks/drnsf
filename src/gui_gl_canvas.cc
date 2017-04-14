@@ -163,6 +163,8 @@ gl_canvas::~gl_canvas()
 	if (m_is_init) {
 		gtk_gl_area_make_current(GTK_GL_AREA(M));
 		on_cleanup();
+		gdk_gl_context_clear_current(); //necessary to avoid crash on
+		// the next invocation of this destructor!!!
 	}
 	gtk_widget_destroy(M);
 }
