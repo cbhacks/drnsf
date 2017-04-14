@@ -42,8 +42,6 @@ class window_impl : private util::nocopy {
 
 private:
 	decltype(s_windows)::iterator m_iter;
-	ImGuiContext *m_im;
-	ImGuiIO *m_io;
 	int m_delta_time = 0;
 	std::function<void()> m_frame_proc;
 
@@ -77,23 +75,11 @@ window_impl::window_impl(
 		throw 0; // FIXME
 	}
 	m_iter = insert_result.first;
-
-	m_im = ImGui::CreateContext();
-	ImGui::SetCurrentContext(m_im);
-	m_io = &ImGui::GetIO();
-
-	m_io->IniFilename = "imgui.ini";
-
-	// Configure the ImGui keymap.
-	for (int i = 0;i < ImGuiKey_COUNT;i++) {
-		m_io->KeyMap[i] = i;
-	}
 }
 
 window_impl::~window_impl()
 {
 	s_windows.erase(m_iter);
-	ImGui::DestroyContext(m_im);
 }
 
 void im_window::render()
@@ -101,9 +87,9 @@ void im_window::render()
 	glClearColor(1,0,0,0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	M->m_io->DeltaTime = M->m_delta_time / 1000.0;
+	m_io->DeltaTime = M->m_delta_time / 1000.0;
 
-	ImGui::SetCurrentContext(M->m_im);
+	ImGui::SetCurrentContext(m_im);
 	ImGui::NewFrame();
 
 	on_frame(M->m_delta_time);
@@ -238,12 +224,23 @@ im_window::im_window(const std::string &title,int width,int height) :
 		}
 	);
 
+	m_im = ImGui::CreateContext();
+	ImGui::SetCurrentContext(m_im);
+	m_io = &ImGui::GetIO();
+
+	m_io->IniFilename = "imgui.ini";
+
+	// Configure the ImGui keymap.
+	for (int i = 0;i < ImGuiKey_COUNT;i++) {
+		m_io->KeyMap[i] = i;
+	}
+
 	h_init <<= [this]() {
 		// Get the ImGui font.
 		unsigned char *font_pixels;
 		int font_width;
 		int font_height;
-		M->m_io->Fonts->GetTexDataAsRGBA32(
+		m_io->Fonts->GetTexDataAsRGBA32(
 			&font_pixels,
 			&font_width,
 			&font_height
@@ -282,33 +279,33 @@ im_window::im_window(const std::string &title,int width,int height) :
 	h_resize <<= [this](int width,int height) {
 		m_canvas_width = width;
 		m_canvas_height = height;
-		M->m_io->DisplaySize.x = width;
-		M->m_io->DisplaySize.y = height;
+		m_io->DisplaySize.x = width;
+		m_io->DisplaySize.y = height;
 		glViewport(0,0,width,height);
 	};
 	h_resize.bind(m_canvas.on_resize);
 
 	h_mousemove <<= [this](int x,int y) {
-		M->m_io->MousePos.x = x;
-		M->m_io->MousePos.y = y;
+		m_io->MousePos.x = x;
+		m_io->MousePos.y = y;
 	};
 	h_mousemove.bind(m_canvas.on_mousemove);
 
 	h_mousewheel <<= [this](int delta_y) {
-		M->m_io->MouseWheel += delta_y;
+		m_io->MouseWheel += delta_y;
 	};
 	h_mousewheel.bind(m_canvas.on_mousewheel);
 
 	h_mousebutton <<= [this](int button,bool down) {
 		switch (button) {
 		case 1:
-			M->m_io->MouseDown[0] = down;
+			m_io->MouseDown[0] = down;
 			break;
 		case 2:
-			M->m_io->MouseDown[2] = down;
+			m_io->MouseDown[2] = down;
 			break;
 		case 3:
-			M->m_io->MouseDown[1] = down;
+			m_io->MouseDown[1] = down;
 			break;
 		}
 	};
@@ -318,83 +315,83 @@ im_window::im_window(const std::string &title,int width,int height) :
 		switch (key) {
 		case GDK_KEY_Shift_L:
 		case GDK_KEY_Shift_R:
-			M->m_io->KeyShift = down;
+			m_io->KeyShift = down;
 			break;
 		case GDK_KEY_Control_L:
 		case GDK_KEY_Control_R:
-			M->m_io->KeyCtrl = down;
+			m_io->KeyCtrl = down;
 			break;
 		case GDK_KEY_Alt_L:
 		case GDK_KEY_Alt_R:
-			M->m_io->KeyAlt = down;
+			m_io->KeyAlt = down;
 			break;
 		case GDK_KEY_Meta_L:
 		case GDK_KEY_Meta_R:
-			M->m_io->KeySuper = down;
+			m_io->KeySuper = down;
 			break;
 		case GDK_KEY_Tab:
-			M->m_io->KeysDown[ImGuiKey_Tab] = down;
+			m_io->KeysDown[ImGuiKey_Tab] = down;
 			break;
 		case GDK_KEY_Left:
-			M->m_io->KeysDown[ImGuiKey_LeftArrow] = down;
+			m_io->KeysDown[ImGuiKey_LeftArrow] = down;
 			break;
 		case GDK_KEY_Right:
-			M->m_io->KeysDown[ImGuiKey_RightArrow] = down;
+			m_io->KeysDown[ImGuiKey_RightArrow] = down;
 			break;
 		case GDK_KEY_Up:
-			M->m_io->KeysDown[ImGuiKey_UpArrow] = down;
+			m_io->KeysDown[ImGuiKey_UpArrow] = down;
 			break;
 		case GDK_KEY_Down:
-			M->m_io->KeysDown[ImGuiKey_DownArrow] = down;
+			m_io->KeysDown[ImGuiKey_DownArrow] = down;
 			break;
 		case GDK_KEY_Page_Up:
-			M->m_io->KeysDown[ImGuiKey_PageUp] = down;
+			m_io->KeysDown[ImGuiKey_PageUp] = down;
 			break;
 		case GDK_KEY_Page_Down:
-			M->m_io->KeysDown[ImGuiKey_PageDown] = down;
+			m_io->KeysDown[ImGuiKey_PageDown] = down;
 			break;
 		case GDK_KEY_Home:
-			M->m_io->KeysDown[ImGuiKey_Home] = down;
+			m_io->KeysDown[ImGuiKey_Home] = down;
 			break;
 		case GDK_KEY_End:
-			M->m_io->KeysDown[ImGuiKey_End] = down;
+			m_io->KeysDown[ImGuiKey_End] = down;
 			break;
 		case GDK_KEY_Delete:
-			M->m_io->KeysDown[ImGuiKey_Delete] = down;
+			m_io->KeysDown[ImGuiKey_Delete] = down;
 			break;
 		case GDK_KEY_BackSpace:
-			M->m_io->KeysDown[ImGuiKey_Backspace] = down;
+			m_io->KeysDown[ImGuiKey_Backspace] = down;
 			break;
 		case GDK_KEY_Return:
-			M->m_io->KeysDown[ImGuiKey_Enter] = down;
+			m_io->KeysDown[ImGuiKey_Enter] = down;
 			break;
 		case GDK_KEY_Escape:
-			M->m_io->KeysDown[ImGuiKey_Escape] = down;
+			m_io->KeysDown[ImGuiKey_Escape] = down;
 			break;
 		case GDK_KEY_a:
-			M->m_io->KeysDown[ImGuiKey_A] = down;
+			m_io->KeysDown[ImGuiKey_A] = down;
 			break;
 		case GDK_KEY_c:
-			M->m_io->KeysDown[ImGuiKey_C] = down;
+			m_io->KeysDown[ImGuiKey_C] = down;
 			break;
 		case GDK_KEY_v:
-			M->m_io->KeysDown[ImGuiKey_V] = down;
+			m_io->KeysDown[ImGuiKey_V] = down;
 			break;
 		case GDK_KEY_x:
-			M->m_io->KeysDown[ImGuiKey_X] = down;
+			m_io->KeysDown[ImGuiKey_X] = down;
 			break;
 		case GDK_KEY_y:
-			M->m_io->KeysDown[ImGuiKey_Y] = down;
+			m_io->KeysDown[ImGuiKey_Y] = down;
 			break;
 		case GDK_KEY_z:
-			M->m_io->KeysDown[ImGuiKey_Z] = down;
+			m_io->KeysDown[ImGuiKey_Z] = down;
 			break;
 		}
 	};
 	h_key.bind(m_canvas.on_key);
 
 	h_text <<= [this](const char *text) {
-		M->m_io->AddInputCharactersUTF8(text);
+		m_io->AddInputCharactersUTF8(text);
 	};
 	h_text.bind(m_canvas.on_text);
 
@@ -404,6 +401,7 @@ im_window::im_window(const std::string &title,int width,int height) :
 
 im_window::~im_window()
 {
+	ImGui::DestroyContext(m_im);
 	delete M;
 }
 

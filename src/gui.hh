@@ -97,6 +97,8 @@ private:
 	window_impl *M;
 	window m_wnd;
 	gl_canvas m_canvas;
+	ImGuiContext *m_im;
+	ImGuiIO *m_io;
 	unsigned int m_canvas_font;
 	int m_canvas_width;
 	int m_canvas_height;
