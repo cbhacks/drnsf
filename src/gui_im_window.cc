@@ -166,9 +166,8 @@ void im_canvas::render()
 	ImGui::SetCurrentContext(previous_im);
 }
 
-im_canvas::im_canvas(const std::string &title,int width,int height) :
-	m_wnd(title,width,height),
-	m_canvas(m_wnd)
+im_canvas::im_canvas(container &parent) :
+	m_canvas(parent)
 {
 	m_timer = g_timeout_add(
 		10,
@@ -355,9 +354,6 @@ im_canvas::im_canvas(const std::string &title,int width,int height) :
 	h_text.bind(m_canvas.on_text);
 
 	ImGui::SetCurrentContext(previous_im);
-
-	m_canvas.show();
-	m_wnd.show();
 }
 
 im_canvas::~im_canvas()
@@ -380,13 +376,22 @@ int im_canvas::get_height() const
 	return m_canvas_height;
 }
 
+void im_canvas::show()
+{
+	m_canvas.show();
+}
+
 im_window::im_window(const std::string &title,int width,int height) :
-	m_canvas(title,width,height)
+	m_wnd(title,width,height),
+	m_canvas(m_wnd)
 {
 	h_frame <<= [this](int delta_time) {
 		on_frame(delta_time);
 	};
 	h_frame.bind(m_canvas.on_frame);
+
+	m_canvas.show();
+	m_wnd.show();
 }
 
 int im_window::get_width() const

@@ -99,7 +99,6 @@ public:
 
 class im_canvas : private util::nocopy {
 private:
-	window m_wnd;
 	gl_canvas m_canvas;
 	ImGuiContext *m_im;
 	ImGuiIO *m_io;
@@ -121,17 +120,20 @@ private:
 	void render();
 
 public:
-	explicit im_canvas(const std::string &title,int width,int height);
+	explicit im_canvas(container &parent);
 	~im_canvas();
 
 	int get_width() const;
 	int get_height() const;
+
+	void show();
 
 	util::event<int> on_frame;
 };
 
 class im_window : private util::nocopy {
 private:
+	window m_wnd;
 	im_canvas m_canvas;
 	decltype(m_canvas.on_frame)::watch h_frame;
 
