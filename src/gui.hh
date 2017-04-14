@@ -64,10 +64,30 @@ private:
 	int m_pagenum;
 
 public:
-	page(tabview &view,const std::string &title);
+	explicit page(tabview &view,const std::string &title);
 	~page();
 
 	GtkContainer *get_container_handle() override;
+};
+
+class splitview : private util::nocopy {
+private:
+	GtkWidget *M;
+
+	struct side : public container {
+		GtkWidget *M;
+
+		GtkContainer *get_container_handle() override;
+	} m_left,m_right;
+
+public:
+	explicit splitview(container &parent);
+	~splitview();
+
+	void show();
+
+	container &get_left();
+	container &get_right();
 };
 
 class gl_canvas : private util::nocopy {

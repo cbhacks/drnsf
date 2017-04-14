@@ -41,6 +41,7 @@ add_executable (drnsf
 	src/gui.hh
 	src/gui_window.cc
 	src/gui_tabview.cc
+	src/gui_splitview.cc
 	src/gui_gl_canvas.cc
 	src/gui_im_canvas.cc
 	src/gui_im.cc
@@ -53,6 +54,7 @@ add_executable (drnsf
 	src/edit_window.cc
 	src/edit_mode_classic.cc
 	src/edit_mode_imdemo.cc
+	src/edit_classic_view.cc
 
 	src/transact.hh
 	src/transact_teller.cc

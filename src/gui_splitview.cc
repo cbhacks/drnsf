@@ -1,0 +1,59 @@
+//
+// DRNSF - An unofficial Crash Bandicoot level editor
+// Copyright (C) 2017  DRNSF contributors
+//
+// See the AUTHORS.md file for more details.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
+
+#include "common.hh"
+#include "gui.hh"
+
+namespace drnsf {
+namespace gui {
+
+splitview::splitview(container &parent)
+{
+	M = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
+	gtk_container_add(parent.get_container_handle(),M);
+
+	m_left.M = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	gtk_box_set_homogeneous(GTK_BOX(m_left.M),true);
+	gtk_widget_show(m_left.M);
+	gtk_paned_add1(GTK_PANED(M),m_left.M);
+
+	m_right.M = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+	gtk_box_set_homogeneous(GTK_BOX(m_right.M),true);
+	gtk_widget_show(m_right.M);
+	gtk_paned_add2(GTK_PANED(M),m_right.M);
+}
+
+splitview::~splitview()
+{
+	gtk_widget_destroy(M);
+}
+
+void splitview::show()
+{
+	gtk_widget_show(M);
+}
+
+GtkContainer *splitview::side::get_container_handle()
+{
+	return GTK_CONTAINER(M);
+}
+
+}
+}

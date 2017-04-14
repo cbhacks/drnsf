@@ -34,6 +34,16 @@ namespace edit {
 
 using res::project;
 
+class classic_view : private util::nocopy {
+private:
+	gui::splitview m_split;
+
+public:
+	explicit classic_view(gui::container &parent);
+
+	void show();
+};
+
 class core; // FIXME
 
 class editor;
@@ -47,8 +57,10 @@ private:
 	std::shared_ptr<editor> m_ed;
 	gui::window m_wnd;
 	gui::tabview m_tabs;
+	gui::tabview::page m_classic_tab;
 	gui::tabview::page m_canvas_tab;
 	gui::tabview::page m_cryptos_tab;
+	classic_view m_classic;
 	gui::im_canvas m_canvas;
 	gui::im_canvas m_cryptos;
 	decltype(m_canvas.on_frame)::watch h_frame;
