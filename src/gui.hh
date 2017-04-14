@@ -51,22 +51,22 @@ private:
 		int height,
 		gpointer user_data);
 
-	static void sigh_motion_notify_event(
+	static gboolean sigh_motion_notify_event(
 		GtkWidget *widget,
 		GdkEvent *event,
 		gpointer user_data);
 
-	static void sigh_scroll_event(
+	static gboolean sigh_scroll_event(
 		GtkWidget *widget,
 		GdkEvent *event,
 		gpointer user_data);
 
-	static void sigh_button_press_event(
+	static gboolean sigh_button_event(
 		GtkWidget *widget,
 		GdkEvent *event,
 		gpointer user_data);
 
-	static void sigh_button_release_event(
+	static gboolean sigh_key_event(
 		GtkWidget *widget,
 		GdkEvent *event,
 		gpointer user_data);
@@ -86,6 +86,7 @@ public:
 	util::event<int,int> on_mousemove;
 	util::event<int> on_mousewheel;
 	util::event<int,bool> on_mousebutton;
+	util::event<int,bool> on_key;
 };
 
 class window_impl;
@@ -105,6 +106,7 @@ private:
 	decltype(m_canvas.on_mousemove)::watch h_mousemove;
 	decltype(m_canvas.on_mousewheel)::watch h_mousewheel;
 	decltype(m_canvas.on_mousebutton)::watch h_mousebutton;
+	decltype(m_canvas.on_key)::watch h_key;
 
 	void render();
 

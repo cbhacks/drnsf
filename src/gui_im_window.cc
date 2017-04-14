@@ -138,7 +138,6 @@ private:
 	std::function<void(int)> m_frame_proc;
 
 	void on_event(const SDL_Event &ev);
-	void on_key(SDL_Keysym keysym,bool down);
 	void on_text(const char *text);
 	void on_windowevent(const SDL_WindowEvent &ev);
 	void on_resize(int width,int height);
@@ -157,20 +156,6 @@ public:
 void window_impl::on_event(const SDL_Event &ev)
 {
 	switch (ev.type) {
-	case SDL_KEYDOWN:
-		with_windowid(
-			ev.key.windowID,
-			[ev](window_impl *wnd){
-				wnd->on_key(ev.key.keysym,true);
-			});
-		break;
-	case SDL_KEYUP:
-		with_windowid(
-			ev.key.windowID,
-			[ev](window_impl *wnd){
-				wnd->on_key(ev.key.keysym,false);
-			});
-		break;
 	case SDL_TEXTINPUT:
 		with_windowid(
 			ev.text.windowID,
@@ -184,85 +169,6 @@ void window_impl::on_event(const SDL_Event &ev)
 			[ev](window_impl *wnd){
 				wnd->on_windowevent(ev.window);
 			});
-		break;
-	}
-}
-
-void window_impl::on_key(SDL_Keysym keysym,bool down)
-{
-	switch (keysym.sym) {
-	case SDLK_LSHIFT:
-	case SDLK_RSHIFT:
-		m_io->KeyShift = down;
-		break;
-	case SDLK_LCTRL:
-	case SDLK_RCTRL:
-		m_io->KeyCtrl = down;
-		break;
-	case SDLK_LALT:
-	case SDLK_RALT:
-		m_io->KeyAlt = down;
-		break;
-	case SDLK_LGUI:
-	case SDLK_RGUI:
-		m_io->KeySuper = down;
-		break;
-	case SDLK_TAB:
-		m_io->KeysDown[ImGuiKey_Tab] = down;
-		break;
-	case SDLK_LEFT:
-		m_io->KeysDown[ImGuiKey_LeftArrow] = down;
-		break;
-	case SDLK_RIGHT:
-		m_io->KeysDown[ImGuiKey_RightArrow] = down;
-		break;
-	case SDLK_UP:
-		m_io->KeysDown[ImGuiKey_UpArrow] = down;
-		break;
-	case SDLK_DOWN:
-		m_io->KeysDown[ImGuiKey_DownArrow] = down;
-		break;
-	case SDLK_PAGEUP:
-		m_io->KeysDown[ImGuiKey_PageUp] = down;
-		break;
-	case SDLK_PAGEDOWN:
-		m_io->KeysDown[ImGuiKey_PageDown] = down;
-		break;
-	case SDLK_HOME:
-		m_io->KeysDown[ImGuiKey_Home] = down;
-		break;
-	case SDLK_END:
-		m_io->KeysDown[ImGuiKey_End] = down;
-		break;
-	case SDLK_DELETE:
-		m_io->KeysDown[ImGuiKey_Delete] = down;
-		break;
-	case SDLK_BACKSPACE:
-		m_io->KeysDown[ImGuiKey_Backspace] = down;
-		break;
-	case SDLK_RETURN:
-		m_io->KeysDown[ImGuiKey_Enter] = down;
-		break;
-	case SDLK_ESCAPE:
-		m_io->KeysDown[ImGuiKey_Escape] = down;
-		break;
-	case SDLK_a:
-		m_io->KeysDown[ImGuiKey_A] = down;
-		break;
-	case SDLK_c:
-		m_io->KeysDown[ImGuiKey_C] = down;
-		break;
-	case SDLK_v:
-		m_io->KeysDown[ImGuiKey_V] = down;
-		break;
-	case SDLK_x:
-		m_io->KeysDown[ImGuiKey_X] = down;
-		break;
-	case SDLK_y:
-		m_io->KeysDown[ImGuiKey_Y] = down;
-		break;
-	case SDLK_z:
-		m_io->KeysDown[ImGuiKey_Z] = down;
 		break;
 	}
 }
@@ -722,6 +628,85 @@ im_window::im_window(const std::string &title,int width,int height) :
 		}
 	};
 	h_mousebutton.bind(m_canvas.on_mousebutton);
+
+	h_key <<= [this](int key,bool down) {
+		switch (key) {
+		case GDK_KEY_Shift_L:
+		case GDK_KEY_Shift_R:
+			M->m_io->KeyShift = down;
+			break;
+		case GDK_KEY_Control_L:
+		case GDK_KEY_Control_R:
+			M->m_io->KeyCtrl = down;
+			break;
+		case GDK_KEY_Alt_L:
+		case GDK_KEY_Alt_R:
+			M->m_io->KeyAlt = down;
+			break;
+		case GDK_KEY_Meta_L:
+		case GDK_KEY_Meta_R:
+			M->m_io->KeySuper = down;
+			break;
+		case GDK_KEY_Tab:
+			M->m_io->KeysDown[ImGuiKey_Tab] = down;
+			break;
+		case GDK_KEY_Left:
+			M->m_io->KeysDown[ImGuiKey_LeftArrow] = down;
+			break;
+		case GDK_KEY_Right:
+			M->m_io->KeysDown[ImGuiKey_RightArrow] = down;
+			break;
+		case GDK_KEY_Up:
+			M->m_io->KeysDown[ImGuiKey_UpArrow] = down;
+			break;
+		case GDK_KEY_Down:
+			M->m_io->KeysDown[ImGuiKey_DownArrow] = down;
+			break;
+		case GDK_KEY_Page_Up:
+			M->m_io->KeysDown[ImGuiKey_PageUp] = down;
+			break;
+		case GDK_KEY_Page_Down:
+			M->m_io->KeysDown[ImGuiKey_PageDown] = down;
+			break;
+		case GDK_KEY_Home:
+			M->m_io->KeysDown[ImGuiKey_Home] = down;
+			break;
+		case GDK_KEY_End:
+			M->m_io->KeysDown[ImGuiKey_End] = down;
+			break;
+		case GDK_KEY_Delete:
+			M->m_io->KeysDown[ImGuiKey_Delete] = down;
+			break;
+		case GDK_KEY_BackSpace:
+			M->m_io->KeysDown[ImGuiKey_Backspace] = down;
+			break;
+		case GDK_KEY_Return:
+			M->m_io->KeysDown[ImGuiKey_Enter] = down;
+			break;
+		case GDK_KEY_Escape:
+			M->m_io->KeysDown[ImGuiKey_Escape] = down;
+			break;
+		case GDK_KEY_a:
+			M->m_io->KeysDown[ImGuiKey_A] = down;
+			break;
+		case GDK_KEY_c:
+			M->m_io->KeysDown[ImGuiKey_C] = down;
+			break;
+		case GDK_KEY_v:
+			M->m_io->KeysDown[ImGuiKey_V] = down;
+			break;
+		case GDK_KEY_x:
+			M->m_io->KeysDown[ImGuiKey_X] = down;
+			break;
+		case GDK_KEY_y:
+			M->m_io->KeysDown[ImGuiKey_Y] = down;
+			break;
+		case GDK_KEY_z:
+			M->m_io->KeysDown[ImGuiKey_Z] = down;
+			break;
+		}
+	};
+	h_key.bind(m_canvas.on_key);
 
 	m_canvas.show();
 	m_wnd.show();

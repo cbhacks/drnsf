@@ -47,7 +47,7 @@ void gl_canvas::sigh_resize(
 	static_cast<gl_canvas *>(user_data)->on_resize(width,height);
 }
 
-void gl_canvas::sigh_motion_notify_event(
+gboolean gl_canvas::sigh_motion_notify_event(
 	GtkWidget *widget,
 	GdkEvent *event,
 	gpointer user_data)
@@ -56,42 +56,46 @@ void gl_canvas::sigh_motion_notify_event(
 		event->motion.x,
 		event->motion.y
 	);
+	return true;
 }
 
-void gl_canvas::sigh_scroll_event(
+gboolean gl_canvas::sigh_scroll_event(
 	GtkWidget *widget,
 	GdkEvent *event,
 	gpointer user_data)
 {
 	if (event->scroll.direction != GDK_SCROLL_SMOOTH) {
-		return;
+		return false;
 	}
 
 	static_cast<gl_canvas *>(user_data)->on_mousewheel(
 		-event->scroll.delta_y
 	);
+	return true;
 }
 
-void gl_canvas::sigh_button_press_event(
+gboolean gl_canvas::sigh_button_event(
 	GtkWidget *widget,
 	GdkEvent *event,
 	gpointer user_data)
 {
 	static_cast<gl_canvas *>(user_data)->on_mousebutton(
 		event->button.button,
-		true
+		event->button.type == GDK_BUTTON_PRESS
 	);
+	return true;
 }
 
-void gl_canvas::sigh_button_release_event(
+gboolean gl_canvas::sigh_key_event(
 	GtkWidget *widget,
 	GdkEvent *event,
 	gpointer user_data)
 {
-	static_cast<gl_canvas *>(user_data)->on_mousebutton(
-		event->button.button,
-		false
+	static_cast<gl_canvas *>(user_data)->on_key(
+		event->key.keyval,
+		event->key.type == GDK_KEY_PRESS
 	);
+	return true;
 }
 
 gl_canvas::gl_canvas(window &parent)
@@ -102,8 +106,11 @@ gl_canvas::gl_canvas(window &parent)
 		GDK_POINTER_MOTION_MASK |
 		GDK_SMOOTH_SCROLL_MASK |
 		GDK_BUTTON_PRESS_MASK |
-		GDK_BUTTON_RELEASE_MASK
+		GDK_BUTTON_RELEASE_MASK |
+		GDK_KEY_PRESS_MASK |
+		GDK_KEY_RELEASE_MASK
 	);
+	gtk_widget_set_can_focus(M,true);
 	g_signal_connect(M,"render",G_CALLBACK(sigh_render),this);
 	g_signal_connect(M,"resize",G_CALLBACK(sigh_resize),this);
 	g_signal_connect(
@@ -121,13 +128,25 @@ gl_canvas::gl_canvas(window &parent)
 	g_signal_connect(
 		M,
 		"button-press-event",
-		G_CALLBACK(sigh_button_press_event),
+		G_CALLBACK(sigh_button_event),
 		this
 	);
 	g_signal_connect(
 		M,
 		"button-release-event",
-		G_CALLBACK(sigh_button_release_event),
+		G_CALLBACK(sigh_button_event),
+		this
+	);
+	g_signal_connect(
+		M,
+		"key-press-event",
+		G_CALLBACK(sigh_key_event),
+		this
+	);
+	g_signal_connect(
+		M,
+		"key-release-event",
+		G_CALLBACK(sigh_key_event),
 		this
 	);
 	gtk_container_add(GTK_CONTAINER(parent.M),M);
