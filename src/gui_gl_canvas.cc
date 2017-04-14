@@ -91,10 +91,15 @@ gboolean gl_canvas::sigh_key_event(
 	GdkEvent *event,
 	gpointer user_data)
 {
-	static_cast<gl_canvas *>(user_data)->on_key(
+	auto self = static_cast<gl_canvas *>(user_data);
+	self->on_key(
 		event->key.keyval,
 		event->key.type == GDK_KEY_PRESS
 	);
+	if (event->key.type == GDK_KEY_PRESS) {
+		// FIXME deprecated garbage
+		self->on_text(event->key.string);
+	}
 	return true;
 }
 

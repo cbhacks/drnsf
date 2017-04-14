@@ -87,6 +87,7 @@ public:
 	util::event<int> on_mousewheel;
 	util::event<int,bool> on_mousebutton;
 	util::event<int,bool> on_key;
+	util::event<const char *> on_text;
 };
 
 class window_impl;
@@ -107,6 +108,7 @@ private:
 	decltype(m_canvas.on_mousewheel)::watch h_mousewheel;
 	decltype(m_canvas.on_mousebutton)::watch h_mousebutton;
 	decltype(m_canvas.on_key)::watch h_key;
+	decltype(m_canvas.on_text)::watch h_text;
 
 	void render();
 

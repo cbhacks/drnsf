@@ -134,11 +134,9 @@ private:
 	ImGuiIO *m_io;
 	int m_width;
 	int m_height;
-	bool m_textinput_active = false;
 	std::function<void(int)> m_frame_proc;
 
 	void on_event(const SDL_Event &ev);
-	void on_text(const char *text);
 	void on_windowevent(const SDL_WindowEvent &ev);
 	void on_resize(int width,int height);
 	void on_frame(int delta_time);
@@ -156,13 +154,6 @@ public:
 void window_impl::on_event(const SDL_Event &ev)
 {
 	switch (ev.type) {
-	case SDL_TEXTINPUT:
-		with_windowid(
-			ev.text.windowID,
-			[ev](window_impl *wnd){
-				wnd->on_text(ev.text.text);
-			});
-		break;
 	case SDL_WINDOWEVENT:
 		with_windowid(
 			ev.window.windowID,
@@ -171,11 +162,6 @@ void window_impl::on_event(const SDL_Event &ev)
 			});
 		break;
 	}
-}
-
-void window_impl::on_text(const char *text)
-{
-	m_io->AddInputCharactersUTF8(text);
 }
 
 void window_impl::on_windowevent(const SDL_WindowEvent &ev)
@@ -198,15 +184,6 @@ void window_impl::on_resize(int width,int height)
 
 void window_impl::on_frame(int delta_time)
 {
-	// Begin/end text input according to ImGui.
-	if (m_io->WantTextInput && !m_textinput_active) {
-		SDL_StartTextInput();
-		m_textinput_active = true;
-	} else if (!m_io->WantTextInput && m_textinput_active) {
-		SDL_StopTextInput();
-		m_textinput_active = false;
-	}
-
 	// Start the new frame in ImGui.
 	m_io->DeltaTime = delta_time / 1000.0;
 
@@ -707,6 +684,11 @@ im_window::im_window(const std::string &title,int width,int height) :
 		}
 	};
 	h_key.bind(m_canvas.on_key);
+
+	h_text <<= [this](const char *text) {
+		M->m_io->AddInputCharactersUTF8(text);
+	};
+	h_text.bind(m_canvas.on_text);
 
 	m_canvas.show();
 	m_wnd.show();
