@@ -44,6 +44,17 @@ public:
 	GtkContainer *get_container_handle() override;
 };
 
+class label : private util::nocopy {
+private:
+	GtkWidget *M;
+
+public:
+	explicit label(container &parent,const std::string &text);
+	~label();
+
+	void show();
+};
+
 class tabview : private util::nocopy {
 private:
 	GtkWidget *M;

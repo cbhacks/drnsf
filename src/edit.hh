@@ -37,6 +37,8 @@ using res::project;
 class classic_view : private util::nocopy {
 private:
 	gui::splitview m_split;
+	gui::label m_tree;
+	gui::label m_detail;
 
 public:
 	explicit classic_view(gui::container &parent);
