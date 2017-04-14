@@ -106,6 +106,7 @@ private:
 	gl_canvas m_canvas;
 	ImGuiContext *m_im;
 	ImGuiIO *m_io;
+	long m_last_update;
 	unsigned int m_canvas_font;
 	int m_canvas_width;
 	int m_canvas_height;

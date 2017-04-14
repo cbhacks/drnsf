@@ -28,9 +28,6 @@
 #include "../imgui/imgui.h"
 #include "gui.hh"
 
-#define DISPLAYWIDTH  800
-#define DISPLAYHEIGHT 600
-
 namespace drnsf {
 namespace gui {
 
@@ -41,10 +38,9 @@ class window_impl : private util::nocopy {
 
 private:
 	decltype(s_windows)::iterator m_iter;
-	int m_delta_time = 0;
 	std::function<void()> m_frame_proc;
 
-	void on_frame(int delta_time);
+	void on_frame();
 
 public:
 	window_impl(
@@ -53,9 +49,8 @@ public:
 	~window_impl();
 };
 
-void window_impl::on_frame(int delta_time)
+void window_impl::on_frame()
 {
-	m_delta_time += delta_time;
 	m_frame_proc();
 }
 
@@ -85,14 +80,16 @@ void im_window::render()
 	glClearColor(1,0,0,0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	m_io->DeltaTime = M->m_delta_time / 1000.0;
+	long current_time = g_get_monotonic_time();
+	long delta_time = current_time - m_last_update;
+	m_last_update = current_time;
+	m_io->DeltaTime = delta_time / 1000000.0;
 
 	auto previous_im = ImGui::GetCurrentContext();
 	ImGui::SetCurrentContext(m_im);
 	ImGui::NewFrame();
 
-	on_frame(M->m_delta_time);
-	M->m_delta_time = 0;
+	on_frame(delta_time / 1000);
 
 	ImGui::Render();
 	ImDrawData *draw_data = ImGui::GetDrawData();
@@ -236,6 +233,8 @@ im_window::im_window(const std::string &title,int width,int height) :
 	for (int i = 0;i < ImGuiKey_COUNT;i++) {
 		m_io->KeyMap[i] = i;
 	}
+
+	m_last_update = g_get_monotonic_time();
 
 	h_init <<= [this]() {
 		// Get the ImGui font.
@@ -424,20 +423,10 @@ int im_window::get_height() const
 
 void im_window::run_once()
 {
-	// Calculate the time passed since the last frame.
-	static unsigned int last_update = 0;
-	unsigned int current_update = g_get_monotonic_time() / 1000;
-	unsigned int delta_time = current_update - last_update;
-	last_update = current_update;
-
-	if (delta_time > INT_MAX) {
-		delta_time = 1;
-	}
-
 	// Update each window.
 	for (auto &&kv : s_windows) {
 		auto &&wnd = kv.second;
-		wnd->on_frame(delta_time);
+		wnd->on_frame();
 	}
 }
 
