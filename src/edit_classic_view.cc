@@ -27,19 +27,6 @@
 namespace drnsf {
 namespace edit {
 
-namespace {
-
-class detail_view : private util::nocopy {
-public:
-	explicit detail_view(gui::container &parent);
-};
-
-detail_view::detail_view(gui::container &parent)
-{
-}
-
-}
-
 classic_view::classic_view(gui::container &parent) :
 	m_split(parent)
 {
