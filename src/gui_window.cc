@@ -42,7 +42,7 @@ void window::show()
 	gtk_widget_show(M);
 }
 
-slot window::get_body()
+GtkContainer *window::get_container_handle()
 {
 	return GTK_CONTAINER(M);
 }
