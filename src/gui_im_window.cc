@@ -217,7 +217,7 @@ void im_window::render()
 
 im_window::im_window(const std::string &title,int width,int height) :
 	m_wnd(title,width,height),
-	m_canvas(m_wnd)
+	m_canvas(m_wnd.get_body())
 {
 	M = new window_impl(
 		[this]() {

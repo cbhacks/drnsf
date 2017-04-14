@@ -103,7 +103,7 @@ gboolean gl_canvas::sigh_key_event(
 	return true;
 }
 
-gl_canvas::gl_canvas(window &parent)
+gl_canvas::gl_canvas(slot s)
 {
 	M = gtk_gl_area_new();
 	gtk_widget_set_events(
@@ -154,7 +154,7 @@ gl_canvas::gl_canvas(window &parent)
 		G_CALLBACK(sigh_key_event),
 		this
 	);
-	gtk_container_add(GTK_CONTAINER(parent.M),M);
+	gtk_container_add(s,M);
 }
 
 gl_canvas::~gl_canvas()

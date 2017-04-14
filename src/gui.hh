@@ -26,6 +26,8 @@
 namespace drnsf {
 namespace gui {
 
+using slot = GtkContainer *;
+
 class window : private util::nocopy {
 public:
 	GtkWidget *M;
@@ -34,6 +36,8 @@ public:
 	~window();
 
 	void show();
+
+	slot get_body();
 };
 
 class gl_canvas : private util::nocopy {
@@ -74,7 +78,7 @@ private:
 public:
 	GtkWidget *M;
 
-	explicit gl_canvas(window &parent);
+	explicit gl_canvas(slot s);
 	~gl_canvas();
 
 	void show();
