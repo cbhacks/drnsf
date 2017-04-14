@@ -48,6 +48,8 @@ void im_canvas::render()
 	ImGui::Render();
 	ImDrawData *draw_data = ImGui::GetDrawData();
 
+	glUseProgram(m_gl_program);
+
 	// Prepare a simple 2D orthographic projection.
 	//
 	// This adjusts the GL vertex coordinates to be:
@@ -163,6 +165,8 @@ void im_canvas::render()
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 
+	glUseProgram(0);
+
 	ImGui::SetCurrentContext(previous_im);
 }
 
@@ -221,11 +225,97 @@ im_canvas::im_canvas(container &parent) :
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 		glBindTexture(GL_TEXTURE_2D,0);
+
+		m_gl_program = glCreateProgram();
+		m_gl_vert_shader = glCreateShader(GL_VERTEX_SHADER);
+		m_gl_frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
+
+		const char vert_code[] = R"(
+
+#version 110
+
+varying vec2 v_TexCoord;
+varying vec4 v_Color;
+
+void main()
+{
+	v_TexCoord = gl_MultiTexCoord0.st;
+	v_Color = gl_Color;
+	gl_Position = gl_ProjectionMatrix * gl_Vertex;
+}
+
+)";
+
+		char code_log[1000];
+		const char *code_ptr = vert_code;
+		int code_len = sizeof(vert_code);
+
+		glShaderSource(m_gl_vert_shader,1,&code_ptr,&code_len);
+		glCompileShader(m_gl_vert_shader);
+		glGetShaderInfoLog(
+			m_gl_vert_shader,
+			sizeof(code_log),
+			nullptr,
+			code_log
+		);
+
+		if (code_log[0]) {
+			fprintf(
+				stderr,
+				"== IM Vertex Shader Log ==\n\n%s\n\n",
+				code_log
+			);
+		}
+
+		const char frag_code[] = R"(
+
+#version 110
+
+uniform sampler2D u_Font;
+
+varying vec2 v_TexCoord;
+varying vec4 v_Color;
+
+void main()
+{
+	gl_FragColor = v_Color * texture2D(u_Font,v_TexCoord);
+}
+
+)";
+
+		code_ptr = frag_code;
+		code_len = sizeof(frag_code);
+
+		glShaderSource(m_gl_frag_shader,1,&code_ptr,&code_len);
+		glCompileShader(m_gl_frag_shader);
+		glGetShaderInfoLog(
+			m_gl_frag_shader,
+			sizeof(code_log),
+			nullptr,
+			code_log
+		);
+
+		if (code_log[0]) {
+			fprintf(
+				stderr,
+				"== IM Fragment Shader Log ==\n\n%s\n\n",
+				code_log
+			);
+		}
+
+		glAttachShader(m_gl_program,m_gl_vert_shader);
+		glAttachShader(m_gl_program,m_gl_frag_shader);
+
+		glLinkProgram(m_gl_program);
 	};
 	h_init.bind(m_canvas.on_init);
 
 	h_cleanup <<= [this]() {
 		glDeleteTextures(1,&m_canvas_font);
+
+		glDeleteProgram(m_gl_program);
+		glDeleteShader(m_gl_vert_shader);
+		glDeleteShader(m_gl_frag_shader);
 	};
 	h_cleanup.bind(m_canvas.on_cleanup);
 

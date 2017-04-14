@@ -167,6 +167,9 @@ private:
 	unsigned int m_canvas_font;
 	int m_canvas_width;
 	int m_canvas_height;
+	unsigned int m_gl_program;
+	unsigned int m_gl_vert_shader;
+	unsigned int m_gl_frag_shader;
 	decltype(m_canvas.on_init)::watch h_init;
 	decltype(m_canvas.on_cleanup)::watch h_cleanup;
 	decltype(m_canvas.on_render)::watch h_render;
