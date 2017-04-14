@@ -85,9 +85,6 @@ void im_canvas::render()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
-	// Enable texture-mapping. ImGui also uses this for fonts.
-	glEnable(GL_TEXTURE_2D);
-
 	// Enable the GL scissor test. This is used to clip gui widgets to only
 	// render within their given area.
 	glEnable(GL_SCISSOR_TEST);
@@ -163,9 +160,6 @@ void im_canvas::render()
 
 	// Unbind whatever texture was bound by the last draw command.
 	glBindTexture(GL_TEXTURE_2D,0);
-
-	// Re-disable texture mapping.
-	glDisable(GL_TEXTURE_2D);
 
 	// Restore the previous blending setup.
 	glDisable(GL_BLEND);
@@ -243,16 +237,16 @@ im_canvas::im_canvas(container &parent) :
 
 		const char vert_code[] = R"(
 
-#version 110
+#version 150 core
 
 uniform mat4 u_ScreenOrtho;
 
-attribute vec4 a_Position;
-attribute vec2 a_TexCoord;
-attribute vec4 a_Color;
+in vec4 a_Position;
+in vec2 a_TexCoord;
+in vec4 a_Color;
 
-varying vec2 v_TexCoord;
-varying vec4 v_Color;
+out vec2 v_TexCoord;
+out vec4 v_Color;
 
 void main()
 {
@@ -286,12 +280,12 @@ void main()
 
 		const char frag_code[] = R"(
 
-#version 110
+#version 150 core
 
 uniform sampler2D u_Font;
 
-varying vec2 v_TexCoord;
-varying vec4 v_Color;
+in vec2 v_TexCoord;
+in vec4 v_Color;
 
 void main()
 {
