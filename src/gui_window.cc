@@ -29,6 +29,7 @@ window::window(const std::string &title,int width,int height)
 	M = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(M),title.c_str());
 	gtk_window_set_default_size(GTK_WINDOW(M),width,height);
+	g_signal_connect(M,"delete-event",G_CALLBACK(gtk_true),nullptr);
 }
 
 window::~window()
