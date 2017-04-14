@@ -160,21 +160,6 @@ public:
 	util::event<int> on_frame;
 };
 
-class im_window : private util::nocopy {
-private:
-	window m_wnd;
-	im_canvas m_canvas;
-	decltype(m_canvas.on_frame)::watch h_frame;
-
-public:
-	explicit im_window(const std::string &title,int width,int height);
-
-	int get_width() const;
-	int get_height() const;
-
-	decltype(m_canvas.on_frame) on_frame;
-};
-
 namespace im {
 
 using namespace ImGui;
