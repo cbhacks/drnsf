@@ -19,7 +19,6 @@
 //
 
 #include "common.hh"
-#include <SDL.h>
 #include <epoxy/gl.h>
 #include <iostream>
 #include <map>
@@ -35,7 +34,7 @@
 namespace drnsf {
 namespace gui {
 
-static std::map<Uint32,window_impl*> s_windows;
+static std::map<void *,window_impl*> s_windows;
 
 class window_impl : private util::nocopy {
 	friend class im_window;
@@ -65,8 +64,7 @@ window_impl::window_impl(
 ) :
 	m_frame_proc(frame_proc)
 {
-	static int window_id = 0;
-	auto insert_result = s_windows.insert({window_id++,this});
+	auto insert_result = s_windows.insert({this,this});
 	if (!insert_result.second) {
 		std::cerr <<
 			"Error with newly created window; window ID already in"
@@ -89,6 +87,7 @@ void im_window::render()
 
 	m_io->DeltaTime = M->m_delta_time / 1000.0;
 
+	auto previous_im = ImGui::GetCurrentContext();
 	ImGui::SetCurrentContext(m_im);
 	ImGui::NewFrame();
 
@@ -212,6 +211,8 @@ void im_window::render()
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
+
+	ImGui::SetCurrentContext(previous_im);
 }
 
 im_window::im_window(const std::string &title,int width,int height) :
@@ -225,6 +226,7 @@ im_window::im_window(const std::string &title,int width,int height) :
 	);
 
 	m_im = ImGui::CreateContext();
+	auto previous_im = ImGui::GetCurrentContext();
 	ImGui::SetCurrentContext(m_im);
 	m_io = &ImGui::GetIO();
 
@@ -395,13 +397,18 @@ im_window::im_window(const std::string &title,int width,int height) :
 	};
 	h_text.bind(m_canvas.on_text);
 
+	ImGui::SetCurrentContext(previous_im);
+
 	m_canvas.show();
 	m_wnd.show();
 }
 
 im_window::~im_window()
 {
+	auto previous_im = ImGui::GetCurrentContext();
+	ImGui::SetCurrentContext(m_im);
 	ImGui::DestroyContext(m_im);
+	ImGui::SetCurrentContext(previous_im);
 	delete M;
 }
 
@@ -417,16 +424,15 @@ int im_window::get_height() const
 
 void im_window::run_once()
 {
-	// Handle all of the pending events.
-	SDL_Event ev;
-	while (SDL_PollEvent(&ev)) {
-	}
-
 	// Calculate the time passed since the last frame.
-	static Uint32 last_update = 0;
-	Uint32 current_update = SDL_GetTicks();
-	Uint32 delta_time = current_update - last_update;
+	static unsigned int last_update = 0;
+	unsigned int current_update = g_get_monotonic_time() / 1000;
+	unsigned int delta_time = current_update - last_update;
 	last_update = current_update;
+
+	if (delta_time > INT_MAX) {
+		delta_time = 1;
+	}
 
 	// Update each window.
 	for (auto &&kv : s_windows) {

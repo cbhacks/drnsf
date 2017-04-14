@@ -95,14 +95,6 @@ target_include_directories (drnsf PRIVATE ${GTK3_INCLUDE_DIRS})
 target_link_libraries (drnsf PRIVATE ${GTK3_LIBRARIES})
 target_compile_options (drnsf PRIVATE ${GTK3_CFLAGS_OTHER})
 
-# Dependency: SDL2
-find_package (SDL2 REQUIRED)
-# Fix an SDL2 bug (error CMP0004).
-# https://bugzilla.libsdl.org/show_bug.cgi?id=3295
-string (STRIP "${SDL2_LIBRARIES}" SDL2_LIBRARIES)
-target_include_directories (drnsf PRIVATE ${SDL2_INCLUDE_DIRS})
-target_link_libraries (drnsf PRIVATE ${SDL2_LIBRARIES})
-
 # Dependency: OpenGL
 find_package (OpenGL REQUIRED)
 target_include_directories (drnsf PRIVATE ${OPENGL_INCLUDE_DIRS})

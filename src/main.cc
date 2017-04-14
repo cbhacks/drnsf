@@ -19,7 +19,6 @@
 //
 
 #include "common.hh"
-#include <SDL.h>
 #include <gtk/gtk.h>
 #include <GL/gl.h>
 #include <iostream>
@@ -28,15 +27,6 @@
 int main(int argc,char *argv[])
 {
 	using namespace drnsf;
-
-	// Initialize SDL.
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-		std::cerr <<
-			"Error initializing SDL: " <<
-			SDL_GetError() <<
-			std::endl;
-		return EXIT_FAILURE;
-	}
 
 	// Initialize GTK+.
 	gtk_init(&argc,&argv);
@@ -55,9 +45,6 @@ int main(int argc,char *argv[])
 
 	// Run the main application/game loop.
 	gtk_main();
-
-	// Clean-up.
-	SDL_Quit();
 
 	return EXIT_SUCCESS;
 }

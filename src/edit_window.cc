@@ -19,7 +19,7 @@
 //
 
 #include "common.hh"
-#include <SDL.h>
+#include <gtk/gtk.h>
 #include <GL/gl.h>
 #include "edit.hh"
 #include "gui.hh"
@@ -77,9 +77,7 @@ void window::frame(int delta_time)
 				// TODO
 
 				// Close the program.
-				// TODO - change this to close only the one window?
-				SDL_Quit();
-				std::exit(EXIT_SUCCESS);
+				gtk_main_quit();
 			});
 		});
 		im::menu("Edit",m_ed ? [&]{

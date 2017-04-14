@@ -19,7 +19,6 @@
 //
 
 #include "common.hh"
-#include <SDL.h>
 #include <GL/gl.h>
 #include "../imgui/imgui.h"
 #include "edit.hh"
