@@ -25,9 +25,6 @@
 #include "res.hh"
 #include "gfx.hh"
 
-#define DISPLAYWIDTH 800
-#define DISPLAYHEIGHT 600
-
 namespace drnsf {
 
 std::function<void(int)> create_assets_window(edit::core &);
@@ -36,13 +33,12 @@ std::function<void(int)> create_mod_camera_ctrl(edit::core &);
 
 namespace edit {
 
-core::core() :
-	im_window("DRNSF",DISPLAYWIDTH,DISPLAYHEIGHT)
+core::core()
 {
 	h_frame <<= [this](int delta_time) {
 		frame(delta_time);
 	};
-	h_frame.bind(on_frame);
+	h_frame.bind(m_wnd.m_cryptos.on_frame);
 
 	// Create all of the editor modules.
 	m_modules.push_back(create_assets_window(*this));
@@ -60,7 +56,7 @@ void core::frame(int delta)
 
 	// Calculate the normalized display size.
 	double norm_width = 1;
-	double norm_height = (double)get_height() / get_width();
+	double norm_height = (double)m_wnd.m_cryptos.get_height() / m_wnd.m_cryptos.get_width();
 	if (norm_height < 1) {
 		norm_width /= norm_height;
 		norm_height = 1;

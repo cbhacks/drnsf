@@ -40,6 +40,7 @@ add_executable (drnsf
 
 	src/gui.hh
 	src/gui_window.cc
+	src/gui_tabview.cc
 	src/gui_gl_canvas.cc
 	src/gui_im_canvas.cc
 	src/gui_im_window.cc

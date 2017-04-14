@@ -44,6 +44,32 @@ public:
 	GtkContainer *get_container_handle() override;
 };
 
+class tabview : private util::nocopy {
+private:
+	GtkWidget *M;
+
+public:
+	class page;
+
+	explicit tabview(container &parent);
+	~tabview();
+
+	void show();
+};
+
+class tabview::page : public container {
+private:
+	GtkWidget *M;
+	tabview &m_view;
+	int m_pagenum;
+
+public:
+	page(tabview &view,const std::string &title);
+	~page();
+
+	GtkContainer *get_container_handle() override;
+};
+
 class gl_canvas : private util::nocopy {
 private:
 	GtkWidget *M;

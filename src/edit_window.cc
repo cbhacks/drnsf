@@ -29,14 +29,20 @@ namespace edit {
 
 window::window() :
 	m_wnd(APP_TITLE,800,600),
-	m_canvas(m_wnd)
+	m_tabs(m_wnd),
+	m_canvas_tab(m_tabs,"Old UI"),
+	m_cryptos_tab(m_tabs,"Ancient UI"),
+	m_canvas(m_canvas_tab),
+	m_cryptos(m_cryptos_tab)
 {
 	h_frame <<= [this](int delta_time) {
 		frame(delta_time);
 	};
 	h_frame.bind(m_canvas.on_frame);
 
+	m_tabs.show();
 	m_canvas.show();
+	m_cryptos.show();
 	m_wnd.show();
 }
 

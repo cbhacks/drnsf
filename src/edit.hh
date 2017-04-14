@@ -46,7 +46,11 @@ class window : private util::nocopy {
 private:
 	std::shared_ptr<editor> m_ed;
 	gui::window m_wnd;
+	gui::tabview m_tabs;
+	gui::tabview::page m_canvas_tab;
+	gui::tabview::page m_cryptos_tab;
 	gui::im_canvas m_canvas;
+	gui::im_canvas m_cryptos;
 	decltype(m_canvas.on_frame)::watch h_frame;
 
 public:
@@ -145,14 +149,14 @@ struct cam {
 	float lens_focus = 1.0;
 };
 
-class core : public gui::im_window {
+class core : private util::nocopy {
 public:
 	std::shared_ptr<project> m_proj = std::make_shared<project>();
 	std::list<std::function<void(int)>> m_modules;
 	res::anyref m_selected_asset;
 	cam m_cam;
 	edit::window m_wnd;
-	decltype(on_frame)::watch h_frame;
+	decltype(m_wnd.m_cryptos.on_frame)::watch h_frame;
 
 	core();
 
