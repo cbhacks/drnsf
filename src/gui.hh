@@ -32,9 +32,10 @@ public:
 };
 
 class window : public container {
-public:
+private:
 	GtkWidget *M;
 
+public:
 	explicit window(const std::string &title,int width,int height);
 	~window();
 
@@ -45,6 +46,8 @@ public:
 
 class gl_canvas : private util::nocopy {
 private:
+	GtkWidget *M;
+
 	bool m_is_init = false;
 
 	static gboolean sigh_render(
@@ -79,12 +82,12 @@ private:
 		gpointer user_data);
 
 public:
-	GtkWidget *M;
-
 	explicit gl_canvas(container &parent);
 	~gl_canvas();
 
 	void show();
+
+	void invalidate();
 
 	util::event<> on_init;
 	util::event<> on_cleanup;

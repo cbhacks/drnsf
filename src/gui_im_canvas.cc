@@ -173,7 +173,7 @@ im_canvas::im_canvas(container &parent) :
 		10,
 		[](gpointer user_data) -> gboolean {
 			auto self = static_cast<im_canvas *>(user_data);
-			gtk_gl_area_queue_render(GTK_GL_AREA(self->m_canvas.M));
+			self->m_canvas.invalidate();
 			return G_SOURCE_CONTINUE;
 		},
 		this

@@ -171,5 +171,10 @@ void gl_canvas::show()
 	gtk_widget_show(M);
 }
 
+void gl_canvas::invalidate()
+{
+	gtk_gl_area_queue_render(GTK_GL_AREA(M));
+}
+
 }
 }
