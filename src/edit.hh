@@ -38,14 +38,16 @@ class core; // FIXME
 
 class editor;
 
-class window : public gui::im_window {
+class window : private util::nocopy {
 	friend class core; // FIXME
 
 	friend class pane;
 
 private:
 	std::shared_ptr<editor> m_ed;
-	decltype(on_frame)::watch h_frame;
+	gui::window m_wnd;
+	gui::im_canvas m_canvas;
+	decltype(m_canvas.on_frame)::watch h_frame;
 
 public:
 	window();

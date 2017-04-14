@@ -28,12 +28,16 @@ namespace drnsf {
 namespace edit {
 
 window::window() :
-	gui::im_window(APP_TITLE,800,600)
+	m_wnd(APP_TITLE,800,600),
+	m_canvas(m_wnd)
 {
 	h_frame <<= [this](int delta_time) {
 		frame(delta_time);
 	};
-	h_frame.bind(on_frame);
+	h_frame.bind(m_canvas.on_frame);
+
+	m_canvas.show();
+	m_wnd.show();
 }
 
 void window::frame(int delta_time)
