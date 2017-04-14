@@ -20,7 +20,6 @@
 
 #include "common.hh"
 #include "nsf.hh"
-#include "gui.hh"
 
 namespace drnsf {
 namespace nsf {

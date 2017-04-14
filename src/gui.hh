@@ -170,6 +170,11 @@ private:
 	unsigned int m_gl_program;
 	unsigned int m_gl_vert_shader;
 	unsigned int m_gl_frag_shader;
+	int m_gl_uni_screenortho;
+	int m_gl_uni_font;
+	int m_gl_a_position;
+	int m_gl_a_texcoord;
+	int m_gl_a_color;
 	decltype(m_canvas.on_init)::watch h_init;
 	decltype(m_canvas.on_cleanup)::watch h_cleanup;
 	decltype(m_canvas.on_render)::watch h_render;

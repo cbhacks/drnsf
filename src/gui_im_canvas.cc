@@ -49,6 +49,7 @@ void im_canvas::render()
 	ImDrawData *draw_data = ImGui::GetDrawData();
 
 	glUseProgram(m_gl_program);
+	glUniform1i(m_gl_uni_font,0);
 
 	// Prepare a simple 2D orthographic projection.
 	//
@@ -61,15 +62,24 @@ void im_canvas::render()
 	// bottom-to-top* which is the inverse of what we want.
 	//
 	// The Z coordinates are left as-is; they are not meaningful for ImGui.
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glOrtho(0,m_canvas_width,m_canvas_height,0,-1,+1);
-	glMatrixMode(GL_MODELVIEW);
+	glUniformMatrix4fv(
+		m_gl_uni_screenortho,
+		1,
+		false,
+		&glm::ortho<float>(
+			0,
+			m_canvas_width,
+			m_canvas_height,
+			0,
+			-1,
+			+1
+		)[0][0]
+	);
 
 	// Enable the relevant vertex arrays.
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
+	glEnableVertexAttribArray(m_gl_a_position);
+	glEnableVertexAttribArray(m_gl_a_texcoord);
+	glEnableVertexAttribArray(m_gl_a_color);
 
 	// Enable alpha blending. ImGui requires this for its fonts.
 	glEnable(GL_BLEND);
@@ -88,21 +98,27 @@ void im_canvas::render()
 		ImDrawList *draw_list = draw_data->CmdLists[i];
 
 		// Prepare the vertex arrays for this list.
-		glVertexPointer(
+		glVertexAttribPointer(
+			m_gl_a_position,
 			2,
 			GL_FLOAT,
+			false,
 			sizeof(ImDrawVert),
 			&draw_list->VtxBuffer.Data[0].pos
 		);
-		glTexCoordPointer(
+		glVertexAttribPointer(
+			m_gl_a_texcoord,
 			2,
 			GL_FLOAT,
+			false,
 			sizeof(ImDrawVert),
 			&draw_list->VtxBuffer.Data[0].uv
 		);
-		glColorPointer(
+		glVertexAttribPointer(
+			m_gl_a_color,
 			4,
 			GL_UNSIGNED_BYTE,
+			true,
 			sizeof(ImDrawVert),
 			&draw_list->VtxBuffer.Data[0].col
 		);
@@ -156,14 +172,9 @@ void im_canvas::render()
 	glBlendFunc(GL_ONE,GL_ZERO);
 
 	// Un-enable the vertex arrays.
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-
-	// Restore the previous (identity) projection.
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
+	glDisableVertexAttribArray(m_gl_a_position);
+	glDisableVertexAttribArray(m_gl_a_texcoord);
+	glDisableVertexAttribArray(m_gl_a_color);
 
 	glUseProgram(0);
 
@@ -234,14 +245,20 @@ im_canvas::im_canvas(container &parent) :
 
 #version 110
 
+uniform mat4 u_ScreenOrtho;
+
+attribute vec4 a_Position;
+attribute vec2 a_TexCoord;
+attribute vec4 a_Color;
+
 varying vec2 v_TexCoord;
 varying vec4 v_Color;
 
 void main()
 {
-	v_TexCoord = gl_MultiTexCoord0.st;
-	v_Color = gl_Color;
-	gl_Position = gl_ProjectionMatrix * gl_Vertex;
+	gl_Position = u_ScreenOrtho * a_Position;
+	v_TexCoord = a_TexCoord;
+	v_Color = a_Color;
 }
 
 )";
@@ -307,6 +324,18 @@ void main()
 		glAttachShader(m_gl_program,m_gl_frag_shader);
 
 		glLinkProgram(m_gl_program);
+
+		m_gl_uni_screenortho
+			= glGetUniformLocation(m_gl_program,"u_ScreenOrtho");
+		m_gl_uni_font
+			= glGetUniformLocation(m_gl_program,"u_Font");
+
+		m_gl_a_position
+			= glGetAttribLocation(m_gl_program,"a_Position");
+		m_gl_a_texcoord
+			= glGetAttribLocation(m_gl_program,"a_TexCoord");
+		m_gl_a_color
+			= glGetAttribLocation(m_gl_program,"a_Color");
 	};
 	h_init.bind(m_canvas.on_init);
 
