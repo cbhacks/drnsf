@@ -20,8 +20,6 @@
 
 #include "common.hh"
 #include <epoxy/gl.h>
-#include <iostream>
-#include <map>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -30,50 +28,6 @@
 
 namespace drnsf {
 namespace gui {
-
-static std::map<void *,window_impl*> s_windows;
-
-class window_impl : private util::nocopy {
-	friend class im_window;
-
-private:
-	decltype(s_windows)::iterator m_iter;
-	std::function<void()> m_frame_proc;
-
-	void on_frame();
-
-public:
-	window_impl(
-		decltype(m_frame_proc) frame_proc
-	);
-	~window_impl();
-};
-
-void window_impl::on_frame()
-{
-	m_frame_proc();
-}
-
-window_impl::window_impl(
-	decltype(m_frame_proc) frame_proc
-) :
-	m_frame_proc(frame_proc)
-{
-	auto insert_result = s_windows.insert({this,this});
-	if (!insert_result.second) {
-		std::cerr <<
-			"Error with newly created window; window ID already in"
-			" use!" <<
-			std::endl;
-		throw 0; // FIXME
-	}
-	m_iter = insert_result.first;
-}
-
-window_impl::~window_impl()
-{
-	s_windows.erase(m_iter);
-}
 
 void im_window::render()
 {
@@ -216,10 +170,14 @@ im_window::im_window(const std::string &title,int width,int height) :
 	m_wnd(title,width,height),
 	m_canvas(m_wnd)
 {
-	M = new window_impl(
-		[this]() {
-			gtk_gl_area_queue_render(GTK_GL_AREA(m_canvas.M));
-		}
+	m_timer = g_timeout_add(
+		10,
+		[](gpointer user_data) -> gboolean {
+			auto self = static_cast<im_window *>(user_data);
+			gtk_gl_area_queue_render(GTK_GL_AREA(self->m_canvas.M));
+			return G_SOURCE_CONTINUE;
+		},
+		this
 	);
 
 	m_im = ImGui::CreateContext();
@@ -404,11 +362,12 @@ im_window::im_window(const std::string &title,int width,int height) :
 
 im_window::~im_window()
 {
+	g_source_remove(m_timer);
+
 	auto previous_im = ImGui::GetCurrentContext();
 	ImGui::SetCurrentContext(m_im);
 	ImGui::DestroyContext(m_im);
 	ImGui::SetCurrentContext(previous_im);
-	delete M;
 }
 
 int im_window::get_width() const
@@ -419,15 +378,6 @@ int im_window::get_width() const
 int im_window::get_height() const
 {
 	return m_canvas_height;
-}
-
-void im_window::run_once()
-{
-	// Update each window.
-	for (auto &&kv : s_windows) {
-		auto &&wnd = kv.second;
-		wnd->on_frame();
-	}
 }
 
 }

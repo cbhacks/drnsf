@@ -97,15 +97,13 @@ public:
 	util::event<const char *> on_text;
 };
 
-class window_impl;
-
 class im_window : private util::nocopy {
 private:
-	window_impl *M;
 	window m_wnd;
 	gl_canvas m_canvas;
 	ImGuiContext *m_im;
 	ImGuiIO *m_io;
+	guint m_timer;
 	long m_last_update;
 	unsigned int m_canvas_font;
 	int m_canvas_width;
@@ -128,8 +126,6 @@ public:
 
 	int get_width() const;
 	int get_height() const;
-
-	static void run_once();
 
 	util::event<int> on_frame;
 };
