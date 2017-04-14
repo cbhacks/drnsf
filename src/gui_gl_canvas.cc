@@ -32,6 +32,7 @@ gboolean gl_canvas::sigh_render(
 	auto self = static_cast<gl_canvas *>(user_data);
 
 	if (!self->m_is_init) {
+		self->m_is_init = true;
 		self->on_init();
 	}
 	self->on_render();
