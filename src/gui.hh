@@ -121,7 +121,7 @@ public:
 	int get_width() const;
 	int get_height() const;
 
-	void run_once();
+	static void run_once();
 
 	util::event<int> on_frame;
 };

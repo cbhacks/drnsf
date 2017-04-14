@@ -44,13 +44,17 @@ int main(int argc,char *argv[])
 	// Create the editor.
 	edit::core editor;
 
+	// Add the legacy ui redraw thing.
+	g_idle_add(
+		[](gpointer user_data) -> gboolean {
+			gui::im_window::run_once();
+			return true;
+		},
+		nullptr
+	);
+
 	// Run the main application/game loop.
-	while (true) {
-		while (gtk_events_pending()) {
-			gtk_main_iteration();
-		}
-		editor.run_once();
-	}
+	gtk_main();
 
 	// Clean-up.
 	SDL_Quit();
