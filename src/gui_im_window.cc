@@ -29,7 +29,7 @@
 namespace drnsf {
 namespace gui {
 
-void im_window::render()
+void im_canvas::render()
 {
 	glClearColor(1,0,0,0);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -166,14 +166,14 @@ void im_window::render()
 	ImGui::SetCurrentContext(previous_im);
 }
 
-im_window::im_window(const std::string &title,int width,int height) :
+im_canvas::im_canvas(const std::string &title,int width,int height) :
 	m_wnd(title,width,height),
 	m_canvas(m_wnd)
 {
 	m_timer = g_timeout_add(
 		10,
 		[](gpointer user_data) -> gboolean {
-			auto self = static_cast<im_window *>(user_data);
+			auto self = static_cast<im_canvas *>(user_data);
 			gtk_gl_area_queue_render(GTK_GL_AREA(self->m_canvas.M));
 			return G_SOURCE_CONTINUE;
 		},
@@ -360,7 +360,7 @@ im_window::im_window(const std::string &title,int width,int height) :
 	m_wnd.show();
 }
 
-im_window::~im_window()
+im_canvas::~im_canvas()
 {
 	g_source_remove(m_timer);
 
@@ -370,14 +370,33 @@ im_window::~im_window()
 	ImGui::SetCurrentContext(previous_im);
 }
 
-int im_window::get_width() const
+int im_canvas::get_width() const
 {
 	return m_canvas_width;
 }
 
-int im_window::get_height() const
+int im_canvas::get_height() const
 {
 	return m_canvas_height;
+}
+
+im_window::im_window(const std::string &title,int width,int height) :
+	m_canvas(title,width,height)
+{
+	h_frame <<= [this](int delta_time) {
+		on_frame(delta_time);
+	};
+	h_frame.bind(m_canvas.on_frame);
+}
+
+int im_window::get_width() const
+{
+	return m_canvas.get_width();
+}
+
+int im_window::get_height() const
+{
+	return m_canvas.get_height();
 }
 
 }

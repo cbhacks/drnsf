@@ -97,7 +97,7 @@ public:
 	util::event<const char *> on_text;
 };
 
-class im_window : private util::nocopy {
+class im_canvas : private util::nocopy {
 private:
 	window m_wnd;
 	gl_canvas m_canvas;
@@ -121,13 +121,27 @@ private:
 	void render();
 
 public:
-	explicit im_window(const std::string &title,int width,int height);
-	~im_window();
+	explicit im_canvas(const std::string &title,int width,int height);
+	~im_canvas();
 
 	int get_width() const;
 	int get_height() const;
 
 	util::event<int> on_frame;
+};
+
+class im_window : private util::nocopy {
+private:
+	im_canvas m_canvas;
+	decltype(m_canvas.on_frame)::watch h_frame;
+
+public:
+	explicit im_window(const std::string &title,int width,int height);
+
+	int get_width() const;
+	int get_height() const;
+
+	decltype(m_canvas.on_frame) on_frame;
 };
 
 namespace im {
