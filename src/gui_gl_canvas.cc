@@ -212,14 +212,17 @@ void gl_canvas::program::link()
 	int status;
 	glGetProgramiv(m_id,GL_LINK_STATUS,&status);
 
-	auto &out = status ? std::cout : std::cerr;
+	int log_size;
+	glGetProgramiv(m_id,GL_INFO_LOG_LENGTH,&log_size);
 
-	char log_buffer[4000];
-	glGetProgramInfoLog(m_id,sizeof(log_buffer),nullptr,log_buffer);
+	if (log_size > 0) {
+		std::vector<char> log_buffer(log_size);
+		glGetProgramInfoLog(m_id,log_size,nullptr,log_buffer.data());
 
-	if (log_buffer[0]) {
+		auto &out = status ? std::cout : std::cerr;
+
 		out << " == BEGIN LINKER LOG ==" << std::endl;
-		out << log_buffer << std::endl;
+		out << log_buffer.data() << std::endl;
 		out << " === END LINKER LOG ===" << std::endl;
 	}
 
@@ -254,14 +257,17 @@ void gl_canvas::shader::compile(const char *code)
 	int status;
 	glGetShaderiv(m_id,GL_COMPILE_STATUS,&status);
 
-	auto &out = status ? std::cout : std::cerr;
+	int log_size;
+	glGetShaderiv(m_id,GL_INFO_LOG_LENGTH,&log_size);
 
-	char log_buffer[4000];
-	glGetShaderInfoLog(m_id,sizeof(log_buffer),nullptr,log_buffer);
+	if (log_size > 0) {
+		std::vector<char> log_buffer(log_size);
+		glGetShaderInfoLog(m_id,log_size,nullptr,log_buffer.data());
 
-	if (log_buffer[0]) {
+		auto &out = status ? std::cout : std::cerr;
+
 		out << " == BEGIN SHADER LOG ==" << std::endl;
-		out << log_buffer << std::endl;
+		out << log_buffer.data() << std::endl;
 		out << " === END SHADER LOG ===" << std::endl;
 	}
 
