@@ -132,7 +132,7 @@ void im_canvas::render()
 			if (c.UserCallback) {
 				c.UserCallback(draw_list,&c);
 			} else {
-				glBindTexture(GL_TEXTURE_2D,m_canvas_font);
+				glBindTexture(GL_TEXTURE_2D,m_gl_tex_font);
 				glScissor(
 					c.ClipRect.x,
 					m_canvas_height - c.ClipRect.w,
@@ -176,7 +176,11 @@ void im_canvas::render()
 }
 
 im_canvas::im_canvas(gui::container &parent) :
-	m_canvas(parent)
+	m_canvas(parent),
+	m_gl_program(m_canvas),
+	m_gl_vert_shader(m_canvas,GL_VERTEX_SHADER),
+	m_gl_frag_shader(m_canvas,GL_FRAGMENT_SHADER),
+	m_gl_tex_font(m_canvas)
 {
 	m_timer = g_timeout_add(
 		10,
@@ -214,8 +218,7 @@ im_canvas::im_canvas(gui::container &parent) :
 		);
 
 		// Upload the font as a texture to OpenGL.
-		glGenTextures(1,&m_canvas_font);
-		glBindTexture(GL_TEXTURE_2D,m_canvas_font);
+		glBindTexture(GL_TEXTURE_2D,m_gl_tex_font);
 		glTexImage2D(
 			GL_TEXTURE_2D,
 			0,
@@ -230,10 +233,6 @@ im_canvas::im_canvas(gui::container &parent) :
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 		glBindTexture(GL_TEXTURE_2D,0);
-
-		m_gl_program = glCreateProgram();
-		m_gl_vert_shader = glCreateShader(GL_VERTEX_SHADER);
-		m_gl_frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
 
 		const char vert_code[] = R"(
 
@@ -334,11 +333,6 @@ void main()
 	h_init.bind(m_canvas.on_init);
 
 	h_cleanup <<= [this]() {
-		glDeleteTextures(1,&m_canvas_font);
-
-		glDeleteProgram(m_gl_program);
-		glDeleteShader(m_gl_vert_shader);
-		glDeleteShader(m_gl_frag_shader);
 	};
 	h_cleanup.bind(m_canvas.on_cleanup);
 

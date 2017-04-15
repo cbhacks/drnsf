@@ -37,12 +37,12 @@ private:
 	ImGuiIO *m_io;
 	guint m_timer;
 	long m_last_update;
-	unsigned int m_canvas_font;
 	int m_canvas_width;
 	int m_canvas_height;
-	unsigned int m_gl_program;
-	unsigned int m_gl_vert_shader;
-	unsigned int m_gl_frag_shader;
+	gui::gl_canvas::program m_gl_program;
+	gui::gl_canvas::shader m_gl_vert_shader;
+	gui::gl_canvas::shader m_gl_frag_shader;
+	gui::gl_canvas::texture m_gl_tex_font;
 	int m_gl_uni_screenortho;
 	int m_gl_uni_font;
 	int m_gl_a_position;

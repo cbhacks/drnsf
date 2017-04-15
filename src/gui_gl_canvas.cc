@@ -186,5 +186,59 @@ void gl_canvas::invalidate()
 	gtk_gl_area_queue_render(GTK_GL_AREA(M));
 }
 
+gl_canvas::program::program(gl_canvas &canvas)
+{
+	h_init <<= [this]() {
+		m_id = glCreateProgram();
+	};
+	h_init.bind(canvas.on_init);
+
+	h_cleanup <<= [this]() {
+		glDeleteProgram(m_id);
+	};
+	h_cleanup.bind(canvas.on_cleanup);
+}
+
+gl_canvas::program::operator unsigned int()
+{
+	return m_id;
+}
+
+gl_canvas::shader::shader(gl_canvas &canvas,int type)
+{
+	h_init <<= [this,type]() {
+		m_id = glCreateShader(type);
+	};
+	h_init.bind(canvas.on_init);
+
+	h_cleanup <<= [this]() {
+		glDeleteShader(m_id);
+	};
+	h_cleanup.bind(canvas.on_cleanup);
+}
+
+gl_canvas::shader::operator unsigned int()
+{
+	return m_id;
+}
+
+gl_canvas::texture::texture(gl_canvas &canvas)
+{
+	h_init <<= [this]() {
+		glGenTextures(1,&m_id);
+	};
+	h_init.bind(canvas.on_init);
+
+	h_cleanup <<= [this]() {
+		glDeleteTextures(1,&m_id);
+	};
+	h_cleanup.bind(canvas.on_cleanup);
+}
+
+gl_canvas::texture::operator unsigned int()
+{
+	return m_id;
+}
+
 }
 }

@@ -139,6 +139,10 @@ private:
 		gpointer user_data);
 
 public:
+	class program;
+	class shader;
+	class texture;
+
 	explicit gl_canvas(container &parent);
 	~gl_canvas();
 
@@ -155,6 +159,45 @@ public:
 	util::event<int,bool> on_mousebutton;
 	util::event<int,bool> on_key;
 	util::event<const char *> on_text;
+};
+
+class gl_canvas::program : private util::nocopy {
+private:
+	unsigned int m_id;
+
+	decltype(on_init)::watch h_init;
+	decltype(on_cleanup)::watch h_cleanup;
+
+public:
+	explicit program(gl_canvas &canvas);
+
+	operator unsigned int();
+};
+
+class gl_canvas::shader : private util::nocopy {
+private:
+	unsigned int m_id;
+
+	decltype(on_init)::watch h_init;
+	decltype(on_cleanup)::watch h_cleanup;
+
+public:
+	explicit shader(gl_canvas &canvas,int type);
+
+	operator unsigned int();
+};
+
+class gl_canvas::texture : private util::nocopy {
+private:
+	unsigned int m_id;
+
+	decltype(on_init)::watch h_init;
+	decltype(on_cleanup)::watch h_cleanup;
+
+public:
+	explicit texture(gl_canvas &canvas);
+
+	operator unsigned int();
 };
 
 namespace im {
