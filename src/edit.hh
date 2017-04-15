@@ -43,8 +43,8 @@ private:
 	gui::gl_canvas::shader m_gl_vert_shader;
 	gui::gl_canvas::shader m_gl_frag_shader;
 	gui::gl_canvas::texture m_gl_tex_font;
-	int m_gl_uni_screenortho;
-	int m_gl_uni_font;
+	gui::gl_canvas::uniform m_gl_uni_screenortho;
+	gui::gl_canvas::uniform m_gl_uni_font;
 	int m_gl_a_position;
 	int m_gl_a_texcoord;
 	int m_gl_a_color;

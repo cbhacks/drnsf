@@ -180,7 +180,9 @@ im_canvas::im_canvas(gui::container &parent) :
 	m_gl_program(m_canvas),
 	m_gl_vert_shader(m_canvas,GL_VERTEX_SHADER),
 	m_gl_frag_shader(m_canvas,GL_FRAGMENT_SHADER),
-	m_gl_tex_font(m_canvas)
+	m_gl_tex_font(m_canvas),
+	m_gl_uni_screenortho(m_gl_program,"u_ScreenOrtho"),
+	m_gl_uni_font(m_gl_program,"u_Font")
 {
 	m_timer = g_timeout_add(
 		10,
@@ -279,11 +281,6 @@ void main()
 		m_gl_program.attach(m_gl_vert_shader);
 		m_gl_program.attach(m_gl_frag_shader);
 		m_gl_program.link();
-
-		m_gl_uni_screenortho
-			= glGetUniformLocation(m_gl_program,"u_ScreenOrtho");
-		m_gl_uni_font
-			= glGetUniformLocation(m_gl_program,"u_Font");
 
 		m_gl_a_position
 			= glGetAttribLocation(m_gl_program,"a_Position");

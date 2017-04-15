@@ -142,6 +142,7 @@ public:
 	class program;
 	class shader;
 	class texture;
+	class uniform;
 
 	explicit gl_canvas(container &parent);
 	~gl_canvas();
@@ -162,6 +163,8 @@ public:
 };
 
 class gl_canvas::program : private util::nocopy {
+	friend class uniform;
+
 private:
 	unsigned int m_id;
 
@@ -176,6 +179,8 @@ public:
 	void link();
 
 	operator unsigned int();
+
+	util::event<> on_link;
 };
 
 class gl_canvas::shader : private util::nocopy {
@@ -206,6 +211,18 @@ public:
 	explicit texture(gl_canvas &canvas);
 
 	operator unsigned int();
+};
+
+class gl_canvas::uniform : private util::nocopy {
+private:
+	int m_id;
+
+	decltype(program::on_link)::watch h_link;
+
+public:
+	explicit uniform(program &prog,std::string name);
+
+	operator int();
 };
 
 namespace im {

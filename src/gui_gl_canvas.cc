@@ -229,6 +229,8 @@ void gl_canvas::program::link()
 	if (!status) {
 		throw 0;//FIXME
 	}
+
+	on_link();
 }
 
 gl_canvas::program::operator unsigned int()
@@ -295,6 +297,19 @@ gl_canvas::texture::texture(gl_canvas &canvas)
 }
 
 gl_canvas::texture::operator unsigned int()
+{
+	return m_id;
+}
+
+gl_canvas::uniform::uniform(program &prog,std::string name)
+{
+	h_link <<= [this,&prog,name]() {
+		m_id = glGetUniformLocation(prog.m_id,name.c_str());
+	};
+	h_link.bind(prog.on_link);
+}
+
+gl_canvas::uniform::operator int()
 {
 	return m_id;
 }
