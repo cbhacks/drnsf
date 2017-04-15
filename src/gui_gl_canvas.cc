@@ -19,6 +19,7 @@
 //
 
 #include "common.hh"
+#include <epoxy/gl.h>
 #include "gui.hh"
 
 namespace drnsf {
@@ -29,6 +30,11 @@ gboolean gl_canvas::sigh_render(
 	GdkGLContext *context,
 	gpointer user_data)
 {
+	// Restore the depth test setting to the OpenGL default (OFF). GTK+
+	// enables this at the start of every frame if it was built with a
+	// depth buffer requested.
+	glDisable(GL_DEPTH_TEST);
+
 	auto self = static_cast<gl_canvas *>(user_data);
 
 	if (!self->m_is_init) {
