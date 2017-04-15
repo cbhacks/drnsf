@@ -22,15 +22,55 @@
 
 #include <list>
 #include <set>
+#include "../imgui/imgui.h"
 #include "res.hh"
 #include "transact.hh"
 #include "gui.hh"
 
-struct ImGuiIO;
-struct ImDrawData;
-
 namespace drnsf {
 namespace edit {
+
+class im_canvas : private util::nocopy {
+private:
+	gui::gl_canvas m_canvas;
+	ImGuiContext *m_im;
+	ImGuiIO *m_io;
+	guint m_timer;
+	long m_last_update;
+	unsigned int m_canvas_font;
+	int m_canvas_width;
+	int m_canvas_height;
+	unsigned int m_gl_program;
+	unsigned int m_gl_vert_shader;
+	unsigned int m_gl_frag_shader;
+	int m_gl_uni_screenortho;
+	int m_gl_uni_font;
+	int m_gl_a_position;
+	int m_gl_a_texcoord;
+	int m_gl_a_color;
+	decltype(m_canvas.on_init)::watch h_init;
+	decltype(m_canvas.on_cleanup)::watch h_cleanup;
+	decltype(m_canvas.on_render)::watch h_render;
+	decltype(m_canvas.on_resize)::watch h_resize;
+	decltype(m_canvas.on_mousemove)::watch h_mousemove;
+	decltype(m_canvas.on_mousewheel)::watch h_mousewheel;
+	decltype(m_canvas.on_mousebutton)::watch h_mousebutton;
+	decltype(m_canvas.on_key)::watch h_key;
+	decltype(m_canvas.on_text)::watch h_text;
+
+	void render();
+
+public:
+	explicit im_canvas(gui::container &parent);
+	~im_canvas();
+
+	int get_width() const;
+	int get_height() const;
+
+	void show();
+
+	util::event<int> on_frame;
+};
 
 using res::project;
 
@@ -63,8 +103,8 @@ private:
 	gui::tabview::page m_canvas_tab;
 	gui::tabview::page m_cryptos_tab;
 	classic_view m_classic;
-	gui::im_canvas m_canvas;
-	gui::im_canvas m_cryptos;
+	im_canvas m_canvas;
+	im_canvas m_cryptos;
 	decltype(m_canvas.on_frame)::watch h_frame;
 
 public:

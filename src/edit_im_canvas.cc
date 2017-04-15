@@ -24,10 +24,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "../imgui/imgui.h"
-#include "gui.hh"
+#include "edit.hh"
 
 namespace drnsf {
-namespace gui {
+namespace edit {
 
 void im_canvas::render()
 {
@@ -175,7 +175,7 @@ void im_canvas::render()
 	ImGui::SetCurrentContext(previous_im);
 }
 
-im_canvas::im_canvas(container &parent) :
+im_canvas::im_canvas(gui::container &parent) :
 	m_canvas(parent)
 {
 	m_timer = g_timeout_add(
