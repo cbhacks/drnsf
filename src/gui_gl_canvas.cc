@@ -107,6 +107,7 @@ gboolean gl_canvas::sigh_key_event(
 gl_canvas::gl_canvas(container &parent)
 {
 	M = gtk_gl_area_new();
+	gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(M),true);
 	gtk_widget_set_events(
 		M,
 		GDK_POINTER_MOTION_MASK |
