@@ -256,26 +256,7 @@ void main()
 
 )";
 
-		char code_log[1000];
-		const char *code_ptr = vert_code;
-		int code_len = sizeof(vert_code);
-
-		glShaderSource(m_gl_vert_shader,1,&code_ptr,&code_len);
-		glCompileShader(m_gl_vert_shader);
-		glGetShaderInfoLog(
-			m_gl_vert_shader,
-			sizeof(code_log),
-			nullptr,
-			code_log
-		);
-
-		if (code_log[0]) {
-			fprintf(
-				stderr,
-				"== IM Vertex Shader Log ==\n\n%s\n\n",
-				code_log
-			);
-		}
+		m_gl_vert_shader.compile(vert_code);
 
 		const char frag_code[] = R"(
 
@@ -293,30 +274,11 @@ void main()
 
 )";
 
-		code_ptr = frag_code;
-		code_len = sizeof(frag_code);
+		m_gl_frag_shader.compile(frag_code);
 
-		glShaderSource(m_gl_frag_shader,1,&code_ptr,&code_len);
-		glCompileShader(m_gl_frag_shader);
-		glGetShaderInfoLog(
-			m_gl_frag_shader,
-			sizeof(code_log),
-			nullptr,
-			code_log
-		);
-
-		if (code_log[0]) {
-			fprintf(
-				stderr,
-				"== IM Fragment Shader Log ==\n\n%s\n\n",
-				code_log
-			);
-		}
-
-		glAttachShader(m_gl_program,m_gl_vert_shader);
-		glAttachShader(m_gl_program,m_gl_frag_shader);
-
-		glLinkProgram(m_gl_program);
+		m_gl_program.attach(m_gl_vert_shader);
+		m_gl_program.attach(m_gl_frag_shader);
+		m_gl_program.link();
 
 		m_gl_uni_screenortho
 			= glGetUniformLocation(m_gl_program,"u_ScreenOrtho");

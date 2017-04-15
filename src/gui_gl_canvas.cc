@@ -19,6 +19,7 @@
 //
 
 #include "common.hh"
+#include <iostream>
 #include <epoxy/gl.h>
 #include "gui.hh"
 
@@ -199,6 +200,34 @@ gl_canvas::program::program(gl_canvas &canvas)
 	h_cleanup.bind(canvas.on_cleanup);
 }
 
+void gl_canvas::program::attach(shader &sh)
+{
+	glAttachShader(m_id,sh.m_id);
+}
+
+void gl_canvas::program::link()
+{
+	glLinkProgram(m_id);
+
+	int status;
+	glGetProgramiv(m_id,GL_LINK_STATUS,&status);
+
+	auto &out = status ? std::cout : std::cerr;
+
+	char log_buffer[4000];
+	glGetProgramInfoLog(m_id,sizeof(log_buffer),nullptr,log_buffer);
+
+	if (log_buffer[0]) {
+		out << " == BEGIN LINKER LOG ==" << std::endl;
+		out << log_buffer << std::endl;
+		out << " === END LINKER LOG ===" << std::endl;
+	}
+
+	if (!status) {
+		throw 0;//FIXME
+	}
+}
+
 gl_canvas::program::operator unsigned int()
 {
 	return m_id;
@@ -215,6 +244,30 @@ gl_canvas::shader::shader(gl_canvas &canvas,int type)
 		glDeleteShader(m_id);
 	};
 	h_cleanup.bind(canvas.on_cleanup);
+}
+
+void gl_canvas::shader::compile(const char *code)
+{
+	glShaderSource(m_id,1,&code,nullptr);
+	glCompileShader(m_id);
+
+	int status;
+	glGetShaderiv(m_id,GL_COMPILE_STATUS,&status);
+
+	auto &out = status ? std::cout : std::cerr;
+
+	char log_buffer[4000];
+	glGetShaderInfoLog(m_id,sizeof(log_buffer),nullptr,log_buffer);
+
+	if (log_buffer[0]) {
+		out << " == BEGIN SHADER LOG ==" << std::endl;
+		out << log_buffer << std::endl;
+		out << " === END SHADER LOG ===" << std::endl;
+	}
+
+	if (!status) {
+		throw 0;//FIXME
+	}
 }
 
 gl_canvas::shader::operator unsigned int()

@@ -171,10 +171,16 @@ private:
 public:
 	explicit program(gl_canvas &canvas);
 
+	void attach(shader &sh);
+
+	void link();
+
 	operator unsigned int();
 };
 
 class gl_canvas::shader : private util::nocopy {
+	friend class program;
+
 private:
 	unsigned int m_id;
 
@@ -183,6 +189,8 @@ private:
 
 public:
 	explicit shader(gl_canvas &canvas,int type);
+
+	void compile(const char *code);
 
 	operator unsigned int();
 };
