@@ -45,11 +45,10 @@ private:
 	gui::gl_canvas::texture m_gl_tex_font;
 	gui::gl_canvas::uniform m_gl_uni_screenortho;
 	gui::gl_canvas::uniform m_gl_uni_font;
-	int m_gl_a_position;
-	int m_gl_a_texcoord;
-	int m_gl_a_color;
+	gui::gl_canvas::attrib m_gl_a_position;
+	gui::gl_canvas::attrib m_gl_a_texcoord;
+	gui::gl_canvas::attrib m_gl_a_color;
 	decltype(m_canvas.on_init)::watch h_init;
-	decltype(m_canvas.on_cleanup)::watch h_cleanup;
 	decltype(m_canvas.on_render)::watch h_render;
 	decltype(m_canvas.on_resize)::watch h_resize;
 	decltype(m_canvas.on_mousemove)::watch h_mousemove;

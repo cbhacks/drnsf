@@ -304,12 +304,31 @@ gl_canvas::texture::operator unsigned int()
 gl_canvas::uniform::uniform(program &prog,std::string name)
 {
 	h_link <<= [this,&prog,name]() {
-		m_id = glGetUniformLocation(prog.m_id,name.c_str());
+		m_id = glGetUniformLocation(
+			static_cast<unsigned int>(prog),
+			name.c_str()
+		);
 	};
 	h_link.bind(prog.on_link);
 }
 
 gl_canvas::uniform::operator int()
+{
+	return m_id;
+}
+
+gl_canvas::attrib::attrib(program &prog,std::string name)
+{
+	h_link <<= [this,&prog,name]() {
+		m_id = glGetAttribLocation(
+			static_cast<unsigned int>(prog),
+			name.c_str()
+		);
+	};
+	h_link.bind(prog.on_link);
+}
+
+gl_canvas::attrib::operator int()
 {
 	return m_id;
 }
