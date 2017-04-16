@@ -76,10 +76,7 @@ void im_canvas::render()
 		)[0][0]
 	);
 
-	// Enable the relevant vertex arrays.
-	glEnableVertexAttribArray(m_gl_a_position);
-	glEnableVertexAttribArray(m_gl_a_texcoord);
-	glEnableVertexAttribArray(m_gl_a_color);
+	glBindVertexArray(m_gl_va);
 
 	// Enable alpha blending. ImGui requires this for its fonts.
 	glEnable(GL_BLEND);
@@ -94,35 +91,25 @@ void im_canvas::render()
 	for (int i = 0;i < draw_data->CmdListsCount;i++) {
 		ImDrawList *draw_list = draw_data->CmdLists[i];
 
-		// Prepare the vertex arrays for this list.
-		glVertexAttribPointer(
-			m_gl_a_position,
-			2,
-			GL_FLOAT,
-			false,
-			sizeof(ImDrawVert),
-			&draw_list->VtxBuffer.Data[0].pos
+		glBindBuffer(GL_COPY_WRITE_BUFFER,m_gl_vb);
+		glBufferData(
+			GL_COPY_WRITE_BUFFER,
+			draw_list->VtxBuffer.Size * sizeof(ImDrawVert),
+			draw_list->VtxBuffer.Data,
+			GL_DYNAMIC_DRAW
 		);
-		glVertexAttribPointer(
-			m_gl_a_texcoord,
-			2,
-			GL_FLOAT,
-			false,
-			sizeof(ImDrawVert),
-			&draw_list->VtxBuffer.Data[0].uv
+		glBindBuffer(GL_COPY_WRITE_BUFFER,m_gl_ib);
+		glBufferData(
+			GL_COPY_WRITE_BUFFER,
+			draw_list->IdxBuffer.Size * sizeof(ImDrawIdx),
+			draw_list->IdxBuffer.Data,
+			GL_DYNAMIC_DRAW
 		);
-		glVertexAttribPointer(
-			m_gl_a_color,
-			4,
-			GL_UNSIGNED_BYTE,
-			true,
-			sizeof(ImDrawVert),
-			&draw_list->VtxBuffer.Data[0].col
-		);
+		glBindBuffer(GL_COPY_WRITE_BUFFER,0);
 
 		// Get the index array (IBO-like). Each draw command pulls some
 		// amount of these elements out from the front.
-		ImDrawIdx *index_array = draw_list->IdxBuffer.Data;
+		ImDrawIdx *index_array = 0;
 
 		// Draw each of the commands in the list.
 		for (auto &c : draw_list->CmdBuffer) {
@@ -165,10 +152,7 @@ void im_canvas::render()
 	glDisable(GL_BLEND);
 	glBlendFunc(GL_ONE,GL_ZERO);
 
-	// Un-enable the vertex arrays.
-	glDisableVertexAttribArray(m_gl_a_position);
-	glDisableVertexAttribArray(m_gl_a_texcoord);
-	glDisableVertexAttribArray(m_gl_a_color);
+	glBindVertexArray(0);
 
 	glUseProgram(0);
 
@@ -185,7 +169,10 @@ im_canvas::im_canvas(gui::container &parent) :
 	m_gl_uni_font(m_gl_program,"u_Font"),
 	m_gl_a_position(m_gl_program,"a_Position"),
 	m_gl_a_texcoord(m_gl_program,"a_TexCoord"),
-	m_gl_a_color(m_gl_program,"a_Color")
+	m_gl_a_color(m_gl_program,"a_Color"),
+	m_gl_vb(m_canvas),
+	m_gl_ib(m_canvas),
+	m_gl_va(m_canvas)
 {
 	m_timer = g_timeout_add(
 		10,
@@ -284,6 +271,39 @@ void main()
 		m_gl_program.attach(m_gl_vert_shader);
 		m_gl_program.attach(m_gl_frag_shader);
 		m_gl_program.link();
+
+		glBindVertexArray(m_gl_va);
+		glBindBuffer(GL_ARRAY_BUFFER,m_gl_vb);
+		glVertexAttribPointer(
+			m_gl_a_position,
+			2,
+			GL_FLOAT,
+			false,
+			sizeof(ImDrawVert),
+			static_cast<char *>(0) + offsetof(ImDrawVert,pos)
+		);
+		glEnableVertexAttribArray(m_gl_a_position);
+		glVertexAttribPointer(
+			m_gl_a_texcoord,
+			2,
+			GL_FLOAT,
+			false,
+			sizeof(ImDrawVert),
+			static_cast<char *>(0) + offsetof(ImDrawVert,uv)
+		);
+		glEnableVertexAttribArray(m_gl_a_texcoord);
+		glVertexAttribPointer(
+			m_gl_a_color,
+			4,
+			GL_UNSIGNED_BYTE,
+			true,
+			sizeof(ImDrawVert),
+			static_cast<char *>(0) + offsetof(ImDrawVert,col)
+		);
+		glEnableVertexAttribArray(m_gl_a_color);
+		glBindBuffer(GL_ARRAY_BUFFER,0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,m_gl_ib);
+		glBindVertexArray(0);
 	};
 	h_init.bind(m_canvas.on_init);
 

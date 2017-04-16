@@ -142,6 +142,8 @@ public:
 	class program;
 	class shader;
 	class texture;
+	class buffer;
+	class vert_array;
 	class uniform;
 	class attrib;
 
@@ -208,6 +210,32 @@ private:
 
 public:
 	explicit texture(gl_canvas &canvas);
+
+	operator unsigned int();
+};
+
+class gl_canvas::buffer : private util::nocopy {
+private:
+	unsigned int m_id;
+
+	decltype(on_init)::watch h_init;
+	decltype(on_cleanup)::watch h_cleanup;
+
+public:
+	explicit buffer(gl_canvas &canvas);
+
+	operator unsigned int();
+};
+
+class gl_canvas::vert_array : private util::nocopy {
+private:
+	unsigned int m_id;
+
+	decltype(on_init)::watch h_init;
+	decltype(on_cleanup)::watch h_cleanup;
+
+public:
+	explicit vert_array(gl_canvas &canvas);
 
 	operator unsigned int();
 };

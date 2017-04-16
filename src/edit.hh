@@ -48,6 +48,9 @@ private:
 	gui::gl_canvas::attrib m_gl_a_position;
 	gui::gl_canvas::attrib m_gl_a_texcoord;
 	gui::gl_canvas::attrib m_gl_a_color;
+	gui::gl_canvas::buffer m_gl_vb;
+	gui::gl_canvas::buffer m_gl_ib;
+	gui::gl_canvas::vert_array m_gl_va;
 	decltype(m_canvas.on_init)::watch h_init;
 	decltype(m_canvas.on_render)::watch h_render;
 	decltype(m_canvas.on_resize)::watch h_resize;

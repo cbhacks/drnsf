@@ -301,6 +301,42 @@ gl_canvas::texture::operator unsigned int()
 	return m_id;
 }
 
+gl_canvas::buffer::buffer(gl_canvas &canvas)
+{
+	h_init <<= [this]() {
+		glGenBuffers(1,&m_id);
+	};
+	h_init.bind(canvas.on_init);
+
+	h_cleanup <<= [this]() {
+		glDeleteBuffers(1,&m_id);
+	};
+	h_cleanup.bind(canvas.on_cleanup);
+}
+
+gl_canvas::buffer::operator unsigned int()
+{
+	return m_id;
+}
+
+gl_canvas::vert_array::vert_array(gl_canvas &canvas)
+{
+	h_init <<= [this]() {
+		glGenVertexArrays(1,&m_id);
+	};
+	h_init.bind(canvas.on_init);
+
+	h_cleanup <<= [this]() {
+		glDeleteVertexArrays(1,&m_id);
+	};
+	h_cleanup.bind(canvas.on_cleanup);
+}
+
+gl_canvas::vert_array::operator unsigned int()
+{
+	return m_id;
+}
+
 gl_canvas::uniform::uniform(program &prog,std::string name)
 {
 	h_link <<= [this,&prog,name]() {
