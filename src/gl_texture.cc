@@ -25,9 +25,9 @@
 namespace drnsf {
 namespace gl {
 
-texture::texture(machine &mach,int type) :
+texture::texture(machine &mach,int target) :
 	m_mach(mach),
-	m_type(type),
+	m_target(target),
 	m_id_p(std::make_shared<unsigned int>(0))
 {
 	mach.post_job([id_p = m_id_p]{
@@ -39,6 +39,38 @@ texture::~texture()
 {
 	m_mach.post_job([id_p = m_id_p]{
 		glDeleteTextures(1,id_p.get());
+	});
+}
+
+void texture::put_data_2d(
+	util::blob data,
+	int internal_format,
+	int width,
+	int height,
+	int format,
+	int type)
+{
+	m_mach.post_job([
+		id_p = m_id_p,
+		target = m_target,
+		data,
+		internal_format,
+		width,
+		height,
+		format,
+		type
+		]{
+		glTexImage2D(
+			target,
+			0,
+			internal_format,
+			width,
+			height,
+			0,
+			format,
+			type,
+			data.data()
+		);
 	});
 }
 

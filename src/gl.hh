@@ -59,12 +59,20 @@ public:
 class texture {
 private:
 	machine &m_mach;
-	int m_type;
+	int m_target;
 	std::shared_ptr<unsigned int> m_id_p;
 
 public:
-	explicit texture(machine &mach,int type);
+	explicit texture(machine &mach,int target);
 	~texture();
+
+	void put_data_2d(
+		util::blob data,
+		int internal_format,
+		int width,
+		int height,
+		int format,
+		int type);
 };
 
 class vert_array {
@@ -77,6 +85,15 @@ public:
 	~vert_array();
 
 	void bind_ibo(buffer &buf);
+
+	void bind_vbo(
+		buffer &buf,
+		int index,
+		int size,
+		int type,
+		bool normalized,
+		int stride,
+		int offset);
 };
 
 }

@@ -50,5 +50,40 @@ void vert_array::bind_ibo(buffer &buf)
 	});
 }
 
+void vert_array::bind_vbo(
+	buffer &buf,
+	int index,
+	int size,
+	int type,
+	bool normalized,
+	int stride,
+	int offset)
+{
+	m_mach.post_job([
+		id_p = m_id_p,
+		buf_id_p = buf.m_id_p,
+		index,
+		size,
+		type,
+		normalized,
+		stride,
+		offset
+		]{
+		glBindVertexArray(*id_p);
+		glBindBuffer(GL_ARRAY_BUFFER,*buf_id_p);
+		glEnableVertexAttribArray(index);
+		glVertexAttribPointer(
+			index,
+			size,
+			type,
+			normalized,
+			stride,
+			reinterpret_cast<void *>(offset)
+		);
+		glBindBuffer(GL_ARRAY_BUFFER,0);
+		glBindVertexArray(0);
+	});
+}
+
 }
 }
