@@ -49,6 +49,7 @@ add_executable (drnsf
 	src/gl.hh
 	src/gl_machine.cc
 	src/gl_buffer.cc
+	src/gl_texture.cc
 	src/gl_vert_array.cc
 
 	src/edit.hh

@@ -18,66 +18,29 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#pragma once
+#include "common.hh"
+#include <epoxy/gl.h>
+#include "gl.hh"
 
 namespace drnsf {
 namespace gl {
 
-class machine : private util::nocopy {
-public:
-	using job = std::function<void()>;
+texture::texture(machine &mach,int type) :
+	m_mach(mach),
+	m_type(type),
+	m_id_p(std::make_shared<unsigned int>(0))
+{
+	mach.post_job([id_p = m_id_p]{
+		glGenTextures(1,id_p.get());
+	});
+}
 
-private:
-	std::list<job> m_pending_jobs;
-
-protected:
-	machine();
-	~machine();
-
-	void run_jobs();
-
-	virtual void invalidate() = 0;
-
-public:
-	void post_job(job j);
-};
-
-class buffer {
-	friend class vert_array;
-
-private:
-	machine &m_mach;
-	std::shared_ptr<unsigned int> m_id_p;
-
-public:
-	explicit buffer(machine &mach);
-	~buffer();
-
-	void put_data(util::blob data,int usage);
-};
-
-class texture {
-private:
-	machine &m_mach;
-	int m_type;
-	std::shared_ptr<unsigned int> m_id_p;
-
-public:
-	explicit texture(machine &mach,int type);
-	~texture();
-};
-
-class vert_array {
-private:
-	machine &m_mach;
-	std::shared_ptr<unsigned int> m_id_p;
-
-public:
-	explicit vert_array(machine &mach);
-	~vert_array();
-
-	void bind_ibo(buffer &buf);
-};
+texture::~texture()
+{
+	m_mach.post_job([id_p = m_id_p]{
+		glDeleteTextures(1,id_p.get());
+	});
+}
 
 }
 }
