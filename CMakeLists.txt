@@ -46,6 +46,11 @@ add_executable (drnsf
 	src/gui_gl_canvas.cc
 	src/gui_im.cc
 
+	src/gl.hh
+	src/gl_machine.cc
+	src/gl_buffer.cc
+	src/gl_vert_array.cc
+
 	src/edit.hh
 	src/edit_im_canvas.cc
 	src/edit_editor.cc
