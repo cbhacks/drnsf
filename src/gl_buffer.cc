@@ -55,5 +55,10 @@ void buffer::put_data(util::blob data,int usage)
 	});
 }
 
+unsigned int buffer::get_id()
+{
+	return *m_id_p;
+}
+
 }
 }

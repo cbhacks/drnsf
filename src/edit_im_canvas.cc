@@ -91,14 +91,14 @@ void im_canvas::render()
 	for (int i = 0;i < draw_data->CmdListsCount;i++) {
 		ImDrawList *draw_list = draw_data->CmdLists[i];
 
-		glBindBuffer(GL_COPY_WRITE_BUFFER,m_gl_vb);
+		glBindBuffer(GL_COPY_WRITE_BUFFER,m_gl_vb.get_id());
 		glBufferData(
 			GL_COPY_WRITE_BUFFER,
 			draw_list->VtxBuffer.Size * sizeof(ImDrawVert),
 			draw_list->VtxBuffer.Data,
 			GL_DYNAMIC_DRAW
 		);
-		glBindBuffer(GL_COPY_WRITE_BUFFER,m_gl_ib);
+		glBindBuffer(GL_COPY_WRITE_BUFFER,m_gl_ib.get_id());
 		glBufferData(
 			GL_COPY_WRITE_BUFFER,
 			draw_list->IdxBuffer.Size * sizeof(ImDrawIdx),
@@ -274,7 +274,7 @@ void main()
 		m_gl_program.link();
 
 		glBindVertexArray(m_gl_va);
-		glBindBuffer(GL_ARRAY_BUFFER,m_gl_vb);
+		glBindBuffer(GL_ARRAY_BUFFER,m_gl_vb.get_id());
 		glVertexAttribPointer(
 			m_gl_a_position,
 			2,
@@ -303,7 +303,7 @@ void main()
 		);
 		glEnableVertexAttribArray(m_gl_a_color);
 		glBindBuffer(GL_ARRAY_BUFFER,0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,m_gl_ib);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,m_gl_ib.get_id());
 		glBindVertexArray(0);
 	};
 	h_init.bind(m_canvas.on_init);

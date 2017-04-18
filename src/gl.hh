@@ -54,6 +54,8 @@ public:
 	~buffer();
 
 	void put_data(util::blob data,int usage);
+
+	unsigned int get_id();
 };
 
 class texture {
