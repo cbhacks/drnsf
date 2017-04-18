@@ -60,6 +60,7 @@ void texture::put_data_2d(
 		format,
 		type
 		]{
+		glBindTexture(target,*id_p);
 		glTexImage2D(
 			target,
 			0,
@@ -71,7 +72,13 @@ void texture::put_data_2d(
 			type,
 			data.data()
 		);
+		glBindTexture(target,0);
 	});
+}
+
+unsigned int texture::get_id()
+{
+	return *m_id_p;
 }
 
 }

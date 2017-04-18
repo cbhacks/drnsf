@@ -119,7 +119,10 @@ void im_canvas::render()
 			if (c.UserCallback) {
 				c.UserCallback(draw_list,&c);
 			} else {
-				glBindTexture(GL_TEXTURE_2D,m_gl_tex_font);
+				glBindTexture(
+					GL_TEXTURE_2D,
+					m_gl_tex_font.get_id()
+				);
 				glScissor(
 					c.ClipRect.x,
 					m_canvas_height - c.ClipRect.w,
@@ -164,7 +167,7 @@ im_canvas::im_canvas(gui::container &parent) :
 	m_gl_program(m_canvas),
 	m_gl_vert_shader(m_canvas,GL_VERTEX_SHADER),
 	m_gl_frag_shader(m_canvas,GL_FRAGMENT_SHADER),
-	m_gl_tex_font(m_canvas),
+	m_gl_tex_font(m_canvas,GL_TEXTURE_2D),
 	m_gl_uni_screenortho(m_gl_program,"u_ScreenOrtho"),
 	m_gl_uni_font(m_gl_program,"u_Font"),
 	m_gl_a_position(m_gl_program,"a_Position"),
@@ -198,30 +201,28 @@ im_canvas::im_canvas(gui::container &parent) :
 
 	m_last_update = g_get_monotonic_time();
 
-	h_init <<= [this]() {
-		// Get the ImGui font.
-		unsigned char *font_pixels;
-		int font_width;
-		int font_height;
-		m_io->Fonts->GetTexDataAsRGBA32(
-			&font_pixels,
-			&font_width,
-			&font_height
-		);
+	// Get the ImGui font.
+	unsigned char *font_pixels;
+	int font_width;
+	int font_height;
+	m_io->Fonts->GetTexDataAsRGBA32(
+		&font_pixels,
+		&font_width,
+		&font_height
+	);
 
-		// Upload the font as a texture to OpenGL.
-		glBindTexture(GL_TEXTURE_2D,m_gl_tex_font);
-		glTexImage2D(
-			GL_TEXTURE_2D,
-			0,
-			GL_RGBA,
-			font_width,
-			font_height,
-			0,
-			GL_RGBA,
-			GL_UNSIGNED_BYTE,
-			font_pixels
-		);
+	// Upload the font as a texture to OpenGL.
+	m_gl_tex_font.put_data_2d(
+		{font_pixels,font_pixels + font_width * font_height * 4},
+		GL_RGBA,
+		font_width,
+		font_height,
+		GL_RGBA,
+		GL_UNSIGNED_BYTE
+	);
+
+	h_init <<= [this]() {
+		glBindTexture(GL_TEXTURE_2D,m_gl_tex_font.get_id());
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 		glBindTexture(GL_TEXTURE_2D,0);

@@ -42,7 +42,7 @@ private:
 	gui::gl_canvas::program m_gl_program;
 	gui::gl_canvas::shader m_gl_vert_shader;
 	gui::gl_canvas::shader m_gl_frag_shader;
-	gui::gl_canvas::texture m_gl_tex_font;
+	gl::texture m_gl_tex_font;
 	gui::gl_canvas::uniform m_gl_uni_screenortho;
 	gui::gl_canvas::uniform m_gl_uni_font;
 	gui::gl_canvas::attrib m_gl_a_position;

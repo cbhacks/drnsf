@@ -31,8 +31,8 @@ private:
 	std::list<job> m_pending_jobs;
 
 protected:
-	machine();
-	~machine();
+	machine() = default;
+	~machine() = default;
 
 	void run_jobs();
 
@@ -73,6 +73,8 @@ public:
 		int height,
 		int format,
 		int type);
+
+	unsigned int get_id();
 };
 
 class vert_array {

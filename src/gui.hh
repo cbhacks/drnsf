@@ -22,6 +22,7 @@
 
 #include <gtk/gtk.h>
 #include "../imgui/imgui.h"
+#include "gl.hh"
 
 namespace drnsf {
 namespace gui {
@@ -101,7 +102,7 @@ public:
 	container &get_right();
 };
 
-class gl_canvas : private util::nocopy {
+class gl_canvas : public gl::machine {
 private:
 	GtkWidget *M;
 
