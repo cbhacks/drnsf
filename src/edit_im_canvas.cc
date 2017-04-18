@@ -273,38 +273,34 @@ void main()
 		m_gl_program.attach(m_gl_frag_shader);
 		m_gl_program.link();
 
-		glBindVertexArray(m_gl_va.get_id());
-		glBindBuffer(GL_ARRAY_BUFFER,m_gl_vb.get_id());
-		glVertexAttribPointer(
+		m_gl_va.bind_ibo(m_gl_ib);
+		m_gl_va.bind_vbo(
+			m_gl_vb,
 			m_gl_a_position,
 			2,
 			GL_FLOAT,
 			false,
 			sizeof(ImDrawVert),
-			static_cast<char *>(0) + offsetof(ImDrawVert,pos)
+			offsetof(ImDrawVert,pos)
 		);
-		glEnableVertexAttribArray(m_gl_a_position);
-		glVertexAttribPointer(
+		m_gl_va.bind_vbo(
+			m_gl_vb,
 			m_gl_a_texcoord,
 			2,
 			GL_FLOAT,
 			false,
 			sizeof(ImDrawVert),
-			static_cast<char *>(0) + offsetof(ImDrawVert,uv)
+			offsetof(ImDrawVert,uv)
 		);
-		glEnableVertexAttribArray(m_gl_a_texcoord);
-		glVertexAttribPointer(
+		m_gl_va.bind_vbo(
+			m_gl_vb,
 			m_gl_a_color,
 			4,
 			GL_UNSIGNED_BYTE,
 			true,
 			sizeof(ImDrawVert),
-			static_cast<char *>(0) + offsetof(ImDrawVert,col)
+			offsetof(ImDrawVert,col)
 		);
-		glEnableVertexAttribArray(m_gl_a_color);
-		glBindBuffer(GL_ARRAY_BUFFER,0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,m_gl_ib.get_id());
-		glBindVertexArray(0);
 	};
 	h_init.bind(m_canvas.on_init);
 

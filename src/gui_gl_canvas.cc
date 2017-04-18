@@ -43,6 +43,7 @@ gboolean gl_canvas::sigh_render(
 		self->m_is_init = true;
 		self->on_init();
 	}
+	self->run_jobs();
 	self->on_render();
 	return true;
 }
