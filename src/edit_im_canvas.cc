@@ -76,7 +76,7 @@ void im_canvas::render()
 		)[0][0]
 	);
 
-	glBindVertexArray(m_gl_va);
+	glBindVertexArray(m_gl_va.get_id());
 
 	// Enable alpha blending. ImGui requires this for its fonts.
 	glEnable(GL_BLEND);
@@ -273,7 +273,7 @@ void main()
 		m_gl_program.attach(m_gl_frag_shader);
 		m_gl_program.link();
 
-		glBindVertexArray(m_gl_va);
+		glBindVertexArray(m_gl_va.get_id());
 		glBindBuffer(GL_ARRAY_BUFFER,m_gl_vb.get_id());
 		glVertexAttribPointer(
 			m_gl_a_position,

@@ -85,5 +85,10 @@ void vert_array::bind_vbo(
 	});
 }
 
+unsigned int vert_array::get_id()
+{
+	return *m_id_p;
+}
+
 }
 }

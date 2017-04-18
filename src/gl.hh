@@ -98,6 +98,8 @@ public:
 		bool normalized,
 		int stride,
 		int offset);
+
+	unsigned int get_id();
 };
 
 }
