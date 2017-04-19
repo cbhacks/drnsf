@@ -42,7 +42,7 @@ public:
 	void post_job(job j);
 };
 
-class attrib {
+class attrib : private util::nocopy {
 	friend class program;
 	friend class vert_array;
 
@@ -52,12 +52,12 @@ private:
 	explicit attrib(std::shared_ptr<int> id_p);
 
 public:
-	attrib(const attrib &src);
+	attrib(attrib &&src);
 
 	int get_id();
 };
 
-class shader {
+class shader : private util::nocopy {
 	friend class program;
 
 private:
@@ -71,7 +71,7 @@ public:
 	void compile(std::string code);
 };
 
-class program {
+class program : private util::nocopy {
 private:
 	machine &m_mach;
 	std::shared_ptr<unsigned int> m_id_p;
@@ -90,7 +90,7 @@ public:
 	unsigned int get_id();
 };
 
-class buffer {
+class buffer : private util::nocopy {
 	friend class vert_array;
 
 private:
@@ -106,7 +106,7 @@ public:
 	unsigned int get_id();
 };
 
-class texture {
+class texture : private util::nocopy {
 private:
 	machine &m_mach;
 	int m_target;
@@ -127,7 +127,7 @@ public:
 	unsigned int get_id();
 };
 
-class vert_array {
+class vert_array : private util::nocopy {
 private:
 	machine &m_mach;
 	std::shared_ptr<unsigned int> m_id_p;
