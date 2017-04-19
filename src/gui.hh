@@ -140,11 +140,6 @@ private:
 		gpointer user_data);
 
 public:
-	class program;
-	class shader;
-	class uniform;
-	class attrib;
-
 	explicit gl_canvas(container &parent);
 	~gl_canvas();
 
@@ -161,66 +156,6 @@ public:
 	util::event<int,bool> on_mousebutton;
 	util::event<int,bool> on_key;
 	util::event<const char *> on_text;
-};
-
-class gl_canvas::program : private util::nocopy {
-private:
-	unsigned int m_id;
-
-	decltype(on_init)::watch h_init;
-	decltype(on_cleanup)::watch h_cleanup;
-
-public:
-	explicit program(gl_canvas &canvas);
-
-	void attach(shader &sh);
-
-	void link();
-
-	operator unsigned int();
-
-	util::event<> on_link;
-};
-
-class gl_canvas::shader : private util::nocopy {
-	friend class program;
-
-private:
-	unsigned int m_id;
-
-	decltype(on_init)::watch h_init;
-	decltype(on_cleanup)::watch h_cleanup;
-
-public:
-	explicit shader(gl_canvas &canvas,int type);
-
-	void compile(const char *code);
-
-	operator unsigned int();
-};
-
-class gl_canvas::uniform : private util::nocopy {
-private:
-	int m_id;
-
-	decltype(program::on_link)::watch h_link;
-
-public:
-	explicit uniform(program &prog,std::string name);
-
-	operator int();
-};
-
-class gl_canvas::attrib : private util::nocopy {
-private:
-	int m_id;
-
-	decltype(program::on_link)::watch h_link;
-
-public:
-	explicit attrib(program &prog,std::string name);
-
-	operator int();
 };
 
 namespace im {

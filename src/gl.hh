@@ -42,6 +42,54 @@ public:
 	void post_job(job j);
 };
 
+class attrib {
+	friend class program;
+	friend class vert_array;
+
+private:
+	std::shared_ptr<int> m_id_p;
+
+	explicit attrib(std::shared_ptr<int> id_p);
+
+public:
+	attrib(const attrib &src);
+
+	int get_id();
+};
+
+class shader {
+	friend class program;
+
+private:
+	machine &m_mach;
+	std::shared_ptr<unsigned int> m_id_p;
+
+public:
+	explicit shader(machine &mach,int type);
+	~shader();
+
+	void compile(std::string code);
+};
+
+class program {
+private:
+	machine &m_mach;
+	std::shared_ptr<unsigned int> m_id_p;
+
+public:
+	explicit program(machine &mach);
+	~program();
+
+	void attach(shader &sh);
+	void detach(shader &sh);
+
+	void link();
+
+	attrib find_attrib(std::string name);
+
+	unsigned int get_id();
+};
+
 class buffer {
 	friend class vert_array;
 
@@ -92,7 +140,7 @@ public:
 
 	void bind_vbo(
 		buffer &buf,
-		int index,
+		const attrib &atr,
 		int size,
 		int type,
 		bool normalized,

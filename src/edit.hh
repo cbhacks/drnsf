@@ -39,15 +39,10 @@ private:
 	long m_last_update;
 	int m_canvas_width;
 	int m_canvas_height;
-	gui::gl_canvas::program m_gl_program;
-	gui::gl_canvas::shader m_gl_vert_shader;
-	gui::gl_canvas::shader m_gl_frag_shader;
+	gl::program m_gl_program;
+	gl::shader m_gl_vert_shader;
+	gl::shader m_gl_frag_shader;
 	gl::texture m_gl_tex_font;
-	gui::gl_canvas::uniform m_gl_uni_screenortho;
-	gui::gl_canvas::uniform m_gl_uni_font;
-	gui::gl_canvas::attrib m_gl_a_position;
-	gui::gl_canvas::attrib m_gl_a_texcoord;
-	gui::gl_canvas::attrib m_gl_a_color;
 	gl::buffer m_gl_vb;
 	gl::buffer m_gl_ib;
 	gl::vert_array m_gl_va;

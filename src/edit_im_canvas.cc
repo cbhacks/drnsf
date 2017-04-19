@@ -48,8 +48,9 @@ void im_canvas::render()
 	ImGui::Render();
 	ImDrawData *draw_data = ImGui::GetDrawData();
 
-	glUseProgram(m_gl_program);
-	glUniform1i(m_gl_uni_font,0);
+	glUseProgram(m_gl_program.get_id());
+	int uniform_font = glGetUniformLocation(m_gl_program.get_id(),"u_Font");
+	glUniform1i(uniform_font,0);
 
 	// Prepare a simple 2D orthographic projection.
 	//
@@ -62,8 +63,11 @@ void im_canvas::render()
 	// bottom-to-top* which is the inverse of what we want.
 	//
 	// The Z coordinates are left as-is; they are not meaningful for ImGui.
+	int uniform_screenortho = glGetUniformLocation(
+		m_gl_program.get_id(),"u_ScreenOrtho"
+	);
 	glUniformMatrix4fv(
-		m_gl_uni_screenortho,
+		uniform_screenortho,
 		1,
 		false,
 		&glm::ortho<float>(
@@ -168,11 +172,6 @@ im_canvas::im_canvas(gui::container &parent) :
 	m_gl_vert_shader(m_canvas,GL_VERTEX_SHADER),
 	m_gl_frag_shader(m_canvas,GL_FRAGMENT_SHADER),
 	m_gl_tex_font(m_canvas,GL_TEXTURE_2D),
-	m_gl_uni_screenortho(m_gl_program,"u_ScreenOrtho"),
-	m_gl_uni_font(m_gl_program,"u_Font"),
-	m_gl_a_position(m_gl_program,"a_Position"),
-	m_gl_a_texcoord(m_gl_program,"a_TexCoord"),
-	m_gl_a_color(m_gl_program,"a_Color"),
 	m_gl_vb(m_canvas),
 	m_gl_ib(m_canvas),
 	m_gl_va(m_canvas)
@@ -221,13 +220,7 @@ im_canvas::im_canvas(gui::container &parent) :
 		GL_UNSIGNED_BYTE
 	);
 
-	h_init <<= [this]() {
-		glBindTexture(GL_TEXTURE_2D,m_gl_tex_font.get_id());
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		glBindTexture(GL_TEXTURE_2D,0);
-
-		const char vert_code[] = R"(
+	const char vert_code[] = R"(
 
 #version 150 core
 
@@ -249,9 +242,9 @@ void main()
 
 )";
 
-		m_gl_vert_shader.compile(vert_code);
+	m_gl_vert_shader.compile(vert_code);
 
-		const char frag_code[] = R"(
+	const char frag_code[] = R"(
 
 #version 150 core
 
@@ -267,16 +260,22 @@ void main()
 
 )";
 
-		m_gl_frag_shader.compile(frag_code);
+	m_gl_frag_shader.compile(frag_code);
 
-		m_gl_program.attach(m_gl_vert_shader);
-		m_gl_program.attach(m_gl_frag_shader);
-		m_gl_program.link();
+	m_gl_program.attach(m_gl_vert_shader);
+	m_gl_program.attach(m_gl_frag_shader);
+	m_gl_program.link();
+
+	h_init <<= [this]() {
+		glBindTexture(GL_TEXTURE_2D,m_gl_tex_font.get_id());
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+		glBindTexture(GL_TEXTURE_2D,0);
 
 		m_gl_va.bind_ibo(m_gl_ib);
 		m_gl_va.bind_vbo(
 			m_gl_vb,
-			m_gl_a_position,
+			m_gl_program.find_attrib("a_Position"),
 			2,
 			GL_FLOAT,
 			false,
@@ -285,7 +284,7 @@ void main()
 		);
 		m_gl_va.bind_vbo(
 			m_gl_vb,
-			m_gl_a_texcoord,
+			m_gl_program.find_attrib("a_TexCoord"),
 			2,
 			GL_FLOAT,
 			false,
@@ -294,7 +293,7 @@ void main()
 		);
 		m_gl_va.bind_vbo(
 			m_gl_vb,
-			m_gl_a_color,
+			m_gl_program.find_attrib("a_Color"),
 			4,
 			GL_UNSIGNED_BYTE,
 			true,
