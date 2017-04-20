@@ -99,5 +99,14 @@ attrib program::find_attrib(std::string name)
 	return attrib(atr_id_p);
 }
 
+uniform program::find_uniform(std::string name)
+{
+	auto uni_id_p = std::make_shared<int>(-1);
+	m_mach.post_job([id_p = m_id_p,name,uni_id_p]{
+		*uni_id_p = glGetUniformLocation(*id_p,name.c_str());
+	});
+	return uniform(uni_id_p);
+}
+
 }
 }

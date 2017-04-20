@@ -46,6 +46,8 @@ private:
 	gl::buffer m_gl_vb;
 	gl::buffer m_gl_ib;
 	gl::vert_array m_gl_va;
+	gl::uniform m_gl_u_screenortho;
+	gl::uniform m_gl_u_font;
 	decltype(m_canvas.on_init)::watch h_init;
 	decltype(m_canvas.on_render)::watch h_render;
 	decltype(m_canvas.on_resize)::watch h_resize;

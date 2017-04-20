@@ -63,6 +63,8 @@ public:
 };
 
 class uniform {
+	friend class program;
+
 private:
 	std::shared_ptr<int> m_id_p;
 

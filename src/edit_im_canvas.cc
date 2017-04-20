@@ -49,8 +49,7 @@ void im_canvas::render()
 	ImDrawData *draw_data = ImGui::GetDrawData();
 
 	glUseProgram(m_gl_program.get_id());
-	int uniform_font = glGetUniformLocation(m_gl_program.get_id(),"u_Font");
-	glUniform1i(uniform_font,0);
+	glUniform1i(m_gl_u_font.get_id(),0);
 
 	// Prepare a simple 2D orthographic projection.
 	//
@@ -63,11 +62,8 @@ void im_canvas::render()
 	// bottom-to-top* which is the inverse of what we want.
 	//
 	// The Z coordinates are left as-is; they are not meaningful for ImGui.
-	int uniform_screenortho = glGetUniformLocation(
-		m_gl_program.get_id(),"u_ScreenOrtho"
-	);
 	glUniformMatrix4fv(
-		uniform_screenortho,
+		m_gl_u_screenortho.get_id(),
 		1,
 		false,
 		&glm::ortho<float>(
@@ -265,6 +261,9 @@ void main()
 	m_gl_program.attach(m_gl_vert_shader);
 	m_gl_program.attach(m_gl_frag_shader);
 	m_gl_program.link();
+
+	m_gl_u_screenortho = m_gl_program.find_uniform("u_ScreenOrtho");
+	m_gl_u_font = m_gl_program.find_uniform("u_Font");
 
 	h_init <<= [this]() {
 		glBindTexture(GL_TEXTURE_2D,m_gl_tex_font.get_id());
