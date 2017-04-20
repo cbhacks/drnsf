@@ -42,7 +42,7 @@ public:
 	void post_job(job j);
 };
 
-class attrib : private util::nocopy {
+class attrib {
 	friend class program;
 	friend class vert_array;
 
@@ -52,19 +52,29 @@ private:
 	explicit attrib(std::shared_ptr<int> id_p);
 
 public:
-	attrib(attrib &&src);
+	attrib() = default;
+	attrib(const attrib &src) = default;
+	attrib(attrib &&src) = default;
+
+	attrib &operator =(const attrib &rhs) = default;
+	attrib &operator =(attrib &&rhs) = default;
 
 	int get_id();
 };
 
-class uniform : private util::nocopy {
+class uniform {
 private:
 	std::shared_ptr<int> m_id_p;
 
 	explicit uniform(std::shared_ptr<int> id_p);
 
 public:
-	uniform(uniform &&src);
+	uniform() = default;
+	uniform(const uniform &src) = default;
+	uniform(uniform &&src) = default;
+
+	uniform &operator =(const uniform &rhs) = default;
+	uniform &operator =(uniform &&rhs) = default;
 
 	int get_id();
 };

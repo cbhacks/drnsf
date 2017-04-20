@@ -30,11 +30,6 @@ attrib::attrib(std::shared_ptr<int> id_p) :
 {
 }
 
-attrib::attrib(attrib &&src) :
-	m_id_p(std::move(src.m_id_p))
-{
-}
-
 int attrib::get_id()
 {
 	return *m_id_p;

@@ -30,11 +30,6 @@ uniform::uniform(std::shared_ptr<int> id_p) :
 {
 }
 
-uniform::uniform(uniform &&src) :
-	m_id_p(std::move(src.m_id_p))
-{
-}
-
 int uniform::get_id()
 {
 	return *m_id_p;
