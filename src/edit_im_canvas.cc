@@ -265,40 +265,40 @@ void main()
 	m_gl_u_screenortho = m_gl_program.find_uniform("u_ScreenOrtho");
 	m_gl_u_font = m_gl_program.find_uniform("u_Font");
 
+	m_gl_va.bind_ibo(m_gl_ib);
+	m_gl_va.bind_vbo(
+		m_gl_vb,
+		m_gl_program.find_attrib("a_Position"),
+		2,
+		GL_FLOAT,
+		false,
+		sizeof(ImDrawVert),
+		offsetof(ImDrawVert,pos)
+	);
+	m_gl_va.bind_vbo(
+		m_gl_vb,
+		m_gl_program.find_attrib("a_TexCoord"),
+		2,
+		GL_FLOAT,
+		false,
+		sizeof(ImDrawVert),
+		offsetof(ImDrawVert,uv)
+	);
+	m_gl_va.bind_vbo(
+		m_gl_vb,
+		m_gl_program.find_attrib("a_Color"),
+		4,
+		GL_UNSIGNED_BYTE,
+		true,
+		sizeof(ImDrawVert),
+		offsetof(ImDrawVert,col)
+	);
+
 	h_init <<= [this]() {
 		glBindTexture(GL_TEXTURE_2D,m_gl_tex_font.get_id());
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 		glBindTexture(GL_TEXTURE_2D,0);
-
-		m_gl_va.bind_ibo(m_gl_ib);
-		m_gl_va.bind_vbo(
-			m_gl_vb,
-			m_gl_program.find_attrib("a_Position"),
-			2,
-			GL_FLOAT,
-			false,
-			sizeof(ImDrawVert),
-			offsetof(ImDrawVert,pos)
-		);
-		m_gl_va.bind_vbo(
-			m_gl_vb,
-			m_gl_program.find_attrib("a_TexCoord"),
-			2,
-			GL_FLOAT,
-			false,
-			sizeof(ImDrawVert),
-			offsetof(ImDrawVert,uv)
-		);
-		m_gl_va.bind_vbo(
-			m_gl_vb,
-			m_gl_program.find_attrib("a_Color"),
-			4,
-			GL_UNSIGNED_BYTE,
-			true,
-			sizeof(ImDrawVert),
-			offsetof(ImDrawVert,col)
-		);
 	};
 	h_init.bind(m_canvas.on_init);
 
