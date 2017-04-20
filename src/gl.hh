@@ -57,6 +57,18 @@ public:
 	int get_id();
 };
 
+class uniform : private util::nocopy {
+private:
+	std::shared_ptr<int> m_id_p;
+
+	explicit uniform(std::shared_ptr<int> id_p);
+
+public:
+	uniform(uniform &&src);
+
+	int get_id();
+};
+
 class shader : private util::nocopy {
 	friend class program;
 
@@ -86,6 +98,7 @@ public:
 	void link();
 
 	attrib find_attrib(std::string name);
+	uniform find_uniform(std::string name);
 
 	unsigned int get_id();
 };
