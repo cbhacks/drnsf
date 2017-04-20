@@ -215,6 +215,8 @@ im_canvas::im_canvas(gui::container &parent) :
 		GL_RGBA,
 		GL_UNSIGNED_BYTE
 	);
+	m_gl_tex_font.set_parameter(GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	m_gl_tex_font.set_parameter(GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 
 	const char vert_code[] = R"(
 
@@ -293,14 +295,6 @@ void main()
 		sizeof(ImDrawVert),
 		offsetof(ImDrawVert,col)
 	);
-
-	h_init <<= [this]() {
-		glBindTexture(GL_TEXTURE_2D,m_gl_tex_font.get_id());
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-		glBindTexture(GL_TEXTURE_2D,0);
-	};
-	h_init.bind(m_canvas.on_init);
 
 	h_render <<= [this]() {
 		render();

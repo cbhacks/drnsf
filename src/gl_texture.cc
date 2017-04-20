@@ -76,6 +76,20 @@ void texture::put_data_2d(
 	});
 }
 
+void texture::set_parameter(int pname,int value)
+{
+	m_mach.post_job([
+		id_p = m_id_p,
+		target = m_target,
+		pname,
+		value
+		]{
+		glBindTexture(target,*id_p);
+		glTexParameteri(target,pname,value);
+		glBindTexture(target,0);
+	});
+}
+
 unsigned int texture::get_id()
 {
 	return *m_id_p;

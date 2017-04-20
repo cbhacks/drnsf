@@ -39,11 +39,6 @@ gboolean gl_canvas::sigh_render(
 	auto self = static_cast<gl_canvas *>(user_data);
 
 	self->run_jobs();
-	if (!self->m_is_init) {
-		self->m_is_init = true;
-		self->on_init();
-	}
-	self->run_jobs();
 	self->on_render();
 	return true;
 }
@@ -170,13 +165,10 @@ gl_canvas::gl_canvas(container &parent)
 
 gl_canvas::~gl_canvas()
 {
-	if (m_is_init) {
-		gtk_gl_area_make_current(GTK_GL_AREA(M));
-		on_cleanup();
-		run_jobs();
-		gdk_gl_context_clear_current(); //necessary to avoid crash on
-		// the next invocation of this destructor!!!
-	}
+	gtk_gl_area_make_current(GTK_GL_AREA(M));
+	run_jobs();
+	gdk_gl_context_clear_current(); //necessary to avoid crash on
+	// the next invocation of this destructor!!!
 	gtk_widget_destroy(M);
 }
 

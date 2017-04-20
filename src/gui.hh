@@ -106,8 +106,6 @@ class gl_canvas : public gl::machine {
 private:
 	GtkWidget *M;
 
-	bool m_is_init = false;
-
 	static gboolean sigh_render(
 		GtkGLArea *area,
 		GdkGLContext *context,
@@ -147,8 +145,6 @@ public:
 
 	void invalidate();
 
-	util::event<> on_init;
-	util::event<> on_cleanup;
 	util::event<> on_render;
 	util::event<int,int> on_resize;
 	util::event<int,int> on_mousemove;

@@ -149,6 +149,8 @@ public:
 		int format,
 		int type);
 
+	void set_parameter(int pname,int value);
+
 	unsigned int get_id();
 };
 
