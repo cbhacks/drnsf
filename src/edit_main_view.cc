@@ -27,7 +27,8 @@
 namespace drnsf {
 namespace edit {
 
-main_view::main_view(gui::container &parent) :
+main_view::main_view(gui::container &parent,editor &ed) :
+	m_ed(ed),
 	m_tabs(parent),
 	m_classic_tab(m_tabs,"Classic"),
 	m_visual_tab(m_tabs,"Visual"),
@@ -59,31 +60,6 @@ void main_view::frame(int delta_time)
 
 	im::main_menu_bar([&]{
 		im::menu("File",[&]{
-			im::menu_item("New Project",[&]{
-				// Prompt the user for confirmation if there is
-				// already an open project with unsaved changes.
-				// TODO
-
-				// Discard the current editor.
-				m_ed = nullptr;
-
-				// Create a new project and editor.
-				auto proj = std::make_shared<project>();
-				m_ed = std::make_shared<editor>(proj);
-			});
-			im::menu_item("Open Project");
-			im::menu_item("Close Project",m_ed ? [&]{
-				// Prompt the user for confirmation if there are
-				// unsaved changes.
-				// TODO
-
-				// Abandon the current editor.
-				m_ed = nullptr;
-			} : std::function<void()>(nullptr));
-			im::menu_separator();
-			im::menu_item("Save Project");
-			im::menu_item("Save Project As");
-			im::menu_separator();
 			im::menu_item("Exit " APP_NAME,[&]{
 				// Prompt the user for confirmation if there are
 				// unsaved changes.
@@ -93,8 +69,8 @@ void main_view::frame(int delta_time)
 				gtk_main_quit();
 			});
 		});
-		im::menu("Edit",m_ed ? [&]{
-			auto &&transact = m_ed->m_proj->get_transact();
+		im::menu("Edit",[&]{
+			auto &&transact = m_ed.m_proj.get_transact();
 
 			if (transact.has_undo()) {
 				auto title = transact.get_undo().describe();
@@ -121,21 +97,21 @@ void main_view::frame(int delta_time)
 			for (auto &&modedef : modedef::get_list()) {
 				auto title = modedef->get_title();
 				im::menu_item("Mode: $"_fmt(title),[&]{
-					m_ed->m_mode = modedef->create(*m_ed);
+					m_ed.m_mode = modedef->create(m_ed);
 				});
 			}
-		} : std::function<void()>(nullptr));
+		});
 	});
 
-	if (m_ed) {
-		if (m_ed->m_mode) {
-			auto &&mode = m_ed->m_mode;
+	if (true) {
+		if (m_ed.m_mode) {
+			auto &&mode = m_ed.m_mode;
 			mode->update(delta_time);
 			mode->render();
 			mode->show_gui();
 		}
 
-		for (auto &&pane : m_ed->m_panes) {
+		for (auto &&pane : m_ed.m_panes) {
 			im::subwindow(pane->get_id(),pane->get_title(),[&]{
 				pane->show();
 			});

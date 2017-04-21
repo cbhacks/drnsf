@@ -34,8 +34,9 @@ std::function<void(int)> create_mod_camera_ctrl(edit::core &);
 namespace edit {
 
 core::core() :
+	m_ed(m_proj),
 	m_real_wnd(APP_TITLE,800,600),
-	m_wnd(m_real_wnd)
+	m_wnd(m_real_wnd,m_ed)
 {
 	h_frame <<= [this](int delta_time) {
 		frame(delta_time);
@@ -46,8 +47,6 @@ core::core() :
 	m_modules.push_back(create_assets_window(*this));
 	m_modules.push_back(create_mod_testbox(*this));
 	m_modules.push_back(create_mod_camera_ctrl(*this));
-
-	m_wnd.m_ed = std::make_shared<editor>(m_proj);
 
 	m_wnd.show();
 	m_real_wnd.show();

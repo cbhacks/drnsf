@@ -104,7 +104,7 @@ class main_view : private util::nocopy {
 	friend class pane;
 
 private:
-	std::shared_ptr<editor> m_ed;
+	editor &m_ed;
 	gui::tabview m_tabs;
 	gui::tabview::page m_classic_tab;
 	gui::tabview::page m_visual_tab;
@@ -117,7 +117,7 @@ private:
 	decltype(m_canvas.on_frame)::watch h_frame;
 
 public:
-	explicit main_view(gui::container &parent);
+	explicit main_view(gui::container &parent,editor &ed);
 
 	void frame(int delta_time);
 
@@ -132,12 +132,12 @@ class editor : private util::nocopy {
 	friend class pane;
 
 private:
-	const std::shared_ptr<project> m_proj;
+	project &m_proj;
 	std::list<pane *> m_panes;
 	std::unique_ptr<mode> m_mode;
 
 public:
-	explicit editor(std::shared_ptr<project> proj);
+	explicit editor(project &proj);
 
 	project &get_project() const;
 };
@@ -216,7 +216,8 @@ struct cam {
 
 class core : private util::nocopy {
 public:
-	std::shared_ptr<project> m_proj = std::make_shared<project>();
+	project m_proj;
+	editor m_ed;
 	std::list<std::function<void(int)>> m_modules;
 	res::anyref m_selected_asset;
 	cam m_cam;
