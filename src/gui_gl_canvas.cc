@@ -40,6 +40,7 @@ gboolean gl_canvas::sigh_render(
 
 	self->run_jobs();
 	self->on_render();
+	self->run_jobs();
 	return true;
 }
 

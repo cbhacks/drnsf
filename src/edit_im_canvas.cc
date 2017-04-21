@@ -31,8 +31,10 @@ namespace edit {
 
 void im_canvas::render()
 {
-	glClearColor(1,0,0,0);
-	glClear(GL_COLOR_BUFFER_BIT);
+	m_canvas.post_job([]{
+		glClearColor(1,0,0,0);
+		glClear(GL_COLOR_BUFFER_BIT);
+	});
 
 	long current_time = g_get_monotonic_time();
 	long delta_time = current_time - m_last_update;
@@ -48,8 +50,10 @@ void im_canvas::render()
 	ImGui::Render();
 	ImDrawData *draw_data = ImGui::GetDrawData();
 
-	glUseProgram(m_gl_program.get_id());
-	glUniform1i(m_gl_u_font.get_id(),0);
+	m_canvas.post_job([this]{
+		glUseProgram(m_gl_program.get_id());
+		glUniform1i(m_gl_u_font.get_id(),0);
+	});
 
 	// Prepare a simple 2D orthographic projection.
 	//
@@ -62,50 +66,70 @@ void im_canvas::render()
 	// bottom-to-top* which is the inverse of what we want.
 	//
 	// The Z coordinates are left as-is; they are not meaningful for ImGui.
-	glUniformMatrix4fv(
-		m_gl_u_screenortho.get_id(),
-		1,
-		false,
-		&glm::ortho<float>(
-			0,
-			m_canvas_width,
-			m_canvas_height,
-			0,
-			-1,
-			+1
-		)[0][0]
-	);
+	m_canvas.post_job([this]{
+		glUniformMatrix4fv(
+			m_gl_u_screenortho.get_id(),
+			1,
+			false,
+			&glm::ortho<float>(
+				0,
+				m_canvas_width,
+				m_canvas_height,
+				0,
+				-1,
+				+1
+			)[0][0]
+		);
+	});
 
-	glBindVertexArray(m_gl_va.get_id());
+	m_canvas.post_job([this]{
+		glBindVertexArray(m_gl_va.get_id());
+	});
 
 	// Enable alpha blending. ImGui requires this for its fonts.
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	m_canvas.post_job([]{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	});
 
 	// Enable the GL scissor test. This is used to clip gui widgets to only
 	// render within their given area.
-	glEnable(GL_SCISSOR_TEST);
+	m_canvas.post_job([]{
+		glEnable(GL_SCISSOR_TEST);
+	});
 
 	// Draw each of the command lists. Each list contains a set of draw
 	// commands associated with a particular set of vertex arrays.
 	for (int i = 0;i < draw_data->CmdListsCount;i++) {
 		ImDrawList *draw_list = draw_data->CmdLists[i];
 
-		glBindBuffer(GL_COPY_WRITE_BUFFER,m_gl_vb.get_id());
-		glBufferData(
-			GL_COPY_WRITE_BUFFER,
-			draw_list->VtxBuffer.Size * sizeof(ImDrawVert),
-			draw_list->VtxBuffer.Data,
+		util::blob vtxbuf = {
+			reinterpret_cast<util::byte *>(
+				draw_list->VtxBuffer.Data
+			),
+			reinterpret_cast<util::byte *>(
+				draw_list->VtxBuffer.Data
+					+ draw_list->VtxBuffer.Size
+			)
+		};
+		m_gl_vb.put_data(
+			std::move(vtxbuf),
 			GL_DYNAMIC_DRAW
 		);
-		glBindBuffer(GL_COPY_WRITE_BUFFER,m_gl_ib.get_id());
-		glBufferData(
-			GL_COPY_WRITE_BUFFER,
-			draw_list->IdxBuffer.Size * sizeof(ImDrawIdx),
-			draw_list->IdxBuffer.Data,
+
+		util::blob idxbuf = {
+			reinterpret_cast<util::byte *>(
+				draw_list->IdxBuffer.Data
+			),
+			reinterpret_cast<util::byte *>(
+				draw_list->IdxBuffer.Data
+					+ draw_list->IdxBuffer.Size
+			)
+		};
+		m_gl_ib.put_data(
+			std::move(idxbuf),
 			GL_DYNAMIC_DRAW
 		);
-		glBindBuffer(GL_COPY_WRITE_BUFFER,0);
 
 		// Get the index array (IBO-like). Each draw command pulls some
 		// amount of these elements out from the front.
@@ -113,12 +137,7 @@ void im_canvas::render()
 
 		// Draw each of the commands in the list.
 		for (auto &c : draw_list->CmdBuffer) {
-			// Use this command's custom drawing implementation,
-			// if there is one. Otherwise, draw it as you would
-			// normally.
-			if (c.UserCallback) {
-				c.UserCallback(draw_list,&c);
-			} else {
+			m_canvas.post_job([this,index_array,c]{
 				glBindTexture(
 					GL_TEXTURE_2D,
 					m_gl_tex_font.get_id()
@@ -137,7 +156,7 @@ void im_canvas::render()
 						GL_UNSIGNED_INT,
 					index_array
 				);
-			}
+			});
 
 			// Move past the indices which have already been used
 			// for drawing.
@@ -146,18 +165,25 @@ void im_canvas::render()
 	}
 
 	// Re-disable scissor test.
-	glDisable(GL_SCISSOR_TEST);
+	m_canvas.post_job([]{
+		glDisable(GL_SCISSOR_TEST);
+	});
 
 	// Unbind whatever texture was bound by the last draw command.
-	glBindTexture(GL_TEXTURE_2D,0);
+	m_canvas.post_job([]{
+		glBindTexture(GL_TEXTURE_2D,0);
+	});
 
 	// Restore the previous blending setup.
-	glDisable(GL_BLEND);
-	glBlendFunc(GL_ONE,GL_ZERO);
+	m_canvas.post_job([]{
+		glDisable(GL_BLEND);
+		glBlendFunc(GL_ONE,GL_ZERO);
+	});
 
-	glBindVertexArray(0);
-
-	glUseProgram(0);
+	m_canvas.post_job([]{
+		glBindVertexArray(0);
+		glUseProgram(0);
+	});
 
 	ImGui::SetCurrentContext(previous_im);
 }
