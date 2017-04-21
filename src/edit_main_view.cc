@@ -27,7 +27,7 @@
 namespace drnsf {
 namespace edit {
 
-window::window(gui::container &parent) :
+main_view::main_view(gui::container &parent) :
 	m_tabs(parent),
 	m_classic_tab(m_tabs,"Classic"),
 	m_visual_tab(m_tabs,"Visual"),
@@ -49,7 +49,7 @@ window::window(gui::container &parent) :
 	m_cryptos.show();
 }
 
-void window::frame(int delta_time)
+void main_view::frame(int delta_time)
 {
 	namespace im = gui::im;
 
@@ -143,7 +143,7 @@ void window::frame(int delta_time)
 	}
 }
 
-void window::show()
+void main_view::show()
 {
 	m_tabs.show();
 }

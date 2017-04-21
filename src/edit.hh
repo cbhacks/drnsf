@@ -98,7 +98,7 @@ class core; // FIXME
 
 class editor;
 
-class window : private util::nocopy {
+class main_view : private util::nocopy {
 	friend class core; // FIXME
 
 	friend class pane;
@@ -117,7 +117,7 @@ private:
 	decltype(m_canvas.on_frame)::watch h_frame;
 
 public:
-	explicit window(gui::container &parent);
+	explicit main_view(gui::container &parent);
 
 	void frame(int delta_time);
 
@@ -128,7 +128,7 @@ class pane;
 class mode;
 
 class editor : private util::nocopy {
-	friend class window;
+	friend class main_view;
 	friend class pane;
 
 private:
@@ -221,7 +221,7 @@ public:
 	res::anyref m_selected_asset;
 	cam m_cam;
 	gui::window m_real_wnd;
-	edit::window m_wnd;
+	edit::main_view m_wnd;
 	decltype(m_wnd.m_cryptos.on_frame)::watch h_frame;
 
 	core();
