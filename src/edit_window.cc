@@ -31,9 +31,11 @@ window::window() :
 	m_wnd(APP_TITLE,800,600),
 	m_tabs(m_wnd),
 	m_classic_tab(m_tabs,"Classic"),
+	m_visual_tab(m_tabs,"Visual"),
 	m_canvas_tab(m_tabs,"Old UI"),
 	m_cryptos_tab(m_tabs,"Ancient UI"),
 	m_classic(m_classic_tab),
+	m_visual(m_visual_tab),
 	m_canvas(m_canvas_tab),
 	m_cryptos(m_cryptos_tab)
 {
@@ -44,6 +46,7 @@ window::window() :
 
 	m_tabs.show();
 	m_classic.show();
+	m_visual.show();
 	m_canvas.show();
 	m_cryptos.show();
 	m_wnd.show();

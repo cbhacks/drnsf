@@ -84,6 +84,16 @@ public:
 	void show();
 };
 
+class visual_view : private util::nocopy {
+private:
+	gui::gl_canvas m_canvas;
+
+public:
+	explicit visual_view(gui::container &parent);
+
+	void show();
+};
+
 class core; // FIXME
 
 class editor;
@@ -98,9 +108,11 @@ private:
 	gui::window m_wnd;
 	gui::tabview m_tabs;
 	gui::tabview::page m_classic_tab;
+	gui::tabview::page m_visual_tab;
 	gui::tabview::page m_canvas_tab;
 	gui::tabview::page m_cryptos_tab;
 	classic_view m_classic;
+	visual_view m_visual;
 	im_canvas m_canvas;
 	im_canvas m_cryptos;
 	decltype(m_canvas.on_frame)::watch h_frame;

@@ -66,6 +66,7 @@ add_executable (drnsf
 	src/edit_mode_classic.cc
 	src/edit_mode_imdemo.cc
 	src/edit_classic_view.cc
+	src/edit_visual_view.cc
 
 	src/transact.hh
 	src/transact_teller.cc
