@@ -27,9 +27,8 @@
 namespace drnsf {
 namespace edit {
 
-window::window() :
-	m_wnd(APP_TITLE,800,600),
-	m_tabs(m_wnd),
+window::window(gui::container &parent) :
+	m_tabs(parent),
 	m_classic_tab(m_tabs,"Classic"),
 	m_visual_tab(m_tabs,"Visual"),
 	m_canvas_tab(m_tabs,"Old UI"),
@@ -44,12 +43,10 @@ window::window() :
 	};
 	h_frame.bind(m_canvas.on_frame);
 
-	m_tabs.show();
 	m_classic.show();
 	m_visual.show();
 	m_canvas.show();
 	m_cryptos.show();
-	m_wnd.show();
 }
 
 void window::frame(int delta_time)
@@ -144,6 +141,11 @@ void window::frame(int delta_time)
 			});
 		}
 	}
+}
+
+void window::show()
+{
+	m_tabs.show();
 }
 
 }

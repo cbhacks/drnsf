@@ -105,7 +105,6 @@ class window : private util::nocopy {
 
 private:
 	std::shared_ptr<editor> m_ed;
-	gui::window m_wnd;
 	gui::tabview m_tabs;
 	gui::tabview::page m_classic_tab;
 	gui::tabview::page m_visual_tab;
@@ -118,9 +117,11 @@ private:
 	decltype(m_canvas.on_frame)::watch h_frame;
 
 public:
-	window();
+	explicit window(gui::container &parent);
 
 	void frame(int delta_time);
+
+	void show();
 };
 
 class pane;
@@ -219,6 +220,7 @@ public:
 	std::list<std::function<void(int)>> m_modules;
 	res::anyref m_selected_asset;
 	cam m_cam;
+	gui::window m_real_wnd;
 	edit::window m_wnd;
 	decltype(m_wnd.m_cryptos.on_frame)::watch h_frame;
 
