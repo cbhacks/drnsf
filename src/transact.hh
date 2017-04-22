@@ -194,12 +194,24 @@ public:
 	}
 };
 
+enum class status {
+	ready,
+	busy,
+	failed
+};
+
 class nexus : private util::nocopy {
 private:
+	status m_status;
 	std::unique_ptr<transaction> m_undo;
 	std::unique_ptr<transaction> m_redo;
 
 public:
+	nexus();
+	~nexus();
+
+	status get_status() const;
+
 	bool has_undo() const;
 	bool has_redo() const;
 
@@ -210,6 +222,8 @@ public:
 	void redo();
 
 	nexus &operator <<(std::function<void(TRANSACT)> job);
+
+	util::event<> on_status_change;
 };
 
 }

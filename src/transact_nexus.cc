@@ -24,28 +24,59 @@
 namespace drnsf {
 namespace transact {
 
+nexus::nexus() :
+	m_status(status::ready)
+{
+}
+
+nexus::~nexus()
+{
+	// FIXME - handle non-ready status
+}
+
+status nexus::get_status() const
+{
+	return m_status;
+}
+
 bool nexus::has_undo() const
 {
+	if (m_status != status::ready) {
+		throw 0;//FIXME
+	}
 	return m_undo != nullptr;
 }
 
 bool nexus::has_redo() const
 {
+	if (m_status != status::ready) {
+		throw 0;//FIXME
+	}
 	return m_redo != nullptr;
 }
 
 const transaction &nexus::get_undo() const
 {
+	if (m_status != status::ready) {
+		throw 0;//FIXME
+	}
 	return *m_undo;
 }
 
 const transaction &nexus::get_redo() const
 {
+	if (m_status != status::ready) {
+		throw 0;//FIXME
+	}
 	return *m_redo;
 }
 
 void nexus::undo()
 {
+	if (m_status != status::ready) {
+		throw 0;//FIXME
+	}
+
 	// Ensure that there is actually a transaction to undo.
 	// TODO
 
@@ -76,6 +107,10 @@ void nexus::undo()
 
 void nexus::redo()
 {
+	if (m_status != status::ready) {
+		throw 0;//FIXME
+	}
+
 	// Ensure that there is actually a transaction to redo.
 	// TODO
 
@@ -106,6 +141,13 @@ void nexus::redo()
 
 nexus &nexus::operator <<(std::function<void(TRANSACT)> job)
 {
+	if (m_status != status::ready) {
+		throw 0;//FIXME
+	}
+
+	m_status = status::busy;
+	on_status_change();
+
 	// Create the teller used to build this transaction. If this function
 	// exits without committing the transaction, the teller will rollback
 	// all of the changes automatically.
@@ -126,12 +168,14 @@ nexus &nexus::operator <<(std::function<void(TRANSACT)> job)
 	// A <- B <- C <- (m_undo)
 	// becomes
 	// A <- B <- C <- X <- (m_undo)
-	using std::swap;
 	m_undo.swap(t->m_next);
 	m_undo.swap(t);
 
 	// Clear all of the redo-able actions.
 	m_redo.reset(nullptr);
+
+	m_status = status::ready;
+	on_status_change();
 
 	return *this;
 }
