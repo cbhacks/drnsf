@@ -36,8 +36,8 @@ teller::~teller()
 	// all of its operations. This is done by executing each of the
 	// operations again in reverse order.
 	if (!m_done) {
-		for (auto &op : m_ops) {
-			op();
+		for (auto &&op : m_ops) {
+			op->execute();
 		}
 	}
 }
@@ -66,7 +66,7 @@ void teller::describe(std::string desc)
 	m_desc = desc;
 }
 
-void teller::push_op(operation op)
+void teller::push_op(std::unique_ptr<base_op_impl> op)
 {
 	// Ensure this teller hasn't already committed its transaction.
 	if (m_done) {
@@ -84,7 +84,7 @@ void teller::push_op(operation op)
 	// case pushing throws an exception (out-of-memory, etc).
 	//
 	// `op' cannot be invoked directly anymore because it was moved from.
-	m_ops.front()();
+	m_ops.front()->execute();
 }
 
 }

@@ -82,8 +82,8 @@ void nexus::undo()
 
 	// Run each of the operations in the transaction, causing them to be
 	// undone.
-	for (auto &op : m_undo->m_ops) {
-		op();
+	for (auto &&op : m_undo->m_ops) {
+		op->execute();
 	}
 
 	// Reverse the transaction's operation list. This ensures the list
@@ -116,8 +116,8 @@ void nexus::redo()
 
 	// Run each of the operations in the transaction, causing them to be
 	// redone.
-	for (auto &op : m_redo->m_ops) {
-		op();
+	for (auto &&op : m_redo->m_ops) {
+		op->execute();
 	}
 
 	// Reverse the transaction's operation list. This ensures the list

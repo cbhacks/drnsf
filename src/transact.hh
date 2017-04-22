@@ -118,33 +118,18 @@ public:
 	}
 };
 
-class operation : private util::nocopy {
-private:
-	std::unique_ptr<base_op_impl> m_impl;
-
-public:
-	operation(operation &&src) :
-		m_impl(std::move(src.m_impl)) {}
-
-	operation(std::unique_ptr<base_op_impl> impl) :
-		m_impl(std::move(impl)) {}
-
-	void operator ()() const noexcept
-	{
-		m_impl->execute();
-	}
-};
-
 class transaction : private util::nocopy {
 	friend class nexus;
 	friend class teller;
 
 private:
-	std::list<operation> m_ops;
+	std::list<std::unique_ptr<base_op_impl>> m_ops;
 	std::string m_desc;
 	std::unique_ptr<transaction> m_next;
 
-	explicit transaction(std::list<operation> ops,std::string desc);
+	explicit transaction(
+		std::list<std::unique_ptr<base_op_impl>> ops,
+		std::string desc);
 
 public:
 	const char *describe() const;
@@ -155,7 +140,7 @@ class teller : private util::nocopy {
 
 private:
 	bool m_done;
-	std::list<operation> m_ops;
+	std::list<std::unique_ptr<base_op_impl>> m_ops;
 	std::string m_desc;
 
 	teller();
@@ -166,7 +151,7 @@ private:
 public:
 	void describe(std::string desc);
 
-	void push_op(operation op);
+	void push_op(std::unique_ptr<base_op_impl> op);
 
 	template <typename T,typename T2>
 	void set(T &dest,T2 src)
