@@ -141,6 +141,8 @@ private:
 	project &m_proj;
 	std::list<std::unique_ptr<asset>>::iterator m_iter;
 
+	void create_impl(TRANSACT,atom name);
+
 protected:
 	explicit asset(project &proj) :
 		m_proj(proj) {}
@@ -159,14 +161,7 @@ public:
 		if (name.get())
 			throw 0; // FIXME
 
-		auto t = std::unique_ptr<asset>(new T(proj));
-		TS.set(t->m_name,name);
-		TS.set(name.get_internal_asset_ptr(),t.get());
-		t->m_iter = TS.insert(
-			proj.m_assets,
-			proj.m_assets.end(),
-			std::move(t)
-		);
+		(new T(proj))->create_impl(TS,name);
 	}
 
 	void rename(TRANSACT,atom name);

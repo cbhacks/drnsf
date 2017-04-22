@@ -24,6 +24,18 @@
 namespace drnsf {
 namespace res {
 
+void asset::create_impl(TRANSACT,atom name)
+{
+	auto p = std::unique_ptr<asset>(this);
+	TS.set(m_name,name);
+	TS.set(name.get_internal_asset_ptr(),this);
+	m_iter = TS.insert(
+		m_proj.m_assets,
+		m_proj.m_assets.end(),
+		std::move(p)
+	);
+}
+
 void asset::assert_alive() const
 {
 	if (!m_name) {
