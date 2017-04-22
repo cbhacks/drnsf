@@ -27,15 +27,15 @@
 namespace drnsf {
 namespace transact {
 
-class base_op_impl : private util::nocopy {
+class operation : private util::nocopy {
 public:
 	virtual void execute() noexcept = 0;
 
-	virtual ~base_op_impl() = default;
+	virtual ~operation() = default;
 };
 
 template <typename T>
-class assign_op_impl : public base_op_impl {
+class assign_op_impl : public operation {
 private:
 	T &m_dest;
 	T m_src;
@@ -54,7 +54,7 @@ public:
 };
 
 template <typename T>
-class insert_op_impl : public base_op_impl {
+class insert_op_impl : public operation {
 private:
 	std::list<T> m_temp;
 	typename std::list<T>::iterator m_value_iter;
@@ -91,7 +91,7 @@ public:
 };
 
 template <typename T>
-class erase_op_impl : public base_op_impl {
+class erase_op_impl : public operation {
 private:
 	std::list<T> m_temp;
 	typename std::list<T>::iterator m_value_iter;
@@ -123,12 +123,12 @@ class transaction : private util::nocopy {
 	friend class teller;
 
 private:
-	std::list<std::unique_ptr<base_op_impl>> m_ops;
+	std::list<std::unique_ptr<operation>> m_ops;
 	std::string m_desc;
 	std::unique_ptr<transaction> m_next;
 
 	explicit transaction(
-		std::list<std::unique_ptr<base_op_impl>> ops,
+		std::list<std::unique_ptr<operation>> ops,
 		std::string desc);
 
 public:
@@ -140,7 +140,7 @@ class teller : private util::nocopy {
 
 private:
 	bool m_done;
-	std::list<std::unique_ptr<base_op_impl>> m_ops;
+	std::list<std::unique_ptr<operation>> m_ops;
 	std::string m_desc;
 
 	teller();
@@ -151,13 +151,13 @@ private:
 public:
 	void describe(std::string desc);
 
-	void push_op(std::unique_ptr<base_op_impl> op);
+	void push_op(std::unique_ptr<operation> op);
 
 	template <typename T,typename T2>
 	void set(T &dest,T2 src)
 	{
 		auto impl = new assign_op_impl<T>(dest,std::move(src));
-		push_op(std::unique_ptr<base_op_impl>(impl));
+		push_op(std::unique_ptr<operation>(impl));
 	}
 
 	template <typename T,typename T2>
@@ -167,7 +167,7 @@ public:
 		T2 value)
 	{
 		auto impl = new insert_op_impl<T>(list,pos,std::move(value));
-		push_op(std::unique_ptr<base_op_impl>(impl));
+		push_op(std::unique_ptr<operation>(impl));
 		return impl->get_value_iterator();
 	}
 
@@ -175,7 +175,7 @@ public:
 	void erase(std::list<T> &list,typename std::list<T>::iterator pos)
 	{
 		auto impl = new erase_op_impl<T>(list,pos);
-		push_op(std::unique_ptr<base_op_impl>(impl));
+		push_op(std::unique_ptr<operation>(impl));
 	}
 };
 

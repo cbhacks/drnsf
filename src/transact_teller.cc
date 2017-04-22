@@ -66,7 +66,7 @@ void teller::describe(std::string desc)
 	m_desc = desc;
 }
 
-void teller::push_op(std::unique_ptr<base_op_impl> op)
+void teller::push_op(std::unique_ptr<operation> op)
 {
 	// Ensure this teller hasn't already committed its transaction.
 	if (m_done) {
