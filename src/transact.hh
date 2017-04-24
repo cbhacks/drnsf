@@ -156,8 +156,7 @@ public:
 	template <typename T,typename T2>
 	void set(T &dest,T2 src)
 	{
-		auto impl = new assign_op<T>(dest,std::move(src));
-		push_op(std::unique_ptr<operation>(impl));
+		push_op(std::make_unique<assign_op<T>>(dest,std::move(src)));
 	}
 
 	template <typename T,typename T2>
@@ -166,16 +165,20 @@ public:
 		typename std::list<T>::iterator pos,
 		T2 value)
 	{
-		auto impl = new insert_op<T>(list,pos,std::move(value));
-		push_op(std::unique_ptr<operation>(impl));
-		return impl->get_value_iterator();
+		auto op = std::make_unique<insert_op<T>>(
+			list,
+			pos,
+			std::move(value)
+		);
+		auto result = op->get_value_iterator();
+		push_op(std::move(op));
+		return result;
 	}
 
 	template <typename T>
 	void erase(std::list<T> &list,typename std::list<T>::iterator pos)
 	{
-		auto impl = new erase_op<T>(list,pos);
-		push_op(std::unique_ptr<operation>(impl));
+		push_op(std::make_unique<erase_op<T>>(list,pos));
 	}
 };
 
