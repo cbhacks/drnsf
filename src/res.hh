@@ -133,6 +133,8 @@ public:
 	{
 		return m_transact;
 	}
+
+	util::event<atom,atom> on_asset_move;
 };
 
 class asset : private util::nocopy {
