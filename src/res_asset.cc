@@ -24,22 +24,26 @@
 namespace drnsf {
 namespace res {
 
-class asset_move_event_op : public transact::operation {
+class asset_appear_event_op : public transact::operation {
 private:
 	project &m_proj;
-	atom m_src;
-	atom m_dest;
+	asset &m_asset;
+	bool m_appear;
 
 public:
-	explicit asset_move_event_op(project &proj,atom src,atom dest) :
+	explicit asset_appear_event_op(project &proj,asset &asset,bool appear) :
 		m_proj(proj),
-		m_src(src),
-		m_dest(dest) {}
+		m_asset(asset),
+		m_appear(appear) {}
 
 	void execute() noexcept override
 	{
-		m_proj.on_asset_move(m_src,m_dest);
-		std::swap(m_src,m_dest);
+		if (m_appear) {
+			m_proj.on_asset_appear(m_asset);
+		} else {
+			m_proj.on_asset_disappear(m_asset);
+		}
+		m_appear = !m_appear;
 	}
 };
 
@@ -53,10 +57,10 @@ void asset::create_impl(TRANSACT,atom name)
 		m_proj.m_assets.end(),
 		std::move(p)
 	);
-	TS.push_op(std::make_unique<asset_move_event_op>(
+	TS.push_op(std::make_unique<asset_appear_event_op>(
 		m_proj,
-		nullptr,
-		m_name
+		*this,
+		true
 	));
 }
 
@@ -79,15 +83,18 @@ void asset::rename(TRANSACT,atom name)
 		throw 0;//FIXME
 	}
 
-	auto old_name = m_name;
-
+	TS.push_op(std::make_unique<asset_appear_event_op>(
+		m_proj,
+		*this,
+		false
+	));
 	TS.set(name.get_internal_asset_ptr(),this);
 	TS.set(m_name.get_internal_asset_ptr(),nullptr);
 	TS.set(m_name,name);
-	TS.push_op(std::make_unique<asset_move_event_op>(
+	TS.push_op(std::make_unique<asset_appear_event_op>(
 		m_proj,
-		old_name,
-		name
+		*this,
+		true
 	));
 }
 
@@ -95,10 +102,10 @@ void asset::destroy(TRANSACT)
 {
 	assert_alive();
 
-	TS.push_op(std::make_unique<asset_move_event_op>(
+	TS.push_op(std::make_unique<asset_appear_event_op>(
 		m_proj,
-		m_name,
-		nullptr
+		*this,
+		false
 	));
 	TS.set(m_name.get_internal_asset_ptr(),nullptr);
 	TS.set(m_name,nullptr);
