@@ -104,7 +104,8 @@ public:
 
 class treeview : private util::nocopy {
 private:
-	GtkWidget *M;
+	GtkWidget *m_scroll;
+	GtkWidget *m_tree;
 	GtkTreeStore *m_store;
 
 public:

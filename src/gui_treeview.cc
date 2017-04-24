@@ -27,7 +27,7 @@ namespace gui {
 treeview::treeview(container &parent)
 {
 	m_store = gtk_tree_store_new(1,G_TYPE_STRING);
-	M = gtk_tree_view_new_with_model(GTK_TREE_MODEL(m_store));
+	m_tree = gtk_tree_view_new_with_model(GTK_TREE_MODEL(m_store));
 	GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
 	GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes(
 		"Name",
@@ -36,19 +36,22 @@ treeview::treeview(container &parent)
 		0,
 		nullptr
 	);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(M),column);
-	gtk_container_add(parent.get_container_handle(),M);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(m_tree),column);
+	m_scroll = gtk_scrolled_window_new(nullptr,nullptr);
+	gtk_container_add(parent.get_container_handle(),m_scroll);
+	gtk_container_add(GTK_CONTAINER(m_scroll),m_tree);
+	gtk_widget_show(m_tree);
 }
 
 treeview::~treeview()
 {
-	gtk_widget_destroy(M);
+	gtk_widget_destroy(m_scroll);
 	// FIXME - destroy tree store?
 }
 
 void treeview::show()
 {
-	gtk_widget_show(M);
+	gtk_widget_show(m_scroll);
 }
 
 treeview::node::node(treeview &parent) :
