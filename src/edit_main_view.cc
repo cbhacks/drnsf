@@ -34,7 +34,7 @@ main_view::main_view(gui::container &parent,editor &ed) :
 	m_visual_tab(m_tabs,"Visual"),
 	m_canvas_tab(m_tabs,"Old UI"),
 	m_cryptos_tab(m_tabs,"Ancient UI"),
-	m_classic(m_classic_tab),
+	m_classic(m_classic_tab,m_ed.m_proj),
 	m_visual(m_visual_tab),
 	m_canvas(m_canvas_tab),
 	m_cryptos(m_cryptos_tab)

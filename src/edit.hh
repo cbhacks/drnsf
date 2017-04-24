@@ -74,14 +74,29 @@ using res::project;
 
 class classic_view : private util::nocopy {
 private:
+	class asset_node : private util::nocopy {
+	private:
+		gui::treeview::node m_tree_node;
+
+	public:
+		asset_node(classic_view &view,res::asset &asset) :
+			m_tree_node(view.m_tree)
+		{
+			m_tree_node.set_text(asset.get_name().full_path());
+		}
+	};
+
 	gui::splitview m_split;
 	gui::treeview m_tree;
-	gui::treeview::node m_test_node;
-	gui::treeview::node m_test_subnode;
 	gui::label m_detail;
+	project &m_proj;
+	std::map<res::asset *,std::unique_ptr<asset_node>> m_asset_nodes;
+
+	decltype(project::on_asset_appear)::watch h_asset_appear;
+	decltype(project::on_asset_disappear)::watch h_asset_disappear;
 
 public:
-	explicit classic_view(gui::container &parent);
+	explicit classic_view(gui::container &parent,project &proj);
 
 	void show();
 };

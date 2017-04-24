@@ -27,17 +27,27 @@
 namespace drnsf {
 namespace edit {
 
-classic_view::classic_view(gui::container &parent) :
+classic_view::classic_view(gui::container &parent,project &proj) :
 	m_split(parent),
 	m_tree(m_split.get_left()),
-	m_test_node(m_tree),
-	m_test_subnode(m_test_node),
-	m_detail(m_split.get_right(),"[details here]")
+	m_detail(m_split.get_right(),"[details here]"),
+	m_proj(proj)
 {
-	m_test_node.set_text("Test Node!");
-	m_test_subnode.set_text("Test Subnode!");
 	m_tree.show();
 	m_detail.show();
+
+	h_asset_appear <<= [this](res::asset &asset){
+		m_asset_nodes[&asset] = std::make_unique<asset_node>(
+			*this,
+			asset
+		);
+	};
+	h_asset_appear.bind(m_proj.on_asset_appear);
+
+	h_asset_disappear <<= [this](res::asset &asset){
+		m_asset_nodes.erase(&asset);
+	};
+	h_asset_disappear.bind(m_proj.on_asset_disappear);
 }
 
 void classic_view::show()
