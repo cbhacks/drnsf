@@ -102,6 +102,33 @@ public:
 	container &get_right();
 };
 
+class treeview : private util::nocopy {
+private:
+	GtkWidget *M;
+	GtkTreeStore *m_store;
+
+public:
+	class node;
+
+	explicit treeview(container &parent);
+	~treeview();
+
+	void show();
+};
+
+class treeview::node : private util::nocopy {
+private:
+	GtkTreeStore *m_store;
+	GtkTreeIter m_iter;
+
+public:
+	explicit node(treeview &parent);
+	explicit node(node &parent);
+	~node();
+
+	void set_text(const std::string &text);
+};
+
 class gl_canvas : public gl::machine {
 private:
 	GtkWidget *M;

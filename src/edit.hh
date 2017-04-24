@@ -75,7 +75,9 @@ using res::project;
 class classic_view : private util::nocopy {
 private:
 	gui::splitview m_split;
-	gui::label m_tree;
+	gui::treeview m_tree;
+	gui::treeview::node m_test_node;
+	gui::treeview::node m_test_subnode;
 	gui::label m_detail;
 
 public:

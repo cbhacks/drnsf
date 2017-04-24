@@ -29,9 +29,13 @@ namespace edit {
 
 classic_view::classic_view(gui::container &parent) :
 	m_split(parent),
-	m_tree(m_split.get_left(),"[asset tree here]"),
+	m_tree(m_split.get_left()),
+	m_test_node(m_tree),
+	m_test_subnode(m_test_node),
 	m_detail(m_split.get_right(),"[details here]")
 {
+	m_test_node.set_text("Test Node!");
+	m_test_subnode.set_text("Test Subnode!");
 	m_tree.show();
 	m_detail.show();
 }
