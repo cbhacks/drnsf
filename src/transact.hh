@@ -35,14 +35,14 @@ public:
 };
 
 template <typename T>
-class assign_op_impl : public operation {
+class assign_op : public operation {
 private:
 	T &m_dest;
 	T m_src;
 
 public:
 	template <typename T2>
-	explicit assign_op_impl(T &dest,T2 src) :
+	explicit assign_op(T &dest,T2 src) :
 		m_dest(dest),
 		m_src(std::move(src)) {}
 
@@ -54,7 +54,7 @@ public:
 };
 
 template <typename T>
-class insert_op_impl : public operation {
+class insert_op : public operation {
 private:
 	std::list<T> m_temp;
 	typename std::list<T>::iterator m_value_iter;
@@ -64,7 +64,7 @@ private:
 	typename std::list<T>::iterator m_src_iter;
 
 public:
-	explicit insert_op_impl(
+	explicit insert_op(
 		std::list<T> &list,
 		typename std::list<T>::iterator pos,
 		T value) :
@@ -91,7 +91,7 @@ public:
 };
 
 template <typename T>
-class erase_op_impl : public operation {
+class erase_op : public operation {
 private:
 	std::list<T> m_temp;
 	typename std::list<T>::iterator m_value_iter;
@@ -101,7 +101,7 @@ private:
 	typename std::list<T>::iterator m_src_iter;
 
 public:
-	explicit erase_op_impl(
+	explicit erase_op(
 		std::list<T> &list,
 		typename std::list<T>::iterator pos) :
 		m_value_iter(pos),
@@ -156,7 +156,7 @@ public:
 	template <typename T,typename T2>
 	void set(T &dest,T2 src)
 	{
-		auto impl = new assign_op_impl<T>(dest,std::move(src));
+		auto impl = new assign_op<T>(dest,std::move(src));
 		push_op(std::unique_ptr<operation>(impl));
 	}
 
@@ -166,7 +166,7 @@ public:
 		typename std::list<T>::iterator pos,
 		T2 value)
 	{
-		auto impl = new insert_op_impl<T>(list,pos,std::move(value));
+		auto impl = new insert_op<T>(list,pos,std::move(value));
 		push_op(std::unique_ptr<operation>(impl));
 		return impl->get_value_iterator();
 	}
@@ -174,7 +174,7 @@ public:
 	template <typename T>
 	void erase(std::list<T> &list,typename std::list<T>::iterator pos)
 	{
-		auto impl = new erase_op_impl<T>(list,pos);
+		auto impl = new erase_op<T>(list,pos);
 		push_op(std::unique_ptr<operation>(impl));
 	}
 };
