@@ -104,11 +104,15 @@ public:
 class visual_view : private util::nocopy {
 private:
 	gui::gl_canvas m_canvas;
+	project &m_proj;
 
 public:
-	explicit visual_view(gui::container &parent);
+	explicit visual_view(gui::container &parent,project &proj);
 
 	void show();
+
+	decltype(project::on_asset_appear)::watch h_asset_appear;
+	decltype(project::on_asset_disappear)::watch h_asset_disappear;
 };
 
 class core; // FIXME

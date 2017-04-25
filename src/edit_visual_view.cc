@@ -20,13 +20,36 @@
 
 #include "common.hh"
 #include "edit.hh"
+#include "gfx.hh"
 
 namespace drnsf {
 namespace edit {
 
-visual_view::visual_view(gui::container &parent) :
-	m_canvas(parent)
+visual_view::visual_view(gui::container &parent,project &proj) :
+	m_canvas(parent),
+	m_proj(proj)
 {
+	h_asset_appear <<= [this](res::asset &asset) {
+		if (typeid(asset) == typeid(gfx::frame)) {
+			auto &frame = static_cast<gfx::frame &>(asset);
+		} else if (typeid(asset) == typeid(gfx::mesh)) {
+			auto &mesh = static_cast<gfx::mesh &>(asset);
+		} else if (typeid(asset) == typeid(gfx::model)) {
+			auto &model = static_cast<gfx::model &>(asset);
+		}
+	};
+	h_asset_appear.bind(proj.on_asset_appear);
+
+	h_asset_disappear <<= [this](res::asset &asset) {
+		if (typeid(asset) == typeid(gfx::frame)) {
+			auto &frame = static_cast<gfx::frame &>(asset);
+		} else if (typeid(asset) == typeid(gfx::mesh)) {
+			auto &mesh = static_cast<gfx::mesh &>(asset);
+		} else if (typeid(asset) == typeid(gfx::model)) {
+			auto &model = static_cast<gfx::model &>(asset);
+		}
+	};
+	h_asset_disappear.bind(proj.on_asset_disappear);
 }
 
 void visual_view::show()
