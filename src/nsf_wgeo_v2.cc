@@ -103,7 +103,7 @@ void wgeo_v2::import_entry(TRANSACT,const std::vector<util::blob> &items)
 		throw 0; // FIXME
 
 	// Parse the triangles.
-	std::vector<gfx::poly> triangles(triangle_count);
+	std::vector<gfx::triangle> triangles(triangle_count);
 	for (auto &&i : util::range_of(triangles)) {
 		auto &triangle = triangles[i];
 
@@ -120,7 +120,6 @@ void wgeo_v2::import_entry(TRANSACT,const std::vector<util::blob> &items)
 		auto vertex2       = r.read_ubits(12);
 		r.end();
 
-		triangle.type = gfx::polytype::tri;
 		triangle.vertices[0] = vertex0;
 		triangle.vertices[1] = vertex1;
 		triangle.vertices[2] = vertex2;
@@ -138,7 +137,7 @@ void wgeo_v2::import_entry(TRANSACT,const std::vector<util::blob> &items)
 		throw 0; // FIXME
 
 	// Parse the quads.
-	std::vector<gfx::poly> quads(quad_count);
+	std::vector<gfx::quad> quads(quad_count);
 	r.begin(item_quads);
 	for (auto &&quad : quads) {
 		// TODO - explain quad format here
@@ -150,7 +149,6 @@ void wgeo_v2::import_entry(TRANSACT,const std::vector<util::blob> &items)
 		auto vertex2   = r.read_ubits(12);
 		auto vertex3   = r.read_ubits(12);
 
-		quad.type = gfx::polytype::quad;
 		quad.vertices[0] = vertex0;
 		quad.vertices[1] = vertex1;
 		quad.vertices[2] = vertex2;
@@ -221,10 +219,8 @@ void wgeo_v2::import_entry(TRANSACT,const std::vector<util::blob> &items)
 	// Create the mesh for this scene.
 	gfx::mesh::ref mesh = atom / "mesh";
 	mesh.create(TS,get_proj());
-	std::vector<gfx::poly> polys;
-	polys.insert(polys.end(),triangles.begin(),triangles.end());
-	polys.insert(polys.end(),quads.begin(),quads.end());
-	mesh->set_polys(TS,std::move(polys));
+	mesh->set_triangles(TS,std::move(triangles));
+	mesh->set_quads(TS,std::move(quads));
 	mesh->set_colors(TS,std::move(colors));
 
 	// Create the model for this scene.

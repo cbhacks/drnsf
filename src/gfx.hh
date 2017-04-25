@@ -88,13 +88,12 @@ public:
 	}
 };
 
-enum class polytype {
-	tri,
-	quad,
+struct triangle {
+	int vertices[3];
+	int colors[3];
 };
 
-struct poly {
-	polytype type;
+struct quad {
 	int vertices[4];
 	int colors[4];
 };
@@ -109,14 +108,16 @@ private:
 public:
 	using ref = res::ref<mesh>;
 
-	DEFINE_APROP(polys,std::vector<poly>);
+	DEFINE_APROP(triangles,std::vector<triangle>);
+	DEFINE_APROP(quads,std::vector<quad>);
 	DEFINE_APROP(colors,std::vector<color>);
 
 	template <typename Reflector>
 	void reflect(Reflector &rfl)
 	{
 		asset::reflect(rfl);
-		rfl.field(p_polys,"Polygons");
+		rfl.field(p_triangles,"Triangles");
+		rfl.field(p_quads,"Quads");
 		rfl.field(p_colors,"Colors");
 	}
 };
