@@ -52,15 +52,13 @@ class frame : public res::asset {
 	friend class res::asset;
 
 private:
-	std::vector<vertex> m_vertices;
-
 	explicit frame(res::project &proj) :
 		asset(proj) {}
 
 public:
 	using ref = res::ref<frame>;
 
-	DEFINE_APROP(vertices);
+	DEFINE_APROP(vertices,std::vector<vertex>);
 
 	template <typename Reflector>
 	void reflect(Reflector &rfl)
@@ -74,15 +72,13 @@ class anim : public res::asset {
 	friend class res::asset;
 
 private:
-	std::vector<frame::ref> m_frames;
-
 	explicit anim(res::project &proj) :
 		asset(proj) {}
 
 public:
 	using ref = res::ref<anim>;
 
-	DEFINE_APROP(frames);
+	DEFINE_APROP(frames,std::vector<frame::ref>);
 
 	template <typename Reflector>
 	void reflect(Reflector &rfl)
@@ -107,17 +103,14 @@ class mesh : public res::asset {
 	friend class res::asset;
 
 private:
-	std::vector<poly> m_polys;
-	std::vector<color> m_colors;
-
 	explicit mesh(res::project &proj) :
 		asset(proj) {}
 
 public:
 	using ref = res::ref<mesh>;
 
-	DEFINE_APROP(polys);
-	DEFINE_APROP(colors);
+	DEFINE_APROP(polys,std::vector<poly>);
+	DEFINE_APROP(colors,std::vector<color>);
 
 	template <typename Reflector>
 	void reflect(Reflector &rfl)
@@ -132,24 +125,17 @@ class model : public res::asset {
 	friend class res::asset;
 
 private:
-	anim::ref m_anim;
-	mesh::ref m_mesh;
-
-	double m_scene_x = 0.0;
-	double m_scene_y = 0.0;
-	double m_scene_z = 0.0;
-
 	explicit model(res::project &proj) :
 		asset(proj) {}
 
 public:
 	using ref = res::ref<model>;
 
-	DEFINE_APROP(anim);
-	DEFINE_APROP(mesh);
-	DEFINE_APROP(scene_x);
-	DEFINE_APROP(scene_y);
-	DEFINE_APROP(scene_z);
+	DEFINE_APROP(anim,anim::ref);
+	DEFINE_APROP(mesh,mesh::ref);
+	DEFINE_APROP(scene_x,double,0.0);
+	DEFINE_APROP(scene_y,double,0.0);
+	DEFINE_APROP(scene_z,double,0.0);
 
 	template <typename Reflector>
 	void reflect(Reflector &rfl)

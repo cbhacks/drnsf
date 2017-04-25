@@ -74,15 +74,13 @@ class archive : public res::asset {
 	friend class res::asset;
 
 private:
-	std::vector<res::anyref> m_pages;
-
 	explicit archive(res::project &proj) :
 		asset(proj) {}
 
 public:
 	using ref = res::ref<archive>;
 
-	DEFINE_APROP(pages);
+	DEFINE_APROP(pages,std::vector<res::anyref>);
 
 	void import_file(TRANSACT,const util::blob &data);
 
@@ -98,19 +96,15 @@ class spage : public res::asset {
 	friend class res::asset;
 
 private:
-	std::vector<res::anyref> m_pagelets;
-	uint16_t m_type = 0;
-	uint32_t m_cid = 0;
-
 	explicit spage(res::project &proj) :
 		asset(proj) {}
 
 public:
 	using ref = res::ref<spage>;
 
-	DEFINE_APROP(pagelets);
-	DEFINE_APROP(type);
-	DEFINE_APROP(cid);
+	DEFINE_APROP(pagelets,std::vector<res::anyref>);
+	DEFINE_APROP(type,uint16_t);
+	DEFINE_APROP(cid,uint32_t);
 
 	void import_file(TRANSACT,const util::blob &data);
 
@@ -125,9 +119,6 @@ public:
 };
 
 class entry : public res::asset {
-private:
-	eid m_eid = 0;
-
 protected:
 	explicit entry(res::project &proj) :
 		asset(proj) {}
@@ -135,7 +126,7 @@ protected:
 public:
 	using ref = res::ref<entry>;
 
-	DEFINE_APROP(eid);
+	DEFINE_APROP(eid,eid);
 
 	template <typename Reflector>
 	void reflect(Reflector &rfl)
@@ -149,17 +140,14 @@ class raw_entry : public entry {
 	friend class res::asset;
 
 private:
-	std::vector<util::blob> m_items;
-	uint32_t m_type = 0;
-
 	explicit raw_entry(res::project &proj) :
 		entry(proj) {}
 
 public:
 	using ref = res::ref<raw_entry>;
 
-	DEFINE_APROP(items);
-	DEFINE_APROP(type);
+	DEFINE_APROP(items,std::vector<util::blob>);
+	DEFINE_APROP(type,uint32_t);
 
 	void import_file(TRANSACT,const util::blob &data);
 
@@ -196,22 +184,16 @@ class wgeo_v2 : public entry {
 	friend class res::asset;
 
 private:
-	util::blob m_item0;
-	util::blob m_item4;
-	util::blob m_item6;
-
-	gfx::model::ref m_model;
-
 	explicit wgeo_v2(res::project &proj) :
 		entry(proj) {}
 
 public:
 	using ref = res::ref<wgeo_v2>;
 
-	DEFINE_APROP(item0);
-	DEFINE_APROP(item4);
-	DEFINE_APROP(item6);
-	DEFINE_APROP(model);
+	DEFINE_APROP(item0,util::blob);
+	DEFINE_APROP(item4,util::blob);
+	DEFINE_APROP(item6,util::blob);
+	DEFINE_APROP(model,gfx::model::ref);
 
 	void import_entry(TRANSACT,const std::vector<util::blob> &items);
 

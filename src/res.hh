@@ -24,13 +24,13 @@
 #include <vector>
 #include "transact.hh"
 
-#define DEFINE_APROP(name) \
-	::drnsf::res::prop<decltype(m_##name)> p_##name = { *this, m_##name }; \
-	const decltype(m_##name) &get_##name() const \
+#define DEFINE_APROP(name,type,...) \
+	::drnsf::res::prop<type> p_##name = { *this, {__VA_ARGS__} }; \
+	const type &get_##name() const \
 	{ \
 		return p_##name.get(); \
 	} \
-	void set_##name(TRANSACT,decltype(m_##name) value) \
+	void set_##name(TRANSACT,type value) \
 	{ \
 		p_##name.set(TS,std::move(value)); \
 	}
@@ -183,10 +183,10 @@ template <typename T>
 class prop : private util::nocopy {
 private:
 	asset &m_owner;
-	T &m_value;
+	T m_value;
 
 public:
-	prop(asset &owner,T &value) :
+	prop(asset &owner,T value) :
 		m_owner(owner),
 		m_value(value) {}
 

@@ -54,15 +54,13 @@ class raw_data : public res::asset {
 	friend class res::asset;
 
 private:
-	util::blob m_data;
-
 	explicit raw_data(res::project &proj) :
 		asset(proj) {}
 
 public:
 	using ref = res::ref<raw_data>;
 
-	DEFINE_APROP(data);
+	DEFINE_APROP(data,util::blob);
 
 	template <typename Reflector>
 	void reflect(Reflector &rfl)
