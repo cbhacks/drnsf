@@ -19,35 +19,31 @@
 //
 
 #include "common.hh"
-#include <GL/gl.h>
-#include "../imgui/imgui.h"
+#include <epoxy/gl.h>
 #include "edit.hh"
-#include "res.hh"
 #include "gfx.hh"
 
 namespace drnsf {
 namespace edit {
 
-main_window::main_window() :
-	m_wnd(APP_TITLE,1024,768)
+map_view::map_view(gui::container &parent,editor &ed) :
+	m_ed(ed),
+	m_canvas(parent)
 {
+	h_render <<= [this]{
+		m_canvas.post_job([]{
+			glClear(
+				GL_COLOR_BUFFER_BIT |
+				GL_DEPTH_BUFFER_BIT
+			);
+		});
+	};
+	h_render.bind(m_canvas.on_render);
 }
 
-void main_window::show()
+void map_view::show()
 {
-	m_wnd.show();
-}
-
-void main_window::set_project(res::project &proj)
-{
-	m_map_view = nullptr;
-	m_ed_p = nullptr;
-
-	m_proj_p = &proj;
-	m_ed_p = std::make_unique<editor>(*m_proj_p);
-	m_map_view = std::make_unique<map_view>(m_wnd,*m_ed_p);
-
-	m_map_view->show();
+	m_canvas.show();
 }
 
 }

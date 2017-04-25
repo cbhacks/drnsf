@@ -58,6 +58,7 @@ add_executable (drnsf
 	src/gl_vert_array.cc
 
 	src/edit.hh
+	src/edit_map_view.cc
 	src/edit_main_window.cc
 	src/edit_im_canvas.cc
 	src/edit_editor.cc

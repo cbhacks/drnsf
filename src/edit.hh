@@ -38,11 +38,25 @@ public:
 	explicit editor(res::project &proj);
 };
 
+class map_view : private util::nocopy {
+private:
+	editor &m_ed;
+	gui::gl_canvas m_canvas;
+
+	decltype(m_canvas.on_render)::watch h_render;
+
+public:
+	explicit map_view(gui::container &parent,editor &ed);
+
+	void show();
+};
+
 class main_window : private util::nocopy {
 private:
 	gui::window m_wnd;
 	res::project *m_proj_p;
 	std::unique_ptr<editor> m_ed_p;
+	std::unique_ptr<map_view> m_map_view;
 
 public:
 	main_window();
