@@ -24,12 +24,12 @@
 namespace drnsf {
 namespace edit {
 
-editor::editor(project &proj) :
+old_editor::old_editor(project &proj) :
 	m_proj(proj)
 {
 }
 
-project &editor::get_project() const
+project &old_editor::get_project() const
 {
 	return m_proj;
 }

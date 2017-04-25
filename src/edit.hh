@@ -129,7 +129,7 @@ public:
 
 class core; // FIXME
 
-class editor;
+class old_editor;
 
 class main_view : private util::nocopy {
 	friend class core; // FIXME
@@ -137,7 +137,7 @@ class main_view : private util::nocopy {
 	friend class pane;
 
 private:
-	editor &m_ed;
+	old_editor &m_ed;
 	gui::tabview m_tabs;
 	gui::tabview::page m_classic_tab;
 	gui::tabview::page m_visual_tab;
@@ -150,7 +150,7 @@ private:
 	decltype(m_canvas.on_frame)::watch h_frame;
 
 public:
-	explicit main_view(gui::container &parent,editor &ed);
+	explicit main_view(gui::container &parent,old_editor &ed);
 
 	void frame(int delta_time);
 
@@ -160,7 +160,7 @@ public:
 class pane;
 class mode;
 
-class editor : private util::nocopy {
+class old_editor : private util::nocopy {
 	friend class main_view;
 	friend class pane;
 
@@ -170,7 +170,7 @@ private:
 	std::unique_ptr<mode> m_mode;
 
 public:
-	explicit editor(project &proj);
+	explicit old_editor(project &proj);
 
 	project &get_project() const;
 };
@@ -178,13 +178,13 @@ public:
 class pane : private util::nocopy {
 private:
 	std::string m_id;
-	decltype(editor::m_panes)::iterator m_iter;
+	decltype(old_editor::m_panes)::iterator m_iter;
 
 protected:
-	editor &m_ed;
+	old_editor &m_ed;
 
 public:
-	explicit pane(editor &ed,std::string id);
+	explicit pane(old_editor &ed,std::string id);
 	~pane();
 
 	virtual void show() = 0;
@@ -195,9 +195,9 @@ public:
 
 class mode : private util::nocopy {
 protected:
-	editor &m_ed;
+	old_editor &m_ed;
 
-	explicit mode(editor &ed) :
+	explicit mode(old_editor &ed) :
 		m_ed(ed) {}
 
 public:
@@ -224,13 +224,13 @@ public:
 		return m_title;
 	}
 
-	virtual std::unique_ptr<mode> create(editor &ed) const = 0;
+	virtual std::unique_ptr<mode> create(old_editor &ed) const = 0;
 };
 
 template <typename T>
 class modedef_of : private modedef {
 public:
-	std::unique_ptr<mode> create(editor &ed) const override
+	std::unique_ptr<mode> create(old_editor &ed) const override
 	{
 		return std::unique_ptr<mode>(new T(ed));
 	}
@@ -250,7 +250,7 @@ struct cam {
 class core : private util::nocopy {
 public:
 	project m_proj;
-	editor m_ed;
+	old_editor m_ed;
 	std::list<std::function<void(int)>> m_modules;
 	res::anyref m_selected_asset;
 	cam m_cam;

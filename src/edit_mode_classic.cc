@@ -36,7 +36,7 @@ private:
 	mode_classic &m_mode;
 
 public:
-	explicit tree_pane(editor &ed,mode_classic &mode) :
+	explicit tree_pane(old_editor &ed,mode_classic &mode) :
 		pane(ed,"classic_tree"),
 		m_mode(mode) {}
 
@@ -50,7 +50,7 @@ private:
 	mode_classic &m_mode;
 
 public:
-	explicit asset_pane(editor &ed,mode_classic &mode) :
+	explicit asset_pane(old_editor &ed,mode_classic &mode) :
 		pane(ed,"classic_asset"),
 		m_mode(mode) {}
 
@@ -217,7 +217,7 @@ private:
 public:
 	res::atom m_selected_asset;
 
-	explicit mode_classic(editor &ed) :
+	explicit mode_classic(old_editor &ed) :
 		mode(ed),
 		m_tree(ed,*this),
 		m_asset(ed,*this) {}

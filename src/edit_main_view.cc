@@ -27,7 +27,7 @@
 namespace drnsf {
 namespace edit {
 
-main_view::main_view(gui::container &parent,editor &ed) :
+main_view::main_view(gui::container &parent,old_editor &ed) :
 	m_ed(ed),
 	m_tabs(parent),
 	m_classic_tab(m_tabs,"Classic"),
