@@ -170,18 +170,15 @@ public:
 
 		// Create the output entry under a reserved name,
 		// '_PROCESS_OUTPUT'.
-		res::ref<T> result = get_name() / "_PROCESS_OUTPUT";
+		res::ref<T> result = get_name();
+		rename(TS,result / "_RAW");
 		result.create(TS,get_proj());
 
 		// Process the raw items into the output entry.
 		result->set_eid(TS,get_eid());
 		result->import_entry(TS,get_items());
 
-		// Delete the raw entry (this) and rename the output entry over
-		// this one's name.
-		auto name = get_name();
 		destroy(TS);
-		result->rename(TS,name);
 	}
 
 	bool process_by_type(TRANSACT,game_ver ver);
