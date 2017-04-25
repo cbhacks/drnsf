@@ -31,11 +31,6 @@ namespace edit {
 
 void im_canvas::render()
 {
-	m_canvas.post_job([]{
-		glClearColor(1,0,0,0);
-		glClear(GL_COLOR_BUFFER_BIT);
-	});
-
 	long current_time = g_get_monotonic_time();
 	long delta_time = current_time - m_last_update;
 	m_last_update = current_time;
