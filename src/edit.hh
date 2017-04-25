@@ -30,6 +30,18 @@
 namespace drnsf {
 namespace edit {
 
+class main_window : private util::nocopy {
+private:
+	gui::window m_wnd;
+
+public:
+	main_window();
+
+	void show();
+};
+
+//// SEEN BELOW: soon-to-be-obsolete code ////
+
 class im_canvas : private util::nocopy {
 private:
 	gui::gl_canvas m_canvas;

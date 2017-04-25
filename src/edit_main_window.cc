@@ -19,26 +19,24 @@
 //
 
 #include "common.hh"
-#include <gtk/gtk.h>
 #include <GL/gl.h>
-#include <iostream>
+#include "../imgui/imgui.h"
 #include "edit.hh"
+#include "res.hh"
+#include "gfx.hh"
 
-int main(int argc,char *argv[])
+namespace drnsf {
+namespace edit {
+
+main_window::main_window() :
+	m_wnd(APP_TITLE,1024,768)
 {
-	using namespace drnsf;
+}
 
-	// Initialize GTK+.
-	gtk_init(&argc,&argv);
+void main_window::show()
+{
+	m_wnd.show();
+}
 
-	// Create the editor.
-	edit::core editor;
-
-	edit::main_window wnd;
-	wnd.show();
-
-	// Run the main application/game loop.
-	gtk_main();
-
-	return EXIT_SUCCESS;
+}
 }
