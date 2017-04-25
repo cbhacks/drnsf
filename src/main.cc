@@ -36,6 +36,7 @@ int main(int argc,char *argv[])
 
 	edit::main_window wnd;
 	wnd.show();
+	wnd.set_project(editor.m_proj);
 
 	// Run the main application/game loop.
 	gtk_main();

@@ -30,14 +30,26 @@
 namespace drnsf {
 namespace edit {
 
+class editor : private util::nocopy {
+private:
+	res::project &m_proj;
+
+public:
+	explicit editor(res::project &proj);
+};
+
 class main_window : private util::nocopy {
 private:
 	gui::window m_wnd;
+	res::project *m_proj_p;
+	std::unique_ptr<editor> m_ed_p;
 
 public:
 	main_window();
 
 	void show();
+
+	void set_project(res::project &proj);
 };
 
 //// SEEN BELOW: soon-to-be-obsolete code ////

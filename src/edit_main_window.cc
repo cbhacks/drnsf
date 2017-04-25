@@ -38,5 +38,13 @@ void main_window::show()
 	m_wnd.show();
 }
 
+void main_window::set_project(res::project &proj)
+{
+	m_ed_p = nullptr;
+
+	m_proj_p = &proj;
+	m_ed_p = std::make_unique<editor>(*m_proj_p);
+}
+
 }
 }

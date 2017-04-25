@@ -24,6 +24,11 @@
 namespace drnsf {
 namespace edit {
 
+editor::editor(project &proj) :
+	m_proj(proj)
+{
+}
+
 old_editor::old_editor(project &proj) :
 	m_proj(proj)
 {
