@@ -224,6 +224,11 @@ public:
 		return (static_cast<bool>(*this) && is_a<T>());
 	}
 
+	T *get() const
+	{
+		return get_as<T>();
+	}
+
 	T *operator ->() const
 	{
 		return &operator *();
