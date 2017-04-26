@@ -37,6 +37,26 @@ map_view::map_view(gui::container &parent,editor &ed) :
 				GL_DEPTH_BUFFER_BIT
 			);
 		});
+
+		for (auto &&asset_p : m_ed.m_proj.get_asset_list()) {
+			auto *model = dynamic_cast<gfx::model *>(
+				asset_p.get()
+			);
+
+			if (!model) continue;
+
+			auto anim = model->get_anim().get();
+			if (!anim) continue;
+
+			auto mesh = model->get_mesh().get();
+			if (!mesh) continue;
+
+			auto &&frames = anim->get_frames();
+			if (frames.empty()) continue;
+
+			auto frame = frames[0].get();
+			if (!frame) continue;
+		}
 	};
 	h_render.bind(m_canvas.on_render);
 }

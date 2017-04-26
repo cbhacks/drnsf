@@ -31,6 +31,8 @@ namespace drnsf {
 namespace edit {
 
 class editor : private util::nocopy {
+	friend class map_view;
+
 private:
 	res::project &m_proj;
 
