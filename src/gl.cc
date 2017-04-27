@@ -30,10 +30,15 @@ void init()
 	// Set attributes for the hidden background window we are about to
 	// create (see below).
 	GdkWindowAttr wnd_attr;
+	wnd_attr.event_mask = 0;
+	wnd_attr.width = 100;
+	wnd_attr.height = 100;
+	wnd_attr.wclass = GDK_INPUT_OUTPUT;
+	wnd_attr.window_type = GDK_WINDOW_TOPLEVEL;
 
 	// Create the hidden window. This window is necessary to actually get
 	// an OpenGL context, even if we don't render to it.
-	GdkWindow *wnd = gdk_window_new(nullptr,nullptr,0);
+	GdkWindow *wnd = gdk_window_new(nullptr,&wnd_attr,0);
 	// Failure presumably results in a crash or premature exit/abort. This
 	// is the typical behavior in GTK/GDK/Glib, and nothing can be done
 	// about it. Blame their devs.
