@@ -25,6 +25,9 @@
 namespace drnsf {
 namespace gl {
 
+GdkWindow *g_wnd;
+GdkGLContext *g_glctx;
+
 void init()
 {
 	// Set attributes for the hidden background window we are about to
@@ -38,7 +41,7 @@ void init()
 
 	// Create the hidden window. This window is necessary to actually get
 	// an OpenGL context, even if we don't render to it.
-	GdkWindow *wnd = gdk_window_new(nullptr,&wnd_attr,0);
+	g_wnd = gdk_window_new(nullptr,&wnd_attr,0);
 	// Failure presumably results in a crash or premature exit/abort. This
 	// is the typical behavior in GTK/GDK/Glib, and nothing can be done
 	// about it. Blame their devs.
@@ -48,14 +51,14 @@ void init()
 	// will be discarded because this window will never appear, so render
 	// jobs should target an FBO+RBO or FBO+texture which can then be
 	// blitted to the actual appropriate display widget.
-	GError *error;
-	GdkGLContext *glctx = gdk_window_create_gl_context(wnd,&error);
-	if (!glctx) {
+	GError *error = nullptr;
+	g_glctx = gdk_window_create_gl_context(g_wnd,&error);
+	if (!g_glctx) {
 		// TODO
 	}
 
 	// Set the new context as the "current" one.
-	gdk_gl_context_make_current(glctx);
+	gdk_gl_context_make_current(g_glctx);
 }
 
 }

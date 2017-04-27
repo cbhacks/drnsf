@@ -23,26 +23,80 @@
 #include "gui.hh"
 
 namespace drnsf {
+
+namespace gl {
+	extern GdkWindow *g_wnd;
+}
+
 namespace gui {
 
-gboolean gl_canvas::sigh_render(
-	GtkGLArea *area,
-	GdkGLContext *context,
+gboolean gl_canvas::sigh_draw(
+	GtkWidget *widget,
+	cairo_t *cr,
 	gpointer user_data)
 {
-	// Restore the depth test setting to the OpenGL default (OFF). GTK+
-	// enables this at the start of every frame if it was built with a
-	// depth buffer requested.
-	glDisable(GL_DEPTH_TEST);
-
 	auto self = static_cast<gl_canvas *>(user_data);
 
-	auto width = gtk_widget_get_allocated_width(self->M);
-	auto height = gtk_widget_get_allocated_height(self->M);
+	auto width = gtk_widget_get_allocated_width(widget);
+	auto height = gtk_widget_get_allocated_height(widget);
+
+	unsigned int fbo;
+	glGenFramebuffers(1,&fbo);
+
+	unsigned int rbo_color;
+	glGenRenderbuffers(1,&rbo_color);
+
+	unsigned int rbo_depth;
+	glGenRenderbuffers(1,&rbo_depth);
+
+	glBindRenderbuffer(GL_RENDERBUFFER,rbo_color);
+	glRenderbufferStorage(GL_RENDERBUFFER,GL_RGB8,width,height);
+	glBindRenderbuffer(GL_RENDERBUFFER,rbo_depth);
+	glRenderbufferStorage(
+		GL_RENDERBUFFER,
+		GL_DEPTH_COMPONENT16,
+		width,
+		height
+	);
+	glBindRenderbuffer(GL_RENDERBUFFER,0);
+
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER,fbo);
+	glFramebufferRenderbuffer(
+		GL_DRAW_FRAMEBUFFER,
+		GL_COLOR_ATTACHMENT0,
+		GL_RENDERBUFFER,
+		rbo_color
+	);
+	glFramebufferRenderbuffer(
+		GL_DRAW_FRAMEBUFFER,
+		GL_DEPTH_ATTACHMENT,
+		GL_RENDERBUFFER,
+		rbo_depth
+	);
+
+	glViewport(0,0,width,height);
 
 	self->run_jobs();
 	self->on_render(width,height);
 	self->run_jobs();
+
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER,0);
+
+	gdk_cairo_draw_from_gl(
+		cr,
+		gl::g_wnd,
+		rbo_color,
+		GL_RENDERBUFFER,
+		1,
+		0,
+		0,
+		width,
+		height
+	);
+
+	glDeleteRenderbuffers(1,&rbo_depth);
+	glDeleteRenderbuffers(1,&rbo_color);
+	glDeleteFramebuffers(1,&fbo);
 	return true;
 }
 
@@ -104,8 +158,7 @@ gboolean gl_canvas::sigh_key_event(
 
 gl_canvas::gl_canvas(container &parent)
 {
-	M = gtk_gl_area_new();
-	gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(M),true);
+	M = gtk_drawing_area_new();
 	gtk_widget_set_events(
 		M,
 		GDK_POINTER_MOTION_MASK |
@@ -116,7 +169,7 @@ gl_canvas::gl_canvas(container &parent)
 		GDK_KEY_RELEASE_MASK
 	);
 	gtk_widget_set_can_focus(M,true);
-	g_signal_connect(M,"render",G_CALLBACK(sigh_render),this);
+	g_signal_connect(M,"draw",G_CALLBACK(sigh_draw),this);
 	g_signal_connect(
 		M,
 		"motion-notify-event",
@@ -158,10 +211,7 @@ gl_canvas::gl_canvas(container &parent)
 
 gl_canvas::~gl_canvas()
 {
-	gtk_gl_area_make_current(GTK_GL_AREA(M));
 	run_jobs();
-	gdk_gl_context_clear_current(); //necessary to avoid crash on
-	// the next invocation of this destructor!!!
 	gtk_widget_destroy(M);
 }
 
@@ -172,7 +222,13 @@ void gl_canvas::show()
 
 void gl_canvas::invalidate()
 {
-	gtk_gl_area_queue_render(GTK_GL_AREA(M));
+	gtk_widget_queue_draw_area(
+		M,
+		0,
+		0,
+		gtk_widget_get_allocated_width(M),
+		gtk_widget_get_allocated_height(M)
+	);
 }
 
 }

@@ -134,9 +134,9 @@ class gl_canvas : public gl::old::machine {
 private:
 	GtkWidget *M;
 
-	static gboolean sigh_render(
-		GtkGLArea *area,
-		GdkGLContext *context,
+	static gboolean sigh_draw(
+		GtkWidget *widget,
+		cairo_t *cr,
 		gpointer user_data);
 
 	static gboolean sigh_motion_notify_event(
