@@ -44,11 +44,8 @@ gboolean gl_canvas::sigh_draw(
 	unsigned int fbo;
 	glGenFramebuffers(1,&fbo);
 
-	unsigned int rbo_color;
-	glGenRenderbuffers(1,&rbo_color);
-
-	unsigned int rbo_depth;
-	glGenRenderbuffers(1,&rbo_depth);
+	gl::renderbuffer rbo_color;
+	gl::renderbuffer rbo_depth;
 
 	glBindRenderbuffer(GL_RENDERBUFFER,rbo_color);
 	glRenderbufferStorage(GL_RENDERBUFFER,GL_RGB8,width,height);
@@ -95,8 +92,6 @@ gboolean gl_canvas::sigh_draw(
 
 	gdk_gl_context_make_current(gl::g_glctx);
 
-	glDeleteRenderbuffers(1,&rbo_depth);
-	glDeleteRenderbuffers(1,&rbo_color);
 	glDeleteFramebuffers(1,&fbo);
 	return true;
 }

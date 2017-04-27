@@ -27,6 +27,38 @@ namespace gl {
 
 void init();
 
+class renderbuffer : private util::nocopy {
+private:
+	unsigned int m_id = 0;
+
+public:
+	renderbuffer() = default;
+
+	renderbuffer(renderbuffer &&src)
+	{
+		std::swap(m_id,src.m_id);
+	}
+
+	~renderbuffer()
+	{
+		glDeleteRenderbuffers(1,&m_id);
+	}
+
+	renderbuffer &operator =(renderbuffer &&rhs)
+	{
+		std::swap(m_id,rhs.m_id);
+		return *this;
+	}
+
+	operator decltype(m_id)() &
+	{
+		if (!m_id) {
+			glGenRenderbuffers(1,&m_id);
+		}
+		return m_id;
+	}
+};
+
 namespace old {
 
 class machine : private util::nocopy {
