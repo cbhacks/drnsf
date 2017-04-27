@@ -27,6 +27,102 @@ namespace gl {
 
 void init();
 
+class texture : private util::nocopy {
+private:
+	unsigned int m_id = 0;
+
+public:
+	texture() = default;
+
+	texture(texture &&src)
+	{
+		std::swap(m_id,src.m_id);
+	}
+
+	~texture()
+	{
+		glDeleteTextures(1,&m_id);
+	}
+
+	texture &operator =(texture &&rhs)
+	{
+		std::swap(m_id,rhs.m_id);
+		return *this;
+	}
+
+	operator decltype(m_id)() &
+	{
+		if (!m_id) {
+			glGenTextures(1,&m_id);
+		}
+		return m_id;
+	}
+};
+
+class buffer : private util::nocopy {
+private:
+	unsigned int m_id = 0;
+
+public:
+	buffer() = default;
+
+	buffer(buffer &&src)
+	{
+		std::swap(m_id,src.m_id);
+	}
+
+	~buffer()
+	{
+		glDeleteBuffers(1,&m_id);
+	}
+
+	buffer &operator =(buffer &&rhs)
+	{
+		std::swap(m_id,rhs.m_id);
+		return *this;
+	}
+
+	operator decltype(m_id)() &
+	{
+		if (!m_id) {
+			glGenBuffers(1,&m_id);
+		}
+		return m_id;
+	}
+};
+
+class vert_array : private util::nocopy {
+private:
+	unsigned int m_id = 0;
+
+public:
+	vert_array() = default;
+
+	vert_array(vert_array &&src)
+	{
+		std::swap(m_id,src.m_id);
+	}
+
+	~vert_array()
+	{
+		glDeleteVertexArrays(1,&m_id);
+	}
+
+	vert_array &operator =(vert_array &&rhs)
+	{
+		std::swap(m_id,rhs.m_id);
+		return *this;
+	}
+
+	operator decltype(m_id)() &
+	{
+		if (!m_id) {
+			glGenVertexArrays(1,&m_id);
+		}
+		return m_id;
+	}
+};
+
 class renderbuffer : private util::nocopy {
 private:
 	unsigned int m_id = 0;
