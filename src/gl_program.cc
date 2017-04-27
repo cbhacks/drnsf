@@ -20,7 +20,6 @@
 
 #include "common.hh"
 #include <iostream>
-#include <epoxy/gl.h>
 #include "gl.hh"
 
 namespace drnsf {

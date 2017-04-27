@@ -20,7 +20,6 @@
 
 #include "common.hh"
 #include <gtk/gtk.h>
-#include <GL/gl.h>
 #include "edit.hh"
 #include "gui.hh"
 

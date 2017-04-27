@@ -20,8 +20,12 @@
 
 #pragma once
 
+#include <epoxy/gl.h>
+
 namespace drnsf {
 namespace gl {
+
+void init();
 
 namespace old {
 

@@ -20,9 +20,9 @@
 
 #include "common.hh"
 #include <gtk/gtk.h>
-#include <GL/gl.h>
 #include <iostream>
 #include "edit.hh"
+#include "gl.hh"
 
 int main(int argc,char *argv[])
 {
@@ -30,6 +30,9 @@ int main(int argc,char *argv[])
 
 	// Initialize GTK+.
 	gtk_init(&argc,&argv);
+
+	// Create the global OpenGL context.
+	gl::init();
 
 	// Create the editor.
 	edit::core editor;

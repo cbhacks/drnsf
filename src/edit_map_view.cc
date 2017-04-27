@@ -19,7 +19,6 @@
 //
 
 #include "common.hh"
-#include <epoxy/gl.h>
 #include "edit.hh"
 #include "gfx.hh"
 

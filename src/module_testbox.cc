@@ -20,7 +20,6 @@
 
 #include "module.hh"
 #include <stdio.h>
-#include <GL/gl.h>
 #include "gfx.hh"
 #include "nsf.hh"
 #include "misc.hh"

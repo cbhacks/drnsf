@@ -48,6 +48,7 @@ add_executable (drnsf
 	src/gui_im.cc
 
 	src/gl.hh
+	src/gl.cc
 	src/gl_machine.cc
 	src/gl_attrib.cc
 	src/gl_uniform.cc
