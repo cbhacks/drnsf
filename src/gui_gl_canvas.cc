@@ -77,9 +77,7 @@ gboolean gl_canvas::sigh_draw(
 
 	glViewport(0,0,width,height);
 
-	self->run_jobs();
 	self->on_render(width,height);
-	self->run_jobs();
 
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER,0);
 
@@ -214,7 +212,6 @@ gl_canvas::gl_canvas(container &parent)
 
 gl_canvas::~gl_canvas()
 {
-	run_jobs();
 	gtk_widget_destroy(M);
 }
 

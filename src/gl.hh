@@ -30,22 +30,16 @@ void init();
 namespace old {
 
 class machine : private util::nocopy {
-public:
-	using job = std::function<void()>;
-
-private:
-	std::list<job> m_pending_jobs;
-
 protected:
 	machine() = default;
 	~machine() = default;
 
-	void run_jobs();
-
-	virtual void invalidate() = 0;
-
 public:
-	void post_job(job j);
+	template <typename F>
+	void post_job(F f)
+	{
+		f();
+	}
 };
 
 class attrib {
