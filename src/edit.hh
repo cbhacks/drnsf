@@ -77,8 +77,6 @@ private:
 	ImGuiIO *m_io;
 	guint m_timer;
 	long m_last_update;
-	int m_canvas_width;
-	int m_canvas_height;
 	gl::old::program m_gl_program;
 	gl::old::shader m_gl_vert_shader;
 	gl::old::shader m_gl_frag_shader;
@@ -89,25 +87,21 @@ private:
 	gl::old::uniform m_gl_u_screenortho;
 	gl::old::uniform m_gl_u_font;
 	decltype(m_canvas.on_render)::watch h_render;
-	decltype(m_canvas.on_resize)::watch h_resize;
 	decltype(m_canvas.on_mousemove)::watch h_mousemove;
 	decltype(m_canvas.on_mousewheel)::watch h_mousewheel;
 	decltype(m_canvas.on_mousebutton)::watch h_mousebutton;
 	decltype(m_canvas.on_key)::watch h_key;
 	decltype(m_canvas.on_text)::watch h_text;
 
-	void render();
+	void render(int width,int height);
 
 public:
 	explicit im_canvas(gui::container &parent);
 	~im_canvas();
 
-	int get_width() const;
-	int get_height() const;
-
 	void show();
 
-	util::event<int> on_frame;
+	util::event<int,int,int> on_frame;
 };
 
 using res::project;
@@ -288,7 +282,7 @@ public:
 
 	core();
 
-	void frame(int delta);
+	void frame(int width,int height,int delta);
 };
 
 }

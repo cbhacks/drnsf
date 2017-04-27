@@ -139,12 +139,6 @@ private:
 		GdkGLContext *context,
 		gpointer user_data);
 
-	static void sigh_resize(
-		GtkGLArea *area,
-		int width,
-		int height,
-		gpointer user_data);
-
 	static gboolean sigh_motion_notify_event(
 		GtkWidget *widget,
 		GdkEvent *event,
@@ -173,8 +167,7 @@ public:
 
 	void invalidate();
 
-	util::event<> on_render;
-	util::event<int,int> on_resize;
+	util::event<int,int> on_render;
 	util::event<int,int> on_mousemove;
 	util::event<int> on_mousewheel;
 	util::event<int,bool> on_mousebutton;

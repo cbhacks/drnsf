@@ -28,8 +28,12 @@
 namespace drnsf {
 namespace edit {
 
-void im_canvas::render()
+void im_canvas::render(int width,int height)
 {
+	m_io->DisplaySize.x = width;
+	m_io->DisplaySize.y = height;
+	glViewport(0,0,width,height);
+
 	long current_time = g_get_monotonic_time();
 	long delta_time = current_time - m_last_update;
 	m_last_update = current_time;
@@ -39,7 +43,7 @@ void im_canvas::render()
 	ImGui::SetCurrentContext(m_im);
 	ImGui::NewFrame();
 
-	on_frame(delta_time / 1000);
+	on_frame(width,height,delta_time / 1000);
 
 	ImGui::Render();
 	ImDrawData *draw_data = ImGui::GetDrawData();
@@ -60,15 +64,15 @@ void im_canvas::render()
 	// bottom-to-top* which is the inverse of what we want.
 	//
 	// The Z coordinates are left as-is; they are not meaningful for ImGui.
-	m_canvas.post_job([this]{
+	m_canvas.post_job([this,width,height]{
 		glUniformMatrix4fv(
 			m_gl_u_screenortho.get_id(),
 			1,
 			false,
 			&glm::ortho<float>(
 				0,
-				m_canvas_width,
-				m_canvas_height,
+				width,
+				height,
 				0,
 				-1,
 				+1
@@ -131,14 +135,14 @@ void im_canvas::render()
 
 		// Draw each of the commands in the list.
 		for (auto &c : draw_list->CmdBuffer) {
-			m_canvas.post_job([this,index_array,c]{
+			m_canvas.post_job([this,index_array,c,height]{
 				glBindTexture(
 					GL_TEXTURE_2D,
 					m_gl_tex_font.get_id()
 				);
 				glScissor(
 					c.ClipRect.x,
-					m_canvas_height - c.ClipRect.w,
+					height - c.ClipRect.w,
 					c.ClipRect.z - c.ClipRect.x,
 					c.ClipRect.w - c.ClipRect.y
 				);
@@ -316,19 +320,10 @@ void main()
 		offsetof(ImDrawVert,col)
 	);
 
-	h_render <<= [this]() {
-		render();
+	h_render <<= [this](int width,int height) {
+		render(width,height);
 	};
 	h_render.bind(m_canvas.on_render);
-
-	h_resize <<= [this](int width,int height) {
-		m_canvas_width = width;
-		m_canvas_height = height;
-		m_io->DisplaySize.x = width;
-		m_io->DisplaySize.y = height;
-		glViewport(0,0,width,height);
-	};
-	h_resize.bind(m_canvas.on_resize);
 
 	h_mousemove <<= [this](int x,int y) {
 		m_io->MousePos.x = x;
@@ -451,16 +446,6 @@ im_canvas::~im_canvas()
 	ImGui::SetCurrentContext(m_im);
 	ImGui::DestroyContext(m_im);
 	ImGui::SetCurrentContext(previous_im);
-}
-
-int im_canvas::get_width() const
-{
-	return m_canvas_width;
-}
-
-int im_canvas::get_height() const
-{
-	return m_canvas_height;
 }
 
 void im_canvas::show()

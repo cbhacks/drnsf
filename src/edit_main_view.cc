@@ -38,7 +38,7 @@ main_view::main_view(gui::container &parent,old_editor &ed) :
 	m_canvas(m_canvas_tab),
 	m_cryptos(m_cryptos_tab)
 {
-	h_frame <<= [this](int delta_time) {
+	h_frame <<= [this](int width,int height,int delta_time) {
 		frame(delta_time);
 	};
 	h_frame.bind(m_canvas.on_frame);

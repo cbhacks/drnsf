@@ -37,19 +37,13 @@ gboolean gl_canvas::sigh_render(
 
 	auto self = static_cast<gl_canvas *>(user_data);
 
+	auto width = gtk_widget_get_allocated_width(self->M);
+	auto height = gtk_widget_get_allocated_height(self->M);
+
 	self->run_jobs();
-	self->on_render();
+	self->on_render(width,height);
 	self->run_jobs();
 	return true;
-}
-
-void gl_canvas::sigh_resize(
-	GtkGLArea *area,
-	int width,
-	int height,
-	gpointer user_data)
-{
-	static_cast<gl_canvas *>(user_data)->on_resize(width,height);
 }
 
 gboolean gl_canvas::sigh_motion_notify_event(
@@ -123,7 +117,6 @@ gl_canvas::gl_canvas(container &parent)
 	);
 	gtk_widget_set_can_focus(M,true);
 	g_signal_connect(M,"render",G_CALLBACK(sigh_render),this);
-	g_signal_connect(M,"resize",G_CALLBACK(sigh_resize),this);
 	g_signal_connect(
 		M,
 		"motion-notify-event",

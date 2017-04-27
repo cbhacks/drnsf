@@ -37,8 +37,8 @@ core::core() :
 	m_real_wnd(APP_TITLE,800,600),
 	m_wnd(m_real_wnd,m_ed)
 {
-	h_frame <<= [this](int delta_time) {
-		frame(delta_time);
+	h_frame <<= [this](int width,int height,int delta_time) {
+		frame(width,height,delta_time);
 	};
 	h_frame.bind(m_wnd.m_cryptos.on_frame);
 
@@ -51,7 +51,7 @@ core::core() :
 	m_real_wnd.show();
 }
 
-void core::frame(int delta)
+void core::frame(int width,int height,int delta)
 {
 	// Clear the screen.
 	glClearColor(0.5,0.5,0.5,0);
@@ -59,7 +59,7 @@ void core::frame(int delta)
 
 	// Calculate the normalized display size.
 	double norm_width = 1;
-	double norm_height = (double)m_wnd.m_cryptos.get_height() / m_wnd.m_cryptos.get_width();
+	double norm_height = (double)height / width;
 	if (norm_height < 1) {
 		norm_width /= norm_height;
 		norm_height = 1;

@@ -29,7 +29,7 @@ map_view::map_view(gui::container &parent,editor &ed) :
 	m_ed(ed),
 	m_canvas(parent)
 {
-	h_render <<= [this]{
+	h_render <<= [this](int width,int height) {
 		m_canvas.post_job([]{
 			glClear(
 				GL_COLOR_BUFFER_BIT |
