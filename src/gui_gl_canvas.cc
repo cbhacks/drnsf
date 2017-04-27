@@ -26,6 +26,7 @@ namespace drnsf {
 
 namespace gl {
 	extern GdkWindow *g_wnd;
+	extern GdkGLContext *g_glctx;
 }
 
 namespace gui {
@@ -93,6 +94,8 @@ gboolean gl_canvas::sigh_draw(
 		width,
 		height
 	);
+
+	gdk_gl_context_make_current(gl::g_glctx);
 
 	glDeleteRenderbuffers(1,&rbo_depth);
 	glDeleteRenderbuffers(1,&rbo_color);
