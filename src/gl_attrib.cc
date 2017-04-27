@@ -24,6 +24,7 @@
 
 namespace drnsf {
 namespace gl {
+namespace old {
 
 attrib::attrib(std::shared_ptr<int> id_p) :
 	m_id_p(id_p)
@@ -35,5 +36,6 @@ int attrib::get_id()
 	return *m_id_p;
 }
 
+}
 }
 }

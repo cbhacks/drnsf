@@ -23,6 +23,7 @@
 
 namespace drnsf {
 namespace gl {
+namespace old {
 
 void machine::run_jobs()
 {
@@ -37,5 +38,6 @@ void machine::post_job(job j)
 	m_pending_jobs.push_back(j);
 }
 
+}
 }
 }

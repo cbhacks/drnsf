@@ -130,7 +130,7 @@ public:
 	void set_text(const std::string &text);
 };
 
-class gl_canvas : public gl::machine {
+class gl_canvas : public gl::old::machine {
 private:
 	GtkWidget *M;
 

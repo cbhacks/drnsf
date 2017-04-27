@@ -24,6 +24,7 @@
 
 namespace drnsf {
 namespace gl {
+namespace old {
 
 buffer::buffer(machine &mach) :
 	m_mach(mach),
@@ -60,5 +61,6 @@ unsigned int buffer::get_id()
 	return *m_id_p;
 }
 
+}
 }
 }

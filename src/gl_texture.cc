@@ -24,6 +24,7 @@
 
 namespace drnsf {
 namespace gl {
+namespace old {
 
 texture::texture(machine &mach,int target) :
 	m_mach(mach),
@@ -95,5 +96,6 @@ unsigned int texture::get_id()
 	return *m_id_p;
 }
 
+}
 }
 }

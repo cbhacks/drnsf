@@ -25,6 +25,7 @@
 
 namespace drnsf {
 namespace gl {
+namespace old {
 
 shader::shader(machine &mach,int type) :
 	m_mach(mach),
@@ -73,5 +74,6 @@ void shader::compile(std::string code)
 	});
 }
 
+}
 }
 }

@@ -25,6 +25,7 @@
 
 namespace drnsf {
 namespace gl {
+namespace old {
 
 program::program(machine &mach) :
 	m_mach(mach),
@@ -108,5 +109,6 @@ uniform program::find_uniform(std::string name)
 	return uniform(uni_id_p);
 }
 
+}
 }
 }

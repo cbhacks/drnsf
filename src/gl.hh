@@ -23,6 +23,8 @@
 namespace drnsf {
 namespace gl {
 
+namespace old {
+
 class machine : private util::nocopy {
 public:
 	using job = std::function<void()>;
@@ -177,5 +179,6 @@ public:
 	unsigned int get_id();
 };
 
+}
 }
 }
