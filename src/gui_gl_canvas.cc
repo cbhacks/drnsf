@@ -41,8 +41,7 @@ gboolean gl_canvas::sigh_draw(
 	auto width = gtk_widget_get_allocated_width(widget);
 	auto height = gtk_widget_get_allocated_height(widget);
 
-	unsigned int fbo;
-	glGenFramebuffers(1,&fbo);
+	gl::framebuffer fbo;
 
 	gl::renderbuffer rbo_color;
 	gl::renderbuffer rbo_depth;
@@ -92,7 +91,6 @@ gboolean gl_canvas::sigh_draw(
 
 	gdk_gl_context_make_current(gl::g_glctx);
 
-	glDeleteFramebuffers(1,&fbo);
 	return true;
 }
 

@@ -59,6 +59,38 @@ public:
 	}
 };
 
+class framebuffer : private util::nocopy {
+private:
+	unsigned int m_id = 0;
+
+public:
+	framebuffer() = default;
+
+	framebuffer(framebuffer &&src)
+	{
+		std::swap(m_id,src.m_id);
+	}
+
+	~framebuffer()
+	{
+		glDeleteFramebuffers(1,&m_id);
+	}
+
+	framebuffer &operator =(framebuffer &&rhs)
+	{
+		std::swap(m_id,rhs.m_id);
+		return *this;
+	}
+
+	operator decltype(m_id)() &
+	{
+		if (!m_id) {
+			glGenFramebuffers(1,&m_id);
+		}
+		return m_id;
+	}
+};
+
 namespace old {
 
 class machine : private util::nocopy {
