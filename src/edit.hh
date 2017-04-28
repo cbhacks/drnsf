@@ -56,6 +56,7 @@ public:
 class main_window : private util::nocopy {
 private:
 	gui::window m_wnd;
+	gui::splitview m_split;
 	res::project *m_proj_p;
 	std::unique_ptr<editor> m_ed_p;
 	std::unique_ptr<map_view> m_map_view;
