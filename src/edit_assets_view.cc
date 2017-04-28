@@ -73,6 +73,9 @@ private:
 	std::shared_ptr<node> m_parent;
 	std::unique_ptr<gui::treeview::node> m_treenode;
 
+	decltype(gui::treeview::node::on_select)::watch h_select;
+	decltype(gui::treeview::node::on_deselect)::watch h_deselect;
+
 public:
 	explicit node(impl &view,res::atom atom)
 	{
@@ -96,6 +99,18 @@ public:
 			);
 		}
 		m_treenode->set_text(atom.name());
+
+		h_select <<= [this,atom]{
+			g_selected_asset = atom;
+		};
+		h_select.bind(m_treenode->on_select);
+
+		h_deselect <<= [this,atom]{
+			if (g_selected_asset == atom) {
+				g_selected_asset = nullptr;
+			}
+		};
+		h_deselect.bind(m_treenode->on_deselect);
 	}
 };
 

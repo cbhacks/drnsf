@@ -24,9 +24,44 @@
 namespace drnsf {
 namespace gui {
 
+void treeview::sigh_changed(GtkTreeSelection *treeselection,gpointer user_data)
+{
+	auto self = static_cast<treeview *>(user_data);
+
+	GtkTreeIter iter;
+	bool selection_exists = gtk_tree_selection_get_selected(
+		treeselection,
+		nullptr,
+		&iter
+	);
+
+	if (selection_exists) {
+		GValue value = G_VALUE_INIT;
+		gtk_tree_model_get_value(
+			GTK_TREE_MODEL(self->m_store),
+			&iter,
+			1,
+			&value
+		);
+		auto np = static_cast<node *>(g_value_get_pointer(&value));
+		g_value_unset(&value);
+
+		if (np != self->m_selected_node) {
+			if (self->m_selected_node) {
+				self->m_selected_node->on_deselect();
+			}
+			self->m_selected_node = np;
+			np->on_select();
+		}
+	} else if (self->m_selected_node) {
+		self->m_selected_node->on_deselect();
+		self->m_selected_node = nullptr;
+	}
+}
+
 treeview::treeview(container &parent)
 {
-	m_store = gtk_tree_store_new(1,G_TYPE_STRING);
+	m_store = gtk_tree_store_new(2,G_TYPE_STRING,G_TYPE_POINTER);
 	m_tree = gtk_tree_view_new_with_model(GTK_TREE_MODEL(m_store));
 	GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
 	GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes(
@@ -40,6 +75,10 @@ treeview::treeview(container &parent)
 	m_scroll = gtk_scrolled_window_new(nullptr,nullptr);
 	gtk_container_add(parent.get_container_handle(),m_scroll);
 	gtk_container_add(GTK_CONTAINER(m_scroll),m_tree);
+
+	auto tvs = gtk_tree_view_get_selection(GTK_TREE_VIEW(m_tree));
+	g_signal_connect(tvs,"changed",G_CALLBACK(sigh_changed),this);
+
 	gtk_widget_show(m_tree);
 }
 
@@ -55,20 +94,28 @@ void treeview::show()
 }
 
 treeview::node::node(treeview &parent) :
+	m_view(parent),
 	m_store(parent.m_store)
 {
 	gtk_tree_store_insert(m_store,&m_iter,nullptr,-1);
+	gtk_tree_store_set(m_store,&m_iter,1,this,-1);
 }
 
 treeview::node::node(node &parent) :
 	nocopy(),
+	m_view(parent.m_view),
 	m_store(parent.m_store)
 {
 	gtk_tree_store_insert(m_store,&m_iter,&parent.m_iter,-1);
+	gtk_tree_store_set(m_store,&m_iter,1,this,-1);
 }
 
 treeview::node::~node()
 {
+	if (m_view.m_selected_node == this) {
+		on_deselect();
+		m_view.m_selected_node = nullptr;
+	}
 	gtk_tree_store_remove(m_store,&m_iter);
 }
 

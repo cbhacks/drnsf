@@ -103,14 +103,20 @@ public:
 };
 
 class treeview : private util::nocopy {
+public:
+	class node;
+
 private:
 	GtkWidget *m_scroll;
 	GtkWidget *m_tree;
 	GtkTreeStore *m_store;
+	node *m_selected_node = nullptr;
+
+	static void sigh_changed(
+		GtkTreeSelection *treeselection,
+		gpointer user_data);
 
 public:
-	class node;
-
 	explicit treeview(container &parent);
 	~treeview();
 
@@ -119,6 +125,7 @@ public:
 
 class treeview::node : private util::nocopy {
 private:
+	treeview &m_view;
 	GtkTreeStore *m_store;
 	GtkTreeIter m_iter;
 
@@ -128,6 +135,9 @@ public:
 	~node();
 
 	void set_text(const std::string &text);
+
+	util::event<> on_select;
+	util::event<> on_deselect;
 };
 
 class gl_canvas : public gl::old::machine {
