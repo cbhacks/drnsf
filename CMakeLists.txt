@@ -45,6 +45,8 @@ add_executable (drnsf
 	src/gui_splitview.cc
 	src/gui_treeview.cc
 	src/gui_gl_canvas.cc
+	src/gui_menu.cc
+	src/gui_menu_item.cc
 	src/gui_im.cc
 
 	src/gl.hh

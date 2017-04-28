@@ -33,8 +33,13 @@ public:
 };
 
 class window : public container {
+	friend class menu;
+
 private:
 	GtkWidget *M;
+	GtkWidget *m_vbox;
+	GtkWidget *m_menubar;
+	GtkWidget *m_content;
 
 public:
 	explicit window(const std::string &title,int width,int height);
@@ -183,6 +188,32 @@ public:
 	util::event<int,bool> on_mousebutton;
 	util::event<int,bool> on_key;
 	util::event<const char *> on_text;
+};
+
+class menu : private util::nocopy {
+	friend class menu_item;
+
+private:
+	GtkWidget *m_item;
+	GtkWidget *m_menu;
+
+public:
+	explicit menu(window &parent,const std::string &text);
+	explicit menu(menu &parent,const std::string &text);
+	~menu();
+};
+
+class menu_item : private util::nocopy {
+private:
+	GtkWidget *M;
+
+	static void sigh_activate(GtkMenuItem *menuitem,gpointer user_data);
+
+public:
+	explicit menu_item(menu &parent,const std::string &text);
+	~menu_item();
+
+	util::event<> on_click;
 };
 
 namespace im {

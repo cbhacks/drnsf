@@ -86,6 +86,8 @@ public:
 class main_window : private util::nocopy {
 private:
 	gui::window m_wnd;
+	gui::menu m_menu_file;
+	gui::menu_item m_menu_file_exit;
 	gui::splitview m_split;
 	gui::tabview m_tabs;
 	gui::tabview::page m_assets_tab;
@@ -95,6 +97,8 @@ private:
 	std::unique_ptr<map_view> m_map_view;
 	std::unique_ptr<assets_view> m_assets_view;
 	std::unique_ptr<detail_view> m_detail_view;
+
+	decltype(gui::menu_item::on_click)::watch h_menu_file_exit_click;
 
 public:
 	main_window();

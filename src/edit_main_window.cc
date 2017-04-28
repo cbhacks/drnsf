@@ -19,6 +19,7 @@
 //
 
 #include "common.hh"
+#include <gtk/gtk.h>
 #include "../imgui/imgui.h"
 #include "edit.hh"
 #include "res.hh"
@@ -29,11 +30,18 @@ namespace edit {
 
 main_window::main_window() :
 	m_wnd(APP_TITLE,1024,768),
+	m_menu_file(m_wnd,"File"),
+	m_menu_file_exit(m_menu_file,"Exit"),
 	m_split(m_wnd),
 	m_tabs(m_split.get_left()),
 	m_assets_tab(m_tabs,"Assets"),
 	m_detail_tab(m_tabs,"Details")
 {
+	h_menu_file_exit_click <<= [this]{
+		gtk_main_quit();
+	};
+	h_menu_file_exit_click.bind(m_menu_file_exit.on_click);
+
 	m_split.show();
 	m_tabs.show();
 }

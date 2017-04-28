@@ -51,16 +51,6 @@ void main_view::frame(int delta_time)
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	im::main_menu_bar([&]{
-		im::menu("File",[&]{
-			im::menu_item("Exit " APP_NAME,[&]{
-				// Prompt the user for confirmation if there are
-				// unsaved changes.
-				// TODO
-
-				// Close the program.
-				gtk_main_quit();
-			});
-		});
 		im::menu("Edit",[&]{
 			auto &&transact = m_ed.m_proj.get_transact();
 

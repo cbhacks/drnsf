@@ -24,40 +24,22 @@
 namespace drnsf {
 namespace gui {
 
-window::window(const std::string &title,int width,int height)
+void menu_item::sigh_activate(GtkMenuItem *menuitem,gpointer user_data)
 {
-	M = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(M),title.c_str());
-	gtk_window_set_default_size(GTK_WINDOW(M),width,height);
-	g_signal_connect(M,"delete-event",G_CALLBACK(gtk_true),nullptr);
-
-	m_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
-	gtk_container_add(GTK_CONTAINER(M),m_vbox);
-	gtk_widget_show(m_vbox);
-
-	m_menubar = gtk_menu_bar_new();
-	gtk_box_pack_start(GTK_BOX(m_vbox),m_menubar,false,false,0);
-	gtk_widget_show(m_menubar);
-
-	m_content = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
-	gtk_box_set_homogeneous(GTK_BOX(m_content),true);
-	gtk_box_pack_start(GTK_BOX(m_vbox),m_content,true,true,0);
-	gtk_widget_show(m_content);
+	static_cast<menu_item *>(user_data)->on_click();
 }
 
-window::~window()
+menu_item::menu_item(menu &parent,const std::string &text)
 {
-	gtk_widget_destroy(M);
-}
-
-void window::show()
-{
+	M = gtk_menu_item_new_with_label(text.c_str());
+	g_signal_connect(M,"activate",G_CALLBACK(sigh_activate),this);
+	gtk_menu_shell_append(GTK_MENU_SHELL(parent.m_menu),M);
 	gtk_widget_show(M);
 }
 
-GtkContainer *window::get_container_handle()
+menu_item::~menu_item()
 {
-	return GTK_CONTAINER(m_content);
+	gtk_widget_destroy(M);
 }
 
 }
