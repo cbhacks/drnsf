@@ -138,15 +138,14 @@ class main_view : private util::nocopy {
 
 private:
 	old_editor &m_ed;
-	gui::tabview m_tabs;
-	gui::tabview::page m_canvas_tab;
-	gui::tabview::page m_cryptos_tab;
+	gui::window m_canvas_wnd;
+	gui::window m_cryptos_wnd;
 	im_canvas m_canvas;
 	im_canvas m_cryptos;
 	decltype(m_canvas.on_frame)::watch h_frame;
 
 public:
-	explicit main_view(gui::container &parent,old_editor &ed);
+	explicit main_view(old_editor &ed);
 
 	void frame(int delta_time);
 
@@ -249,7 +248,6 @@ public:
 	old_editor m_ed;
 	std::list<std::function<void(int)>> m_modules;
 	cam m_cam;
-	gui::window m_real_wnd;
 	edit::main_view m_wnd;
 	decltype(m_wnd.m_cryptos.on_frame)::watch h_frame;
 

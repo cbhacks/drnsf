@@ -33,8 +33,7 @@ namespace edit {
 
 core::core() :
 	m_ed(m_proj),
-	m_real_wnd(APP_TITLE,800,600),
-	m_wnd(m_real_wnd,m_ed)
+	m_wnd(m_ed)
 {
 	h_frame <<= [this](int width,int height,int delta_time) {
 		frame(width,height,delta_time);
@@ -46,7 +45,6 @@ core::core() :
 	m_modules.push_back(create_mod_camera_ctrl(*this));
 
 	m_wnd.show();
-	m_real_wnd.show();
 }
 
 void core::frame(int width,int height,int delta)

@@ -26,13 +26,12 @@
 namespace drnsf {
 namespace edit {
 
-main_view::main_view(gui::container &parent,old_editor &ed) :
+main_view::main_view(old_editor &ed) :
 	m_ed(ed),
-	m_tabs(parent),
-	m_canvas_tab(m_tabs,"Old UI"),
-	m_cryptos_tab(m_tabs,"Ancient UI"),
-	m_canvas(m_canvas_tab),
-	m_cryptos(m_cryptos_tab)
+	m_canvas_wnd("Old UI",800,600),
+	m_cryptos_wnd("Ancient UI",800,600),
+	m_canvas(m_canvas_wnd),
+	m_cryptos(m_cryptos_wnd)
 {
 	h_frame <<= [this](int width,int height,int delta_time) {
 		frame(delta_time);
@@ -114,7 +113,8 @@ void main_view::frame(int delta_time)
 
 void main_view::show()
 {
-	m_tabs.show();
+	m_canvas_wnd.show();
+	m_cryptos_wnd.show();
 }
 
 }
