@@ -60,6 +60,7 @@ add_executable (drnsf
 	src/edit.hh
 	src/edit_map_view.cc
 	src/edit_assets_view.cc
+	src/edit_detail_view.cc
 	src/edit_main_window.cc
 	src/edit_im_canvas.cc
 	src/edit_editor.cc
