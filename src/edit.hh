@@ -46,13 +46,13 @@ public:
 
 class map_view : private util::nocopy {
 private:
-	editor &m_ed;
-	gui::gl_canvas m_canvas;
+	class impl;
 
-	decltype(m_canvas.on_render)::watch h_render;
+	impl *M;
 
 public:
 	explicit map_view(gui::container &parent,editor &ed);
+	~map_view();
 
 	void show();
 };

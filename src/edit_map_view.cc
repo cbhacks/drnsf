@@ -25,44 +25,50 @@
 namespace drnsf {
 namespace edit {
 
-map_view::map_view(gui::container &parent,editor &ed) :
-	m_ed(ed),
-	m_canvas(parent)
+class map_view::impl : private util::nocopy {
+private:
+	editor &m_ed;
+	gui::gl_canvas m_canvas;
+
+	decltype(m_canvas.on_render)::watch h_render;
+
+	void render();
+
+public:
+	explicit impl(gui::container &parent,editor &ed) :
+		m_ed(ed),
+		m_canvas(parent)
+	{
+		h_render <<= [this](int width,int height) {
+			render();
+		};
+		h_render.bind(m_canvas.on_render);
+	}
+
+	void show()
+	{
+		m_canvas.show();
+	}
+};
+
+void map_view::impl::render()
 {
-	h_render <<= [this](int width,int height) {
-		m_canvas.post_job([]{
-			glClear(
-				GL_COLOR_BUFFER_BIT |
-				GL_DEPTH_BUFFER_BIT
-			);
-		});
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
 
-		for (auto &&asset_p : m_ed.m_proj.get_asset_list()) {
-			auto *model = dynamic_cast<gfx::model *>(
-				asset_p.get()
-			);
+map_view::map_view(gui::container &parent,editor &ed)
+{
+	M = new impl(parent,ed);
+}
 
-			if (!model) continue;
-
-			auto anim = model->get_anim().get();
-			if (!anim) continue;
-
-			auto mesh = model->get_mesh().get();
-			if (!mesh) continue;
-
-			auto &&frames = anim->get_frames();
-			if (frames.empty()) continue;
-
-			auto frame = frames[0].get();
-			if (!frame) continue;
-		}
-	};
-	h_render.bind(m_canvas.on_render);
+map_view::~map_view()
+{
+	delete M;
 }
 
 void map_view::show()
 {
-	m_canvas.show();
+	M->show();
 }
 
 }
