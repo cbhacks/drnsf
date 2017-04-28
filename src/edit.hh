@@ -124,49 +124,6 @@ public:
 
 using res::project;
 
-class classic_view : private util::nocopy {
-private:
-	class asset_node : private util::nocopy {
-	private:
-		gui::treeview::node m_tree_node;
-
-	public:
-		asset_node(classic_view &view,res::asset &asset) :
-			m_tree_node(view.m_tree)
-		{
-			m_tree_node.set_text(asset.get_name().full_path());
-		}
-	};
-
-	gui::splitview m_split;
-	gui::treeview m_tree;
-	gui::label m_detail;
-	project &m_proj;
-	std::map<res::asset *,std::unique_ptr<asset_node>> m_asset_nodes;
-
-	decltype(project::on_asset_appear)::watch h_asset_appear;
-	decltype(project::on_asset_disappear)::watch h_asset_disappear;
-
-public:
-	explicit classic_view(gui::container &parent,project &proj);
-
-	void show();
-};
-
-class visual_view : private util::nocopy {
-private:
-	gui::gl_canvas m_canvas;
-	project &m_proj;
-
-public:
-	explicit visual_view(gui::container &parent,project &proj);
-
-	void show();
-
-	decltype(project::on_asset_appear)::watch h_asset_appear;
-	decltype(project::on_asset_disappear)::watch h_asset_disappear;
-};
-
 class core; // FIXME
 
 class old_editor;
@@ -179,12 +136,8 @@ class main_view : private util::nocopy {
 private:
 	old_editor &m_ed;
 	gui::tabview m_tabs;
-	gui::tabview::page m_classic_tab;
-	gui::tabview::page m_visual_tab;
 	gui::tabview::page m_canvas_tab;
 	gui::tabview::page m_cryptos_tab;
-	classic_view m_classic;
-	visual_view m_visual;
 	im_canvas m_canvas;
 	im_canvas m_cryptos;
 	decltype(m_canvas.on_frame)::watch h_frame;

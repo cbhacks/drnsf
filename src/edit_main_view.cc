@@ -29,12 +29,8 @@ namespace edit {
 main_view::main_view(gui::container &parent,old_editor &ed) :
 	m_ed(ed),
 	m_tabs(parent),
-	m_classic_tab(m_tabs,"Classic"),
-	m_visual_tab(m_tabs,"Visual"),
 	m_canvas_tab(m_tabs,"Old UI"),
 	m_cryptos_tab(m_tabs,"Ancient UI"),
-	m_classic(m_classic_tab,m_ed.m_proj),
-	m_visual(m_visual_tab,m_ed.m_proj),
 	m_canvas(m_canvas_tab),
 	m_cryptos(m_cryptos_tab)
 {
@@ -43,8 +39,6 @@ main_view::main_view(gui::container &parent,old_editor &ed) :
 	};
 	h_frame.bind(m_canvas.on_frame);
 
-	m_classic.show();
-	m_visual.show();
 	m_canvas.show();
 	m_cryptos.show();
 }
