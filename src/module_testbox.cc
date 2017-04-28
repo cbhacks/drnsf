@@ -64,12 +64,12 @@ void frame(int delta)
 	};
 
 	static std::vector<gfx::quad> testbox_polys = {
-		{ { 0, 1, 3, 2 }, { 0, 1, 3, 2 } },
-		{ { 4, 5, 7, 6 }, { 4, 5, 7, 6 } },
-		{ { 5, 0, 6, 3 }, { 5, 0, 6, 3 } },
-		{ { 1, 4, 2, 7 }, { 1, 4, 2, 7 } },
-		{ { 3, 2, 6, 7 }, { 3, 2, 6, 7 } },
-		{ { 5, 4, 0, 1 }, { 5, 4, 0, 1 } }
+		{{ { 0, 0 }, { 1, 1 }, { 3, 3 }, { 2, 2 } }},
+		{{ { 4, 4 }, { 5, 5 }, { 7, 7 }, { 6, 6 } }},
+		{{ { 5, 5 }, { 0, 0 }, { 6, 6 }, { 3, 3 } }},
+		{{ { 1, 1 }, { 4, 4 }, { 2, 2 }, { 7, 7 } }},
+		{{ { 3, 3 }, { 2, 2 }, { 6, 6 }, { 7, 7 } }},
+		{{ { 5, 5 }, { 4, 4 }, { 0, 0 }, { 1, 1 } }}
 	};
 
 	static std::vector<gfx::color> testbox_colors = {
@@ -214,29 +214,29 @@ void frame(int delta)
 
 		glBegin(GL_TRIANGLES);
 		for (auto &&p : mesh->get_triangles()) {
-			glColor3ubv(colors[p.colors[0]].v);
-			glVertex3fv(vertices[p.vertices[0]].v);
-			glColor3ubv(colors[p.colors[1]].v);
-			glVertex3fv(vertices[p.vertices[1]].v);
-			glColor3ubv(colors[p.colors[2]].v);
-			glVertex3fv(vertices[p.vertices[2]].v);
+			glColor3ubv(colors[p[0].color_index].v);
+			glVertex3fv(vertices[p[0].vertex_index].v);
+			glColor3ubv(colors[p[1].color_index].v);
+			glVertex3fv(vertices[p[1].vertex_index].v);
+			glColor3ubv(colors[p[2].color_index].v);
+			glVertex3fv(vertices[p[2].vertex_index].v);
 		}
 		glEnd();
 
 		glBegin(GL_TRIANGLES);
 		for (auto &&p : mesh->get_quads()) {
-			glColor3ubv(colors[p.colors[0]].v);
-			glVertex3fv(vertices[p.vertices[0]].v);
-			glColor3ubv(colors[p.colors[1]].v);
-			glVertex3fv(vertices[p.vertices[1]].v);
-			glColor3ubv(colors[p.colors[2]].v);
-			glVertex3fv(vertices[p.vertices[2]].v);
-			glColor3ubv(colors[p.colors[2]].v);
-			glVertex3fv(vertices[p.vertices[2]].v);
-			glColor3ubv(colors[p.colors[1]].v);
-			glVertex3fv(vertices[p.vertices[1]].v);
-			glColor3ubv(colors[p.colors[3]].v);
-			glVertex3fv(vertices[p.vertices[3]].v);
+			glColor3ubv(colors[p[0].color_index].v);
+			glVertex3fv(vertices[p[0].vertex_index].v);
+			glColor3ubv(colors[p[1].color_index].v);
+			glVertex3fv(vertices[p[1].vertex_index].v);
+			glColor3ubv(colors[p[2].color_index].v);
+			glVertex3fv(vertices[p[2].vertex_index].v);
+			glColor3ubv(colors[p[2].color_index].v);
+			glVertex3fv(vertices[p[2].vertex_index].v);
+			glColor3ubv(colors[p[1].color_index].v);
+			glVertex3fv(vertices[p[1].vertex_index].v);
+			glColor3ubv(colors[p[3].color_index].v);
+			glVertex3fv(vertices[p[3].vertex_index].v);
 		}
 		glEnd();
 

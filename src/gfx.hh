@@ -88,15 +88,13 @@ public:
 	}
 };
 
-struct triangle {
-	int vertices[3];
-	int colors[3];
+struct poly_vert {
+	int vertex_index;
+	int color_index;
 };
 
-struct quad {
-	int vertices[4];
-	int colors[4];
-};
+using triangle = std::array<poly_vert,3>;
+using quad = std::array<poly_vert,4>;
 
 class mesh : public res::asset {
 	friend class res::asset;
