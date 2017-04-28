@@ -29,7 +29,6 @@ bool visible = false;
 void frame(int delta)
 {
 	auto &&ns = m_core.m_proj.get_asset_root();
-	auto &&selected_asset = m_core.m_selected_asset;
 
 	ImGui::Checkbox("Assets",&visible);
 
@@ -42,9 +41,9 @@ void frame(int delta)
 		std::string path = name.full_path();
 		if (ImGui::Selectable(
 			path.c_str(),
-			selected_asset == name
+			edit::g_selected_asset == name
 		)) {
-			selected_asset = name;
+			edit::g_selected_asset = name;
 		}
 	}
 

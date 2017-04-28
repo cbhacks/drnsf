@@ -48,7 +48,6 @@ void frame(int delta)
 {
 	auto &&nx = m_core.m_proj.get_transact();
 	auto &&ns = m_core.m_proj.get_asset_root();
-	auto &&selected_asset = m_core.m_selected_asset;
 	auto &&cam = m_core.m_cam;
 	auto &&proj = m_core.m_proj;
 
@@ -177,7 +176,7 @@ void frame(int delta)
 		};
 	}
 
-	gfx::model::ref smodel = selected_asset;
+	gfx::model::ref smodel = edit::g_selected_asset;
 
 	glPushMatrix();
 	glRotatef(cam.pitch,1,0,0);

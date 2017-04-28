@@ -24,6 +24,8 @@
 namespace drnsf {
 namespace edit {
 
+res::atom g_selected_asset;
+
 editor::editor(project &proj) :
 	m_proj(proj)
 {

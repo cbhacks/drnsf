@@ -215,8 +215,6 @@ private:
 	asset_pane m_asset;
 
 public:
-	res::atom m_selected_asset;
-
 	explicit mode_classic(old_editor &ed) :
 		mode(ed),
 		m_tree(ed,*this),
@@ -245,7 +243,7 @@ void tree_pane::show()
 {
 	tree_pane_show_atom(
 		m_ed.get_project().get_asset_root(),
-		m_mode.m_selected_asset
+		g_selected_asset
 	);
 }
 
@@ -258,14 +256,12 @@ void asset_pane::show()
 {
 	namespace im = gui::im;
 
-	auto &&sel = m_mode.m_selected_asset;
-
-	if (!sel) {
+	if (!g_selected_asset) {
 		im::Text("No selected asset.");
 		return;
 	}
 
-	if (!sel.get()) {
+	if (!g_selected_asset.get()) {
 		im::Text("No asset currently exists with this name.");
 		return;
 	}
@@ -283,14 +279,14 @@ void asset_pane::show()
 		nsf::spage,
 		nsf::raw_entry,
 		nsf::wgeo_v2,
-		nsf::entry> (*this,*sel.get());
+		nsf::entry> (*this,*g_selected_asset.get());
 	im::Columns(1);
 }
 
 std::string asset_pane::get_title() const
 {
-	if (m_mode.m_selected_asset) {
-		return "Asset: $"_fmt(m_mode.m_selected_asset);
+	if (g_selected_asset) {
+		return "Asset: $"_fmt(g_selected_asset);
 	} else {
 		return "Asset: [No selection]";
 	}

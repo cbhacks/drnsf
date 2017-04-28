@@ -30,6 +30,9 @@
 namespace drnsf {
 namespace edit {
 
+// FIXME - temporary global for compatibility
+extern res::atom g_selected_asset;
+
 class editor : private util::nocopy {
 	friend class map_view;
 	friend class assets_view;
@@ -245,7 +248,6 @@ public:
 	project m_proj;
 	old_editor m_ed;
 	std::list<std::function<void(int)>> m_modules;
-	res::anyref m_selected_asset;
 	cam m_cam;
 	gui::window m_real_wnd;
 	edit::main_view m_wnd;
