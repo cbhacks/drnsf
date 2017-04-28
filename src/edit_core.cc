@@ -26,7 +26,6 @@
 
 namespace drnsf {
 
-std::function<void(int)> create_assets_window(edit::core &);
 std::function<void(int)> create_mod_testbox(edit::core &);
 std::function<void(int)> create_mod_camera_ctrl(edit::core &);
 
@@ -43,7 +42,6 @@ core::core() :
 	h_frame.bind(m_wnd.m_cryptos.on_frame);
 
 	// Create all of the editor modules.
-	m_modules.push_back(create_assets_window(*this));
 	m_modules.push_back(create_mod_testbox(*this));
 	m_modules.push_back(create_mod_camera_ctrl(*this));
 

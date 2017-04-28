@@ -31,20 +31,6 @@ class mode_classic;
 
 namespace {
 
-class tree_pane : public pane {
-private:
-	mode_classic &m_mode;
-
-public:
-	explicit tree_pane(old_editor &ed,mode_classic &mode) :
-		pane(ed,"classic_tree"),
-		m_mode(mode) {}
-
-	void show() override;
-
-	std::string get_title() const override;
-};
-
 class asset_pane : public pane {
 private:
 	mode_classic &m_mode;
@@ -211,46 +197,15 @@ static void dyn_reflect(Reflector &rfl,Base &value)
 
 class mode_classic : public mode {
 private:
-	tree_pane m_tree;
 	asset_pane m_asset;
 
 public:
 	explicit mode_classic(old_editor &ed) :
 		mode(ed),
-		m_tree(ed,*this),
 		m_asset(ed,*this) {}
 };
 
 static modedef_of<mode_classic> g_mode_classic_def("Classic");
-
-static void tree_pane_show_atom(const res::atom &atom,res::atom &selection)
-{
-	namespace im = gui::im;
-
-	for (auto &&child : atom.get_children()) {
-		if (im::Selectable(child.name().c_str(),selection == child)) {
-			selection = child;
-		}
-		im::PushID(child.name().c_str());
-		im::Indent();
-		tree_pane_show_atom(child,selection);
-		im::Unindent();
-		im::PopID();
-	}
-}
-
-void tree_pane::show()
-{
-	tree_pane_show_atom(
-		m_ed.get_project().get_asset_root(),
-		g_selected_asset
-	);
-}
-
-std::string tree_pane::get_title() const
-{
-	return "Asset Tree";
-}
 
 void asset_pane::show()
 {

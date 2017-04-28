@@ -89,7 +89,6 @@ add_executable (drnsf
 	src/nsf_wgeo_v2.cc
 
 	src/module.hh
-	src/module_assets_window.cc
 	src/module_testbox.cc
 	src/module_camera_ctrl.cc
 
