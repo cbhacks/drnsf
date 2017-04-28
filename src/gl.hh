@@ -250,6 +250,35 @@ public:
 		}
 		return m_id;
 	}
+
+	void compile(const std::string &code)
+	{
+		const char *code_cstr = code.c_str();
+		glShaderSource(*this,1,&code_cstr,nullptr);
+		glCompileShader(*this);
+
+		int status;
+		glGetShaderiv(*this,GL_COMPILE_STATUS,&status);
+
+		if (!status) {
+			int log_size;
+			glGetShaderiv(*this,GL_INFO_LOG_LENGTH,&log_size);
+
+			std::vector<char> log_buffer(log_size);
+			glGetShaderInfoLog(
+				*this,
+				log_size,
+				nullptr,
+				log_buffer.data()
+			);
+
+			fprintf(stderr," == BEGIN SHADER COMPILE LOG ==\n");
+			fprintf(stderr,"%s\n",log_buffer.data());
+			fprintf(stderr," === END SHADER COMPILE LOG ===\n");
+
+			throw 0;//FIXME
+		}
+	}
 };
 
 using vert_shader = shader<GL_VERTEX_SHADER>;

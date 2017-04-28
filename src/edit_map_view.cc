@@ -31,6 +31,7 @@ class map_view::impl : private util::nocopy {
 private:
 	editor &m_ed;
 	gui::gl_canvas m_canvas;
+	gl::program m_cube_prog;
 	gl::vert_array m_cube_va;
 	gl::buffer m_cube_vb;
 	gl::buffer m_cube_ib;
@@ -48,6 +49,40 @@ public:
 			render(width,height);
 		};
 		h_render.bind(m_canvas.on_render);
+
+		{
+			const char code[] = R"(
+
+#version 110
+
+void main()
+{
+	gl_Position = gl_Vertex * gl_ProjectionMatrix;
+}
+
+)";
+			gl::vert_shader cube_vert_shader;
+			cube_vert_shader.compile(code);
+			glAttachShader(m_cube_prog,cube_vert_shader);
+		}
+
+		{
+			const char code[] = R"(
+
+#version 110
+
+void main()
+{
+	gl_FragColor = vec4(1.0,1.0,1.0,1.0);
+}
+
+)";
+			gl::frag_shader cube_frag_shader;
+			cube_frag_shader.compile(code);
+			glAttachShader(m_cube_prog,cube_frag_shader);
+		}
+
+		glLinkProgram(m_cube_prog);
 
 		const float cube_vb_data[] = {
 			-1, -1, -1,
@@ -144,11 +179,13 @@ void map_view::impl::render(int width,int height)
 	glPushMatrix();
 	glLoadMatrixf(&projection[0][0]);
 
+	glUseProgram(m_cube_prog);
 	glBindVertexArray(m_cube_va);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glDrawElements(GL_LINES,56,GL_UNSIGNED_BYTE,0);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glBindVertexArray(0);
+	glUseProgram(0);
 
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
