@@ -151,6 +151,11 @@ bool atom::operator !() const noexcept
 	return !m_nuc;
 }
 
+bool atom::operator <(const atom &rhs) const
+{
+	return (m_nuc < rhs.m_nuc);
+}
+
 atom atom::operator /(const char *s) const
 {
 	if (!m_nuc) {
@@ -231,6 +236,19 @@ std::string atom::full_path() const
 	} else {
 		return atom(m_nuc->m_parent).full_path() + "/" + m_nuc->m_name;
 	}
+}
+
+atom atom::get_parent() const
+{
+	if (!m_nuc) {
+		throw 0;//FIXME
+	}
+
+	if (!m_nuc->m_parent) {
+		throw 0;//FIXME
+	}
+
+	return atom(m_nuc->m_parent);
 }
 
 std::vector<atom> atom::get_children() const

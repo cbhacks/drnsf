@@ -71,6 +71,8 @@ public:
 	explicit operator bool() const noexcept;
 	bool operator !() const noexcept;
 
+	bool operator <(const atom &rhs) const;
+
 	atom operator /(const char *s) const;
 	atom operator /(const std::string &s) const;
 
@@ -90,6 +92,8 @@ public:
 
 	std::string name() const;
 	std::string full_path() const;
+
+	atom get_parent() const;
 
 	std::vector<atom> get_children() const;
 	std::vector<atom> get_children_recursive() const;

@@ -32,6 +32,7 @@ namespace edit {
 
 class editor : private util::nocopy {
 	friend class map_view;
+	friend class assets_view;
 
 private:
 	res::project &m_proj;
@@ -53,13 +54,29 @@ public:
 	void show();
 };
 
+class assets_view : private util::nocopy {
+private:
+	class impl;
+
+	impl *M;
+
+public:
+	explicit assets_view(gui::container &parent,editor &ed);
+	~assets_view();
+
+	void show();
+};
+
 class main_window : private util::nocopy {
 private:
 	gui::window m_wnd;
 	gui::splitview m_split;
+	gui::tabview m_tabs;
+	gui::tabview::page m_assets_tab;
 	res::project *m_proj_p;
 	std::unique_ptr<editor> m_ed_p;
 	std::unique_ptr<map_view> m_map_view;
+	std::unique_ptr<assets_view> m_assets_view;
 
 public:
 	main_window();
