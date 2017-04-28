@@ -187,6 +187,74 @@ public:
 	}
 };
 
+class program : private util::nocopy {
+private:
+	unsigned int m_id = 0;
+
+public:
+	program() = default;
+
+	program(program &&src)
+	{
+		std::swap(m_id,src.m_id);
+	}
+
+	~program()
+	{
+		glDeleteProgram(m_id);
+	}
+
+	program &operator =(program &&rhs)
+	{
+		std::swap(m_id,rhs.m_id);
+		return *this;
+	}
+
+	operator decltype(m_id)() &
+	{
+		if (!m_id) {
+			m_id = glCreateProgram();
+		}
+		return m_id;
+	}
+};
+
+template <int Type>
+class shader : private util::nocopy {
+private:
+	unsigned int m_id = 0;
+
+public:
+	shader() = default;
+
+	shader(shader &&src)
+	{
+		std::swap(m_id,src.m_id);
+	}
+
+	~shader()
+	{
+		glDeleteShader(m_id);
+	}
+
+	shader &operator =(shader &&rhs)
+	{
+		std::swap(m_id,rhs.m_id);
+		return *this;
+	}
+
+	operator decltype(m_id)() &
+	{
+		if (!m_id) {
+			m_id = glCreateShader(Type);
+		}
+		return m_id;
+	}
+};
+
+using vert_shader = shader<GL_VERTEX_SHADER>;
+using frag_shader = shader<GL_FRAGMENT_SHADER>;
+
 namespace old {
 
 class machine : private util::nocopy {
