@@ -240,28 +240,28 @@ void frame(int delta)
 	}
 
 	glBegin(GL_LINE_LOOP);
-	glVertex3f(-1,-1,-1);
-	glVertex3f(+1,-1,-1);
-	glVertex3f(+1,+1,-1);
-	glVertex3f(-1,+1,-1);
+	glVertex3f(-200,-200,-200);
+	glVertex3f(+200,-200,-200);
+	glVertex3f(+200,+200,-200);
+	glVertex3f(-200,+200,-200);
 	glEnd();
 
 	glBegin(GL_LINE_LOOP);
-	glVertex3f(-1,-1,+1);
-	glVertex3f(+1,-1,+1);
-	glVertex3f(+1,+1,+1);
-	glVertex3f(-1,+1,+1);
+	glVertex3f(-200,-200,+200);
+	glVertex3f(+200,-200,+200);
+	glVertex3f(+200,+200,+200);
+	glVertex3f(-200,+200,+200);
 	glEnd();
 
 	glBegin(GL_LINES);
-	glVertex3f(-1,-1,-1);
-	glVertex3f(-1,-1,+1);
-	glVertex3f(+1,-1,-1);
-	glVertex3f(+1,-1,+1);
-	glVertex3f(+1,+1,-1);
-	glVertex3f(+1,+1,+1);
-	glVertex3f(-1,+1,-1);
-	glVertex3f(-1,+1,+1);
+	glVertex3f(-200,-200,-200);
+	glVertex3f(-200,-200,+200);
+	glVertex3f(+200,-200,-200);
+	glVertex3f(+200,-200,+200);
+	glVertex3f(+200,+200,-200);
+	glVertex3f(+200,+200,+200);
+	glVertex3f(-200,+200,-200);
+	glVertex3f(-200,+200,+200);
 	glEnd();
 
 	// Restore the GL matrices.

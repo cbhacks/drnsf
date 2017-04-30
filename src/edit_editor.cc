@@ -27,7 +27,7 @@ namespace edit {
 res::atom g_selected_asset;
 float g_camera_yaw = 0.0f;
 float g_camera_pitch = 30.0f;
-float g_camera_zoom = 1.8f;
+float g_camera_zoom = 5000.0f;
 
 editor::editor(project &proj) :
 	m_proj(proj)

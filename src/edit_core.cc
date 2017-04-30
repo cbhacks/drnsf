@@ -19,6 +19,8 @@
 //
 
 #include "common.hh"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "../imgui/imgui.h"
 #include "edit.hh"
 #include "res.hh"
@@ -51,27 +53,17 @@ void core::frame(int width,int height,int delta)
 	glClearColor(0.5,0.5,0.5,0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Calculate the normalized display size.
-	double norm_width = 1;
-	double norm_height = (double)height / width;
-	if (norm_height < 1) {
-		norm_width /= norm_height;
-		norm_height = 1;
-	}
-
 	// Set up the 3D perspective.
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
-	glFrustum(
-		-norm_width * g_camera_zoom,
-		+norm_width * g_camera_zoom,
-		-norm_height * g_camera_zoom,
-		+norm_height * g_camera_zoom,
-		1.8f,
-		200.0f
-	);
-	glTranslatef(0,0,-1.8f);
-	glTranslatef(0,0,-3.6f);
+	glLoadMatrixf(&glm::perspective(
+		70.0f,
+		(float)width / height,
+		500.0f,
+		200000.0f
+	)[0][0]);
+	glTranslatef(0,0,-800.0f);
+	glTranslatef(0,0,-g_camera_zoom);
 	glMatrixMode(GL_MODELVIEW);
 
 	// Enable z-buffering.

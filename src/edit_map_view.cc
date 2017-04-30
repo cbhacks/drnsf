@@ -79,9 +79,9 @@ public:
 		h_mousemove.bind(m_canvas.on_mousemove);
 
 		h_mousewheel <<= [this](int delta_y) {
-			g_camera_zoom -= delta_y * 0.1;
-			if (g_camera_zoom < 0.1f) {
-				g_camera_zoom = 0.1f;
+			g_camera_zoom -= g_camera_zoom * 0.1 * delta_y;
+			if (g_camera_zoom < 500.0f) {
+				g_camera_zoom = 500.0f;
 			}
 			m_canvas.invalidate();//FIXME remove
 		};
@@ -99,9 +99,11 @@ public:
 
 #version 110
 
+const vec4 SCALE = vec4(200.0,200.0,200.0,1.0);
+
 void main()
 {
-	gl_Position = gl_Vertex * gl_ModelViewMatrix * gl_ProjectionMatrix;
+	gl_Position = gl_ModelViewProjectionMatrix * (gl_Vertex * SCALE);
 }
 
 )";
@@ -200,26 +202,21 @@ void map_view::impl::render(int width,int height)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	float norm_width = 1;
-	float norm_height = (float)height / width;
-	if (norm_height < 1) {
-		norm_width /= norm_height;
-		norm_height = 1;
-	}
-
-	auto projection = glm::frustum(
-		-norm_width * g_camera_zoom,
-		+norm_width * g_camera_zoom,
-		-norm_height * g_camera_zoom,
-		+norm_height * g_camera_zoom,
-		1.8f,
-		200.0f
+	auto projection = glm::perspective(
+		70.0f,
+		static_cast<float>(width) / height,
+		500.0f,
+		200000.0f
 	);
-	projection = glm::translate(projection,glm::vec3(0.0f,0.0f,-5.4));
+	projection = glm::translate(projection,glm::vec3(0.0f,0.0f,-800.0f));
+	projection = glm::translate(
+		projection,
+		glm::vec3(0.0f,0.0f,-g_camera_zoom)
+	);
 
 	glPushMatrix();
-	glRotatef(g_camera_yaw,0,1,0);
 	glRotatef(g_camera_pitch,1,0,0);
+	glRotatef(g_camera_yaw,0,1,0);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadMatrixf(&projection[0][0]);
