@@ -91,9 +91,9 @@ void wgeo_v2::import_entry(TRANSACT,const std::vector<util::blob> &items)
 		auto z         = r.read_sbits(12);
 		r.end();
 
-		vertex.x = x / 2048.0;
-		vertex.y = y / 2048.0;
-		vertex.z = z / 2048.0;
+		vertex.x = x * 16;
+		vertex.y = y * 16;
+		vertex.z = z * 16;
 
 		vertex_color = color_low | color_mid << 4 | color_high << 8;
 	}
@@ -228,9 +228,9 @@ void wgeo_v2::import_entry(TRANSACT,const std::vector<util::blob> &items)
 	model.create(TS,get_proj());
 	model->set_anim(TS,anim);
 	model->set_mesh(TS,mesh);
-	model->set_scene_x(TS,scene_x / 32768.0);
-	model->set_scene_y(TS,scene_y / 32768.0);
-	model->set_scene_z(TS,scene_z / 32768.0);
+	model->set_scene_x(TS,scene_x);
+	model->set_scene_y(TS,scene_y);
+	model->set_scene_z(TS,scene_z);
 
 	// Finish importing.
 	set_item0(TS,items[0]);
