@@ -27,7 +27,6 @@
 namespace drnsf {
 
 std::function<void(int)> create_mod_testbox(edit::core &);
-std::function<void(int)> create_mod_camera_ctrl(edit::core &);
 
 namespace edit {
 
@@ -42,7 +41,6 @@ core::core() :
 
 	// Create all of the editor modules.
 	m_modules.push_back(create_mod_testbox(*this));
-	m_modules.push_back(create_mod_camera_ctrl(*this));
 
 	m_wnd.show();
 }
@@ -65,15 +63,15 @@ void core::frame(int width,int height,int delta)
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glFrustum(
-		-norm_width * m_cam.lens_focus * m_cam.lens_near,
-		+norm_width * m_cam.lens_focus * m_cam.lens_near,
-		-norm_height * m_cam.lens_focus * m_cam.lens_near,
-		+norm_height * m_cam.lens_focus * m_cam.lens_near,
-		m_cam.lens_near,
-		m_cam.lens_far
+		-norm_width * g_camera_zoom,
+		+norm_width * g_camera_zoom,
+		-norm_height * g_camera_zoom,
+		+norm_height * g_camera_zoom,
+		1.8f,
+		200.0f
 	);
-	glTranslatef(0,0,-m_cam.lens_near);
-	glTranslatef(0,0,-m_cam.lens_adjust);
+	glTranslatef(0,0,-1.8f);
+	glTranslatef(0,0,-3.6f);
 	glMatrixMode(GL_MODELVIEW);
 
 	// Enable z-buffering.

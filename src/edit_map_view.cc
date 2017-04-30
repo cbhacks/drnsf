@@ -36,7 +36,14 @@ private:
 	gl::buffer m_cube_vb;
 	gl::buffer m_cube_ib;
 
+	bool m_mouse_down = false;
+	int m_mouse_x_prev;
+	int m_mouse_y_prev;
+
 	decltype(m_canvas.on_render)::watch h_render;
+	decltype(m_canvas.on_mousemove)::watch h_mousemove;
+	decltype(m_canvas.on_mousewheel)::watch h_mousewheel;
+	decltype(m_canvas.on_mousebutton)::watch h_mousebutton;
 
 	void render(int width,int height);
 
@@ -50,6 +57,43 @@ public:
 		};
 		h_render.bind(m_canvas.on_render);
 
+		h_mousemove <<= [this](int x,int y) {
+			if (m_mouse_down) {
+				int delta_x = x - m_mouse_x_prev;
+				int delta_y = y - m_mouse_y_prev;
+
+				g_camera_yaw += delta_x;
+
+				g_camera_pitch += delta_y;
+				if (g_camera_pitch > 90.0f) {
+					g_camera_pitch = 90.0f;
+				} else if (g_camera_pitch < -90.0f) {
+					g_camera_pitch = -90.0f;
+				}
+				m_canvas.invalidate();//FIXME remove
+			}
+
+			m_mouse_x_prev = x;
+			m_mouse_y_prev = y;
+		};
+		h_mousemove.bind(m_canvas.on_mousemove);
+
+		h_mousewheel <<= [this](int delta_y) {
+			g_camera_zoom -= delta_y * 0.1;
+			if (g_camera_zoom < 0.1f) {
+				g_camera_zoom = 0.1f;
+			}
+			m_canvas.invalidate();//FIXME remove
+		};
+		h_mousewheel.bind(m_canvas.on_mousewheel);
+
+		h_mousebutton <<= [this](int button,bool down) {
+			if (button == 1) {
+				m_mouse_down = down;
+			}
+		};
+		h_mousebutton.bind(m_canvas.on_mousebutton);
+
 		{
 			const char code[] = R"(
 
@@ -57,7 +101,7 @@ public:
 
 void main()
 {
-	gl_Position = gl_Vertex * gl_ProjectionMatrix;
+	gl_Position = gl_Vertex * gl_ModelViewMatrix * gl_ProjectionMatrix;
 }
 
 )";
@@ -163,18 +207,19 @@ void map_view::impl::render(int width,int height)
 		norm_height = 1;
 	}
 
-	float zoom = 1.8;
-
 	auto projection = glm::frustum(
-		-norm_width * zoom,
-		+norm_width * zoom,
-		-norm_height * zoom,
-		+norm_height * zoom,
+		-norm_width * g_camera_zoom,
+		+norm_width * g_camera_zoom,
+		-norm_height * g_camera_zoom,
+		+norm_height * g_camera_zoom,
 		1.8f,
 		200.0f
 	);
 	projection = glm::translate(projection,glm::vec3(0.0f,0.0f,-5.4));
 
+	glPushMatrix();
+	glRotatef(g_camera_yaw,0,1,0);
+	glRotatef(g_camera_pitch,1,0,0);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadMatrixf(&projection[0][0]);
@@ -189,6 +234,7 @@ void map_view::impl::render(int width,int height)
 
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
 }
 
 map_view::map_view(gui::container &parent,editor &ed)

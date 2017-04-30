@@ -93,7 +93,6 @@ add_executable (drnsf
 
 	src/module.hh
 	src/module_testbox.cc
-	src/module_camera_ctrl.cc
 
 	$<TARGET_OBJECTS:imgui>
 )

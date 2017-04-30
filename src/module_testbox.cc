@@ -24,8 +24,6 @@
 #include "nsf.hh"
 #include "misc.hh"
 
-static double angle = 0;
-
 namespace drnsf {
 
 BEGIN_MODULE
@@ -48,7 +46,6 @@ void frame(int delta)
 {
 	auto &&nx = m_core.m_proj.get_transact();
 	auto &&ns = m_core.m_proj.get_asset_root();
-	auto &&cam = m_core.m_cam;
 	auto &&proj = m_core.m_proj;
 
 	static std::vector<gfx::vertex> testbox_vertices = {
@@ -179,8 +176,8 @@ void frame(int delta)
 	gfx::model::ref smodel = edit::g_selected_asset;
 
 	glPushMatrix();
-	glRotatef(cam.pitch,1,0,0);
-	glRotatef(angle,0,1,0);
+	glRotatef(edit::g_camera_pitch,1,0,0);
+	glRotatef(edit::g_camera_yaw,0,1,0);
 
 	for (gfx::model::ref model : ns.get_asset_names()) {
 		if (!model.ok())
@@ -270,10 +267,6 @@ void frame(int delta)
 	// Restore the GL matrices.
 	glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
-
-	static float delta_factor = 0.1;
-	angle += delta * delta_factor;
-	ImGui::InputFloat("Spin Speed",&delta_factor,0.05,0);
 }
 
 END_MODULE

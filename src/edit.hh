@@ -32,6 +32,9 @@ namespace edit {
 
 // FIXME - temporary global for compatibility
 extern res::atom g_selected_asset;
+extern float g_camera_yaw;
+extern float g_camera_pitch;
+extern float g_camera_zoom;
 
 class editor : private util::nocopy {
 	friend class map_view;
@@ -253,20 +256,11 @@ public:
 		modedef(title) {}
 };
 
-struct cam {
-	float pitch = 30;
-	float lens_near = 1.8;
-	float lens_far = 200;
-	float lens_adjust = 3.6;
-	float lens_focus = 1.0;
-};
-
 class core : private util::nocopy {
 public:
 	project m_proj;
 	old_editor m_ed;
 	std::list<std::function<void(int)>> m_modules;
-	cam m_cam;
 	edit::main_view m_wnd;
 	decltype(m_wnd.m_cryptos.on_frame)::watch h_frame;
 
