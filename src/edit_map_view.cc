@@ -200,6 +200,8 @@ void main()
 
 void map_view::impl::render(int width,int height)
 {
+	glClearColor(0,0,0,0); //FIXME remove
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	auto projection = glm::perspective(
