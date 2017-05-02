@@ -84,6 +84,8 @@ protected:
 template <typename... Args>
 class event : private nocopy {
 public:
+	// (inner class) watch
+	// FIXME explain
 	class watch : private nocopy {
 		friend class event;
 
