@@ -25,6 +25,7 @@
 namespace drnsf {
 namespace util {
 
+// declared in util.hh
 binreader::binreader() :
 	m_data(nullptr),
 	m_size(0),
@@ -33,6 +34,7 @@ binreader::binreader() :
 {
 }
 
+// declared in util.hh
 void binreader::begin(const unsigned char *data,std::size_t size)
 {
 	if (m_data)
@@ -44,6 +46,7 @@ void binreader::begin(const unsigned char *data,std::size_t size)
 	m_size = size;
 }
 
+// declared in util.hh
 void binreader::begin(const util::blob &data)
 {
 	if (m_data)
@@ -59,6 +62,7 @@ void binreader::begin(const util::blob &data)
 	}
 }
 
+// declared in util.hh
 void binreader::end()
 {
 	if (!m_data)
@@ -74,6 +78,7 @@ void binreader::end()
 	m_size = 0;
 }
 
+// declared in util.hh
 void binreader::end_early()
 {
 	if (!m_data)
@@ -85,6 +90,7 @@ void binreader::end_early()
 	m_bitbuf_len = 0;
 }
 
+// declared in util.hh
 std::uint8_t binreader::read_u8()
 {
 	if (m_size == 0)
@@ -99,6 +105,7 @@ std::uint8_t binreader::read_u8()
 	return value;
 }
 
+// declared in util.hh
 std::uint16_t binreader::read_u16()
 {
 	std::uint16_t value;
@@ -107,6 +114,7 @@ std::uint16_t binreader::read_u16()
 	return value;
 }
 
+// declared in util.hh
 std::uint32_t binreader::read_u32()
 {
 	std::uint32_t value;
@@ -115,6 +123,7 @@ std::uint32_t binreader::read_u32()
 	return value;
 }
 
+// declared in util.hh
 std::int64_t binreader::read_ubits(int bits)
 {
 	if (bits < 0 || bits > 63)
@@ -142,21 +151,25 @@ std::int64_t binreader::read_ubits(int bits)
 	return value;
 }
 
+// declared in util.hh
 std::int8_t binreader::read_s8()
 {
 	return read_u8();
 }
 
+// declared in util.hh
 std::int16_t binreader::read_s16()
 {
 	return read_u16();
 }
 
+// declared in util.hh
 std::int32_t binreader::read_s32()
 {
 	return read_u32();
 }
 
+// declared in util.hh
 std::int64_t binreader::read_sbits(int bits)
 {
 	std::int64_t value = read_ubits(bits);
@@ -167,54 +180,63 @@ std::int64_t binreader::read_sbits(int bits)
 	return value;
 }
 
+// declared in util.hh
 void binreader::expect_u8(std::uint8_t value)
 {
 	if (read_u8() != value)
 		throw 0; // FIXME
 }
 
+// declared in util.hh
 void binreader::expect_u16(std::uint16_t value)
 {
 	if (read_u16() != value)
 		throw 0; // FIXME
 }
 
+// declared in util.hh
 void binreader::expect_u32(std::uint32_t value)
 {
 	if (read_u32() != value)
 		throw 0; // FIXME
 }
 
+// declared in util.hh
 void binreader::expect_ubits(int bits,std::int64_t value)
 {
 	if (read_ubits(bits) != value)
 		throw 0; // FIXME
 }
 
+// declared in util.hh
 void binreader::expect_s8(std::int8_t value)
 {
 	if (read_s8() != value)
 		throw 0; // FIXME
 }
 
+// declared in util.hh
 void binreader::expect_s16(std::int16_t value)
 {
 	if (read_s16() != value)
 		throw 0; // FIXME
 }
 
+// declared in util.hh
 void binreader::expect_s32(std::int32_t value)
 {
 	if (read_s32() != value)
 		throw 0; // FIXME
 }
 
+// declared in util.hh
 void binreader::expect_sbits(int bits,std::int64_t value)
 {
 	if (read_sbits(bits) != value)
 		throw 0; // FIXME
 }
 
+// declared in util.hh
 void binreader::discard(int bytes)
 {
 	if (bytes < 0)
@@ -230,6 +252,7 @@ void binreader::discard(int bytes)
 	m_size -= bytes;
 }
 
+// declared in util.hh
 void binreader::discard_bits(int bits)
 {
 	read_ubits(bits);
