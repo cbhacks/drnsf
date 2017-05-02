@@ -25,6 +25,7 @@
 namespace drnsf {
 namespace nsf {
 
+// declared in nsf.hh
 void archive::import_file(TRANSACT,const util::blob &data)
 {
 	assert_alive();

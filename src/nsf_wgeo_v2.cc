@@ -24,6 +24,7 @@
 namespace drnsf {
 namespace nsf {
 
+// declared in res.hh
 void wgeo_v2::import_entry(TRANSACT,const std::vector<util::blob> &items)
 {
 	assert_alive();

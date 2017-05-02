@@ -24,6 +24,7 @@
 namespace drnsf {
 namespace nsf {
 
+// declared in res.hh
 void raw_entry::import_file(TRANSACT,const util::blob &data)
 {
 	assert_alive();
@@ -74,6 +75,7 @@ void raw_entry::import_file(TRANSACT,const util::blob &data)
 	set_items(TS,std::move(items));
 }
 
+// declared in res.hh
 bool raw_entry::process_by_type(TRANSACT,game_ver ver)
 {
 	assert_alive();

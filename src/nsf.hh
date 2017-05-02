@@ -27,27 +27,47 @@
 namespace drnsf {
 namespace nsf {
 
+/*
+ * nsf::game_ver
+ *
+ * FIXME explain
+ */
 enum class game_ver {
 	crash1,
 	crash2,
 	crash3
 };
 
+/*
+ * nsf::eid
+ *
+ * FIXME explain
+ */
 class eid {
 private:
+	// (var) m_value
+	// FIXME explain
 	std::uint32_t m_value;
 
 public:
+	// (default ctor)
+	// FIXME explain
 	eid() = default;
 
+	// (conversion ctor)
+	// FIXME explain
 	eid(std::uint32_t value) :
 		m_value(value) {}
 
+	// (conversion operator)
+	// FIXME explain
 	operator std::uint32_t() const
 	{
 		return m_value;
 	}
 
+	// (ext-func) to_string
+	// FIXME explain
 	friend std::string to_string(eid value)
 	{
 		static const char dictionary[] =
@@ -68,22 +88,41 @@ public:
 	}
 };
 
+/*
+ * nsf::page_size
+ *
+ * FIXME explain
+ */
 constexpr std::size_t page_size = 65536;
 
+/*
+ * nsf::archive
+ *
+ * FIXME explain
+ */
 class archive : public res::asset {
 	friend class res::asset;
 
 private:
+	// (explicit ctor)
+	// FIXME explain
 	explicit archive(res::project &proj) :
 		asset(proj) {}
 
 public:
+	// (typedef) ref
+	// FIXME explain
 	using ref = res::ref<archive>;
 
+	// (prop) pages
+	// FIXME explain
 	DEFINE_APROP(pages,std::vector<res::anyref>);
 
+	// (func) import_file
+	// FIXME explain
 	void import_file(TRANSACT,const util::blob &data);
 
+	// FIXME obsolete
 	template <typename Reflector>
 	void reflect(Reflector &rfl)
 	{
@@ -92,22 +131,42 @@ public:
 	}
 };
 
+/*
+ * nsf::spage
+ *
+ * FIXME explain
+ */
 class spage : public res::asset {
 	friend class res::asset;
 
 private:
+	// (explicit ctor)
+	// FIXME explain
 	explicit spage(res::project &proj) :
 		asset(proj) {}
 
 public:
+	// (typedef) ref
+	// FIXME explain
 	using ref = res::ref<spage>;
 
+	// (prop) pagelets
+	// FIXME explain
 	DEFINE_APROP(pagelets,std::vector<res::anyref>);
+
+	// (prop) type
+	// FIXME explain
 	DEFINE_APROP(type,uint16_t);
+
+	// (prop) cid
+	// FIXME explain
 	DEFINE_APROP(cid,uint32_t);
 
+	// (func) import_file
+	// FIXME explain
 	void import_file(TRANSACT,const util::blob &data);
 
+	// FIXME obsolete
 	template <typename Reflector>
 	void reflect(Reflector &rfl)
 	{
@@ -118,16 +177,28 @@ public:
 	}
 };
 
+/*
+ * nsf::entry
+ *
+ * FIXME explain
+ */
 class entry : public res::asset {
 protected:
+	// (explicit ctor)
+	// FIXME explain
 	explicit entry(res::project &proj) :
 		asset(proj) {}
 
 public:
+	// (typedef) ref
+	// FIXME explain
 	using ref = res::ref<entry>;
 
+	// (prop) eid
+	// FIXME explain
 	DEFINE_APROP(eid,eid);
 
+	// FIXME obsolete
 	template <typename Reflector>
 	void reflect(Reflector &rfl)
 	{
@@ -136,21 +207,39 @@ public:
 	}
 };
 
+/*
+ * nsf::raw_entry
+ *
+ * FIXME explain
+ */
 class raw_entry : public entry {
 	friend class res::asset;
 
 private:
+	// (explicit ctor)
+	// FIXME explain
 	explicit raw_entry(res::project &proj) :
 		entry(proj) {}
 
 public:
+	// (typedef) ref
+	// FIXME explain
 	using ref = res::ref<raw_entry>;
 
+	// (prop) items
+	// FIXME explain
 	DEFINE_APROP(items,std::vector<util::blob>);
+
+	// (prop) type
+	// FIXME explain
 	DEFINE_APROP(type,uint32_t);
 
+	// (func) import_file
+	// FIXME explain
 	void import_file(TRANSACT,const util::blob &data);
 
+	// (func) process_as<T>
+	// FIXME explain
 	template <typename T>
 	void process_as(TRANSACT)
 	{
@@ -169,8 +258,11 @@ public:
 		destroy(TS);
 	}
 
+	// (func) process_by_type
+	// FIXME explain
 	bool process_by_type(TRANSACT,game_ver ver);
 
+	// FIXME obsolete
 	template <typename Reflector>
 	void reflect(Reflector &rfl)
 	{
@@ -180,23 +272,46 @@ public:
 	}
 };
 
+/*
+ * nsf::wgeo_v2
+ *
+ * FIXME explain
+ */
 class wgeo_v2 : public entry {
 	friend class res::asset;
 
 private:
+	// (explicit ctor)
+	// FIXME explain
 	explicit wgeo_v2(res::project &proj) :
 		entry(proj) {}
 
 public:
+	// (typedef) ref
+	// FIXME explain
 	using ref = res::ref<wgeo_v2>;
 
+	// (prop) item0
+	// FIXME explain
 	DEFINE_APROP(item0,util::blob);
+
+	// (prop) item4
+	// FIXME explain
 	DEFINE_APROP(item4,util::blob);
+
+	// (prop) item6
+	// FIXME explain
 	DEFINE_APROP(item6,util::blob);
+
+	// (prop) model
+	// FIXME explain
 	DEFINE_APROP(model,gfx::model::ref);
 
+	// (func) import_entry
+	// FIXME explain
 	void import_entry(TRANSACT,const std::vector<util::blob> &items);
 
+	// FIXME obsolete
 	template <typename Reflector>
 	void reflect(Reflector &rfl)
 	{
