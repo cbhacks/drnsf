@@ -20,12 +20,23 @@
 
 #pragma once
 
+/*
+ * gfx.hh
+ *
+ * FIXME explain
+ */
+
 #include <vector>
 #include "res.hh"
 
 namespace drnsf {
 namespace gfx {
 
+/*
+ * gfx::vertex
+ *
+ * FIXME explain
+ */
 struct vertex {
 	union {
 		struct {
@@ -37,6 +48,11 @@ struct vertex {
 	};
 };
 
+/*
+ * gfx::color
+ *
+ * FIXME explain
+ */
 struct color {
 	union {
 		struct {
@@ -48,18 +64,30 @@ struct color {
 	};
 };
 
+/*
+ * gfx::frame
+ *
+ * FIXME explain
+ */
 class frame : public res::asset {
 	friend class res::asset;
 
 private:
+	// (explicit ctor)
+	// FIXME explain
 	explicit frame(res::project &proj) :
 		asset(proj) {}
 
 public:
+	// (typedef) ref
+	// FIXME explain
 	using ref = res::ref<frame>;
 
+	// (prop) vertices
+	// FIXME explain
 	DEFINE_APROP(vertices,std::vector<vertex>);
 
+	// FIXME obsolete
 	template <typename Reflector>
 	void reflect(Reflector &rfl)
 	{
@@ -68,18 +96,30 @@ public:
 	}
 };
 
+/*
+ * gfx::anim
+ *
+ * FIXME explain
+ */
 class anim : public res::asset {
 	friend class res::asset;
 
 private:
+	// (explicit ctor)
+	// FIXME explain
 	explicit anim(res::project &proj) :
 		asset(proj) {}
 
 public:
+	// (typedef) ref
+	// FIXME explain
 	using ref = res::ref<anim>;
 
+	// (prop) frames
+	// FIXME explain
 	DEFINE_APROP(frames,std::vector<frame::ref>);
 
+	// FIXME obsolete
 	template <typename Reflector>
 	void reflect(Reflector &rfl)
 	{
@@ -88,28 +128,62 @@ public:
 	}
 };
 
+/*
+ * gfx::poly_vert
+ *
+ * FIXME explain
+ */
 struct poly_vert {
 	int vertex_index;
 	int color_index;
 };
 
+/*
+ * gfx::triangle
+ *
+ * FIXME explain
+ */
 using triangle = std::array<poly_vert,3>;
+
+/*
+ * gfx::quad
+ *
+ * FIXME explain
+ */
 using quad = std::array<poly_vert,4>;
 
+/*
+ * gfx::mesh
+ *
+ * FIXME explain
+ */
 class mesh : public res::asset {
 	friend class res::asset;
 
 private:
+	// (explicit ctor)
+	// FIXME explain
 	explicit mesh(res::project &proj) :
 		asset(proj) {}
 
 public:
+	// (typedef) ref
+	// FIXME explain
 	using ref = res::ref<mesh>;
 
+	// (prop) triangles
+	// FIXME explain
 	DEFINE_APROP(triangles,std::vector<triangle>);
+
+	// (prop) quads
+	// FIXME explain
 	DEFINE_APROP(quads,std::vector<quad>);
+
+	// (prop) colors
+	// FIXME explain
 	DEFINE_APROP(colors,std::vector<color>);
 
+	// FIXME obsolete
 	template <typename Reflector>
 	void reflect(Reflector &rfl)
 	{
@@ -120,22 +194,40 @@ public:
 	}
 };
 
+/*
+ * gfx::model
+ *
+ * FIXME explain
+ */
 class model : public res::asset {
 	friend class res::asset;
 
 private:
+	// (explicit ctor)
+	// FIXME explain
 	explicit model(res::project &proj) :
 		asset(proj) {}
 
 public:
+	// (typedef) ref
+	// FIXME explain
 	using ref = res::ref<model>;
 
+	// (prop) anim
+	// FIXME explain
 	DEFINE_APROP(anim,anim::ref);
+
+	// (prop) mesh
+	// FIXME explain
 	DEFINE_APROP(mesh,mesh::ref);
+
+	// (prop) scene_x, scene_y, scene_z
+	// FIXME explain
 	DEFINE_APROP(scene_x,double,0.0);
 	DEFINE_APROP(scene_y,double,0.0);
 	DEFINE_APROP(scene_z,double,0.0);
 
+	// FIXME obsolete
 	template <typename Reflector>
 	void reflect(Reflector &rfl)
 	{
