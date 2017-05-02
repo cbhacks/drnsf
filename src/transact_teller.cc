@@ -24,12 +24,14 @@
 namespace drnsf {
 namespace transact {
 
+// declared in transact.hh
 teller::teller() :
 	m_done(false),
 	m_desc("[UNLABELED ACTION - REPORT BUG]")
 {
 }
 
+// declared in transact.hh
 teller::~teller()
 {
 	// If this teller never committed, then the destructor should rollback
@@ -42,6 +44,7 @@ teller::~teller()
 	}
 }
 
+// declared in transact.hh
 std::unique_ptr<transaction> teller::commit()
 {
 	// Ensure this teller hasn't already committed its transaction.
@@ -61,11 +64,13 @@ std::unique_ptr<transaction> teller::commit()
 	);
 }
 
+// declared in transact.hh
 void teller::describe(std::string desc)
 {
 	m_desc = desc;
 }
 
+// declared in transact.hh
 void teller::push_op(std::unique_ptr<operation> op)
 {
 	// Ensure this teller hasn't already committed its transaction.

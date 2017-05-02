@@ -24,21 +24,25 @@
 namespace drnsf {
 namespace transact {
 
+// declared in transact.hh
 nexus::nexus() :
 	m_status(status::ready)
 {
 }
 
+// declared in transact.hh
 nexus::~nexus()
 {
 	// FIXME - handle non-ready status
 }
 
+// declared in transact.hh
 status nexus::get_status() const
 {
 	return m_status;
 }
 
+// declared in transact.hh
 bool nexus::has_undo() const
 {
 	if (m_status != status::ready) {
@@ -47,6 +51,7 @@ bool nexus::has_undo() const
 	return m_undo != nullptr;
 }
 
+// declared in transact.hh
 bool nexus::has_redo() const
 {
 	if (m_status != status::ready) {
@@ -55,6 +60,7 @@ bool nexus::has_redo() const
 	return m_redo != nullptr;
 }
 
+// declared in transact.hh
 const transaction &nexus::get_undo() const
 {
 	if (m_status != status::ready) {
@@ -63,6 +69,7 @@ const transaction &nexus::get_undo() const
 	return *m_undo;
 }
 
+// declared in transact.hh
 const transaction &nexus::get_redo() const
 {
 	if (m_status != status::ready) {
@@ -71,6 +78,7 @@ const transaction &nexus::get_redo() const
 	return *m_redo;
 }
 
+// declared in transact.hh
 void nexus::undo()
 {
 	if (m_status != status::ready) {
@@ -105,6 +113,7 @@ void nexus::undo()
 	m_redo.swap(t);
 }
 
+// declared in transact.hh
 void nexus::redo()
 {
 	if (m_status != status::ready) {
@@ -139,6 +148,7 @@ void nexus::redo()
 	m_undo.swap(t);
 }
 
+// declared in transact.hh
 nexus &nexus::operator <<(std::function<void(TRANSACT)> job)
 {
 	if (m_status != status::ready) {

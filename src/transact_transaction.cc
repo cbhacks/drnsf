@@ -24,6 +24,7 @@
 namespace drnsf {
 namespace transact {
 
+// declared in transact.hh
 transaction::transaction(
 	std::list<std::unique_ptr<operation>> ops,
 	std::string desc) :
@@ -32,6 +33,7 @@ transaction::transaction(
 {
 }
 
+// declared in transact.hh
 const char *transaction::describe() const
 {
 	return m_desc.c_str();
