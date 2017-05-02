@@ -24,18 +24,32 @@
 namespace drnsf {
 namespace res {
 
+// (internal class) asset_appear_event_op
+// FIXME explain
 class asset_appear_event_op : public transact::operation {
 private:
+	// (var) m_proj
+	// FIXME explain
 	project &m_proj;
+
+	// (var) m_asset
+	// FIXME explain
 	asset &m_asset;
+
+	// (var) m_appear
+	// FIXME explain
 	bool m_appear;
 
 public:
+	// (explicit ctor)
+	// FIXME explain
 	explicit asset_appear_event_op(project &proj,asset &asset,bool appear) :
 		m_proj(proj),
 		m_asset(asset),
 		m_appear(appear) {}
 
+	// (func) execute
+	// FIXME explain
 	void execute() noexcept override
 	{
 		if (m_appear) {
@@ -47,6 +61,7 @@ public:
 	}
 };
 
+// declared in res.hh
 void asset::create_impl(TRANSACT,atom name)
 {
 	auto p = std::unique_ptr<asset>(this);
@@ -64,6 +79,7 @@ void asset::create_impl(TRANSACT,atom name)
 	));
 }
 
+// declared in res.hh
 void asset::assert_alive() const
 {
 	if (!m_name) {
@@ -71,6 +87,7 @@ void asset::assert_alive() const
 	}
 }
 
+// declared in res.hh
 void asset::rename(TRANSACT,atom name)
 {
 	assert_alive();
@@ -98,6 +115,7 @@ void asset::rename(TRANSACT,atom name)
 	));
 }
 
+// declared in res.hh
 void asset::destroy(TRANSACT)
 {
 	assert_alive();
@@ -112,6 +130,7 @@ void asset::destroy(TRANSACT)
 	TS.erase(m_proj.m_assets,m_iter);
 }
 
+// declared in res.hh
 const atom &asset::get_name() const
 {
 	assert_alive();
@@ -119,6 +138,7 @@ const atom &asset::get_name() const
 	return m_name;
 }
 
+// declared in res.hh
 project &asset::get_proj() const
 {
 	assert_alive();

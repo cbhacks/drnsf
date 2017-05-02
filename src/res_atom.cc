@@ -25,6 +25,8 @@
 namespace drnsf {
 namespace res {
 
+// (internal class) nucleus_name_comparator
+// FIXME explain
 struct nucleus_name_comparator {
 	bool operator()(const char *lhs,const char *rhs)
 	{
@@ -32,14 +34,31 @@ struct nucleus_name_comparator {
 	}
 };
 
+// (inner class) nucleus
+// FIXME explain
 struct atom::nucleus {
+	// (var) m_refcount
+	// FIXME explain
 	int m_refcount;
+
+	// (var) m_name
+	// FIXME explain
 	const char *m_name;
+
+	// (var) m_parent
+	// FIXME explain
 	nucleus *m_parent;
+
+	// (var) m_asset
+	// FIXME explain
 	asset *m_asset;
+
+	// (var) m_children
+	// FIXME explain
 	std::map<const char *,nucleus *,nucleus_name_comparator> m_children;
 };
 
+// declared in res.hh
 atom::atom(nucleus *nuc) noexcept :
 	m_nuc(nuc)
 {
@@ -48,6 +67,7 @@ atom::atom(nucleus *nuc) noexcept :
 	}
 }
 
+// declared in res.hh
 asset *&atom::get_internal_asset_ptr() const
 {
 	if (!m_nuc) {
@@ -56,6 +76,7 @@ asset *&atom::get_internal_asset_ptr() const
 	return m_nuc->m_asset;
 }
 
+// declared in res.hh
 atom atom::make_root()
 {
 	auto nuc_space = std::malloc(sizeof(nucleus));
@@ -77,16 +98,19 @@ atom atom::make_root()
 	return atom(nuc);
 }
 
+// declared in res.hh
 atom::atom() noexcept :
 	m_nuc(nullptr)
 {
 }
 
+// declared in res.hh
 atom::atom(std::nullptr_t) noexcept :
 	m_nuc(nullptr)
 {
 }
 
+// declared in res.hh
 atom::atom(const atom &src) noexcept :
 	m_nuc(src.m_nuc)
 {
@@ -95,12 +119,14 @@ atom::atom(const atom &src) noexcept :
 	}
 }
 
+// declared in res.hh
 atom::atom(atom &&src) noexcept :
 	m_nuc(src.m_nuc)
 {
 	src.m_nuc = nullptr;
 }
 
+// declared in res.hh
 atom::~atom() noexcept
 {
 	nucleus *nuc = m_nuc;
@@ -115,47 +141,56 @@ atom::~atom() noexcept
 	}
 }
 
+// declared in res.hh
 atom &atom::operator =(atom rhs)
 {
 	std::swap(m_nuc,rhs.m_nuc);
 	return *this;
 }
 
+// declared in res.hh
 bool atom::operator ==(const atom &rhs) const noexcept
 {
 	return (m_nuc == rhs.m_nuc);
 }
 
+// declared in res.hh
 bool atom::operator ==(std::nullptr_t) const noexcept
 {
 	return (m_nuc == nullptr);
 }
 
+// declared in res.hh
 bool atom::operator !=(const atom &rhs) const noexcept
 {
 	return (m_nuc != rhs.m_nuc);
 }
 
+// declared in res.hh
 bool atom::operator !=(std::nullptr_t) const noexcept
 {
 	return (m_nuc != nullptr);
 }
 
+// declared in res.hh
 atom::operator bool() const noexcept
 {
 	return (m_nuc != nullptr);
 }
 
+// declared in res.hh
 bool atom::operator !() const noexcept
 {
 	return !m_nuc;
 }
 
+// declared in res.hh
 bool atom::operator <(const atom &rhs) const
 {
 	return (m_nuc < rhs.m_nuc);
 }
 
+// declared in res.hh
 atom atom::operator /(const char *s) const
 {
 	if (!m_nuc) {
@@ -205,11 +240,13 @@ atom atom::operator /(const char *s) const
 	return atom(newnuc);
 }
 
+// declared in res.hh
 atom atom::operator /(const std::string &s) const
 {
 	return operator /(s.c_str());
 }
 
+// declared in res.hh
 asset *atom::get() const
 {
 	if (!m_nuc) {
@@ -218,6 +255,7 @@ asset *atom::get() const
 	return m_nuc->m_asset;
 }
 
+// declared in res.hh
 std::string atom::name() const
 {
 	if (!m_nuc) {
@@ -227,6 +265,7 @@ std::string atom::name() const
 	}
 }
 
+// declared in res.hh
 std::string atom::full_path() const
 {
 	if (!m_nuc) {
@@ -238,6 +277,7 @@ std::string atom::full_path() const
 	}
 }
 
+// declared in res.hh
 atom atom::get_parent() const
 {
 	if (!m_nuc) {
@@ -251,6 +291,7 @@ atom atom::get_parent() const
 	return atom(m_nuc->m_parent);
 }
 
+// declared in res.hh
 std::vector<atom> atom::get_children() const
 {
 	if (!m_nuc) {
@@ -266,6 +307,7 @@ std::vector<atom> atom::get_children() const
 	return result;
 }
 
+// declared in res.hh
 std::vector<atom> atom::get_children_recursive() const
 {
 	if (!m_nuc) {
