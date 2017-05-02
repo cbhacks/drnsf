@@ -25,9 +25,15 @@
 namespace drnsf {
 namespace gl {
 
+/*
+ * gl::g_wnd, gl::g_glctx
+ *
+ * FIXME explain
+ */
 GdkWindow *g_wnd;
 GdkGLContext *g_glctx;
 
+// declared in gl.hh
 void init()
 {
 	// Set attributes for the hidden background window we are about to

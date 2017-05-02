@@ -20,36 +20,64 @@
 
 #pragma once
 
+/*
+ * gl.hh
+ *
+ * FIXME explain
+ */
+
 #include <epoxy/gl.h>
 
 namespace drnsf {
 namespace gl {
 
+/*
+ * gl::init
+ *
+ * FIXME explain
+ */
 void init();
 
+/*
+ * gl::texture
+ *
+ * FIXME explain
+ */
 class texture : private util::nocopy {
 private:
+	// (var) m_id
+	// FIXME explain
 	unsigned int m_id = 0;
 
 public:
+	// (default ctor)
+	// FIXME explain
 	texture() = default;
 
+	// (move ctor)
+	// FIXME explain
 	texture(texture &&src)
 	{
 		std::swap(m_id,src.m_id);
 	}
 
+	// (dtor)
+	// FIXME explain
 	~texture()
 	{
 		glDeleteTextures(1,&m_id);
 	}
 
+	// (move-assignment operator)
+	// FIXME explain
 	texture &operator =(texture &&rhs)
 	{
 		std::swap(m_id,rhs.m_id);
 		return *this;
 	}
 
+	// (conversion operator)
+	// FIXME explain
 	operator decltype(m_id)() &
 	{
 		if (!m_id) {
@@ -59,29 +87,46 @@ public:
 	}
 };
 
+/*
+ * gl::buffer
+ *
+ * FIXME explain
+ */
 class buffer : private util::nocopy {
 private:
+	// (var) m_id
+	// FIXME explain
 	unsigned int m_id = 0;
 
 public:
+	// (default ctor)
+	// FIXME explain
 	buffer() = default;
 
+	// (move ctor)
+	// FIXME explain
 	buffer(buffer &&src)
 	{
 		std::swap(m_id,src.m_id);
 	}
 
+	// (dtor)
+	// FIXME explain
 	~buffer()
 	{
 		glDeleteBuffers(1,&m_id);
 	}
 
+	// (move-assignment operator)
+	// FIXME explain
 	buffer &operator =(buffer &&rhs)
 	{
 		std::swap(m_id,rhs.m_id);
 		return *this;
 	}
 
+	// (conversion operator)
+	// FIXME explain
 	operator decltype(m_id)() &
 	{
 		if (!m_id) {
@@ -91,29 +136,46 @@ public:
 	}
 };
 
+/*
+ * gl::vert_array
+ *
+ * FIXME explain
+ */
 class vert_array : private util::nocopy {
 private:
+	// (var) m_id
+	// FIXME explain
 	unsigned int m_id = 0;
 
 public:
+	// (default ctor)
+	// FIXME explain
 	vert_array() = default;
 
+	// (move ctor)
+	// FIXME explain
 	vert_array(vert_array &&src)
 	{
 		std::swap(m_id,src.m_id);
 	}
 
+	// (dtor)
+	// FIXME explain
 	~vert_array()
 	{
 		glDeleteVertexArrays(1,&m_id);
 	}
 
+	// (move-assignment operator)
+	// FIXME explain
 	vert_array &operator =(vert_array &&rhs)
 	{
 		std::swap(m_id,rhs.m_id);
 		return *this;
 	}
 
+	// (conversion operator)
+	// FIXME explain
 	operator decltype(m_id)() &
 	{
 		if (!m_id) {
@@ -123,29 +185,46 @@ public:
 	}
 };
 
+/*
+ * gl::renderbuffer
+ *
+ * FIXME explain
+ */
 class renderbuffer : private util::nocopy {
 private:
+	// (var) m_id
+	// FIXME explain
 	unsigned int m_id = 0;
 
 public:
+	// (default ctor)
+	// FIXME explain
 	renderbuffer() = default;
 
+	// (move ctor)
+	// FIXME explain
 	renderbuffer(renderbuffer &&src)
 	{
 		std::swap(m_id,src.m_id);
 	}
 
+	// (dtor)
+	// FIXME explain
 	~renderbuffer()
 	{
 		glDeleteRenderbuffers(1,&m_id);
 	}
 
+	// (move-assignment operator)
+	// FIXME explain
 	renderbuffer &operator =(renderbuffer &&rhs)
 	{
 		std::swap(m_id,rhs.m_id);
 		return *this;
 	}
 
+	// (conversion operator)
+	// FIXME explain
 	operator decltype(m_id)() &
 	{
 		if (!m_id) {
@@ -155,29 +234,46 @@ public:
 	}
 };
 
+/*
+ * gl::framebuffer
+ *
+ * FIXME explain
+ */
 class framebuffer : private util::nocopy {
 private:
+	// (var) m_id
+	// FIXME explain
 	unsigned int m_id = 0;
 
 public:
+	// (default ctor)
+	// FIXME explain
 	framebuffer() = default;
 
+	// (move ctor)
+	// FIXME explain
 	framebuffer(framebuffer &&src)
 	{
 		std::swap(m_id,src.m_id);
 	}
 
+	// (dtor)
+	// FIXME explain
 	~framebuffer()
 	{
 		glDeleteFramebuffers(1,&m_id);
 	}
 
+	// (move-assignment operator)
+	// FIXME explain
 	framebuffer &operator =(framebuffer &&rhs)
 	{
 		std::swap(m_id,rhs.m_id);
 		return *this;
 	}
 
+	// (conversion operation)
+	// FIXME explain
 	operator decltype(m_id)() &
 	{
 		if (!m_id) {
@@ -187,29 +283,46 @@ public:
 	}
 };
 
+/*
+ * gl::program
+ *
+ * FIXME explain
+ */
 class program : private util::nocopy {
 private:
+	// (var) m_id
+	// FIXME explain
 	unsigned int m_id = 0;
 
 public:
+	// (default ctor)
+	// FIXME explain
 	program() = default;
 
+	// (move ctor)
+	// FIXME explain
 	program(program &&src)
 	{
 		std::swap(m_id,src.m_id);
 	}
 
+	// (dtor)
+	// FIXME explain
 	~program()
 	{
 		glDeleteProgram(m_id);
 	}
 
+	// (move-assignment operator)
+	// FIXME explain
 	program &operator =(program &&rhs)
 	{
 		std::swap(m_id,rhs.m_id);
 		return *this;
 	}
 
+	// (conversion operator)
+	// FIXME explain
 	operator decltype(m_id)() &
 	{
 		if (!m_id) {
@@ -219,30 +332,47 @@ public:
 	}
 };
 
+/*
+ * gl::shader
+ *
+ * FIXME explain
+ */
 template <int Type>
 class shader : private util::nocopy {
 private:
+	// (var) m_id
+	// FIXME explain
 	unsigned int m_id = 0;
 
 public:
+	// (default ctor)
+	// FIXME explain
 	shader() = default;
 
+	// (move ctor)
+	// FIXME explain
 	shader(shader &&src)
 	{
 		std::swap(m_id,src.m_id);
 	}
 
+	// (dtor)
+	// FIXME explain
 	~shader()
 	{
 		glDeleteShader(m_id);
 	}
 
+	// (move-assignment operator)
+	// FIXME explain
 	shader &operator =(shader &&rhs)
 	{
 		std::swap(m_id,rhs.m_id);
 		return *this;
 	}
 
+	// (conversion operator)
+	// FIXME explain
 	operator decltype(m_id)() &
 	{
 		if (!m_id) {
@@ -251,6 +381,8 @@ public:
 		return m_id;
 	}
 
+	// (func) compile
+	// FIXME explain
 	void compile(const std::string &code)
 	{
 		const char *code_cstr = code.c_str();
@@ -281,9 +413,21 @@ public:
 	}
 };
 
+/*
+ * gl::vert_shader
+ *
+ * FIXME explain
+ */
 using vert_shader = shader<GL_VERTEX_SHADER>;
+
+/*
+ * gl::frag_shader
+ *
+ * FIXME explain
+ */
 using frag_shader = shader<GL_FRAGMENT_SHADER>;
 
+// FIXME obsolete
 namespace old {
 
 class machine : private util::nocopy {
