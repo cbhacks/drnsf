@@ -20,6 +20,12 @@
 
 #pragma once
 
+/*
+ * gui.hh
+ *
+ * FIXME explain
+ */
+
 #include <gtk/gtk.h>
 #include "../imgui/imgui.h"
 #include "gl.hh"
