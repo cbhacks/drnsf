@@ -24,22 +24,26 @@
 namespace drnsf {
 namespace gui {
 
+// declared in gui.hh
 tabview::tabview(container &parent)
 {
 	M = gtk_notebook_new();
 	gtk_container_add(parent.get_container_handle(),M);
 }
 
+// declared in gui.hh
 tabview::~tabview()
 {
 	gtk_widget_destroy(M);
 }
 
+// declared in gui.hh
 void tabview::show()
 {
 	gtk_widget_show(M);
 }
 
+// declared in gui.hh
 tabview::page::page(tabview &view,const std::string &title) :
 	m_view(view)
 {
@@ -55,11 +59,13 @@ tabview::page::page(tabview &view,const std::string &title) :
 	);
 }
 
+// declared in gui.hh
 tabview::page::~page()
 {
 	gtk_notebook_remove_page(GTK_NOTEBOOK(m_view.M),m_pagenum);
 }
 
+// declared in gui.hh
 GtkContainer *tabview::page::get_container_handle()
 {
 	return GTK_CONTAINER(M);

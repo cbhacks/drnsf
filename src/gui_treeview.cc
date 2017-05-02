@@ -24,6 +24,7 @@
 namespace drnsf {
 namespace gui {
 
+// declared in gui.hh
 void treeview::sigh_changed(GtkTreeSelection *treeselection,gpointer user_data)
 {
 	auto self = static_cast<treeview *>(user_data);
@@ -59,6 +60,7 @@ void treeview::sigh_changed(GtkTreeSelection *treeselection,gpointer user_data)
 	}
 }
 
+// declared in gui.hh
 treeview::treeview(container &parent)
 {
 	m_store = gtk_tree_store_new(2,G_TYPE_STRING,G_TYPE_POINTER);
@@ -82,17 +84,20 @@ treeview::treeview(container &parent)
 	gtk_widget_show(m_tree);
 }
 
+// declared in gui.hh
 treeview::~treeview()
 {
 	gtk_widget_destroy(m_scroll);
 	// FIXME - destroy tree store?
 }
 
+// declared in gui.hh
 void treeview::show()
 {
 	gtk_widget_show(m_scroll);
 }
 
+// declared in gui.hh
 treeview::node::node(treeview &parent) :
 	m_view(parent),
 	m_store(parent.m_store)
@@ -101,6 +106,7 @@ treeview::node::node(treeview &parent) :
 	gtk_tree_store_set(m_store,&m_iter,1,this,-1);
 }
 
+// declared in gui.hh
 treeview::node::node(node &parent) :
 	nocopy(),
 	m_view(parent.m_view),
@@ -110,6 +116,7 @@ treeview::node::node(node &parent) :
 	gtk_tree_store_set(m_store,&m_iter,1,this,-1);
 }
 
+// declared in gui.hh
 treeview::node::~node()
 {
 	if (m_view.m_selected_node == this) {
@@ -119,6 +126,7 @@ treeview::node::~node()
 	gtk_tree_store_remove(m_store,&m_iter);
 }
 
+// declared in gui.hh
 void treeview::node::set_text(const std::string &text)
 {
 	gtk_tree_store_set(m_store,&m_iter,0,text.c_str(),-1);

@@ -24,11 +24,13 @@
 namespace drnsf {
 namespace gui {
 
+// declared in gui.hh
 void menu_item::sigh_activate(GtkMenuItem *menuitem,gpointer user_data)
 {
 	static_cast<menu_item *>(user_data)->on_click();
 }
 
+// declared in gui.hh
 menu_item::menu_item(menu &parent,const std::string &text)
 {
 	M = gtk_menu_item_new_with_label(text.c_str());
@@ -37,6 +39,7 @@ menu_item::menu_item(menu &parent,const std::string &text)
 	gtk_widget_show(M);
 }
 
+// declared in gui.hh
 menu_item::~menu_item()
 {
 	gtk_widget_destroy(M);

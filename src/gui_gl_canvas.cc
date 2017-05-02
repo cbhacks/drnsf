@@ -24,6 +24,7 @@
 
 namespace drnsf {
 
+// defined in gl.cc
 namespace gl {
 	extern GdkWindow *g_wnd;
 	extern GdkGLContext *g_glctx;
@@ -31,6 +32,7 @@ namespace gl {
 
 namespace gui {
 
+// declared in gui.hh
 gboolean gl_canvas::sigh_draw(
 	GtkWidget *widget,
 	cairo_t *cr,
@@ -94,6 +96,7 @@ gboolean gl_canvas::sigh_draw(
 	return true;
 }
 
+// declared in gui.hh
 gboolean gl_canvas::sigh_motion_notify_event(
 	GtkWidget *widget,
 	GdkEvent *event,
@@ -106,6 +109,7 @@ gboolean gl_canvas::sigh_motion_notify_event(
 	return true;
 }
 
+// declared in gui.hh
 gboolean gl_canvas::sigh_scroll_event(
 	GtkWidget *widget,
 	GdkEvent *event,
@@ -121,6 +125,7 @@ gboolean gl_canvas::sigh_scroll_event(
 	return true;
 }
 
+// declared in gui.hh
 gboolean gl_canvas::sigh_button_event(
 	GtkWidget *widget,
 	GdkEvent *event,
@@ -133,6 +138,7 @@ gboolean gl_canvas::sigh_button_event(
 	return true;
 }
 
+// declared in gui.hh
 gboolean gl_canvas::sigh_key_event(
 	GtkWidget *widget,
 	GdkEvent *event,
@@ -150,6 +156,7 @@ gboolean gl_canvas::sigh_key_event(
 	return true;
 }
 
+// declared in gui.hh
 gl_canvas::gl_canvas(container &parent)
 {
 	M = gtk_drawing_area_new();
@@ -203,16 +210,19 @@ gl_canvas::gl_canvas(container &parent)
 	gtk_container_add(parent.get_container_handle(),M);
 }
 
+// declared in gui.hh
 gl_canvas::~gl_canvas()
 {
 	gtk_widget_destroy(M);
 }
 
+// declared in gui.hh
 void gl_canvas::show()
 {
 	gtk_widget_show(M);
 }
 
+// declared in gui.hh
 void gl_canvas::invalidate()
 {
 	gtk_widget_queue_draw_area(

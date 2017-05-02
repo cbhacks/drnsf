@@ -24,6 +24,7 @@
 namespace drnsf {
 namespace gui {
 
+// declared in gui.hh
 menu::menu(window &parent,const std::string &text)
 {
 	m_item = gtk_menu_item_new_with_label(text.c_str());
@@ -35,6 +36,7 @@ menu::menu(window &parent,const std::string &text)
 	gtk_widget_show(m_item);
 }
 
+// declared in gui.hh
 menu::menu(menu &parent,const std::string &text)
 {
 	m_item = gtk_menu_item_new_with_label(text.c_str());
@@ -46,6 +48,7 @@ menu::menu(menu &parent,const std::string &text)
 	gtk_widget_show(m_item);
 }
 
+// declared in gui.hh
 menu::~menu()
 {
 	gtk_widget_destroy(m_menu);

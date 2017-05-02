@@ -24,6 +24,7 @@
 namespace drnsf {
 namespace gui {
 
+// declared in gui.hh
 window::window(const std::string &title,int width,int height)
 {
 	M = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -45,16 +46,19 @@ window::window(const std::string &title,int width,int height)
 	gtk_widget_show(m_content);
 }
 
+// declared in gui.hh
 window::~window()
 {
 	gtk_widget_destroy(M);
 }
 
+// declared in gui.hh
 void window::show()
 {
 	gtk_widget_show(M);
 }
 
+// declared in gui.hh
 GtkContainer *window::get_container_handle()
 {
 	return GTK_CONTAINER(m_content);
