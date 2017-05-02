@@ -20,6 +20,12 @@
 
 #pragma once
 
+/*
+ * nsf.hh
+ *
+ * FIXME explain
+ */
+
 #include <vector>
 #include "res.hh"
 #include "gfx.hh"
