@@ -38,9 +38,25 @@
 #include <functional>
 #include <type_traits>
 
+/*
+ * APP_NAME
+ *
+ * FIXME explain
+ */
 #define APP_NAME "DRNSF"
+
+/*
+ * APP_TITLE
+ *
+ * FIXME explain
+ */
 #define APP_TITLE "Dr. N. Essef"
 
+/*
+ * STRINGIFY
+ *
+ * FIXME explain
+ */
 #define STRINGIFY(x) STRINGIFY_(x)
 #define STRINGIFY_(x) #x
 
@@ -48,10 +64,19 @@
 
 namespace drnsf {
 
-// User-defined literal for strings. This allows one to use a construct such as
-// `auto s = "Size: $, $"_fmt(width,height);' to format strings. This code is
-// equivalent to `auto s = util::fmt("Size: $, $")(width,height);' but is
-// shorter and perhaps easier to read.
+/*
+ * (user-defined literal)
+ *
+ * This allows one to use a construct such as the following:
+ *
+ *  `auto s = "Size: $, $"_fmt(width,height);'
+ *
+ * to format strings. This code is equivalent to:
+ *
+ *  `auto s = util::fmt("Size: $, $")(width,height);'
+ *
+ * but is shorter and perhaps easier to read.
+ */
 inline auto operator "" _fmt(const char *s,long unsigned int sz)
 {
 	return util::fmt(s);
