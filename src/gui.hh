@@ -34,6 +34,27 @@ namespace drnsf {
 namespace gui {
 
 /*
+ * gui::widget
+ *
+ * Common base class for all widget types.
+ */
+class widget : private util::nocopy {
+private:
+	// (pure func) get_handle
+	// Retrieves a handle to the "main" GTK widget behind this object. For
+	// most widgets, there is only a single GTK widget inside, but some may
+	// have multiple (for instance, if one needs a menubar or scroll view
+	// as well).
+	virtual GtkWidget *get_handle() = 0;
+
+public:
+	// (func) show
+	// Shows the widget, if it is hidden. By default, every widget is
+	// hidden when first constructed.
+	void show();
+};
+
+/*
  * gui::container
  *
  * FIXME explain
@@ -93,11 +114,15 @@ public:
  *
  * FIXME explain
  */
-class label : private util::nocopy {
+class label : public widget {
 private:
 	// (var) M
 	// FIXME explain
 	GtkWidget *M;
+
+	// (func) get_handle
+	// See gui::widget::get_handle.
+	GtkWidget *get_handle() override;
 
 public:
 	// (explicit ctor)
@@ -107,10 +132,6 @@ public:
 	// (dtor)
 	// FIXME explain
 	~label();
-
-	// (func) show
-	// FIXME explain
-	void show();
 };
 
 /*
@@ -118,11 +139,15 @@ public:
  *
  * FIXME explain
  */
-class tabview : private util::nocopy {
+class tabview : public widget {
 private:
 	// (var) M
 	// FIXME explain
 	GtkWidget *M;
+
+	// (func) get_handle
+	// See gui::widget::get_handle.
+	GtkWidget *get_handle() override;
 
 public:
 	// inner class defined later in this file
@@ -135,10 +160,6 @@ public:
 	// (dtor)
 	// FIXME explain
 	~tabview();
-
-	// (func) show
-	// FIXME explain
-	void show();
 };
 
 /*
@@ -179,7 +200,7 @@ public:
  *
  * FIXME explain
  */
-class splitview : private util::nocopy {
+class splitview : public widget {
 private:
 	// (var) M
 	// FIXME explain
@@ -202,6 +223,10 @@ private:
 	side m_left;
 	side m_right;
 
+	// (func) get_handle
+	// See gui::widget::get_handle.
+	GtkWidget *get_handle() override;
+
 public:
 	// (explicit ctor)
 	// FIXME explain
@@ -210,10 +235,6 @@ public:
 	// (dtor)
 	// FIXME explain
 	~splitview();
-
-	// (func) show
-	// FIXME explain
-	void show();
 
 	// (func) get_left
 	// FIXME explain
@@ -229,7 +250,7 @@ public:
  *
  * FIXME explain
  */
-class gridview : private util::nocopy {
+class gridview : public widget {
 private:
 	// (inner class) slot
 	// Cheap proxy for gui::container. FIXME ??
@@ -249,7 +270,12 @@ private:
 	GtkWidget *M;
 
 	// (var) m_slots
+	// FIXME explain
 	std::list<slot> m_slots;
+
+	// (func) get_handle
+	// See gui::widget::get_handle.
+	GtkWidget *get_handle() override;
 
 public:
 	// (explicit ctor)
@@ -263,10 +289,6 @@ public:
 	// Destroys the widget and removes it from its parent.
 	~gridview();
 
-	// (func) show
-	// Shows the widget, if it is hidden.
-	void show();
-
 	// (func) make_slot
 	// Creates a slot at the specified column and row (zero-based) with
 	// a width and height of (col_count,row_count) in columns and rows,
@@ -279,7 +301,7 @@ public:
  *
  * FIXME explain
  */
-class treeview : private util::nocopy {
+class treeview : public widget {
 public:
 	// inner class defined later in this file
 	class node;
@@ -307,6 +329,10 @@ private:
 		GtkTreeSelection *treeselection,
 		gpointer user_data);
 
+	// (func) get_handle
+	// See gui::widget::get_handle.
+	GtkWidget *get_handle() override;
+
 public:
 	// (explicit ctor)
 	// FIXME explain
@@ -315,10 +341,6 @@ public:
 	// (dtor)
 	// FIXME explain
 	~treeview();
-
-	// (func) show
-	// FIXME explain
-	void show();
 };
 
 /*
@@ -371,7 +393,7 @@ public:
  *
  * FIXME explain
  */
-class gl_canvas : public gl::old::machine {
+class gl_canvas : public widget, public gl::old::machine {
 private:
 	// (var) M
 	// FIXME explain
@@ -412,6 +434,10 @@ private:
 		GdkEvent *event,
 		gpointer user_data);
 
+	// (func) get_handle
+	// See gui::widget::get_handle.
+	GtkWidget *get_handle() override;
+
 public:
 	// (explicit ctor)
 	// FIXME explain
@@ -420,10 +446,6 @@ public:
 	// (dtor)
 	// FIXME explain
 	~gl_canvas();
-
-	// (func) show
-	// FIXME explain
-	void show();
 
 	// (func) invalidate
 	// FIXME explain

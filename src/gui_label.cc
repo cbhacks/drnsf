@@ -25,6 +25,12 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
+GtkWidget *label::get_handle()
+{
+	return M;
+}
+
+// declared in gui.hh
 label::label(container &parent,const std::string &text)
 {
 	M = gtk_label_new(text.c_str());
@@ -35,12 +41,6 @@ label::label(container &parent,const std::string &text)
 label::~label()
 {
 	gtk_widget_destroy(M);
-}
-
-// declared in gui.hh
-void label::show()
-{
-	gtk_widget_show(M);
 }
 
 }

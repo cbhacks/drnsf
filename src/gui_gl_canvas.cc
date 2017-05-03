@@ -157,6 +157,12 @@ gboolean gl_canvas::sigh_key_event(
 }
 
 // declared in gui.hh
+GtkWidget *gl_canvas::get_handle()
+{
+	return M;
+}
+
+// declared in gui.hh
 gl_canvas::gl_canvas(container &parent)
 {
 	M = gtk_drawing_area_new();
@@ -214,12 +220,6 @@ gl_canvas::gl_canvas(container &parent)
 gl_canvas::~gl_canvas()
 {
 	gtk_widget_destroy(M);
-}
-
-// declared in gui.hh
-void gl_canvas::show()
-{
-	gtk_widget_show(M);
 }
 
 // declared in gui.hh

@@ -61,6 +61,12 @@ void treeview::sigh_changed(GtkTreeSelection *treeselection,gpointer user_data)
 }
 
 // declared in gui.hh
+GtkWidget *treeview::get_handle()
+{
+	return m_scroll;
+}
+
+// declared in gui.hh
 treeview::treeview(container &parent)
 {
 	m_store = gtk_tree_store_new(2,G_TYPE_STRING,G_TYPE_POINTER);
@@ -89,12 +95,6 @@ treeview::~treeview()
 {
 	gtk_widget_destroy(m_scroll);
 	// FIXME - destroy tree store?
-}
-
-// declared in gui.hh
-void treeview::show()
-{
-	gtk_widget_show(m_scroll);
 }
 
 // declared in gui.hh

@@ -25,6 +25,12 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
+GtkWidget *splitview::get_handle()
+{
+	return M;
+}
+
+// declared in gui.hh
 splitview::splitview(container &parent)
 {
 	M = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
@@ -45,12 +51,6 @@ splitview::splitview(container &parent)
 splitview::~splitview()
 {
 	gtk_widget_destroy(M);
-}
-
-// declared in gui.hh
-void splitview::show()
-{
-	gtk_widget_show(M);
 }
 
 // declared in gui.hh

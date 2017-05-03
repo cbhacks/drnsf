@@ -25,6 +25,12 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
+GtkWidget *gridview::get_handle()
+{
+	return M;
+}
+
+// declared in gui.hh
 gridview::gridview(container &parent,int cols,int rows,bool absolute)
 {
 	M = gtk_grid_new();
@@ -48,12 +54,6 @@ gridview::gridview(container &parent,int cols,int rows,bool absolute)
 gridview::~gridview()
 {
 	gtk_widget_destroy(M);
-}
-
-// declared in gui.hh
-void gridview::show()
-{
-	gtk_widget_show(M);
 }
 
 // declared in gui.hh

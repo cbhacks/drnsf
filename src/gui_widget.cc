@@ -25,50 +25,9 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-GtkWidget *tabview::get_handle()
+void widget::show()
 {
-	return M;
-}
-
-// declared in gui.hh
-tabview::tabview(container &parent)
-{
-	M = gtk_notebook_new();
-	gtk_container_add(parent.get_container_handle(),M);
-}
-
-// declared in gui.hh
-tabview::~tabview()
-{
-	gtk_widget_destroy(M);
-}
-
-// declared in gui.hh
-tabview::page::page(tabview &view,const std::string &title) :
-	m_view(view)
-{
-	M = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
-	gtk_box_set_homogeneous(GTK_BOX(M),true);
-	gtk_widget_show(M);
-	auto label = gtk_label_new(title.c_str());
-	gtk_widget_show(label);
-	m_pagenum = gtk_notebook_append_page(
-		GTK_NOTEBOOK(view.M),
-		M,
-		label
-	);
-}
-
-// declared in gui.hh
-tabview::page::~page()
-{
-	gtk_notebook_remove_page(GTK_NOTEBOOK(m_view.M),m_pagenum);
-}
-
-// declared in gui.hh
-GtkContainer *tabview::page::get_container_handle()
-{
-	return GTK_CONTAINER(M);
+	gtk_widget_show(get_handle());
 }
 
 }
