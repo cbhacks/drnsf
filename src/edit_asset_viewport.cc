@@ -25,67 +25,74 @@ namespace drnsf {
 namespace edit {
 
 // (inner class) impl
-// FIXME explain
-class asset_editor::impl : private util::nocopy {
-	friend class asset_editor;
+// Implementation class for asset_viewport (PIMPL).
+class asset_viewport::impl : private util::nocopy {
+	friend class asset_viewport;
 
 private:
 	// (var) m_outer
-	// A reference to the outer asset_editor object which uses this object.
-	asset_editor &m_outer;
+	// A reference to the outer asset_viewport.
+	asset_viewport &m_outer;
 
 	// (var) m_proj
-	// A reference to the project this editor operates on.
+	// A reference to the project this viewport applies to.
 	res::project &m_proj;
 
-	// (var) m_split
-	// A vertical split of the widget. The left side contains the asset
-	// tree while the right side contains the selected asset's details.
-	gui::splitview m_split;
+	// (var) m_canvas
+	// The viewport's OpenGL canvas.
+	gui::gl_canvas m_canvas;
 
-	// (var) m_tree
-	// FIXME explain
-	asset_tree m_tree;
+	// (handler) h_render
+	// Hook for the GL canvas on_render event.
+	decltype(m_canvas.on_render)::watch h_render;
 
-	// (var) m_viewport
-	// A GL viewport used to display the currently selected asset to the
-	// user.
-	asset_viewport m_viewport;
+	// (func) render
+	// Non-inline implementation for the h_render hook.
+	void render(int width,int height);
 
 public:
 	// (explicit ctor)
-	// Initializes the editor, and constructs the necessary widgets.
+	// Initializes the viewport widget.
 	explicit impl(
-		asset_editor &outer,
+		asset_viewport &outer,
 		gui::container &parent,
 		res::project &proj) :
 		m_outer(outer),
 		m_proj(proj),
-		m_split(parent),
-		m_tree(m_split.get_left(),proj),
-		m_viewport(m_split.get_right(),proj)
+		m_canvas(parent)
 	{
-		m_tree.show();
-		m_viewport.show();
+		h_render <<= [this](int width,int height) {
+			render(width,height);
+		};
+		h_render.bind(m_canvas.on_render);
 	}
 };
 
+// declared previously in this file
+void asset_viewport::impl::render(int width,int height)
+{
+	glClearColor(0,0,0,0); //FIXME not necessary once garbage is removed
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// TODO
+}
+
 // declared in edit.hh
-asset_editor::asset_editor(gui::container &parent,res::project &proj)
+asset_viewport::asset_viewport(gui::container &parent,res::project &proj)
 {
 	M = new impl(*this,parent,proj);
 }
 
 // declared in edit.hh
-asset_editor::~asset_editor()
+asset_viewport::~asset_viewport()
 {
 	delete M;
 }
 
 // declared in edit.hh
-void asset_editor::show()
+void asset_viewport::show()
 {
-	M->m_split.show();
+	M->m_canvas.show();
 }
 
 }

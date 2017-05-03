@@ -92,6 +92,34 @@ public:
 	void show();
 };
 
+/*
+ * edit::asset_viewport
+ *
+ * FIXME explain
+ */
+class asset_viewport : private util::nocopy {
+private:
+	// inner class defined in edit_asset_viewport.cc
+	class impl;
+
+	// (var) M
+	// The pointer to the internal implementation object (PIMPL).
+	impl *M;
+
+public:
+	// (explicit ctor)
+	// Constructs the widget and places it in the given parent container.
+	explicit asset_viewport(gui::container &parent,res::project &proj);
+
+	// (dtor)
+	// Destroys the widget, removing it from the parent container.
+	~asset_viewport();
+
+	// (func) show
+	// Shows the widget.
+	void show();
+};
+
 // FIXME - temporary global for compatibility
 extern res::atom g_selected_asset;
 extern float g_camera_yaw;
