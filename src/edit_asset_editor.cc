@@ -51,31 +51,25 @@ public:
 		res::project &proj) :
 		m_outer(outer),
 		m_proj(proj),
-		m_tree(parent,outer) {}
+		m_tree(parent,proj) {}
 };
 
 // declared in edit.hh
 asset_editor::asset_editor(gui::container &parent,res::project &proj)
 {
-	util::inplace_new(M,*this,parent,proj);
+	M = new impl(*this,parent,proj);
 }
 
 // declared in edit.hh
 asset_editor::~asset_editor()
 {
-	util::inplace_delete(M);
+	delete M;
 }
 
 // declared in edit.hh
 void asset_editor::show()
 {
 	M->m_tree.show();
-}
-
-// declared in edit.hh
-res::project &asset_editor::get_proj()
-{
-	return M->m_proj;
 }
 
 }

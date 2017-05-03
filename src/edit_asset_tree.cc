@@ -37,9 +37,9 @@ private:
 	// A reference to the outer asset_tree.
 	asset_tree &m_outer;
 
-	// (var) m_ed
-	// A reference to the asset_editor which this tree is used by.
-	asset_editor &m_ed;
+	// (var) m_proj
+	// A reference to the project this tree applies to.
+	res::project &m_proj;
 
 	// (var) m_tree
 	// The treeview widget which this object drives. This is the actual
@@ -75,9 +75,9 @@ public:
 	explicit impl(
 		asset_tree &outer,
 		gui::container &parent,
-		asset_editor &ed) :
+		res::project &proj) :
 		m_outer(outer),
-		m_ed(ed),
+		m_proj(proj),
 		m_tree(parent)
 	{
 		h_asset_appear <<= [this](res::asset &asset) {
@@ -93,12 +93,12 @@ public:
 				atom_node_wp = atom_node_sp;
 			}
 		};
-		h_asset_appear.bind(m_ed.get_proj().on_asset_appear);
+		h_asset_appear.bind(m_proj.on_asset_appear);
 
 		h_asset_disappear <<= [this](res::asset &asset) {
 			m_asset_nodes.erase(&asset);
 		};
-		h_asset_disappear.bind(m_ed.get_proj().on_asset_disappear);
+		h_asset_disappear.bind(m_proj.on_asset_disappear);
 	}
 };
 
@@ -134,7 +134,7 @@ public:
 	explicit node(impl &view,res::atom atom)
 	{
 		auto parent_atom = atom.get_parent();
-		if (parent_atom == view.m_ed.get_proj().get_asset_root()) {
+		if (parent_atom == view.m_proj.get_asset_root()) {
 			m_treenode = std::make_unique<gui::treeview::node>(
 				view.m_tree
 			);
@@ -169,9 +169,9 @@ public:
 };
 
 // declared in edit.hh
-asset_tree::asset_tree(gui::container &parent,asset_editor &ed)
+asset_tree::asset_tree(gui::container &parent,res::project &proj)
 {
-	M = new impl(*this,parent,ed);
+	M = new impl(*this,parent,proj);
 }
 
 // declared in edit.hh

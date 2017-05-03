@@ -406,34 +406,6 @@ inline auto range_of(T &container)
 }
 
 /*
- * util::inplace_new
- *
- * FIXME explain
- */
-template <typename T,typename... Args>
-inline void inplace_new(T *&ptr,Args&&... args)
-{
-	ptr = reinterpret_cast<T *>(operator new(sizeof(T)));
-	try {
-		new(ptr) T(std::forward<Args>(args)...);
-	} catch (...) {
-		operator delete(ptr);
-	}
-}
-
-/*
- * util::inplace_delete
- *
- * FIXME explain
- */
-template <typename T>
-inline void inplace_delete(T *ptr)
-{
-	ptr->~T();
-	operator delete(ptr);
-}
-
-/*
  * util::binreader
  *
  * This class provides a mechanism for reading and parsing binary data.

@@ -62,10 +62,6 @@ public:
 	// (func) show
 	// Shows the widget.
 	void show();
-
-	// (func) get_proj
-	// Gets a reference to the project under this editor.
-	res::project &get_proj();
 };
 
 /*
@@ -85,7 +81,7 @@ private:
 public:
 	// (explicit ctor)
 	// Constructs the widget and places it in the given parent container.
-	explicit asset_tree(gui::container &parent,asset_editor &ed);
+	explicit asset_tree(gui::container &parent,res::project &proj);
 
 	// (dtor)
 	// Destroys the widget, removing it from the parent container.
