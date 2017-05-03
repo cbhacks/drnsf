@@ -59,7 +59,7 @@ void main_window::set_project(res::project &proj)
 	m_proj_p = &proj;
 	m_ed_p = std::make_unique<editor>(*m_proj_p);
 	m_map_view = std::make_unique<map_view>(m_split.get_right(),*m_ed_p);
-	m_assets_view = std::make_unique<assets_view>(m_assets_tab,*m_ed_p);
+	m_assets_view = std::make_unique<asset_editor>(m_assets_tab,proj);
 	m_detail_view = std::make_unique<detail_view>(m_detail_tab,*m_ed_p);
 
 	m_map_view->show();

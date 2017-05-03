@@ -20,6 +20,12 @@
 
 #pragma once
 
+/*
+ * edit.hh
+ *
+ * FIXME explain
+ */
+
 #include <list>
 #include <set>
 #include "../imgui/imgui.h"
@@ -30,11 +36,74 @@
 namespace drnsf {
 namespace edit {
 
+/*
+ * edit::asset_editor
+ *
+ * FIXME explain
+ */
+class asset_editor : private util::nocopy {
+private:
+	// inner class defined in edit_asset_editor.cc
+	class impl;
+
+	// (var) M
+	// The pointer to the internal implementation object (PIMPL).
+	impl *M;
+
+public:
+	// (explicit ctor)
+	// Constructs the widget and places it in the given parent container.
+	explicit asset_editor(gui::container &parent,res::project &proj);
+
+	// (dtor)
+	// Destroys the widget, removing it from the parent container.
+	~asset_editor();
+
+	// (func) show
+	// Shows the widget.
+	void show();
+
+	// (func) get_proj
+	// Gets a reference to the project under this editor.
+	res::project &get_proj();
+};
+
+/*
+ * edit::asset_tree
+ *
+ * FIXME explain
+ */
+class asset_tree : private util::nocopy {
+private:
+	// inner class defined in edit_asset_tree.cc
+	class impl;
+
+	// (var) M
+	// The pointer to the internal implementation object (PIMPL).
+	impl *M;
+
+public:
+	// (explicit ctor)
+	// Constructs the widget and places it in the given parent container.
+	explicit asset_tree(gui::container &parent,asset_editor &ed);
+
+	// (dtor)
+	// Destroys the widget, removing it from the parent container.
+	~asset_tree();
+
+	// (func) show
+	// Shows the widget.
+	void show();
+};
+
 // FIXME - temporary global for compatibility
 extern res::atom g_selected_asset;
 extern float g_camera_yaw;
 extern float g_camera_pitch;
 extern float g_camera_zoom;
+
+// FIXME FIXME FIXME FIXME FIXME
+// slightly newer but still obsolete code below
 
 class editor : private util::nocopy {
 	friend class map_view;
@@ -56,19 +125,6 @@ private:
 public:
 	explicit map_view(gui::container &parent,editor &ed);
 	~map_view();
-
-	void show();
-};
-
-class assets_view : private util::nocopy {
-private:
-	class impl;
-
-	impl *M;
-
-public:
-	explicit assets_view(gui::container &parent,editor &ed);
-	~assets_view();
 
 	void show();
 };
@@ -98,7 +154,7 @@ private:
 	res::project *m_proj_p;
 	std::unique_ptr<editor> m_ed_p;
 	std::unique_ptr<map_view> m_map_view;
-	std::unique_ptr<assets_view> m_assets_view;
+	std::unique_ptr<asset_editor> m_assets_view;
 	std::unique_ptr<detail_view> m_detail_view;
 
 	decltype(gui::menu_item::on_click)::watch h_menu_file_exit_click;
