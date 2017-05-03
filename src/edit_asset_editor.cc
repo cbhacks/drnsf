@@ -47,6 +47,18 @@ private:
 	// FIXME explain
 	asset_tree m_tree;
 
+	// (var) m_grid
+	// FIXME explain
+	gui::gridview m_grid;
+
+	// (var) m_infoview
+	// General informational widget for the currently selected asset.
+	asset_infoview m_infoview;
+
+	// (var) m_propview
+	// A property editor for the currently selected asset.
+	asset_propview m_propview;
+
 	// (var) m_viewport
 	// A GL viewport used to display the currently selected asset to the
 	// user.
@@ -63,9 +75,15 @@ public:
 		m_proj(proj),
 		m_split(parent),
 		m_tree(m_split.get_left(),proj),
-		m_viewport(m_split.get_right(),proj)
+		m_grid(m_split.get_right(),2,2,true),
+		m_infoview(m_grid.make_slot(0,0,1,1),proj),
+		m_propview(m_grid.make_slot(0,1,2,1),proj),
+		m_viewport(m_grid.make_slot(1,0,1,1),proj)
 	{
 		m_tree.show();
+		m_grid.show();
+		m_infoview.show();
+		m_propview.show();
 		m_viewport.show();
 	}
 };

@@ -43,6 +43,7 @@ add_executable (drnsf
 	src/gui_label.cc
 	src/gui_tabview.cc
 	src/gui_splitview.cc
+	src/gui_gridview.cc
 	src/gui_treeview.cc
 	src/gui_gl_canvas.cc
 	src/gui_menu.cc
@@ -62,6 +63,8 @@ add_executable (drnsf
 	src/edit.hh
 	src/edit_asset_editor.cc
 	src/edit_asset_tree.cc
+	src/edit_asset_infoview.cc
+	src/edit_asset_propview.cc
 	src/edit_asset_viewport.cc
 	src/edit_map_view.cc
 	src/edit_detail_view.cc

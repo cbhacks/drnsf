@@ -225,6 +225,56 @@ public:
 };
 
 /*
+ * gui::gridview
+ *
+ * FIXME explain
+ */
+class gridview : private util::nocopy {
+private:
+	// (inner class) slot
+	// Cheap proxy for gui::container. FIXME ??
+	struct slot : public container {
+		GtkWidget *m_box;
+
+		slot() = default;
+
+		GtkContainer *get_container_handle() override
+		{
+			return GTK_CONTAINER(m_box);
+		}
+	};
+
+	// (var) M
+	// FIXME explain
+	GtkWidget *M;
+
+	// (var) m_slots
+	std::list<slot> m_slots;
+
+public:
+	// (explicit ctor)
+	// Creates the gridview with the specified number of rows and columns,
+	// and adds it to the parent widget. If `absolute' is true, the grid
+	// cells each have equal size and the grid is stretched to fit the
+	// available space; otherwise, the grid is sized to fit its contents.
+	explicit gridview(container &parent,int cols,int rows,bool absolute);
+
+	// (dtor)
+	// Destroys the widget and removes it from its parent.
+	~gridview();
+
+	// (func) show
+	// Shows the widget, if it is hidden.
+	void show();
+
+	// (func) make_slot
+	// Creates a slot at the specified column and row (zero-based) with
+	// a width and height of (col_count,row_count) in columns and rows,
+	// and returns a reference to this slot as a container.
+	container &make_slot(int col,int row,int col_count,int row_count);
+};
+
+/*
  * gui::treeview
  *
  * FIXME explain

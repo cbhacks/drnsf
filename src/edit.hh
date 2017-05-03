@@ -93,6 +93,62 @@ public:
 };
 
 /*
+ * edit::asset_infoview
+ *
+ * FIXME explain
+ */
+class asset_infoview : private util::nocopy {
+private:
+	// inner class defined in edit_asset_infoview.cc
+	class impl;
+
+	// (var) M
+	// The pointer to the internal implementation object (PIMPL).
+	impl *M;
+
+public:
+	// (explicit ctor)
+	// Constructs the widget and places it in the given parent container.
+	explicit asset_infoview(gui::container &parent,res::project &proj);
+
+	// (dtor)
+	// Destroys the widget, removing it from the parent container.
+	~asset_infoview();
+
+	// (func) show
+	// Shows the widget.
+	void show();
+};
+
+/*
+ * edit::asset_propview
+ *
+ * FIXME explain
+ */
+class asset_propview : private util::nocopy {
+private:
+	// inner class defined in edit_asset_propview.cc
+	class impl;
+
+	// (var) M
+	// The pointer to the internal implementation object (PIMPL).
+	impl *M;
+
+public:
+	// (explicit ctor)
+	// Constructs the widget and places it in the given parent container.
+	explicit asset_propview(gui::container &parent,res::project &proj);
+
+	// (dtor)
+	// Destroys the widget, removing it from the parent container.
+	~asset_propview();
+
+	// (func) show
+	// Shows the widget.
+	void show();
+};
+
+/*
  * edit::asset_viewport
  *
  * FIXME explain
