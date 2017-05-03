@@ -97,6 +97,8 @@ add_executable (drnsf
 	src/module_testbox.cc
 
 	$<TARGET_OBJECTS:imgui>
+
+	${CMAKE_CURRENT_BINARY_DIR}/embed_data.cc
 )
 
 # Enable C++14
@@ -134,3 +136,17 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 	target_compile_options (drnsf PRIVATE -Wall -Wextra)
 	target_compile_options (drnsf PRIVATE -Wno-unused-parameter)
 endif ()
+
+# Tool: embedgen
+# This command generates an embed_data.cc file from the `data/' directory
+# so that it can be added to the exectuable.
+add_executable (embedgen tools/embedgen.c)
+add_custom_target (embed_data_dir
+	COMMAND embedgen
+	${CMAKE_CURRENT_SOURCE_DIR}/data
+	${CMAKE_CURRENT_BINARY_DIR}/embed_data.cc
+	DEPENDS embedgen
+	COMMENT "Packing data/ directory into embed_data.cc..."
+	SOURCES data/
+)
+add_dependencies (drnsf embed_data_dir)

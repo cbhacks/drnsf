@@ -25,6 +25,18 @@
 #include "gfx.hh"
 
 namespace drnsf {
+
+namespace embed {
+namespace cube_vert_glsl {
+	extern const unsigned char data[];
+	extern const std::size_t size;
+}
+namespace cube_frag_glsl {
+	extern const unsigned char data[];
+	extern const std::size_t size;
+}
+}
+
 namespace edit {
 
 class map_view::impl : private util::nocopy {
@@ -95,36 +107,25 @@ public:
 		h_mousebutton.bind(m_canvas.on_mousebutton);
 
 		{
-			const char code[] = R"(
-
-#version 110
-
-const vec4 SCALE = vec4(200.0,200.0,200.0,1.0);
-
-void main()
-{
-	gl_Position = gl_ModelViewProjectionMatrix * (gl_Vertex * SCALE);
-}
-
-)";
+			using std::string;
 			gl::vert_shader cube_vert_shader;
-			cube_vert_shader.compile(code);
+			cube_vert_shader.compile({
+				reinterpret_cast<const char *>(
+					embed::cube_vert_glsl::data
+				),
+				embed::cube_vert_glsl::size
+			});
 			glAttachShader(m_cube_prog,cube_vert_shader);
 		}
 
 		{
-			const char code[] = R"(
-
-#version 110
-
-void main()
-{
-	gl_FragColor = vec4(1.0,1.0,1.0,1.0);
-}
-
-)";
 			gl::frag_shader cube_frag_shader;
-			cube_frag_shader.compile(code);
+			cube_frag_shader.compile({
+				reinterpret_cast<const char *>(
+					embed::cube_frag_glsl::data
+				),
+				embed::cube_frag_glsl::size
+			});
 			glAttachShader(m_cube_prog,cube_frag_shader);
 		}
 
