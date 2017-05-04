@@ -61,8 +61,10 @@ add_executable (drnsf
 	src/gl_texture.cc
 	src/gl_vert_array.cc
 
+	src/render.hh
+	src/render_viewport.cc
+
 	src/edit.hh
-	src/edit_viewport.cc
 	src/edit_asset_editor.cc
 	src/edit_asset_tree.cc
 	src/edit_asset_infoview.cc

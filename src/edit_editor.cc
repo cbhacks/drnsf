@@ -25,7 +25,7 @@ namespace drnsf {
 namespace edit {
 
 res::atom g_selected_asset;
-camera g_camera;
+render::camera g_camera;
 
 editor::editor(project &proj) :
 	m_proj(proj)

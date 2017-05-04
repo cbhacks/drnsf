@@ -41,7 +41,7 @@ private:
 	// (var) m_canvas
 	// The the underlying viewport widget. asset_viewport does not directly
 	// render anything, but instead uses the general edit::viewport class.
-	viewport m_viewport;
+	render::viewport m_viewport;
 
 public:
 	// (explicit ctor)

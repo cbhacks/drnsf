@@ -19,10 +19,12 @@
 //
 
 #include "common.hh"
-#include "edit.hh"
+#include "render.hh"
+
+#include "edit.hh" // FIXME temporary
 
 namespace drnsf {
-namespace edit {
+namespace render {
 
 // (inner class) impl
 // Implementation class for viewport (PIMPL).
@@ -88,13 +90,13 @@ public:
 				int delta_x = x - m_mouse_x_prev;
 				int delta_y = y - m_mouse_y_prev;
 
-				g_camera_yaw += delta_x;
+				edit::g_camera_yaw += delta_x;
 
-				g_camera_pitch += delta_y;
-				if (g_camera_pitch > 90.0f) {
-					g_camera_pitch = 90.0f;
-				} else if (g_camera_pitch < -90.0f) {
-					g_camera_pitch = -90.0f;
+				edit::g_camera_pitch += delta_y;
+				if (edit::g_camera_pitch > 90.0f) {
+					edit::g_camera_pitch = 90.0f;
+				} else if (edit::g_camera_pitch < -90.0f) {
+					edit::g_camera_pitch = -90.0f;
 				}
 				m_canvas.invalidate();//FIXME remove
 			}
@@ -105,9 +107,9 @@ public:
 		h_mousemove.bind(m_canvas.on_mousemove);
 
 		h_mousewheel <<= [this](int delta_y) {
-			g_camera_zoom -= g_camera_zoom * 0.1 * delta_y;
-			if (g_camera_zoom < 500.0f) {
-				g_camera_zoom = 500.0f;
+			edit::g_camera_zoom -= edit::g_camera_zoom * 0.1 * delta_y;
+			if (edit::g_camera_zoom < 500.0f) {
+				edit::g_camera_zoom = 500.0f;
 			}
 			m_canvas.invalidate();//FIXME remove
 		};
@@ -131,19 +133,19 @@ void viewport::impl::render(int width,int height)
 	// TODO
 }
 
-// declared in edit.hh
+// declared in render.hh
 viewport::viewport(gui::container &parent)
 {
 	M = new impl(*this,parent);
 }
 
-// declared in edit.hh
+// declared in render.hh
 viewport::~viewport()
 {
 	delete M;
 }
 
-// declared in edit.hh
+// declared in render.hh
 void viewport::show()
 {
 	M->m_canvas.show();
