@@ -54,6 +54,35 @@ struct camera {
 };
 
 /*
+ * edit::viewport
+ *
+ * FIXME explain
+ */
+class viewport : private util::nocopy {
+private:
+	// inner class defined in edit_viewport.cc
+	class impl;
+
+	// (var) M
+	// The pointer to the internal implementation object (PIMPL).
+	impl *M;
+
+public:
+	// (explicit ctor)
+	// Constructs an empty viewport widget and places it in the given
+	// parent container.
+	explicit viewport(gui::container &parent);
+
+	// (dtor)
+	// Destroys the widget, removing it from the parent container.
+	~viewport();
+
+	// (func) show
+	// Shows the widget.
+	void show();
+};
+
+/*
  * edit::asset_editor
  *
  * FIXME explain
