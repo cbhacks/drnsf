@@ -38,9 +38,32 @@ private:
 	// The viewport's OpenGL canvas.
 	gui::gl_canvas m_canvas;
 
+	// (var) m_mouse_down
+	// True if the mouse button (primary/"left") is currently down on this
+	// widget; false if not.
+	bool m_mouse_down = false;
+
+	// (var) m_mouse_x_prev, m_mouse_y_prev
+	// The location of the mouse at the last on_mousemove or on_mousebutton
+	// event.
+	int m_mouse_x_prev;
+	int m_mouse_y_prev;
+
 	// (handler) h_render
 	// Hook for the GL canvas on_render event.
 	decltype(m_canvas.on_render)::watch h_render;
+
+	// (handler) h_mousemove
+	// Hook for the GL canvas on_mousemove event.
+	decltype(m_canvas.on_mousemove)::watch h_mousemove;
+
+	// (handle) h_mousewheel
+	// Hook for the GL canvas on_mousewheel event.
+	decltype(m_canvas.on_mousewheel)::watch h_mousewheel;
+
+	// (handle) h_mousebutton
+	// Hook for the GL canvas on_mousebutton event.
+	decltype(m_canvas.on_mousebutton)::watch h_mousebutton;
 
 	// (func) render
 	// Non-inline implementation for the h_render hook.
@@ -59,6 +82,43 @@ public:
 			render(width,height);
 		};
 		h_render.bind(m_canvas.on_render);
+
+		h_mousemove <<= [this](int x,int y) {
+			if (m_mouse_down) {
+				int delta_x = x - m_mouse_x_prev;
+				int delta_y = y - m_mouse_y_prev;
+
+				g_camera_yaw += delta_x;
+
+				g_camera_pitch += delta_y;
+				if (g_camera_pitch > 90.0f) {
+					g_camera_pitch = 90.0f;
+				} else if (g_camera_pitch < -90.0f) {
+					g_camera_pitch = -90.0f;
+				}
+				m_canvas.invalidate();//FIXME remove
+			}
+
+			m_mouse_x_prev = x;
+			m_mouse_y_prev = y;
+		};
+		h_mousemove.bind(m_canvas.on_mousemove);
+
+		h_mousewheel <<= [this](int delta_y) {
+			g_camera_zoom -= g_camera_zoom * 0.1 * delta_y;
+			if (g_camera_zoom < 500.0f) {
+				g_camera_zoom = 500.0f;
+			}
+			m_canvas.invalidate();//FIXME remove
+		};
+		h_mousewheel.bind(m_canvas.on_mousewheel);
+
+		h_mousebutton <<= [this](int button,bool down) {
+			if (button == 1) {
+				m_mouse_down = down;
+			}
+		};
+		h_mousebutton.bind(m_canvas.on_mousebutton);
 	}
 };
 

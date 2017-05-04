@@ -39,16 +39,9 @@ private:
 	res::project &m_proj;
 
 	// (var) m_canvas
-	// The viewport's OpenGL canvas.
-	gui::gl_canvas m_canvas;
-
-	// (handler) h_render
-	// Hook for the GL canvas on_render event.
-	decltype(m_canvas.on_render)::watch h_render;
-
-	// (func) render
-	// Non-inline implementation for the h_render hook.
-	void render(int width,int height);
+	// The the underlying viewport widget. asset_viewport does not directly
+	// render anything, but instead uses the general edit::viewport class.
+	viewport m_viewport;
 
 public:
 	// (explicit ctor)
@@ -59,23 +52,10 @@ public:
 		res::project &proj) :
 		m_outer(outer),
 		m_proj(proj),
-		m_canvas(parent)
+		m_viewport(parent)
 	{
-		h_render <<= [this](int width,int height) {
-			render(width,height);
-		};
-		h_render.bind(m_canvas.on_render);
 	}
 };
-
-// declared previously in this file
-void asset_viewport::impl::render(int width,int height)
-{
-	glClearColor(0,0,0,0); //FIXME not necessary once garbage is removed
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// TODO
-}
 
 // declared in edit.hh
 asset_viewport::asset_viewport(gui::container &parent,res::project &proj)
@@ -92,7 +72,7 @@ asset_viewport::~asset_viewport()
 // declared in edit.hh
 void asset_viewport::show()
 {
-	M->m_canvas.show();
+	M->m_viewport.show();
 }
 
 }
