@@ -24,11 +24,11 @@
 namespace drnsf {
 
 namespace embed {
-	namespace cube_vert_glsl {
+	namespace reticle_vert {
 		extern const unsigned char data[];
 		extern const std::size_t size;
 	}
-	namespace cube_frag_glsl {
+	namespace reticle_frag {
 		extern const unsigned char data[];
 		extern const std::size_t size;
 	}
@@ -130,15 +130,15 @@ static void init()
 
 	gl::vert_shader vs;
 	vs.compile({
-		reinterpret_cast<const char *>(embed::cube_vert_glsl::data),
-		embed::cube_vert_glsl::size
+		reinterpret_cast<const char *>(embed::reticle_vert::data),
+		embed::reticle_vert::size
 	});
 	glAttachShader(s_prog,vs);
 
 	gl::frag_shader fs;
 	fs.compile({
-		reinterpret_cast<const char *>(embed::cube_frag_glsl::data),
-		embed::cube_frag_glsl::size
+		reinterpret_cast<const char *>(embed::reticle_frag::data),
+		embed::reticle_frag::size
 	});
 	glAttachShader(s_prog,fs);
 
