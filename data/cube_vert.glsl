@@ -22,7 +22,9 @@
 
 const vec4 SCALE = vec4(200.0,200.0,200.0,1.0);
 
+uniform mat4 u_Matrix;
+
 void main()
 {
-	gl_Position = gl_ModelViewProjectionMatrix * (gl_Vertex * SCALE);
+	gl_Position = u_Matrix * (gl_Vertex * SCALE);
 }

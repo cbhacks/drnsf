@@ -94,6 +94,10 @@ static gl::buffer s_ibo;
 // The GL shader program to use for the reticle model.
 static gl::program s_prog;
 
+// (s-var) s_matrix_uni
+// The location of the "u_Matrix" shader uniform variable.
+static int s_matrix_uni;
+
 // (s-func) init
 // Initializes the GL resources for this file if not already initialized.
 // Otherwise, no operation occurs.
@@ -139,6 +143,8 @@ static void init()
 	glAttachShader(s_prog,fs);
 
 	glLinkProgram(s_prog);
+
+	s_matrix_uni = glGetUniformLocation(s_prog,"u_Matrix");
 }
 
 // declared in render.hh
@@ -146,23 +152,14 @@ void reticle_fig::draw(const glm::mat4 &projection,const glm::mat4 &modelview)
 {
 	init();
 
-	glPushMatrix();
-	glLoadMatrixf(&modelview[0][0]);
-
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadMatrixf(&projection[0][0]);
+	auto matrix = projection * modelview;
 
 	glUseProgram(s_prog);
+	glUniformMatrix4fv(s_matrix_uni,1,false,&matrix[0][0]);
 	glBindVertexArray(s_vao);
 	glDrawElements(GL_LINES,56,GL_UNSIGNED_BYTE,0);
 	glBindVertexArray(0);
 	glUseProgram(0);
-
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-
-	glPopMatrix();
 }
 
 }
