@@ -64,6 +64,10 @@ private:
 	// user.
 	asset_viewport m_viewport;
 
+	// (handler) h_tree_select
+	// Handler for the asset tree's on_select event.
+	decltype(m_tree.on_select)::watch h_tree_select;
+
 public:
 	// (explicit ctor)
 	// Initializes the editor, and constructs the necessary widgets.
@@ -80,6 +84,11 @@ public:
 		m_propview(m_grid.make_slot(0,1,2,1),proj),
 		m_viewport(m_grid.make_slot(1,0,1,1),proj)
 	{
+		h_tree_select <<= [this](res::atom atom) {
+			g_selected_asset = atom;
+		};
+		h_tree_select.bind(m_tree.on_select);
+
 		m_tree.show();
 		m_grid.show();
 		m_infoview.show();

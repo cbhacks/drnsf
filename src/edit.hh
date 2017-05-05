@@ -91,6 +91,12 @@ public:
 	// (func) show
 	// Shows the widget.
 	void show();
+
+	// (event) on_select
+	// Raised when the selected asset has changed. Note that this can be
+	// triggered automatically, for example if the currently selected asset
+	// vanishes and the tree automatically selects another list item.
+	util::event<res::atom> on_select;
 };
 
 /*

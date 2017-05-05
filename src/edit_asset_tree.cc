@@ -41,6 +41,10 @@ private:
 	// A reference to the project this tree applies to.
 	res::project &m_proj;
 
+	// (var) m_selected_asset
+	// The selected asset name.
+	res::atom m_selected_asset;
+
 	// (var) m_tree
 	// The treeview widget which this object drives. This is the actual
 	// widget which appears on screen. asset_tree merely adapts the widget
@@ -154,14 +158,16 @@ public:
 		}
 		m_treenode->set_text(atom.name());
 
-		h_select <<= [this,atom]{
-			g_selected_asset = atom;
+		h_select <<= [this,atom,&view]{
+			view.m_selected_asset = atom;
+			view.m_outer.on_select(atom);
 		};
 		h_select.bind(m_treenode->on_select);
 
-		h_deselect <<= [this,atom]{
-			if (g_selected_asset == atom) {
-				g_selected_asset = nullptr;
+		h_deselect <<= [this,atom,&view]{
+			if (view.m_selected_asset == atom) {
+				view.m_selected_asset = nullptr;
+				view.m_outer.on_select(nullptr);
 			}
 		};
 		h_deselect.bind(m_treenode->on_deselect);
