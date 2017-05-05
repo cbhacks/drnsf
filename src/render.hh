@@ -189,5 +189,34 @@ public:
 		figure(vp) {}
 };
 
+/*
+ * render::meshframe_fig
+ *
+ * This figure draws a gfx::mesh / gfx::frame pairing. The mesh and frame are
+ * specified by res::ref-style references. The figure automatically handles
+ * the appearance and disappearance of assets under those names.
+ */
+class meshframe_fig : public figure {
+private:
+	// (var) m_mesh
+	// The reference to the mesh used by this figure.
+	gfx::mesh::ref m_mesh;
+
+	// (var) m_frame
+	// The reference to the frame used by this figure.
+	gfx::frame::ref m_frame;
+
+	// (func) draw
+	// Implements `figure::draw'.
+	void draw(const env &e) override;
+
+public:
+	// (explicit ctor)
+	// Constructs the figure. Initially, it does not reference any mesh
+	// or frame.
+	explicit meshframe_fig(viewport &vp) :
+		figure(vp) {}
+};
+
 }
 }
