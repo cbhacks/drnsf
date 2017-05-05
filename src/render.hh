@@ -103,6 +103,17 @@ public:
 class figure : private util::nocopy {
 	friend class viewport;
 
+protected:
+	// (inner class) env
+	// This structure is used to pass information to the `draw' method
+	// without the need to change the function signature every time new
+	// information needs to be passed through.
+	struct env {
+		glm::mat4 projection_matrix;
+		glm::mat4 modelview_matrix;
+		glm::mat4 matrix;
+	};
+
 private:
 	// (var) m_vp
 	// A reference to the viewport this figure exists within.
@@ -126,9 +137,7 @@ private:
 	// Derived classes must implement this method to draw themselves in
 	// whatever way is appropriate. The modelview and projection matrices
 	// are given as parameters.
-	virtual void draw(
-		const glm::mat4 &projection,
-		const glm::mat4 &modelview) = 0;
+	virtual void draw(const env &e) = 0;
 
 protected:
 	// (explicit ctor)
@@ -171,9 +180,7 @@ class reticle_fig : public figure {
 private:
 	// (func) draw
 	// Implements `figure::draw'.
-	void draw(
-		const glm::mat4 &projection,
-		const glm::mat4 &modelview) override;
+	void draw(const env &e) override;
 
 public:
 	// (explicit ctor)

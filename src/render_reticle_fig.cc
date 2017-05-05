@@ -148,14 +148,12 @@ static void init()
 }
 
 // declared in render.hh
-void reticle_fig::draw(const glm::mat4 &projection,const glm::mat4 &modelview)
+void reticle_fig::draw(const env &e)
 {
 	init();
 
-	auto matrix = projection * modelview;
-
 	glUseProgram(s_prog);
-	glUniformMatrix4fv(s_matrix_uni,1,false,&matrix[0][0]);
+	glUniformMatrix4fv(s_matrix_uni,1,false,&e.matrix[0][0]);
 	glBindVertexArray(s_vao);
 	glDrawElements(GL_LINES,56,GL_UNSIGNED_BYTE,0);
 	glBindVertexArray(0);

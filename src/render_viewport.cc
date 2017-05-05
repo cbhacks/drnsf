@@ -117,9 +117,13 @@ public:
 			);
 
 			// Render the viewport's visible figures.
+			figure::env e;
+			e.projection_matrix = projection;
 			for (auto &&fig : m_outer.m_figs) {
 				if (!fig->m_visible) continue;
-				fig->draw(projection,view * fig->m_matrix);
+				e.modelview_matrix = view * fig->m_matrix;
+				e.matrix = projection * e.modelview_matrix;
+				fig->draw(e);
 			}
 
 			// Restore the default GL state.
