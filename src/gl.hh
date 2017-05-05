@@ -27,6 +27,7 @@
  */
 
 #include <epoxy/gl.h>
+#include <glm/glm.hpp>
 
 namespace drnsf {
 namespace gl {

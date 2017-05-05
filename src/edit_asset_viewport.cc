@@ -43,6 +43,11 @@ private:
 	// render anything, but instead uses the general edit::viewport class.
 	render::viewport m_viewport;
 
+	// (var) m_reticle
+	// A test cube rendered into the viewport.
+	// FIXME debug object
+	render::reticle_fig m_reticle;
+
 public:
 	// (explicit ctor)
 	// Initializes the viewport widget.
@@ -52,8 +57,10 @@ public:
 		res::project &proj) :
 		m_outer(outer),
 		m_proj(proj),
-		m_viewport(parent)
+		m_viewport(parent),
+		m_reticle(m_viewport)
 	{
+		m_reticle.show();
 	}
 };
 

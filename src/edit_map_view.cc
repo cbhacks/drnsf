@@ -211,7 +211,7 @@ void map_view::impl::render(int width,int height)
 		500.0f,
 		200000.0f
 	);
-	projection = glm::translate(projection,glm::vec3(0.0f,0.0f,-800.0f));
+	projection = glm::translate(projection,glm::vec3(0.0f,0.0f,-500.0f));
 	projection = glm::translate(
 		projection,
 		glm::vec3(0.0f,0.0f,-g_camera_zoom)

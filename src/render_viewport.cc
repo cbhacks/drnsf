@@ -19,6 +19,7 @@
 //
 
 #include "common.hh"
+#include <glm/gtc/matrix_transform.hpp>
 #include "render.hh"
 
 #include "edit.hh" // FIXME temporary
@@ -67,10 +68,6 @@ private:
 	// Hook for the GL canvas on_mousebutton event.
 	decltype(m_canvas.on_mousebutton)::watch h_mousebutton;
 
-	// (func) render
-	// Non-inline implementation for the h_render hook.
-	void render(int width,int height);
-
 public:
 	// (explicit ctor)
 	// Initializes the viewport widget.
@@ -81,7 +78,52 @@ public:
 		m_canvas(parent)
 	{
 		h_render <<= [this](int width,int height) {
-			render(width,height);
+			// FIXME not necessary once garbage is removed
+			glClearColor(0,0,0,0);
+
+			// Clear the display and reset the depth buffer.
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			// Enable Z-buffer / depth testing.
+			glEnable(GL_DEPTH_TEST);
+
+			// Build the projection matrix.
+			auto projection = glm::perspective(
+				70.0f,
+				static_cast<float>(width) / height,
+				500.0f,
+				200000.0f
+			);
+			projection = glm::translate(
+				projection,
+				glm::vec3(0.0f,0.0f,-800.0f)
+			);
+			projection = glm::translate(
+				projection,
+				glm::vec3(0.0f,0.0f,-edit::g_camera_zoom)
+			);
+
+			// Build the view matrix.
+			glm::mat4 view(1.0f);
+			view = glm::rotate(
+				view,
+				glm::radians(edit::g_camera_pitch),
+				glm::vec3(1.0f,0.0f,0.0f)
+			);
+			view = glm::rotate(
+				view,
+				glm::radians(edit::g_camera_yaw),
+				glm::vec3(0.0f,1.0f,0.0f)
+			);
+
+			// Render the viewport's visible figures.
+			for (auto &&fig : m_outer.m_figs) {
+				if (!fig->m_visible) continue;
+				fig->draw(projection,view * fig->m_matrix);
+			}
+
+			// Restore the default GL state.
+			glDisable(GL_DEPTH_TEST);
 		};
 		h_render.bind(m_canvas.on_render);
 
@@ -124,15 +166,6 @@ public:
 	}
 };
 
-// declared previously in this file
-void viewport::impl::render(int width,int height)
-{
-	glClearColor(0,0,0,0); //FIXME not necessary once garbage is removed
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// TODO
-}
-
 // declared in render.hh
 viewport::viewport(gui::container &parent)
 {
@@ -149,6 +182,12 @@ viewport::~viewport()
 void viewport::show()
 {
 	M->m_canvas.show();
+}
+
+// declared in render.hh
+void viewport::invalidate()
+{
+	M->m_canvas.invalidate();
 }
 
 }

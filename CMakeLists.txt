@@ -63,6 +63,8 @@ add_executable (drnsf
 
 	src/render.hh
 	src/render_viewport.cc
+	src/render_figure.cc
+	src/render_reticle_fig.cc
 
 	src/edit.hh
 	src/edit_asset_editor.cc

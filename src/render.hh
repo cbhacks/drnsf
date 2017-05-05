@@ -26,6 +26,7 @@
  * FIXME explain
  */
 
+#include <unordered_set>
 #include "res.hh"
 #include "gfx.hh"
 #include "gui.hh"
@@ -50,12 +51,17 @@ struct camera {
 	float zoom = default_zoom;;
 };
 
+// defined later in this file
+class figure;
+
 /*
  * render::viewport
  *
  * FIXME explain
  */
 class viewport : private util::nocopy {
+	friend class figure;
+
 private:
 	// inner class defined in render_viewport.cc
 	class impl;
@@ -63,6 +69,16 @@ private:
 	// (var) M
 	// The pointer to the internal implementation object (PIMPL).
 	impl *M;
+
+	// (var) m_figs
+	// The set of all figures associated with the viewport, both visible
+	// and invisible.
+	std::unordered_set<figure *> m_figs;
+
+	// (func) invalidate
+	// Used by `render::figure'. Marks the viewport's display as invalid
+	// or "dirty" so that it will be re-rendered when necessary.
+	void invalidate();
 
 public:
 	// (explicit ctor)
@@ -77,6 +93,93 @@ public:
 	// (func) show
 	// Shows the widget.
 	void show();
+};
+
+/*
+ * render::figure
+ *
+ * FIXME explain
+ */
+class figure : private util::nocopy {
+	friend class viewport;
+
+private:
+	// (var) m_vp
+	// A reference to the viewport this figure exists within.
+	viewport &m_vp;
+
+	// (var) m_visible
+	// True if the figure is visible; false otherwise. A figure which is
+	// visible must invalidate its viewport whenever it changes, however a
+	// hidden one need not do this (as it is invisible, and therefore does
+	// not affect the scene). The viewport must also be invalidated when
+	// the visibility of a figure changes.
+	bool m_visible = false;
+
+	// (var) m_matrix
+	// The "model" matrix for this figure Together with the viewport's view
+	// matrix, this forms the typical "model-view" matrix. Read about 3D
+	// graphics and OpenGL for more details.
+	glm::mat4 m_matrix = glm::mat4(1.0f);
+
+	// (pure func) draw
+	// Derived classes must implement this method to draw themselves in
+	// whatever way is appropriate. The modelview and projection matrices
+	// are given as parameters.
+	virtual void draw(
+		const glm::mat4 &projection,
+		const glm::mat4 &modelview) = 0;
+
+protected:
+	// (explicit ctor)
+	// Constructs a figure which is associated with the given viewport. The
+	// figure is initially not visible.
+	explicit figure(viewport &vp);
+
+	// (dtor)
+	// Destroys the figure and removes it from the viewport. If the figure
+	// was visible, the viewport is invalidated.
+	~figure();
+
+	// (func) invalidate
+	// Derived classes should call this function whenever their visual
+	// appearance may have changed (such as a moved vertex, color change,
+	// texture change, etc). Calling this function on a visible figure will
+	// cause the associated viewport to be invalidated (marked as stale or
+	// "dirty" so that it will be redrawn).
+	void invalidate();
+
+public:
+	// (func) show
+	// Makes the figure visible, if it was not visible. A change in
+	// visibility will invalidate the viewport.
+	void show();
+
+	// (func) hide
+	// Makes the figure invisible, if it was visible. A change in
+	// visibility will invalidate the viewport.
+	void hide();
+};
+
+/*
+ * render::reticle_fig
+ *
+ * This figure draws a 400 x 400 x 400 wireframe cube with the origin at its
+ * center.
+ */
+class reticle_fig : public figure {
+private:
+	// (func) draw
+	// Implements `figure::draw'.
+	void draw(
+		const glm::mat4 &projection,
+		const glm::mat4 &modelview) override;
+
+public:
+	// (explicit ctor)
+	// Constructs the reticle figure.
+	explicit reticle_fig(viewport &vp) :
+		figure(vp) {}
 };
 
 }
