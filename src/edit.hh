@@ -187,57 +187,15 @@ static float &g_camera_zoom = g_camera.zoom;
 // FIXME FIXME FIXME FIXME FIXME
 // slightly newer but still obsolete code below
 
-class editor : private util::nocopy {
-	friend class map_view;
-	friend class assets_view;
-
-private:
-	res::project &m_proj;
-
-public:
-	explicit editor(res::project &proj);
-};
-
-class map_view : private util::nocopy {
-private:
-	class impl;
-
-	impl *M;
-
-public:
-	explicit map_view(gui::container &parent,editor &ed);
-	~map_view();
-
-	void show();
-};
-
-class detail_view : private util::nocopy {
-private:
-	class impl;
-
-	impl *M;
-
-public:
-	explicit detail_view(gui::container &parent,editor &ed);
-	~detail_view();
-
-	void show();
-};
-
 class main_window : private util::nocopy {
 private:
 	gui::window m_wnd;
 	gui::menu m_menu_file;
 	gui::menu_item m_menu_file_exit;
-	gui::splitview m_split;
 	gui::tabview m_tabs;
 	gui::tabview::page m_assets_tab;
-	gui::tabview::page m_detail_tab;
 	res::project *m_proj_p;
-	std::unique_ptr<editor> m_ed_p;
-	std::unique_ptr<map_view> m_map_view;
 	std::unique_ptr<asset_editor> m_assets_view;
-	std::unique_ptr<detail_view> m_detail_view;
 
 	decltype(gui::menu_item::on_click)::watch h_menu_file_exit_click;
 

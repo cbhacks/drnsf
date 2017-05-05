@@ -27,11 +27,6 @@ namespace edit {
 res::atom g_selected_asset;
 render::camera g_camera;
 
-editor::editor(project &proj) :
-	m_proj(proj)
-{
-}
-
 old_editor::old_editor(project &proj) :
 	m_proj(proj)
 {
