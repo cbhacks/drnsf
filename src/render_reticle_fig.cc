@@ -22,6 +22,18 @@
 #include "render.hh"
 
 namespace drnsf {
+
+namespace embed {
+	namespace cube_vert_glsl {
+		extern const unsigned char data[];
+		extern const std::size_t size;
+	}
+	namespace cube_frag_glsl {
+		extern const unsigned char data[];
+		extern const std::size_t size;
+	}
+}
+
 namespace render {
 
 const float cube_vb_data[] = {
@@ -66,42 +78,86 @@ const unsigned char cube_ib_data[] = {
 	6, 7
 };
 
-// declared in render.hh
-void reticle_fig::draw(const glm::mat4 &projection,const glm::mat4 &modelview)
+// (s-var) s_vao
+// The VAO for the reticle model.
+static gl::vert_array s_vao;
+
+// (s-var) s_vbo
+// The VBO for the reticle model.
+static gl::buffer s_vbo;
+
+// (s-var) s_ibo
+// The IBO for the reticle model.
+static gl::buffer s_ibo;
+
+// (s-var) s_prog
+// The GL shader program to use for the reticle model.
+static gl::program s_prog;
+
+// (s-func) init
+// Initializes the GL resources for this file if not already initialized.
+// Otherwise, no operation occurs.
+static void init()
 {
-	gl::buffer vb;
-	gl::buffer ib;
-	gl::vert_array va;
+	// Exit now if this function has been run previously.
+	static bool s_is_init = false;
+	if (s_is_init) return;
+	s_is_init = true;
 
-	glPushMatrix();
-	glLoadMatrixf(&modelview[0][0]);
-	glScalef(200.0f,200.0f,200.0f);
-
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadMatrixf(&projection[0][0]);
-
-	glBindVertexArray(va);
-	glBindBuffer(GL_ARRAY_BUFFER,vb);
+	glBindVertexArray(s_vao);
+	glBindBuffer(GL_ARRAY_BUFFER,s_vbo);
 	glBufferData(
 		GL_ARRAY_BUFFER,
 		sizeof(cube_vb_data),
 		cube_vb_data,
 		GL_STATIC_DRAW
 	);
+	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(3,GL_FLOAT,0,0);
 	glBindBuffer(GL_ARRAY_BUFFER,0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ib);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,s_ibo);
 	glBufferData(
 		GL_ELEMENT_ARRAY_BUFFER,
 		sizeof(cube_ib_data),
 		cube_ib_data,
 		GL_STATIC_DRAW
 	);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glDrawElements(GL_LINES,56,GL_UNSIGNED_BYTE,0);
-	glDisableClientState(GL_VERTEX_ARRAY);
 	glBindVertexArray(0);
+
+	gl::vert_shader vs;
+	vs.compile({
+		reinterpret_cast<const char *>(embed::cube_vert_glsl::data),
+		embed::cube_vert_glsl::size
+	});
+	glAttachShader(s_prog,vs);
+
+	gl::frag_shader fs;
+	fs.compile({
+		reinterpret_cast<const char *>(embed::cube_frag_glsl::data),
+		embed::cube_frag_glsl::size
+	});
+	glAttachShader(s_prog,fs);
+
+	glLinkProgram(s_prog);
+}
+
+// declared in render.hh
+void reticle_fig::draw(const glm::mat4 &projection,const glm::mat4 &modelview)
+{
+	init();
+
+	glPushMatrix();
+	glLoadMatrixf(&modelview[0][0]);
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadMatrixf(&projection[0][0]);
+
+	glUseProgram(s_prog);
+	glBindVertexArray(s_vao);
+	glDrawElements(GL_LINES,56,GL_UNSIGNED_BYTE,0);
+	glBindVertexArray(0);
+	glUseProgram(0);
 
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
