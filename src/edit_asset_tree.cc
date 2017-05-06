@@ -63,6 +63,12 @@ private:
 	// not.
 	std::map<res::asset *,std::shared_ptr<node>> m_asset_nodes;
 
+	// (var) m_selected_node
+	// The node under the selected asset name. This shared_ptr keeps the
+	// node alive even if it has no descendants and is not bound to an
+	// asset.
+	std::shared_ptr<node> m_selected_node;
+
 	// (handler) h_asset_appear
 	// Hooks the project's on_asset_appear event so that the asset can be
 	// added to the tree when this occurs.
@@ -161,6 +167,7 @@ public:
 		h_select <<= [this,atom,&view]{
 			view.m_selected_asset = atom;
 			view.m_outer.on_select(atom);
+			view.m_selected_node = view.m_atom_nodes[atom].lock();
 		};
 		h_select.bind(m_treenode->on_select);
 
