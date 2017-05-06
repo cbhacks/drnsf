@@ -38,9 +38,25 @@ private:
 	// A reference to the project this tree applies to.
 	res::project &m_proj;
 
-	// (var) m_dummy
-	// A dummy label to be replaced once this view is implemented.
-	gui::label m_dummy;
+	// (var) m_selected_asset
+	// The currently selected asset name.
+	res::atom m_selected_asset;
+
+	// (var) m_grid
+	// A gridview used to layout the widget's information.
+	gui::gridview m_grid;
+
+	// (var) m_assetname, m_assetname_title
+	// A label showing the selected asset's name. The _title widget is a
+	// label to identify the purpose of the other to the user.
+	gui::label m_assetname;
+	gui::label m_assetname_title;
+
+	// (var) m_assettype, m_assettype_title
+	// A label indicating the asset's type. The _title widget is another
+	// label alongside this one which identifies it ("Asset Type").
+	gui::label m_assettype;
+	gui::label m_assettype_title;
 
 	// (handler) h_asset_appear
 	// Hooks the project's on_asset_appear event so that, if the selected
@@ -61,17 +77,45 @@ public:
 		res::project &proj) :
 		m_outer(outer),
 		m_proj(proj),
-		m_dummy(parent,"[asset details here]")
+		m_grid(parent,2,2,true),
+		m_assetname(m_grid.make_slot(1,0)),
+		m_assetname_title(m_grid.make_slot(0,0),"Asset Name"),
+		m_assettype(m_grid.make_slot(1,1)),
+		m_assettype_title(m_grid.make_slot(0,1),"Asset Type")
 	{
 		h_asset_appear <<= [this](res::asset &asset) {
-			// TODO
+			if (asset.get_name() == m_selected_asset) {
+				update(asset);
+			}
 		};
 		h_asset_appear.bind(m_proj.on_asset_appear);
 
 		h_asset_disappear <<= [this](res::asset &asset) {
-			// TODO
+			if (asset.get_name() == m_selected_asset) {
+				update_null();
+			}
 		};
 		h_asset_disappear.bind(m_proj.on_asset_disappear);
+
+		m_assetname.show();
+		m_assetname_title.show();
+		m_assettype.show();
+		m_assettype_title.show();
+	}
+
+	// (func) update
+	// Updates the display text for a specific asset instance (NOT a ref
+	// or atom!).
+	void update(res::asset &asset)
+	{
+		m_assettype.set_text(typeid(asset).name());
+	}
+
+	// (func) update_null
+	// Updates the displayed information for a no-such-asset-exists state.
+	void update_null()
+	{
+		m_assettype.set_text("");
 	}
 };
 
@@ -90,7 +134,25 @@ asset_infoview::~asset_infoview()
 // declared in edit.hh
 void asset_infoview::show()
 {
-	M->m_dummy.show();
+	M->m_grid.show();
+}
+
+// declared in edit.hh
+void asset_infoview::set_selected_asset(res::atom atom)
+{
+	M->m_selected_asset = atom;
+
+	if (!atom) {
+		M->m_assetname.set_text("");
+		M->update_null();
+	} else {
+		M->m_assetname.set_text(atom.full_path());
+		if (auto ptr = atom.get()) {
+			M->update(*ptr);
+		} else {
+			M->update_null();
+		}
+	}
 }
 
 }

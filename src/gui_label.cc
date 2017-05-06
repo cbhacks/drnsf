@@ -43,5 +43,11 @@ label::~label()
 	gtk_widget_destroy(M);
 }
 
+// declared in gui.hh
+void label::set_text(const std::string &text)
+{
+	gtk_label_set_text(GTK_LABEL(M),text.c_str());
+}
+
 }
 }

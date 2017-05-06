@@ -125,6 +125,10 @@ public:
 	// (func) show
 	// Shows the widget.
 	void show();
+
+	// (func) set_selected_asset
+	// Sets the asset name which this widget should show information for.
+	void set_selected_asset(res::atom atom);
 };
 
 /*

@@ -86,6 +86,7 @@ public:
 	{
 		h_tree_select <<= [this](res::atom atom) {
 			g_selected_asset = atom;
+			m_infoview.set_selected_asset(atom);
 		};
 		h_tree_select.bind(m_tree.on_select);
 

@@ -127,11 +127,15 @@ private:
 public:
 	// (explicit ctor)
 	// FIXME explain
-	explicit label(container &parent,const std::string &text);
+	explicit label(container &parent,const std::string &text = "");
 
 	// (dtor)
 	// FIXME explain
 	~label();
+
+	// (func) set_text
+	// Sets the text displayed by the label.
+	void set_text(const std::string &text);
 };
 
 /*
@@ -293,7 +297,11 @@ public:
 	// Creates a slot at the specified column and row (zero-based) with
 	// a width and height of (col_count,row_count) in columns and rows,
 	// and returns a reference to this slot as a container.
-	container &make_slot(int col,int row,int col_count,int row_count);
+	container &make_slot(
+		int col,
+		int row,
+		int col_count = 1,
+		int row_count = 1);
 };
 
 /*
