@@ -183,9 +183,9 @@ viewport::~viewport()
 }
 
 // declared in render.hh
-void viewport::show()
+GtkWidget *viewport::get_handle()
 {
-	M->m_canvas.show();
+	return M->m_canvas.get_handle();
 }
 
 // declared in render.hh

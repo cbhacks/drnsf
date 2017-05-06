@@ -88,9 +88,9 @@ asset_propview::~asset_propview()
 }
 
 // declared in edit.hh
-void asset_propview::show()
+GtkWidget *asset_propview::get_handle()
 {
-	M->m_dummy.show();
+	return M->m_dummy.get_handle();
 }
 
 }

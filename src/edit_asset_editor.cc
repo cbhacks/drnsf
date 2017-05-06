@@ -111,9 +111,9 @@ asset_editor::~asset_editor()
 }
 
 // declared in edit.hh
-void asset_editor::show()
+GtkWidget *asset_editor::get_handle()
 {
-	M->m_split.show();
+	return M->m_split.get_handle();
 }
 
 }

@@ -42,7 +42,7 @@ namespace edit {
  *
  * FIXME explain
  */
-class asset_editor : private util::nocopy {
+class asset_editor : public gui::widget {
 private:
 	// inner class defined in edit_asset_editor.cc
 	class impl;
@@ -60,9 +60,9 @@ public:
 	// Destroys the widget, removing it from the parent container.
 	~asset_editor();
 
-	// (func) show
-	// Shows the widget.
-	void show();
+	// (func) get_handle
+	// See gui::widget::get_handle.
+	GtkWidget *get_handle() override;
 };
 
 /*
@@ -70,7 +70,7 @@ public:
  *
  * FIXME explain
  */
-class asset_tree : private util::nocopy {
+class asset_tree : public gui::widget {
 private:
 	// inner class defined in edit_asset_tree.cc
 	class impl;
@@ -88,9 +88,9 @@ public:
 	// Destroys the widget, removing it from the parent container.
 	~asset_tree();
 
-	// (func) show
-	// Shows the widget.
-	void show();
+	// (func) get_handle
+	// See gui::widget::get_handle.
+	GtkWidget *get_handle() override;
 
 	// (event) on_select
 	// Raised when the selected asset has changed. Note that this can be
@@ -104,7 +104,7 @@ public:
  *
  * FIXME explain
  */
-class asset_infoview : private util::nocopy {
+class asset_infoview : public gui::widget {
 private:
 	// inner class defined in edit_asset_infoview.cc
 	class impl;
@@ -122,9 +122,9 @@ public:
 	// Destroys the widget, removing it from the parent container.
 	~asset_infoview();
 
-	// (func) show
-	// Shows the widget.
-	void show();
+	// (func) get_handle
+	// See gui::widget::get_handle.
+	GtkWidget *get_handle() override;
 
 	// (func) set_selected_asset
 	// Sets the asset name which this widget should show information for.
@@ -136,7 +136,7 @@ public:
  *
  * FIXME explain
  */
-class asset_propview : private util::nocopy {
+class asset_propview : public gui::widget {
 private:
 	// inner class defined in edit_asset_propview.cc
 	class impl;
@@ -154,9 +154,9 @@ public:
 	// Destroys the widget, removing it from the parent container.
 	~asset_propview();
 
-	// (func) show
-	// Shows the widget.
-	void show();
+	// (func) get_handle
+	// See gui::widget::get_handle.
+	GtkWidget *get_handle() override;
 };
 
 /*
@@ -164,7 +164,7 @@ public:
  *
  * FIXME explain
  */
-class asset_viewport : private util::nocopy {
+class asset_viewport : public gui::widget {
 private:
 	// inner class defined in edit_asset_viewport.cc
 	class impl;
@@ -182,9 +182,9 @@ public:
 	// Destroys the widget, removing it from the parent container.
 	~asset_viewport();
 
-	// (func) show
-	// Shows the widget.
-	void show();
+	// (func) get_handle
+	// See gui::widget::get_handle.
+	GtkWidget *get_handle() override;
 };
 
 // FIXME - temporary global for compatibility

@@ -132,9 +132,9 @@ asset_infoview::~asset_infoview()
 }
 
 // declared in edit.hh
-void asset_infoview::show()
+GtkWidget *asset_infoview::get_handle()
 {
-	M->m_grid.show();
+	return M->m_grid.get_handle();
 }
 
 // declared in edit.hh

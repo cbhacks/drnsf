@@ -39,7 +39,7 @@ namespace gui {
  * Common base class for all widget types.
  */
 class widget : private util::nocopy {
-private:
+public:
 	// (pure func) get_handle
 	// Retrieves a handle to the "main" GTK widget behind this object. For
 	// most widgets, there is only a single GTK widget inside, but some may
@@ -47,7 +47,6 @@ private:
 	// as well).
 	virtual GtkWidget *get_handle() = 0;
 
-public:
 	// (func) show
 	// Shows the widget, if it is hidden. By default, every widget is
 	// hidden when first constructed.
@@ -120,10 +119,6 @@ private:
 	// FIXME explain
 	GtkWidget *M;
 
-	// (func) get_handle
-	// See gui::widget::get_handle.
-	GtkWidget *get_handle() override;
-
 public:
 	// (explicit ctor)
 	// FIXME explain
@@ -132,6 +127,10 @@ public:
 	// (dtor)
 	// FIXME explain
 	~label();
+
+	// (func) get_handle
+	// See gui::widget::get_handle.
+	GtkWidget *get_handle() override;
 
 	// (func) set_text
 	// Sets the text displayed by the label.
@@ -149,10 +148,6 @@ private:
 	// FIXME explain
 	GtkWidget *M;
 
-	// (func) get_handle
-	// See gui::widget::get_handle.
-	GtkWidget *get_handle() override;
-
 public:
 	// inner class defined later in this file
 	class page;
@@ -164,6 +159,10 @@ public:
 	// (dtor)
 	// FIXME explain
 	~tabview();
+
+	// (func) get_handle
+	// See gui::widget::get_handle.
+	GtkWidget *get_handle() override;
 };
 
 /*
@@ -227,10 +226,6 @@ private:
 	side m_left;
 	side m_right;
 
-	// (func) get_handle
-	// See gui::widget::get_handle.
-	GtkWidget *get_handle() override;
-
 public:
 	// (explicit ctor)
 	// FIXME explain
@@ -239,6 +234,10 @@ public:
 	// (dtor)
 	// FIXME explain
 	~splitview();
+
+	// (func) get_handle
+	// See gui::widget::get_handle.
+	GtkWidget *get_handle() override;
 
 	// (func) get_left
 	// FIXME explain
@@ -277,10 +276,6 @@ private:
 	// FIXME explain
 	std::list<slot> m_slots;
 
-	// (func) get_handle
-	// See gui::widget::get_handle.
-	GtkWidget *get_handle() override;
-
 public:
 	// (explicit ctor)
 	// Creates the gridview with the specified number of rows and columns,
@@ -292,6 +287,10 @@ public:
 	// (dtor)
 	// Destroys the widget and removes it from its parent.
 	~gridview();
+
+	// (func) get_handle
+	// See gui::widget::get_handle.
+	GtkWidget *get_handle() override;
 
 	// (func) make_slot
 	// Creates a slot at the specified column and row (zero-based) with
@@ -337,10 +336,6 @@ private:
 		GtkTreeSelection *treeselection,
 		gpointer user_data);
 
-	// (func) get_handle
-	// See gui::widget::get_handle.
-	GtkWidget *get_handle() override;
-
 public:
 	// (explicit ctor)
 	// FIXME explain
@@ -349,6 +344,10 @@ public:
 	// (dtor)
 	// FIXME explain
 	~treeview();
+
+	// (func) get_handle
+	// See gui::widget::get_handle.
+	GtkWidget *get_handle() override;
 };
 
 /*
@@ -442,10 +441,6 @@ private:
 		GdkEvent *event,
 		gpointer user_data);
 
-	// (func) get_handle
-	// See gui::widget::get_handle.
-	GtkWidget *get_handle() override;
-
 public:
 	// (explicit ctor)
 	// FIXME explain
@@ -454,6 +449,10 @@ public:
 	// (dtor)
 	// FIXME explain
 	~gl_canvas();
+
+	// (func) get_handle
+	// See gui::widget::get_handle.
+	GtkWidget *get_handle() override;
 
 	// (func) invalidate
 	// FIXME explain

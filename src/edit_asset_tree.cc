@@ -194,9 +194,9 @@ asset_tree::~asset_tree()
 }
 
 // declared in edit.hh
-void asset_tree::show()
+GtkWidget *asset_tree::get_handle()
 {
-	M->m_tree.show();
+	return M->m_tree.get_handle();
 }
 
 }
