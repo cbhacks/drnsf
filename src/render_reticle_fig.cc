@@ -116,8 +116,8 @@ static void init()
 		cube_vb_data,
 		GL_STATIC_DRAW
 	);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3,GL_FLOAT,0,0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0,3,GL_FLOAT,false,0,0);
 	glBindBuffer(GL_ARRAY_BUFFER,0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,s_ibo);
 	glBufferData(
@@ -141,6 +141,8 @@ static void init()
 		embed::reticle_frag::size
 	});
 	glAttachShader(s_prog,fs);
+
+	glBindAttribLocation(s_prog,0,"a_Position");
 
 	glLinkProgram(s_prog);
 
