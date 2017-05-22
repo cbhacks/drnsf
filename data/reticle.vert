@@ -25,8 +25,14 @@ const vec4 SCALE = vec4(200.0,200.0,200.0,1.0);
 uniform mat4 u_Matrix;
 
 in vec4 a_Position;
+in int a_Axis;
+
+flat out int v_Axis;
+out float v_Value;
 
 void main()
 {
 	gl_Position = u_Matrix * (a_Position * SCALE);
+	v_Axis = a_Axis;
+	v_Value = a_Position.x + a_Position.y + a_Position.z;
 }

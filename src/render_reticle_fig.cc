@@ -36,46 +36,53 @@ namespace embed {
 
 namespace render {
 
-const float cube_vb_data[] = {
-	-1, -1, -1,
-	+1, -1, -1,
-	+1, +1, -1,
-	-1, +1, -1,
-	-1, -1, +1,
-	+1, -1, +1,
-	+1, +1, +1,
-	-1, +1, +1
+// (internal struct) reticle_vert
+// The vertex attribute type for the reticle model.
+struct reticle_vert {
+	float pos[3];
+	enum : signed char {
+		AXIS_X,
+		AXIS_Y,
+		AXIS_Z,
+		AXIS_CUBE = -1
+	} axis;
 };
 
-const unsigned char cube_ib_data[] = {
-	0, 1,
-	0, 2,
-	0, 3,
-	0, 4,
-	0, 5,
-	0, 6,
-	0, 7,
-	1, 2,
-	1, 3,
-	1, 4,
-	1, 5,
-	1, 6,
-	1, 7,
-	2, 3,
-	2, 4,
-	2, 5,
-	2, 6,
-	2, 7,
-	3, 4,
-	3, 5,
-	3, 6,
-	3, 7,
-	4, 5,
-	4, 6,
-	4, 7,
-	5, 6,
-	5, 7,
-	6, 7
+// (s-var) reticle_model
+// The model used by the reticle. It consists of three lines, each on a
+// particular axis (x, y, z; listed as 0, 1, 2). These will be colored by the
+// shader as (red, green, blue).
+reticle_vert reticle_model[] = {
+	{ { -1.0f, 0.0f, 0.0f }, reticle_vert::AXIS_X },
+	{ { +1.0f, 0.0f, 0.0f }, reticle_vert::AXIS_X },
+	{ { 0.0f, -1.0f, 0.0f }, reticle_vert::AXIS_Y },
+	{ { 0.0f, +1.0f, 0.0f }, reticle_vert::AXIS_Y },
+	{ { 0.0f, 0.0f, -1.0f }, reticle_vert::AXIS_Z },
+	{ { 0.0f, 0.0f, +1.0f }, reticle_vert::AXIS_Z },
+	{ { -1.0f, -1.0f, -1.0f }, reticle_vert::AXIS_CUBE },
+	{ { +1.0f, -1.0f, -1.0f }, reticle_vert::AXIS_CUBE },
+	{ { +1.0f, -1.0f, -1.0f }, reticle_vert::AXIS_CUBE },
+	{ { +1.0f, +1.0f, -1.0f }, reticle_vert::AXIS_CUBE },
+	{ { +1.0f, +1.0f, -1.0f }, reticle_vert::AXIS_CUBE },
+	{ { -1.0f, +1.0f, -1.0f }, reticle_vert::AXIS_CUBE },
+	{ { -1.0f, +1.0f, -1.0f }, reticle_vert::AXIS_CUBE },
+	{ { -1.0f, -1.0f, -1.0f }, reticle_vert::AXIS_CUBE },
+	{ { -1.0f, -1.0f, +1.0f }, reticle_vert::AXIS_CUBE },
+	{ { +1.0f, -1.0f, +1.0f }, reticle_vert::AXIS_CUBE },
+	{ { +1.0f, -1.0f, +1.0f }, reticle_vert::AXIS_CUBE },
+	{ { +1.0f, +1.0f, +1.0f }, reticle_vert::AXIS_CUBE },
+	{ { +1.0f, +1.0f, +1.0f }, reticle_vert::AXIS_CUBE },
+	{ { -1.0f, +1.0f, +1.0f }, reticle_vert::AXIS_CUBE },
+	{ { -1.0f, +1.0f, +1.0f }, reticle_vert::AXIS_CUBE },
+	{ { -1.0f, -1.0f, +1.0f }, reticle_vert::AXIS_CUBE },
+	{ { -1.0f, -1.0f, -1.0f }, reticle_vert::AXIS_CUBE },
+	{ { -1.0f, -1.0f, +1.0f }, reticle_vert::AXIS_CUBE },
+	{ { +1.0f, -1.0f, -1.0f }, reticle_vert::AXIS_CUBE },
+	{ { +1.0f, -1.0f, +1.0f }, reticle_vert::AXIS_CUBE },
+	{ { +1.0f, +1.0f, -1.0f }, reticle_vert::AXIS_CUBE },
+	{ { +1.0f, +1.0f, +1.0f }, reticle_vert::AXIS_CUBE },
+	{ { -1.0f, +1.0f, -1.0f }, reticle_vert::AXIS_CUBE },
+	{ { -1.0f, +1.0f, +1.0f }, reticle_vert::AXIS_CUBE }
 };
 
 // (s-var) s_vao
@@ -85,10 +92,6 @@ static gl::vert_array s_vao;
 // (s-var) s_vbo
 // The VBO for the reticle model.
 static gl::buffer s_vbo;
-
-// (s-var) s_ibo
-// The IBO for the reticle model.
-static gl::buffer s_ibo;
 
 // (s-var) s_prog
 // The GL shader program to use for the reticle model.
@@ -112,20 +115,28 @@ static void init()
 	glBindBuffer(GL_ARRAY_BUFFER,s_vbo);
 	glBufferData(
 		GL_ARRAY_BUFFER,
-		sizeof(cube_vb_data),
-		cube_vb_data,
+		sizeof(reticle_model),
+		reticle_model,
 		GL_STATIC_DRAW
 	);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0,3,GL_FLOAT,false,0,0);
-	glBindBuffer(GL_ARRAY_BUFFER,0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,s_ibo);
-	glBufferData(
-		GL_ELEMENT_ARRAY_BUFFER,
-		sizeof(cube_ib_data),
-		cube_ib_data,
-		GL_STATIC_DRAW
+	glVertexAttribPointer(
+		0,
+		3,
+		GL_FLOAT,
+		false,
+		sizeof(reticle_vert),
+		reinterpret_cast<void *>(offsetof(reticle_vert,pos))
 	);
+	glEnableVertexAttribArray(1);
+	glVertexAttribIPointer(
+		1,
+		1,
+		GL_BYTE,
+		sizeof(reticle_vert),
+		reinterpret_cast<void *>(offsetof(reticle_vert,axis))
+	);
+	glBindBuffer(GL_ARRAY_BUFFER,0);
 	glBindVertexArray(0);
 
 	gl::vert_shader vs;
@@ -143,6 +154,7 @@ static void init()
 	glAttachShader(s_prog,fs);
 
 	glBindAttribLocation(s_prog,0,"a_Position");
+	glBindAttribLocation(s_prog,1,"a_Axis");
 
 	glLinkProgram(s_prog);
 
@@ -157,7 +169,7 @@ void reticle_fig::draw(const env &e)
 	glUseProgram(s_prog);
 	glUniformMatrix4fv(s_matrix_uni,1,false,&e.matrix[0][0]);
 	glBindVertexArray(s_vao);
-	glDrawElements(GL_LINES,56,GL_UNSIGNED_BYTE,0);
+	glDrawArrays(GL_LINES,0,sizeof(reticle_model) / sizeof(reticle_vert));
 	glBindVertexArray(0);
 	glUseProgram(0);
 }
