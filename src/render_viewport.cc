@@ -78,9 +78,6 @@ public:
 		m_canvas(parent)
 	{
 		h_render <<= [this](int width,int height) {
-			// FIXME not necessary once garbage is removed
-			glClearColor(0,0,0,0);
-
 			// Clear the display and reset the depth buffer.
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

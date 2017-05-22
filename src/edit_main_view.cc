@@ -47,7 +47,6 @@ void main_view::frame(int delta_time)
 	namespace im = gui::im;
 
 	// Clear the screen.
-	glClearColor(0.1,0.1,0.1,0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	im::main_menu_bar([&]{
