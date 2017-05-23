@@ -76,4 +76,34 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 See `LICENSE.txt` for more details.
 
 ## Contributing ##
-Please see `CONTRIBUTING.md` for details on how to style code for contribution.
+
+### Licensing and Attribution ###
+Ensure any code you contribute is something you have the right to distribute
+under the terms of the GNU General Public License version 3.
+
+Add your name to the `AUTHORS.md` file both to provide attribution for yourself
+and to certify that you grant access to and usage of your contribution(s) under
+the terms of the GNU General Public License version 3 as stated above.
+
+### Styling ###
+Please follow these guidelines for code style when contributing to DRNSF:
+
+ * Indent using 4 space characters; no tabs. Do not indent the contents of
+namespaces.
+ * Place opening braces on the same line for statements, type definitions,
+namespaces, etc. Place closing braces on the same line as `while` for
+`do...while` loops. Place both closing and opening braces on the same line for
+`else` and `else if`, such as `} else if (foo) {`.
+ * Place opening braces for functions (static, member, global, etc) on their
+own line. This is vaguely similar to Linux formatting guidelines.
+ * Avoid exceeding 80 columns in width. Hardwrap if necessary.
+ * Use UNIX-style line-endings (LF, not CRLF or CR).
+ * Ensure there is a blank line at the end of every source and header file.
+
+These are only guidelines. Following them keeps the code clean and consistent,
+but try not to let them get in the way of contribution. Misformatted code can
+always be changed afterwards.
+
+### Submitting ###
+You can submit your pull request using the GitHub repository's pull requests
+page.
