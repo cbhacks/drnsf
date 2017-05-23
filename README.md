@@ -75,6 +75,13 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See `LICENSE.txt` for more details.
 
+Some software is included with this version of the DRNSF source code. This
+software may be available under other licenses.
+
+For GLM, see `glm/copying.txt`.
+
+For imgui, see `imgui/LICENSE`.
+
 ## Contributing ##
 
 ### Licensing and Attribution ###
