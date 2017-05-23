@@ -27,70 +27,70 @@ namespace edit {
 // (inner class) impl
 // Implementation class for asset_propview (PIMPL).
 class asset_propview::impl : private util::nocopy {
-	friend class asset_propview;
+    friend class asset_propview;
 
 private:
-	// (var) m_outer
-	// A reference to the outer asset_propview.
-	asset_propview &m_outer;
+    // (var) m_outer
+    // A reference to the outer asset_propview.
+    asset_propview &m_outer;
 
-	// (var) m_proj
-	// A reference to the project this tree applies to.
-	res::project &m_proj;
+    // (var) m_proj
+    // A reference to the project this tree applies to.
+    res::project &m_proj;
 
-	// (var) m_dummy
-	// A dummy label to be replaced once this view is implemented.
-	gui::label m_dummy;
+    // (var) m_dummy
+    // A dummy label to be replaced once this view is implemented.
+    gui::label m_dummy;
 
-	// (handler) h_asset_appear
-	// Hooks the project's on_asset_appear event so that, if the selected
-	// asset comes into existence, the details can be updated.
-	decltype(res::project::on_asset_appear)::watch h_asset_appear;
+    // (handler) h_asset_appear
+    // Hooks the project's on_asset_appear event so that, if the selected
+    // asset comes into existence, the details can be updated.
+    decltype(res::project::on_asset_appear)::watch h_asset_appear;
 
-	// (handler) h_asset_disappear
-	// Hooks the project's on_asset_disappear event so that the currently
-	// selected asset's details can be erased if it disappears.
-	decltype(res::project::on_asset_disappear)::watch h_asset_disappear;
+    // (handler) h_asset_disappear
+    // Hooks the project's on_asset_disappear event so that the currently
+    // selected asset's details can be erased if it disappears.
+    decltype(res::project::on_asset_disappear)::watch h_asset_disappear;
 
 public:
-	// (explicit ctor)
-	// Initializes the widget and installs event handlers.
-	explicit impl(
-		asset_propview &outer,
-		gui::container &parent,
-		res::project &proj) :
-		m_outer(outer),
-		m_proj(proj),
-		m_dummy(parent,"[asset properties here]")
-	{
-		h_asset_appear <<= [this](res::asset &asset) {
-			// TODO
-		};
-		h_asset_appear.bind(m_proj.on_asset_appear);
+    // (explicit ctor)
+    // Initializes the widget and installs event handlers.
+    explicit impl(
+        asset_propview &outer,
+        gui::container &parent,
+        res::project &proj) :
+        m_outer(outer),
+        m_proj(proj),
+        m_dummy(parent,"[asset properties here]")
+    {
+        h_asset_appear <<= [this](res::asset &asset) {
+            // TODO
+        };
+        h_asset_appear.bind(m_proj.on_asset_appear);
 
-		h_asset_disappear <<= [this](res::asset &asset) {
-			// TODO
-		};
-		h_asset_disappear.bind(m_proj.on_asset_disappear);
-	}
+        h_asset_disappear <<= [this](res::asset &asset) {
+            // TODO
+        };
+        h_asset_disappear.bind(m_proj.on_asset_disappear);
+    }
 };
 
 // declared in edit.hh
 asset_propview::asset_propview(gui::container &parent,res::project &proj)
 {
-	M = new impl(*this,parent,proj);
+    M = new impl(*this,parent,proj);
 }
 
 // declared in edit.hh
 asset_propview::~asset_propview()
 {
-	delete M;
+    delete M;
 }
 
 // declared in edit.hh
 GtkWidget *asset_propview::get_handle()
 {
-	return M->m_dummy.get_handle();
+    return M->m_dummy.get_handle();
 }
 
 }

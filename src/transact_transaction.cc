@@ -26,17 +26,17 @@ namespace transact {
 
 // declared in transact.hh
 transaction::transaction(
-	std::list<std::unique_ptr<operation>> ops,
-	std::string desc) :
-	m_ops(std::move(ops)),
-	m_desc(desc)
+    std::list<std::unique_ptr<operation>> ops,
+    std::string desc) :
+    m_ops(std::move(ops)),
+    m_desc(desc)
 {
 }
 
 // declared in transact.hh
 const char *transaction::describe() const
 {
-	return m_desc.c_str();
+    return m_desc.c_str();
 }
 
 }

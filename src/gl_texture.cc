@@ -26,73 +26,73 @@ namespace gl {
 namespace old {
 
 texture::texture(machine &mach,int target) :
-	m_mach(mach),
-	m_target(target),
-	m_id_p(std::make_shared<unsigned int>(0))
+    m_mach(mach),
+    m_target(target),
+    m_id_p(std::make_shared<unsigned int>(0))
 {
-	mach.post_job([id_p = m_id_p]{
-		glGenTextures(1,id_p.get());
-	});
+    mach.post_job([id_p = m_id_p]{
+        glGenTextures(1,id_p.get());
+    });
 }
 
 texture::~texture()
 {
-	m_mach.post_job([id_p = m_id_p]{
-		glDeleteTextures(1,id_p.get());
-	});
+    m_mach.post_job([id_p = m_id_p]{
+        glDeleteTextures(1,id_p.get());
+    });
 }
 
 void texture::put_data_2d(
-	util::blob data,
-	int internal_format,
-	int width,
-	int height,
-	int format,
-	int type)
+    util::blob data,
+    int internal_format,
+    int width,
+    int height,
+    int format,
+    int type)
 {
-	m_mach.post_job([
-		id_p = m_id_p,
-		target = m_target,
-		data,
-		internal_format,
-		width,
-		height,
-		format,
-		type
-		]{
-		glBindTexture(target,*id_p);
-		glTexImage2D(
-			target,
-			0,
-			internal_format,
-			width,
-			height,
-			0,
-			format,
-			type,
-			data.data()
-		);
-		glBindTexture(target,0);
-	});
+    m_mach.post_job([
+        id_p = m_id_p,
+        target = m_target,
+        data,
+        internal_format,
+        width,
+        height,
+        format,
+        type
+        ]{
+        glBindTexture(target,*id_p);
+        glTexImage2D(
+            target,
+            0,
+            internal_format,
+            width,
+            height,
+            0,
+            format,
+            type,
+            data.data()
+        );
+        glBindTexture(target,0);
+    });
 }
 
 void texture::set_parameter(int pname,int value)
 {
-	m_mach.post_job([
-		id_p = m_id_p,
-		target = m_target,
-		pname,
-		value
-		]{
-		glBindTexture(target,*id_p);
-		glTexParameteri(target,pname,value);
-		glBindTexture(target,0);
-	});
+    m_mach.post_job([
+        id_p = m_id_p,
+        target = m_target,
+        pname,
+        value
+        ]{
+        glBindTexture(target,*id_p);
+        glTexParameteri(target,pname,value);
+        glBindTexture(target,0);
+    });
 }
 
 unsigned int texture::get_id()
 {
-	return *m_id_p;
+    return *m_id_p;
 }
 
 }

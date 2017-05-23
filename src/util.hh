@@ -66,14 +66,14 @@ using blob = std::vector<byte>;
  */
 class nocopy {
 private:
-	nocopy(const nocopy &) = delete;
-	nocopy(nocopy &&) = delete;
+    nocopy(const nocopy &) = delete;
+    nocopy(nocopy &&) = delete;
 
-	nocopy &operator =(const nocopy &) = delete;
-	nocopy &operator =(nocopy &&) = delete;
+    nocopy &operator =(const nocopy &) = delete;
+    nocopy &operator =(nocopy &&) = delete;
 
 protected:
-	nocopy() = default;
+    nocopy() = default;
 };
 
 /*
@@ -84,122 +84,122 @@ protected:
 template <typename... Args>
 class event : private nocopy {
 public:
-	// (inner class) watch
-	// FIXME explain
-	class watch : private nocopy {
-		friend class event;
+    // (inner class) watch
+    // FIXME explain
+    class watch : private nocopy {
+        friend class event;
 
-	private:
-		// (var) m_event
-		// A pointer to the event this watch is bound to, or null if
-		// not bound.
-		event *m_event;
+    private:
+        // (var) m_event
+        // A pointer to the event this watch is bound to, or null if
+        // not bound.
+        event *m_event;
 
-		// (var) m_hold
-		// A list for holding the bound event's pointer to this watch
-		// object. Rather than inserting or removing to the event's
-		// list (which could throw on out-of-memory), we can splice
-		// the entry around (which is noexcept; FIXME is it?).
-		std::list<watch *> m_hold;
+        // (var) m_hold
+        // A list for holding the bound event's pointer to this watch
+        // object. Rather than inserting or removing to the event's
+        // list (which could throw on out-of-memory), we can splice
+        // the entry around (which is noexcept; FIXME is it?).
+        std::list<watch *> m_hold;
 
-		// (var) m_iter
-		// FIXME explain
-		typename std::list<watch *>::iterator m_iter;
+        // (var) m_iter
+        // FIXME explain
+        typename std::list<watch *>::iterator m_iter;
 
-		// (var) m_func
-		// The function attached to this event. This could be a "null"
-		// function if it has not been set yet; however, a watch may
-		// not be bound to an event until then.
-		std::function<void(Args...)> m_func;
+        // (var) m_func
+        // The function attached to this event. This could be a "null"
+        // function if it has not been set yet; however, a watch may
+        // not be bound to an event until then.
+        std::function<void(Args...)> m_func;
 
-	public:
-		// (default ctor)
-		// Constructs a watch with no set function and not bound to any
-		// event.
-		watch() :
-			m_event(nullptr)
-		{
-			m_hold.push_front(this);
-			m_iter = m_hold.begin();
-		}
+    public:
+        // (default ctor)
+        // Constructs a watch with no set function and not bound to any
+        // event.
+        watch() :
+            m_event(nullptr)
+        {
+            m_hold.push_front(this);
+            m_iter = m_hold.begin();
+        }
 
-		// (dtor)
-		// Destroys the watch. If the watch is currently bound to an
-		// event, it is unbound.
-		~watch()
-		{
-			if (m_event) {
-				unbind();
-			}
-		}
+        // (dtor)
+        // Destroys the watch. If the watch is currently bound to an
+        // event, it is unbound.
+        ~watch()
+        {
+            if (m_event) {
+                unbind();
+            }
+        }
 
-		// (feed operator)
-		// Sets the function associated with this watch. It is an error
-		// to set the function if one is already set.
-		void operator <<=(std::function<void(Args...)> func)
-		{
-			if (m_func) {
-				throw 0;//FIXME
-			}
+        // (feed operator)
+        // Sets the function associated with this watch. It is an error
+        // to set the function if one is already set.
+        void operator <<=(std::function<void(Args...)> func)
+        {
+            if (m_func) {
+                throw 0;//FIXME
+            }
 
-			m_func = func;
-		}
+            m_func = func;
+        }
 
-		// (func) bind
-		// Binds the watch to an event. The watch must not be currently
-		// bound to an event, and it must already have a function set
-		// (see operator <<=).
-		void bind(event &ev)
-		{
-			if (!m_func) {
-				throw 0;//FIXME
-			}
+        // (func) bind
+        // Binds the watch to an event. The watch must not be currently
+        // bound to an event, and it must already have a function set
+        // (see operator <<=).
+        void bind(event &ev)
+        {
+            if (!m_func) {
+                throw 0;//FIXME
+            }
 
-			if (m_event) {
-				throw 0;//FIXME
-			}
+            if (m_event) {
+                throw 0;//FIXME
+            }
 
-			m_event = &ev;
-			m_event->m_watchers.splice(
-				m_event->m_watchers.end(),
-				m_hold,
-				m_iter
-			);
-		}
+            m_event = &ev;
+            m_event->m_watchers.splice(
+                m_event->m_watchers.end(),
+                m_hold,
+                m_iter
+            );
+        }
 
-		// (func) unbind
-		// Unbinds the watch from its currently bound event. This may
-		// not be called while the watch is not bound.
-		void unbind()
-		{
-			if (!m_event) {
-				throw 0;//FIXME
-			}
+        // (func) unbind
+        // Unbinds the watch from its currently bound event. This may
+        // not be called while the watch is not bound.
+        void unbind()
+        {
+            if (!m_event) {
+                throw 0;//FIXME
+            }
 
-			m_hold.splice(
-				m_hold.end(),
-				m_event->m_watchers,
-				m_iter
-			);
-			m_event = nullptr;
-		}
-	};
+            m_hold.splice(
+                m_hold.end(),
+                m_event->m_watchers,
+                m_iter
+            );
+            m_event = nullptr;
+        }
+    };
 
 private:
-	// (var) m_watchers
-	// A list of pointers to the watches bound to this event.
-	std::list<watch *> m_watchers;
+    // (var) m_watchers
+    // A list of pointers to the watches bound to this event.
+    std::list<watch *> m_watchers;
 
 public:
-	// (call operator)
-	// Raises the event with the specified arguments. This means triggering
-	// all of the watches bound to this event.
-	void operator ()(Args... args)
-	{
-		for (auto &&watcher : m_watchers) {
-			watcher->m_func(args...);
-		}
-	}
+    // (call operator)
+    // Raises the event with the specified arguments. This means triggering
+    // all of the watches bound to this event.
+    void operator ()(Args... args)
+    {
+        for (auto &&watcher : m_watchers) {
+            watcher->m_func(args...);
+        }
+    }
 };
 
 /*
@@ -239,41 +239,41 @@ std::string to_string(long long ll);
  */
 class fmt {
 private:
-	// (var) m_format
-	// FIXME explain
-	std::string m_format;
+    // (var) m_format
+    // FIXME explain
+    std::string m_format;
 
 public:
-	// (explicit ctor)
-	// Constructs the fmt object with the specified format string.
-	explicit fmt(std::string format) :
-		m_format(format) {}
+    // (explicit ctor)
+    // Constructs the fmt object with the specified format string.
+    explicit fmt(std::string format) :
+        m_format(format) {}
 
-	// (call operator)
-	// FIXME explain
-	template <typename T,typename... Args>
-	std::string operator()(T t,Args... args) const
-	{
-		auto delim_pos = m_format.find('$');
-		if (delim_pos == std::string::npos)
-			throw 0; // FIXME
+    // (call operator)
+    // FIXME explain
+    template <typename T,typename... Args>
+    std::string operator()(T t,Args... args) const
+    {
+        auto delim_pos = m_format.find('$');
+        if (delim_pos == std::string::npos)
+            throw 0; // FIXME
 
-		return m_format.substr(0,delim_pos)
-			+ to_string(t)
-			+ fmt(m_format.substr(delim_pos + 1))
-				(std::forward<Args>(args)...);
-	}
+        return m_format.substr(0,delim_pos)
+            + to_string(t)
+            + fmt(m_format.substr(delim_pos + 1))
+                (std::forward<Args>(args)...);
+    }
 
-	// (call operator)
-	// FIXME explain
-	std::string operator()() const
-	{
-		auto delim_pos = m_format.find('$');
-		if (delim_pos != std::string::npos)
-			throw 0; // FIXME
+    // (call operator)
+    // FIXME explain
+    std::string operator()() const
+    {
+        auto delim_pos = m_format.find('$');
+        if (delim_pos != std::string::npos)
+            throw 0; // FIXME
 
-		return m_format;
-	}
+        return m_format;
+    }
 };
 
 /*
@@ -305,90 +305,90 @@ public:
 template <typename T>
 inline auto range(T lbound,T ubound,T step = 1)
 {
-	// (inner class) range_type
-	// FIXME explain
-	class range_type {
-	private:
-		// (var) m_start
-		// FIXME explain
-		T m_start;
+    // (inner class) range_type
+    // FIXME explain
+    class range_type {
+    private:
+        // (var) m_start
+        // FIXME explain
+        T m_start;
 
-		// (var) m_end
-		// FIXME explain
-		T m_end;
+        // (var) m_end
+        // FIXME explain
+        T m_end;
 
-		// (var) m_step
-		// FIXME explain
-		T m_step;
+        // (var) m_step
+        // FIXME explain
+        T m_step;
 
-	public:
-		// (inner class) iterator
-		// FIXME explain
-		class iterator {
-			friend class range_type;
+    public:
+        // (inner class) iterator
+        // FIXME explain
+        class iterator {
+            friend class range_type;
 
-		private:
-			// (var) m_value
-			// FIXME explain
-			T m_value;
+        private:
+            // (var) m_value
+            // FIXME explain
+            T m_value;
 
-			// (var) m_step
-			// FIXME explain
-			T m_step;
+            // (var) m_step
+            // FIXME explain
+            T m_step;
 
-			// (explicit ctor)
-			// FIXME explain
-			explicit iterator(T value,T step) :
-				m_value(value),
-				m_step(step) {}
+            // (explicit ctor)
+            // FIXME explain
+            explicit iterator(T value,T step) :
+                m_value(value),
+                m_step(step) {}
 
-		public:
-			// (dereference operator)
-			// FIXME explain
-			const T &operator *() const
-			{
-				return m_value;
-			}
+        public:
+            // (dereference operator)
+            // FIXME explain
+            const T &operator *() const
+            {
+                return m_value;
+            }
 
-			// (prefix increment operator)
-			// FIXME explain
-			iterator &operator ++()
-			{
-				m_value += m_step;
-				return *this;
-			}
+            // (prefix increment operator)
+            // FIXME explain
+            iterator &operator ++()
+            {
+                m_value += m_step;
+                return *this;
+            }
 
-			// (inequality operator)
-			// FIXME explain
-			bool operator !=(const iterator &rhs) const
-			{
-				return m_value != rhs.m_value;
-			}
-		};
+            // (inequality operator)
+            // FIXME explain
+            bool operator !=(const iterator &rhs) const
+            {
+                return m_value != rhs.m_value;
+            }
+        };
 
-		// (ctor)
-		// FIXME explain
-		range_type(T start,T end,T step) :
-			m_start(start),
-			m_end(end),
-			m_step(step) {}
+        // (ctor)
+        // FIXME explain
+        range_type(T start,T end,T step) :
+            m_start(start),
+            m_end(end),
+            m_step(step) {}
 
-		// (func) begin
-		// FIXME explain
-		iterator begin() const
-		{
-			return iterator(m_start,m_step);
-		}
+        // (func) begin
+        // FIXME explain
+        iterator begin() const
+        {
+            return iterator(m_start,m_step);
+        }
 
-		// (func) end
-		// FIXME explain
-		iterator end() const
-		{
-			return iterator(m_end + m_step,m_step);
-		}
-	};
+        // (func) end
+        // FIXME explain
+        iterator end() const
+        {
+            return iterator(m_end + m_step,m_step);
+        }
+    };
 
-	return range_type(lbound,ubound,step);
+    return range_type(lbound,ubound,step);
 }
 
 /*
@@ -402,7 +402,7 @@ inline auto range(T lbound,T ubound,T step = 1)
 template <typename T>
 inline auto range_of(T &container)
 {
-	return range<typename T::size_type>(0,container.size() - 1);
+    return range<typename T::size_type>(0,container.size() - 1);
 }
 
 /*
@@ -436,114 +436,114 @@ inline auto range_of(T &container)
  */
 class binreader : private nocopy {
 private:
-	// (var) m_data
-	// FIXME explain
-	const unsigned char *m_data;
+    // (var) m_data
+    // FIXME explain
+    const unsigned char *m_data;
 
-	// (var) m_size
-	// FIXME explain
-	std::size_t m_size;
+    // (var) m_size
+    // FIXME explain
+    std::size_t m_size;
 
-	// (var) m_bitbuf
-	// FIXME explain
-	unsigned char m_bitbuf;
+    // (var) m_bitbuf
+    // FIXME explain
+    unsigned char m_bitbuf;
 
-	// (var) m_bitbuf_len
-	// FIXME explain
-	int m_bitbuf_len;
+    // (var) m_bitbuf_len
+    // FIXME explain
+    int m_bitbuf_len;
 
 public:
-	// (default ctor)
-	// FIXME explain
-	binreader();
+    // (default ctor)
+    // FIXME explain
+    binreader();
 
-	// (func) begin
-	// FIXME explain
-	void begin(const unsigned char *data,std::size_t size);
+    // (func) begin
+    // FIXME explain
+    void begin(const unsigned char *data,std::size_t size);
 
-	// (func) begin
-	// FIXME explain
-	void begin(const util::blob &data);
+    // (func) begin
+    // FIXME explain
+    void begin(const util::blob &data);
 
-	// (func) end
-	// FIXME explain
-	void end();
+    // (func) end
+    // FIXME explain
+    void end();
 
-	// (func) end_early
-	// FIXME explain
-	void end_early();
+    // (func) end_early
+    // FIXME explain
+    void end_early();
 
-	// (func) read_u8
-	// FIXME explain
-	std::uint8_t read_u8();
+    // (func) read_u8
+    // FIXME explain
+    std::uint8_t read_u8();
 
-	// (func) read_u16
-	// FIXME explain
-	std::uint16_t read_u16();
+    // (func) read_u16
+    // FIXME explain
+    std::uint16_t read_u16();
 
-	// (func) read_u32
-	// FIXME explain
-	std::uint32_t read_u32();
+    // (func) read_u32
+    // FIXME explain
+    std::uint32_t read_u32();
 
-	// (func) read_ubits
-	// FIXME explain
-	std::int64_t read_ubits(int bits);
+    // (func) read_ubits
+    // FIXME explain
+    std::int64_t read_ubits(int bits);
 
-	// (func) read_s8
-	// FIXME explain
-	std::int8_t read_s8();
+    // (func) read_s8
+    // FIXME explain
+    std::int8_t read_s8();
 
-	// (func) read_s16
-	// FIXME explain
-	std::int16_t read_s16();
+    // (func) read_s16
+    // FIXME explain
+    std::int16_t read_s16();
 
-	// (func) read_s32
-	// FIXME explain
-	std::int32_t read_s32();
+    // (func) read_s32
+    // FIXME explain
+    std::int32_t read_s32();
 
-	// (func) read_sbits
-	// FIXME explain
-	std::int64_t read_sbits(int bits);
+    // (func) read_sbits
+    // FIXME explain
+    std::int64_t read_sbits(int bits);
 
-	// (func) expect_u8
-	// FIXME explain
-	void expect_u8(std::uint8_t value);
+    // (func) expect_u8
+    // FIXME explain
+    void expect_u8(std::uint8_t value);
 
-	// (func) expect_u16
-	// FIXME explain
-	void expect_u16(std::uint16_t value);
+    // (func) expect_u16
+    // FIXME explain
+    void expect_u16(std::uint16_t value);
 
-	// (func) expect_u32
-	// FIXME explain
-	void expect_u32(std::uint32_t value);
+    // (func) expect_u32
+    // FIXME explain
+    void expect_u32(std::uint32_t value);
 
-	// (func) expect_ubits
-	// FIXME explain
-	void expect_ubits(int bits,std::int64_t value);
+    // (func) expect_ubits
+    // FIXME explain
+    void expect_ubits(int bits,std::int64_t value);
 
-	// (func) expect_u8
-	// FIXME explain
-	void expect_s8(std::int8_t value);
+    // (func) expect_u8
+    // FIXME explain
+    void expect_s8(std::int8_t value);
 
-	// (func) expect_s16
-	// FIXME explain
-	void expect_s16(std::int16_t value);
+    // (func) expect_s16
+    // FIXME explain
+    void expect_s16(std::int16_t value);
 
-	// (func) expect_s32
-	// FIXME explain
-	void expect_s32(std::int32_t value);
+    // (func) expect_s32
+    // FIXME explain
+    void expect_s32(std::int32_t value);
 
-	// (func) expect_sbits
-	// FIXME explain
-	void expect_sbits(int bits,std::int64_t value);
+    // (func) expect_sbits
+    // FIXME explain
+    void expect_sbits(int bits,std::int64_t value);
 
-	// (func) discard
-	// FIXME explain
-	void discard(int bytes);
+    // (func) discard
+    // FIXME explain
+    void discard(int bytes);
 
-	// (func) discard_bits
-	// FIXME explain
-	void discard_bits(int bits);
+    // (func) discard_bits
+    // FIXME explain
+    void discard_bits(int bits);
 };
 
 }

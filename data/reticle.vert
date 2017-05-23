@@ -32,7 +32,7 @@ out float v_Value;
 
 void main()
 {
-	gl_Position = u_Matrix * (a_Position * SCALE);
-	v_Axis = a_Axis;
-	v_Value = a_Position.x + a_Position.y + a_Position.z;
+    gl_Position = u_Matrix * (a_Position * SCALE);
+    v_Axis = a_Axis;
+    v_Value = a_Position.x + a_Position.y + a_Position.z;
 }

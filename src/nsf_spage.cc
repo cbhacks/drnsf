@@ -28,66 +28,66 @@ namespace nsf {
 // declared in res.hh
 void spage::import_file(TRANSACT,const util::blob &data)
 {
-	assert_alive();
+    assert_alive();
 
-	util::binreader r;
-	r.begin(data);
+    util::binreader r;
+    r.begin(data);
 
-	// Ensure the page data is the correct size (64K).
-	if (data.size() != page_size)
-		throw 0; // FIXME
+    // Ensure the page data is the correct size (64K).
+    if (data.size() != page_size)
+        throw 0; // FIXME
 
-	// Read the page header.
-	r.expect_u16(0x1234);
-	auto type          = r.read_u16();
-	auto cid           = r.read_u32();
-	auto pagelet_count = r.read_u32();
-	auto checksum      = r.read_u32();
+    // Read the page header.
+    r.expect_u16(0x1234);
+    auto type          = r.read_u16();
+    auto cid           = r.read_u32();
+    auto pagelet_count = r.read_u32();
+    auto checksum      = r.read_u32();
 
-	// Read the pagelet offsets. Pagelets should be entries, but we treat
-	// them as blobs instead so they can be totally unprocessed, etc.
-	std::vector<std::uint32_t> pagelet_offsets(pagelet_count + 1);
-	for (auto &&pagelet_offset : pagelet_offsets) {
-		pagelet_offset = r.read_u32();
-	}
-	r.end_early();
+    // Read the pagelet offsets. Pagelets should be entries, but we treat
+    // them as blobs instead so they can be totally unprocessed, etc.
+    std::vector<std::uint32_t> pagelet_offsets(pagelet_count + 1);
+    for (auto &&pagelet_offset : pagelet_offsets) {
+        pagelet_offset = r.read_u32();
+    }
+    r.end_early();
 
-	// Copy the data for each pagelet as a new raw_data asset. The caller
-	// can later process these into entries if desired.
-	std::vector<misc::raw_data::ref> pagelets(pagelet_count);
-	for (auto &&i : util::range_of(pagelets)) {
-		auto &&pagelet = pagelets[i];
-		auto &&pagelet_start_offset = pagelet_offsets[i];
-		auto &&pagelet_end_offset = pagelet_offsets[i + 1];
+    // Copy the data for each pagelet as a new raw_data asset. The caller
+    // can later process these into entries if desired.
+    std::vector<misc::raw_data::ref> pagelets(pagelet_count);
+    for (auto &&i : util::range_of(pagelets)) {
+        auto &&pagelet = pagelets[i];
+        auto &&pagelet_start_offset = pagelet_offsets[i];
+        auto &&pagelet_end_offset = pagelet_offsets[i + 1];
 
-		// Ensure the pagelet data doesn't overlap the page header.
-		if (pagelet_start_offset < 20 + pagelet_count * 4)
-			throw 0; // FIXME
+        // Ensure the pagelet data doesn't overlap the page header.
+        if (pagelet_start_offset < 20 + pagelet_count * 4)
+            throw 0; // FIXME
 
-		// Ensure the pagelet data doesn't extend past the end of the
-		// page (overrun).
-		if (pagelet_end_offset > page_size)
-			throw 0; // FIXME
+        // Ensure the pagelet data doesn't extend past the end of the
+        // page (overrun).
+        if (pagelet_end_offset > page_size)
+            throw 0; // FIXME
 
-		// Ensure the pagelet doesn't end before it begins (negative
-		// pagelet size).
-		if (pagelet_end_offset < pagelet_start_offset)
-			throw 0; // FIXME
+        // Ensure the pagelet doesn't end before it begins (negative
+        // pagelet size).
+        if (pagelet_end_offset < pagelet_start_offset)
+            throw 0; // FIXME
 
-		// Create the pagelet asset.
-		pagelet = get_name() / "pagelet-$"_fmt(i);
-		pagelet.create(TS,get_proj());
+        // Create the pagelet asset.
+        pagelet = get_name() / "pagelet-$"_fmt(i);
+        pagelet.create(TS,get_proj());
 
-		// Copy the pagelet data into the asset.
-		pagelet->set_data(TS,
-			{&data[pagelet_start_offset],&data[pagelet_end_offset]}
-		);
-	}
+        // Copy the pagelet data into the asset.
+        pagelet->set_data(TS,
+            {&data[pagelet_start_offset],&data[pagelet_end_offset]}
+        );
+    }
 
-	// Finish importing.
-	set_type(TS,type);
-	set_cid(TS,cid);
-	set_pagelets(TS,{pagelets.begin(),pagelets.end()});
+    // Finish importing.
+    set_type(TS,type);
+    set_cid(TS,cid);
+    set_pagelets(TS,{pagelets.begin(),pagelets.end()});
 }
 
 }

@@ -28,13 +28,13 @@ res::atom g_selected_asset;
 render::camera g_camera;
 
 old_editor::old_editor(project &proj) :
-	m_proj(proj)
+    m_proj(proj)
 {
 }
 
 project &old_editor::get_project() const
 {
-	return m_proj;
+    return m_proj;
 }
 
 }

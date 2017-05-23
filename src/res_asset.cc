@@ -28,122 +28,122 @@ namespace res {
 // FIXME explain
 class asset_appear_event_op : public transact::operation {
 private:
-	// (var) m_proj
-	// FIXME explain
-	project &m_proj;
+    // (var) m_proj
+    // FIXME explain
+    project &m_proj;
 
-	// (var) m_asset
-	// FIXME explain
-	asset &m_asset;
+    // (var) m_asset
+    // FIXME explain
+    asset &m_asset;
 
-	// (var) m_appear
-	// FIXME explain
-	bool m_appear;
+    // (var) m_appear
+    // FIXME explain
+    bool m_appear;
 
 public:
-	// (explicit ctor)
-	// FIXME explain
-	explicit asset_appear_event_op(project &proj,asset &asset,bool appear) :
-		m_proj(proj),
-		m_asset(asset),
-		m_appear(appear) {}
+    // (explicit ctor)
+    // FIXME explain
+    explicit asset_appear_event_op(project &proj,asset &asset,bool appear) :
+        m_proj(proj),
+        m_asset(asset),
+        m_appear(appear) {}
 
-	// (func) execute
-	// FIXME explain
-	void execute() noexcept override
-	{
-		if (m_appear) {
-			m_proj.on_asset_appear(m_asset);
-		} else {
-			m_proj.on_asset_disappear(m_asset);
-		}
-		m_appear = !m_appear;
-	}
+    // (func) execute
+    // FIXME explain
+    void execute() noexcept override
+    {
+        if (m_appear) {
+            m_proj.on_asset_appear(m_asset);
+        } else {
+            m_proj.on_asset_disappear(m_asset);
+        }
+        m_appear = !m_appear;
+    }
 };
 
 // declared in res.hh
 void asset::create_impl(TRANSACT,atom name)
 {
-	auto p = std::unique_ptr<asset>(this);
-	TS.set(m_name,name);
-	TS.set(name.get_internal_asset_ptr(),this);
-	m_iter = TS.insert(
-		m_proj.m_assets,
-		m_proj.m_assets.end(),
-		std::move(p)
-	);
-	TS.push_op(std::make_unique<asset_appear_event_op>(
-		m_proj,
-		*this,
-		true
-	));
+    auto p = std::unique_ptr<asset>(this);
+    TS.set(m_name,name);
+    TS.set(name.get_internal_asset_ptr(),this);
+    m_iter = TS.insert(
+        m_proj.m_assets,
+        m_proj.m_assets.end(),
+        std::move(p)
+    );
+    TS.push_op(std::make_unique<asset_appear_event_op>(
+        m_proj,
+        *this,
+        true
+    ));
 }
 
 // declared in res.hh
 void asset::assert_alive() const
 {
-	if (!m_name) {
-		throw 0; // FIXME
-	}
+    if (!m_name) {
+        throw 0; // FIXME
+    }
 }
 
 // declared in res.hh
 void asset::rename(TRANSACT,atom name)
 {
-	assert_alive();
+    assert_alive();
 
-	if (!name) {
-		throw 0; // FIXME
-	}
+    if (!name) {
+        throw 0; // FIXME
+    }
 
-	if (name.get()) {
-		throw 0;//FIXME
-	}
+    if (name.get()) {
+        throw 0;//FIXME
+    }
 
-	TS.push_op(std::make_unique<asset_appear_event_op>(
-		m_proj,
-		*this,
-		false
-	));
-	TS.set(name.get_internal_asset_ptr(),this);
-	TS.set(m_name.get_internal_asset_ptr(),nullptr);
-	TS.set(m_name,name);
-	TS.push_op(std::make_unique<asset_appear_event_op>(
-		m_proj,
-		*this,
-		true
-	));
+    TS.push_op(std::make_unique<asset_appear_event_op>(
+        m_proj,
+        *this,
+        false
+    ));
+    TS.set(name.get_internal_asset_ptr(),this);
+    TS.set(m_name.get_internal_asset_ptr(),nullptr);
+    TS.set(m_name,name);
+    TS.push_op(std::make_unique<asset_appear_event_op>(
+        m_proj,
+        *this,
+        true
+    ));
 }
 
 // declared in res.hh
 void asset::destroy(TRANSACT)
 {
-	assert_alive();
+    assert_alive();
 
-	TS.push_op(std::make_unique<asset_appear_event_op>(
-		m_proj,
-		*this,
-		false
-	));
-	TS.set(m_name.get_internal_asset_ptr(),nullptr);
-	TS.set(m_name,nullptr);
-	TS.erase(m_proj.m_assets,m_iter);
+    TS.push_op(std::make_unique<asset_appear_event_op>(
+        m_proj,
+        *this,
+        false
+    ));
+    TS.set(m_name.get_internal_asset_ptr(),nullptr);
+    TS.set(m_name,nullptr);
+    TS.erase(m_proj.m_assets,m_iter);
 }
 
 // declared in res.hh
 const atom &asset::get_name() const
 {
-	assert_alive();
+    assert_alive();
 
-	return m_name;
+    return m_name;
 }
 
 // declared in res.hh
 project &asset::get_proj() const
 {
-	assert_alive();
+    assert_alive();
 
-	return m_proj;
+    return m_proj;
 }
 
 }

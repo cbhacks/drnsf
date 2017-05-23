@@ -36,35 +36,35 @@ GdkGLContext *g_glctx;
 // declared in gl.hh
 void init()
 {
-	// Set attributes for the hidden background window we are about to
-	// create (see below).
-	GdkWindowAttr wnd_attr;
-	wnd_attr.event_mask = 0;
-	wnd_attr.width = 100;
-	wnd_attr.height = 100;
-	wnd_attr.wclass = GDK_INPUT_OUTPUT;
-	wnd_attr.window_type = GDK_WINDOW_TOPLEVEL;
+    // Set attributes for the hidden background window we are about to
+    // create (see below).
+    GdkWindowAttr wnd_attr;
+    wnd_attr.event_mask = 0;
+    wnd_attr.width = 100;
+    wnd_attr.height = 100;
+    wnd_attr.wclass = GDK_INPUT_OUTPUT;
+    wnd_attr.window_type = GDK_WINDOW_TOPLEVEL;
 
-	// Create the hidden window. This window is necessary to actually get
-	// an OpenGL context, even if we don't render to it.
-	g_wnd = gdk_window_new(nullptr,&wnd_attr,0);
-	// Failure presumably results in a crash or premature exit/abort. This
-	// is the typical behavior in GTK/GDK/Glib, and nothing can be done
-	// about it. Blame their devs.
+    // Create the hidden window. This window is necessary to actually get
+    // an OpenGL context, even if we don't render to it.
+    g_wnd = gdk_window_new(nullptr,&wnd_attr,0);
+    // Failure presumably results in a crash or premature exit/abort. This
+    // is the typical behavior in GTK/GDK/Glib, and nothing can be done
+    // about it. Blame their devs.
 
-	// Create an OpenGL context for the hidden window. This context will
-	// be used for all rendering in the application. Normal render output
-	// will be discarded because this window will never appear, so render
-	// jobs should target an FBO+RBO or FBO+texture which can then be
-	// blitted to the actual appropriate display widget.
-	GError *error = nullptr;
-	g_glctx = gdk_window_create_gl_context(g_wnd,&error);
-	if (!g_glctx) {
-		// TODO
-	}
+    // Create an OpenGL context for the hidden window. This context will
+    // be used for all rendering in the application. Normal render output
+    // will be discarded because this window will never appear, so render
+    // jobs should target an FBO+RBO or FBO+texture which can then be
+    // blitted to the actual appropriate display widget.
+    GError *error = nullptr;
+    g_glctx = gdk_window_create_gl_context(g_wnd,&error);
+    if (!g_glctx) {
+        // TODO
+    }
 
-	// Set the new context as the "current" one.
-	gdk_gl_context_make_current(g_glctx);
+    // Set the new context as the "current" one.
+    gdk_gl_context_make_current(g_glctx);
 }
 
 }

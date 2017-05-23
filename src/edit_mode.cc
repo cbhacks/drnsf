@@ -27,19 +27,19 @@ namespace edit {
 static std::set<modedef *> s_modedef_list;
 
 modedef::modedef(std::string title) :
-	m_title(title)
+    m_title(title)
 {
-	s_modedef_list.insert(this);
+    s_modedef_list.insert(this);
 }
 
 modedef::~modedef()
 {
-	s_modedef_list.erase(this);
+    s_modedef_list.erase(this);
 }
 
 const std::set<modedef*> &modedef::get_list()
 {
-	return s_modedef_list;
+    return s_modedef_list;
 }
 
 }

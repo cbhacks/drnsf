@@ -26,47 +26,47 @@ namespace render {
 
 // declared in render.hh
 figure::figure(viewport &vp) :
-	m_vp(vp)
+    m_vp(vp)
 {
-	vp.m_figs.insert(this);
+    vp.m_figs.insert(this);
 }
 
 // declared in render.hh
 figure::~figure()
 {
-	m_vp.m_figs.erase(this);
+    m_vp.m_figs.erase(this);
 
-	// Invalidate the parent if this figure is visible, as it has now gone
-	// from visible to non-existent.
-	if (m_visible) {
-		m_vp.invalidate();
-	}
+    // Invalidate the parent if this figure is visible, as it has now gone
+    // from visible to non-existent.
+    if (m_visible) {
+        m_vp.invalidate();
+    }
 }
 
 // declared in render.hh
 void figure::invalidate()
 {
-	if (m_visible) {
-		m_vp.invalidate();
-	}
+    if (m_visible) {
+        m_vp.invalidate();
+    }
 }
 
 // declared in render.hh
 void figure::show()
 {
-	if (!m_visible) {
-		m_visible = true;
-		m_vp.invalidate();
-	}
+    if (!m_visible) {
+        m_visible = true;
+        m_vp.invalidate();
+    }
 }
 
 // declared in render.hh
 void figure::hide()
 {
-	if (m_visible) {
-		m_visible = false;
-		m_vp.invalidate();
-	}
+    if (m_visible) {
+        m_visible = false;
+        m_vp.invalidate();
+    }
 }
 
 }

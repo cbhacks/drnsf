@@ -28,15 +28,15 @@ namespace util {
 // declared in util.hh
 std::string to_string(std::string s)
 {
-	return s;
+    return s;
 }
 
 // declared in util.hh
 std::string to_string(long long ll)
 {
-	std::ostringstream ss;
-	ss << ll;
-	return ss.str();
+    std::ostringstream ss;
+    ss << ll;
+    return ss.str();
 }
 
 }

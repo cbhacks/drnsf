@@ -26,168 +26,168 @@ namespace transact {
 
 // declared in transact.hh
 nexus::nexus() :
-	m_status(status::ready)
+    m_status(status::ready)
 {
 }
 
 // declared in transact.hh
 nexus::~nexus()
 {
-	// FIXME - handle non-ready status
+    // FIXME - handle non-ready status
 }
 
 // declared in transact.hh
 status nexus::get_status() const
 {
-	return m_status;
+    return m_status;
 }
 
 // declared in transact.hh
 bool nexus::has_undo() const
 {
-	if (m_status != status::ready) {
-		throw 0;//FIXME
-	}
-	return m_undo != nullptr;
+    if (m_status != status::ready) {
+        throw 0;//FIXME
+    }
+    return m_undo != nullptr;
 }
 
 // declared in transact.hh
 bool nexus::has_redo() const
 {
-	if (m_status != status::ready) {
-		throw 0;//FIXME
-	}
-	return m_redo != nullptr;
+    if (m_status != status::ready) {
+        throw 0;//FIXME
+    }
+    return m_redo != nullptr;
 }
 
 // declared in transact.hh
 const transaction &nexus::get_undo() const
 {
-	if (m_status != status::ready) {
-		throw 0;//FIXME
-	}
-	return *m_undo;
+    if (m_status != status::ready) {
+        throw 0;//FIXME
+    }
+    return *m_undo;
 }
 
 // declared in transact.hh
 const transaction &nexus::get_redo() const
 {
-	if (m_status != status::ready) {
-		throw 0;//FIXME
-	}
-	return *m_redo;
+    if (m_status != status::ready) {
+        throw 0;//FIXME
+    }
+    return *m_redo;
 }
 
 // declared in transact.hh
 void nexus::undo()
 {
-	if (m_status != status::ready) {
-		throw 0;//FIXME
-	}
+    if (m_status != status::ready) {
+        throw 0;//FIXME
+    }
 
-	// Ensure that there is actually a transaction to undo.
-	// TODO
+    // Ensure that there is actually a transaction to undo.
+    // TODO
 
-	// Run each of the operations in the transaction, causing them to be
-	// undone.
-	for (auto &&op : m_undo->m_ops) {
-		op->execute();
-	}
+    // Run each of the operations in the transaction, causing them to be
+    // undone.
+    for (auto &&op : m_undo->m_ops) {
+        op->execute();
+    }
 
-	// Reverse the transaction's operation list. This ensures the list
-	// is executed in the inverse order if it is redone in the future.
-	m_undo->m_ops.reverse();
+    // Reverse the transaction's operation list. This ensures the list
+    // is executed in the inverse order if it is redone in the future.
+    m_undo->m_ops.reverse();
 
-	// Pop the transaction from the undo stack and push it onto the redo
-	// stack. Essentially, given transactions {B,A} which can be undone,
-	// transactions {J,K} which can be redone, and transaction X which is
-	// in the process of being undone:
-	//
-	// A <- B <- X <- (current state) -> J -> K
-	// becomes
-	// A <- B <- (current state) -> X -> J -> K
-	std::unique_ptr<transaction> t;
-	m_undo.swap(t);
-	m_undo.swap(t->m_next);
-	m_redo.swap(t->m_next);
-	m_redo.swap(t);
+    // Pop the transaction from the undo stack and push it onto the redo
+    // stack. Essentially, given transactions {B,A} which can be undone,
+    // transactions {J,K} which can be redone, and transaction X which is
+    // in the process of being undone:
+    //
+    // A <- B <- X <- (current state) -> J -> K
+    // becomes
+    // A <- B <- (current state) -> X -> J -> K
+    std::unique_ptr<transaction> t;
+    m_undo.swap(t);
+    m_undo.swap(t->m_next);
+    m_redo.swap(t->m_next);
+    m_redo.swap(t);
 }
 
 // declared in transact.hh
 void nexus::redo()
 {
-	if (m_status != status::ready) {
-		throw 0;//FIXME
-	}
+    if (m_status != status::ready) {
+        throw 0;//FIXME
+    }
 
-	// Ensure that there is actually a transaction to redo.
-	// TODO
+    // Ensure that there is actually a transaction to redo.
+    // TODO
 
-	// Run each of the operations in the transaction, causing them to be
-	// redone.
-	for (auto &&op : m_redo->m_ops) {
-		op->execute();
-	}
+    // Run each of the operations in the transaction, causing them to be
+    // redone.
+    for (auto &&op : m_redo->m_ops) {
+        op->execute();
+    }
 
-	// Reverse the transaction's operation list. This ensures the list
-	// is executed in the inverse order if it is undone in the future.
-	m_redo->m_ops.reverse();
+    // Reverse the transaction's operation list. This ensures the list
+    // is executed in the inverse order if it is undone in the future.
+    m_redo->m_ops.reverse();
 
-	// Pop the transaction from the redo stack and push it onto the undo
-	// stack. Essentially, given transactions {B,A} which can be undone,
-	// transactions {J,K} which can be redone, and transaction X which is
-	// in the process of being redone:
-	//
-	// A <- B <- (current state) -> X -> J -> K
-	// becomes
-	// A <- B <- X <- (current state) -> J -> K
-	std::unique_ptr<transaction> t;
-	m_redo.swap(t);
-	m_redo.swap(t->m_next);
-	m_undo.swap(t->m_next);
-	m_undo.swap(t);
+    // Pop the transaction from the redo stack and push it onto the undo
+    // stack. Essentially, given transactions {B,A} which can be undone,
+    // transactions {J,K} which can be redone, and transaction X which is
+    // in the process of being redone:
+    //
+    // A <- B <- (current state) -> X -> J -> K
+    // becomes
+    // A <- B <- X <- (current state) -> J -> K
+    std::unique_ptr<transaction> t;
+    m_redo.swap(t);
+    m_redo.swap(t->m_next);
+    m_undo.swap(t->m_next);
+    m_undo.swap(t);
 }
 
 // declared in transact.hh
 nexus &nexus::operator <<(std::function<void(TRANSACT)> job)
 {
-	if (m_status != status::ready) {
-		throw 0;//FIXME
-	}
+    if (m_status != status::ready) {
+        throw 0;//FIXME
+    }
 
-	m_status = status::busy;
-	on_status_change();
+    m_status = status::busy;
+    on_status_change();
 
-	// Create the teller used to build this transaction. If this function
-	// exits without committing the transaction, the teller will rollback
-	// all of the changes automatically.
-	transact::teller ts;
+    // Create the teller used to build this transaction. If this function
+    // exits without committing the transaction, the teller will rollback
+    // all of the changes automatically.
+    transact::teller ts;
 
-	// Run the functor given to the nexus.
-	job(ts);
+    // Run the functor given to the nexus.
+    job(ts);
 
-	// Commit the transaction.
-	auto t = ts.commit();
+    // Commit the transaction.
+    auto t = ts.commit();
 
-	// Set this new transaction's next pointer to the current next-to-undo
-	// transaction, and set the next-to-undo to the new transaction.
-	//
-	// Given current transaction history (latest-first) {C, B, A} and a new
-	// transaction X being introduced:
-	//
-	// A <- B <- C <- (m_undo)
-	// becomes
-	// A <- B <- C <- X <- (m_undo)
-	m_undo.swap(t->m_next);
-	m_undo.swap(t);
+    // Set this new transaction's next pointer to the current next-to-undo
+    // transaction, and set the next-to-undo to the new transaction.
+    //
+    // Given current transaction history (latest-first) {C, B, A} and a new
+    // transaction X being introduced:
+    //
+    // A <- B <- C <- (m_undo)
+    // becomes
+    // A <- B <- C <- X <- (m_undo)
+    m_undo.swap(t->m_next);
+    m_undo.swap(t);
 
-	// Clear all of the redo-able actions.
-	m_redo.reset(nullptr);
+    // Clear all of the redo-able actions.
+    m_redo.reset(nullptr);
 
-	m_status = status::ready;
-	on_status_change();
+    m_status = status::ready;
+    on_status_change();
 
-	return *this;
+    return *this;
 }
 
 }

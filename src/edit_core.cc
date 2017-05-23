@@ -33,53 +33,53 @@ std::function<void(int)> create_mod_testbox(edit::core &);
 namespace edit {
 
 core::core() :
-	m_ed(m_proj),
-	m_wnd(m_ed)
+    m_ed(m_proj),
+    m_wnd(m_ed)
 {
-	h_frame <<= [this](int width,int height,int delta_time) {
-		frame(width,height,delta_time);
-	};
-	h_frame.bind(m_wnd.m_cryptos.on_frame);
+    h_frame <<= [this](int width,int height,int delta_time) {
+        frame(width,height,delta_time);
+    };
+    h_frame.bind(m_wnd.m_cryptos.on_frame);
 
-	// Create all of the editor modules.
-	m_modules.push_back(create_mod_testbox(*this));
+    // Create all of the editor modules.
+    m_modules.push_back(create_mod_testbox(*this));
 
-	m_wnd.show();
+    m_wnd.show();
 }
 
 void core::frame(int width,int height,int delta)
 {
-	// Clear the screen.
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // Clear the screen.
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// Set up the 3D perspective.
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadMatrixf(&glm::perspective(
-		70.0f,
-		(float)width / height,
-		500.0f,
-		200000.0f
-	)[0][0]);
-	glTranslatef(0,0,-800.0f);
-	glTranslatef(0,0,-g_camera_zoom);
-	glMatrixMode(GL_MODELVIEW);
+    // Set up the 3D perspective.
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadMatrixf(&glm::perspective(
+        70.0f,
+        (float)width / height,
+        500.0f,
+        200000.0f
+    )[0][0]);
+    glTranslatef(0,0,-800.0f);
+    glTranslatef(0,0,-g_camera_zoom);
+    glMatrixMode(GL_MODELVIEW);
 
-	// Enable z-buffering.
-	glEnable(GL_DEPTH_TEST);
+    // Enable z-buffering.
+    glEnable(GL_DEPTH_TEST);
 
-	// Run all of the enabled editor modules.
-	for (auto &&mod : m_modules) {
-		mod(delta);
-	}
+    // Run all of the enabled editor modules.
+    for (auto &&mod : m_modules) {
+        mod(delta);
+    }
 
-	// Disable the previously-enabled z-buffering.
-	glDisable(GL_DEPTH_TEST);
+    // Disable the previously-enabled z-buffering.
+    glDisable(GL_DEPTH_TEST);
 
-	// Restore the default projection matrix.
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
+    // Restore the default projection matrix.
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
 }
 
 }

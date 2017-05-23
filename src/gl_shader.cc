@@ -27,50 +27,50 @@ namespace gl {
 namespace old {
 
 shader::shader(machine &mach,int type) :
-	m_mach(mach),
-	m_id_p(std::make_shared<unsigned int>(0))
+    m_mach(mach),
+    m_id_p(std::make_shared<unsigned int>(0))
 {
-	mach.post_job([id_p = m_id_p,type]{
-		*id_p = glCreateShader(type);
-	});
+    mach.post_job([id_p = m_id_p,type]{
+        *id_p = glCreateShader(type);
+    });
 }
 
 shader::~shader()
 {
-	m_mach.post_job([id_p = m_id_p]{
-		glDeleteShader(*id_p);
-	});
+    m_mach.post_job([id_p = m_id_p]{
+        glDeleteShader(*id_p);
+    });
 }
 
 void shader::compile(std::string code)
 {
-	m_mach.post_job([id_p = m_id_p,code]{
-		const char *code_cstr = code.c_str();
-		glShaderSource(*id_p,1,&code_cstr,nullptr);
-		glCompileShader(*id_p);
+    m_mach.post_job([id_p = m_id_p,code]{
+        const char *code_cstr = code.c_str();
+        glShaderSource(*id_p,1,&code_cstr,nullptr);
+        glCompileShader(*id_p);
 
-		int status;
-		glGetShaderiv(*id_p,GL_COMPILE_STATUS,&status);
+        int status;
+        glGetShaderiv(*id_p,GL_COMPILE_STATUS,&status);
 
-		if (!status) {
-			int log_size;
-			glGetShaderiv(*id_p,GL_INFO_LOG_LENGTH,&log_size);
+        if (!status) {
+            int log_size;
+            glGetShaderiv(*id_p,GL_INFO_LOG_LENGTH,&log_size);
 
-			std::vector<char> log_buffer(log_size);
-			glGetShaderInfoLog(
-				*id_p,
-				log_size,
-				nullptr,
-				log_buffer.data()
-			);
+            std::vector<char> log_buffer(log_size);
+            glGetShaderInfoLog(
+                *id_p,
+                log_size,
+                nullptr,
+                log_buffer.data()
+            );
 
-			std::cerr << " == BEGIN SHADER LOG ==" << std::endl;
-			std::cerr << log_buffer.data() << std::endl;
-			std::cerr << " === END SHADER LOG ===" << std::endl;
+            std::cerr << " == BEGIN SHADER LOG ==" << std::endl;
+            std::cerr << log_buffer.data() << std::endl;
+            std::cerr << " === END SHADER LOG ===" << std::endl;
 
-			throw 0;//FIXME
-		}
-	});
+            throw 0;//FIXME
+        }
+    });
 }
 
 }

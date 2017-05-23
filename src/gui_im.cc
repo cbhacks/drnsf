@@ -27,79 +27,79 @@ namespace gui {
 namespace im {
 
 void label(
-	const std::string &text)
+    const std::string &text)
 {
-	AlignFirstTextHeightToWidgets();
-	TextUnformatted(text.c_str());
+    AlignFirstTextHeightToWidgets();
+    TextUnformatted(text.c_str());
 }
 
 void subwindow(
-	const std::string &id,
-	const std::string &title,
-	const std::function<void()> &f)
+    const std::string &id,
+    const std::string &title,
+    const std::function<void()> &f)
 {
-	auto str = "$###subwnd_$"_fmt(title,id);
+    auto str = "$###subwnd_$"_fmt(title,id);
 
-	if (Begin(str.c_str())) {
-		f();
-	}
-	End();
+    if (Begin(str.c_str())) {
+        f();
+    }
+    End();
 }
 
 void main_menu_bar(
-	const std::function<void()> &f)
+    const std::function<void()> &f)
 {
-	if (BeginMainMenuBar()) {
-		f();
-		EndMainMenuBar();
-	}
+    if (BeginMainMenuBar()) {
+        f();
+        EndMainMenuBar();
+    }
 }
 
 void menu(
-	const std::string &text,
-	const std::function<void()> &f)
+    const std::string &text,
+    const std::function<void()> &f)
 {
-	if (!f) {
-		BeginMenu(text.c_str(),false);
-		return;
-	}
-	if (BeginMenu(text.c_str())) {
-		f();
-		EndMenu();
-	}
+    if (!f) {
+        BeginMenu(text.c_str(),false);
+        return;
+    }
+    if (BeginMenu(text.c_str())) {
+        f();
+        EndMenu();
+    }
 }
 
 void menu_item(
-	const std::string &text,
-	const std::function<void()> &f)
+    const std::string &text,
+    const std::function<void()> &f)
 {
-	if (!f) {
-		MenuItem(text.c_str(),nullptr,false,false);
-		return;
-	}
-	if (MenuItem(text.c_str())) {
-		f();
-	}
+    if (!f) {
+        MenuItem(text.c_str(),nullptr,false,false);
+        return;
+    }
+    if (MenuItem(text.c_str())) {
+        f();
+    }
 }
 
 void menu_separator()
 {
-	Separator();
+    Separator();
 }
 
 scope::scope(int id)
 {
-	PushID(id);
+    PushID(id);
 }
 
 scope::scope(void *ptr)
 {
-	PushID(ptr);
+    PushID(ptr);
 }
 
 scope::~scope()
 {
-	PopID();
+    PopID();
 }
 
 }

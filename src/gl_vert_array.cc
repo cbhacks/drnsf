@@ -26,68 +26,68 @@ namespace gl {
 namespace old {
 
 vert_array::vert_array(machine &mach) :
-	m_mach(mach),
-	m_id_p(std::make_shared<unsigned int>(0))
+    m_mach(mach),
+    m_id_p(std::make_shared<unsigned int>(0))
 {
-	mach.post_job([id_p = m_id_p]{
-		glGenVertexArrays(1,id_p.get());
-	});
+    mach.post_job([id_p = m_id_p]{
+        glGenVertexArrays(1,id_p.get());
+    });
 }
 
 vert_array::~vert_array()
 {
-	m_mach.post_job([id_p = m_id_p]{
-		glDeleteVertexArrays(1,id_p.get());
-	});
+    m_mach.post_job([id_p = m_id_p]{
+        glDeleteVertexArrays(1,id_p.get());
+    });
 }
 
 void vert_array::bind_ibo(buffer &buf)
 {
-	m_mach.post_job([id_p = m_id_p,buf_id_p = buf.m_id_p]{
-		glBindVertexArray(*id_p);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,*buf_id_p);
-		glBindVertexArray(0);
-	});
+    m_mach.post_job([id_p = m_id_p,buf_id_p = buf.m_id_p]{
+        glBindVertexArray(*id_p);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,*buf_id_p);
+        glBindVertexArray(0);
+    });
 }
 
 void vert_array::bind_vbo(
-	buffer &buf,
-	const attrib &atr,
-	int size,
-	int type,
-	bool normalized,
-	int stride,
-	int offset)
+    buffer &buf,
+    const attrib &atr,
+    int size,
+    int type,
+    bool normalized,
+    int stride,
+    int offset)
 {
-	m_mach.post_job([
-		id_p = m_id_p,
-		buf_id_p = buf.m_id_p,
-		atr_id_p = atr.m_id_p,
-		size,
-		type,
-		normalized,
-		stride,
-		offset
-		]{
-		glBindVertexArray(*id_p);
-		glBindBuffer(GL_ARRAY_BUFFER,*buf_id_p);
-		glEnableVertexAttribArray(*atr_id_p);
-		glVertexAttribPointer(
-			*atr_id_p,
-			size,
-			type,
-			normalized,
-			stride,
-			reinterpret_cast<void *>(offset)
-		);
-		glBindBuffer(GL_ARRAY_BUFFER,0);
-		glBindVertexArray(0);
-	});
+    m_mach.post_job([
+        id_p = m_id_p,
+        buf_id_p = buf.m_id_p,
+        atr_id_p = atr.m_id_p,
+        size,
+        type,
+        normalized,
+        stride,
+        offset
+        ]{
+        glBindVertexArray(*id_p);
+        glBindBuffer(GL_ARRAY_BUFFER,*buf_id_p);
+        glEnableVertexAttribArray(*atr_id_p);
+        glVertexAttribPointer(
+            *atr_id_p,
+            size,
+            type,
+            normalized,
+            stride,
+            reinterpret_cast<void *>(offset)
+        );
+        glBindBuffer(GL_ARRAY_BUFFER,0);
+        glBindVertexArray(0);
+    });
 }
 
 unsigned int vert_array::get_id()
 {
-	return *m_id_p;
+    return *m_id_p;
 }
 
 }

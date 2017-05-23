@@ -26,38 +26,38 @@ namespace gl {
 namespace old {
 
 buffer::buffer(machine &mach) :
-	m_mach(mach),
-	m_id_p(std::make_shared<unsigned int>(0))
+    m_mach(mach),
+    m_id_p(std::make_shared<unsigned int>(0))
 {
-	mach.post_job([id_p = m_id_p]{
-		glGenBuffers(1,id_p.get());
-	});
+    mach.post_job([id_p = m_id_p]{
+        glGenBuffers(1,id_p.get());
+    });
 }
 
 buffer::~buffer()
 {
-	m_mach.post_job([id_p = m_id_p]{
-		glDeleteBuffers(1,id_p.get());
-	});
+    m_mach.post_job([id_p = m_id_p]{
+        glDeleteBuffers(1,id_p.get());
+    });
 }
 
 void buffer::put_data(util::blob data,int usage)
 {
-	m_mach.post_job([id_p = m_id_p,data,usage]{
-		glBindBuffer(GL_COPY_WRITE_BUFFER,*id_p);
-		glBufferData(
-			GL_COPY_WRITE_BUFFER,
-			data.size(),
-			data.data(),
-			usage
-		);
-		glBindBuffer(GL_COPY_WRITE_BUFFER,0);
-	});
+    m_mach.post_job([id_p = m_id_p,data,usage]{
+        glBindBuffer(GL_COPY_WRITE_BUFFER,*id_p);
+        glBufferData(
+            GL_COPY_WRITE_BUFFER,
+            data.size(),
+            data.data(),
+            usage
+        );
+        glBindBuffer(GL_COPY_WRITE_BUFFER,0);
+    });
 }
 
 unsigned int buffer::get_id()
 {
-	return *m_id_p;
+    return *m_id_p;
 }
 
 }

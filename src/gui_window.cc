@@ -27,41 +27,41 @@ namespace gui {
 // declared in gui.hh
 window::window(const std::string &title,int width,int height)
 {
-	M = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(M),title.c_str());
-	gtk_window_set_default_size(GTK_WINDOW(M),width,height);
-	g_signal_connect(M,"delete-event",G_CALLBACK(gtk_true),nullptr);
+    M = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(M),title.c_str());
+    gtk_window_set_default_size(GTK_WINDOW(M),width,height);
+    g_signal_connect(M,"delete-event",G_CALLBACK(gtk_true),nullptr);
 
-	m_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
-	gtk_container_add(GTK_CONTAINER(M),m_vbox);
-	gtk_widget_show(m_vbox);
+    m_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+    gtk_container_add(GTK_CONTAINER(M),m_vbox);
+    gtk_widget_show(m_vbox);
 
-	m_menubar = gtk_menu_bar_new();
-	gtk_box_pack_start(GTK_BOX(m_vbox),m_menubar,false,false,0);
-	gtk_widget_show(m_menubar);
+    m_menubar = gtk_menu_bar_new();
+    gtk_box_pack_start(GTK_BOX(m_vbox),m_menubar,false,false,0);
+    gtk_widget_show(m_menubar);
 
-	m_content = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
-	gtk_box_set_homogeneous(GTK_BOX(m_content),true);
-	gtk_box_pack_start(GTK_BOX(m_vbox),m_content,true,true,0);
-	gtk_widget_show(m_content);
+    m_content = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+    gtk_box_set_homogeneous(GTK_BOX(m_content),true);
+    gtk_box_pack_start(GTK_BOX(m_vbox),m_content,true,true,0);
+    gtk_widget_show(m_content);
 }
 
 // declared in gui.hh
 window::~window()
 {
-	gtk_widget_destroy(M);
+    gtk_widget_destroy(M);
 }
 
 // declared in gui.hh
 void window::show()
 {
-	gtk_widget_show(M);
+    gtk_widget_show(M);
 }
 
 // declared in gui.hh
 GtkContainer *window::get_container_handle()
 {
-	return GTK_CONTAINER(m_content);
+    return GTK_CONTAINER(m_content);
 }
 
 }

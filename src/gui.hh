@@ -40,17 +40,17 @@ namespace gui {
  */
 class widget : private util::nocopy {
 public:
-	// (pure func) get_handle
-	// Retrieves a handle to the "main" GTK widget behind this object. For
-	// most widgets, there is only a single GTK widget inside, but some may
-	// have multiple (for instance, if one needs a menubar or scroll view
-	// as well).
-	virtual GtkWidget *get_handle() = 0;
+    // (pure func) get_handle
+    // Retrieves a handle to the "main" GTK widget behind this object. For
+    // most widgets, there is only a single GTK widget inside, but some may
+    // have multiple (for instance, if one needs a menubar or scroll view
+    // as well).
+    virtual GtkWidget *get_handle() = 0;
 
-	// (func) show
-	// Shows the widget, if it is hidden. By default, every widget is
-	// hidden when first constructed.
-	void show();
+    // (func) show
+    // Shows the widget, if it is hidden. By default, every widget is
+    // hidden when first constructed.
+    void show();
 };
 
 /*
@@ -60,9 +60,9 @@ public:
  */
 class container : private util::nocopy {
 public:
-	// (pure func) get_container_handle
-	// FIXME explain
-	virtual GtkContainer *get_container_handle() = 0;
+    // (pure func) get_container_handle
+    // FIXME explain
+    virtual GtkContainer *get_container_handle() = 0;
 };
 
 /*
@@ -71,41 +71,41 @@ public:
  * FIXME explain
  */
 class window : public container {
-	friend class menu;
+    friend class menu;
 
 private:
-	// (var) M
-	// FIXME explain
-	GtkWidget *M;
+    // (var) M
+    // FIXME explain
+    GtkWidget *M;
 
-	// (var) m_vbox
-	// FIXME explain
-	GtkWidget *m_vbox;
+    // (var) m_vbox
+    // FIXME explain
+    GtkWidget *m_vbox;
 
-	// (var) m_menubar
-	// FIXME explain
-	GtkWidget *m_menubar;
+    // (var) m_menubar
+    // FIXME explain
+    GtkWidget *m_menubar;
 
-	// (var) m_content
-	// FIXME explain
-	GtkWidget *m_content;
+    // (var) m_content
+    // FIXME explain
+    GtkWidget *m_content;
 
 public:
-	// (explicit ctor)
-	// FIXME explain
-	explicit window(const std::string &title,int width,int height);
+    // (explicit ctor)
+    // FIXME explain
+    explicit window(const std::string &title,int width,int height);
 
-	// (dtor)
-	// FIXME explain
-	~window();
+    // (dtor)
+    // FIXME explain
+    ~window();
 
-	// (func) show
-	// FIXME explain
-	void show();
+    // (func) show
+    // FIXME explain
+    void show();
 
-	// (func) get_container_handle
-	// FIXME explain
-	GtkContainer *get_container_handle() override;
+    // (func) get_container_handle
+    // FIXME explain
+    GtkContainer *get_container_handle() override;
 };
 
 /*
@@ -115,26 +115,26 @@ public:
  */
 class label : public widget {
 private:
-	// (var) M
-	// FIXME explain
-	GtkWidget *M;
+    // (var) M
+    // FIXME explain
+    GtkWidget *M;
 
 public:
-	// (explicit ctor)
-	// FIXME explain
-	explicit label(container &parent,const std::string &text = "");
+    // (explicit ctor)
+    // FIXME explain
+    explicit label(container &parent,const std::string &text = "");
 
-	// (dtor)
-	// FIXME explain
-	~label();
+    // (dtor)
+    // FIXME explain
+    ~label();
 
-	// (func) get_handle
-	// See gui::widget::get_handle.
-	GtkWidget *get_handle() override;
+    // (func) get_handle
+    // See gui::widget::get_handle.
+    GtkWidget *get_handle() override;
 
-	// (func) set_text
-	// Sets the text displayed by the label.
-	void set_text(const std::string &text);
+    // (func) set_text
+    // Sets the text displayed by the label.
+    void set_text(const std::string &text);
 };
 
 /*
@@ -144,25 +144,25 @@ public:
  */
 class tabview : public widget {
 private:
-	// (var) M
-	// FIXME explain
-	GtkWidget *M;
+    // (var) M
+    // FIXME explain
+    GtkWidget *M;
 
 public:
-	// inner class defined later in this file
-	class page;
+    // inner class defined later in this file
+    class page;
 
-	// (explicit ctor)
-	// FIXME explain
-	explicit tabview(container &parent);
+    // (explicit ctor)
+    // FIXME explain
+    explicit tabview(container &parent);
 
-	// (dtor)
-	// FIXME explain
-	~tabview();
+    // (dtor)
+    // FIXME explain
+    ~tabview();
 
-	// (func) get_handle
-	// See gui::widget::get_handle.
-	GtkWidget *get_handle() override;
+    // (func) get_handle
+    // See gui::widget::get_handle.
+    GtkWidget *get_handle() override;
 };
 
 /*
@@ -172,30 +172,30 @@ public:
  */
 class tabview::page : public container {
 private:
-	// (var) M
-	// FIXME explain
-	GtkWidget *M;
+    // (var) M
+    // FIXME explain
+    GtkWidget *M;
 
-	// (var) m_view
-	// FIXME explain
-	tabview &m_view;
+    // (var) m_view
+    // FIXME explain
+    tabview &m_view;
 
-	// (var) m_pagenum
-	// FIXME explain
-	int m_pagenum;
+    // (var) m_pagenum
+    // FIXME explain
+    int m_pagenum;
 
 public:
-	// (explicit ctor)
-	// FIXME explain
-	explicit page(tabview &view,const std::string &title);
+    // (explicit ctor)
+    // FIXME explain
+    explicit page(tabview &view,const std::string &title);
 
-	// (dtor)
-	// FIXME explain
-	~page();
+    // (dtor)
+    // FIXME explain
+    ~page();
 
-	// (func) get_container_handle
-	// FIXME explain
-	GtkContainer *get_container_handle() override;
+    // (func) get_container_handle
+    // FIXME explain
+    GtkContainer *get_container_handle() override;
 };
 
 /*
@@ -205,47 +205,47 @@ public:
  */
 class splitview : public widget {
 private:
-	// (var) M
-	// FIXME explain
-	GtkWidget *M;
+    // (var) M
+    // FIXME explain
+    GtkWidget *M;
 
-	// (inner class) side
-	// FIXME explain
-	struct side : public container {
-		// (var) M
-		// FIXME explain
-		GtkWidget *M;
+    // (inner class) side
+    // FIXME explain
+    struct side : public container {
+        // (var) M
+        // FIXME explain
+        GtkWidget *M;
 
-		// (func) get_container_handle
-		// FIXME explain
-		GtkContainer *get_container_handle() override;
-	};
+        // (func) get_container_handle
+        // FIXME explain
+        GtkContainer *get_container_handle() override;
+    };
 
-	// (var) m_left, m_right
-	// FIXME explain
-	side m_left;
-	side m_right;
+    // (var) m_left, m_right
+    // FIXME explain
+    side m_left;
+    side m_right;
 
 public:
-	// (explicit ctor)
-	// FIXME explain
-	explicit splitview(container &parent);
+    // (explicit ctor)
+    // FIXME explain
+    explicit splitview(container &parent);
 
-	// (dtor)
-	// FIXME explain
-	~splitview();
+    // (dtor)
+    // FIXME explain
+    ~splitview();
 
-	// (func) get_handle
-	// See gui::widget::get_handle.
-	GtkWidget *get_handle() override;
+    // (func) get_handle
+    // See gui::widget::get_handle.
+    GtkWidget *get_handle() override;
 
-	// (func) get_left
-	// FIXME explain
-	container &get_left();
+    // (func) get_left
+    // FIXME explain
+    container &get_left();
 
-	// (func) get_right
-	// FIXME explain
-	container &get_right();
+    // (func) get_right
+    // FIXME explain
+    container &get_right();
 };
 
 /*
@@ -255,52 +255,52 @@ public:
  */
 class gridview : public widget {
 private:
-	// (inner class) slot
-	// Cheap proxy for gui::container. FIXME ??
-	struct slot : public container {
-		GtkWidget *m_box;
+    // (inner class) slot
+    // Cheap proxy for gui::container. FIXME ??
+    struct slot : public container {
+        GtkWidget *m_box;
 
-		slot() = default;
+        slot() = default;
 
-		GtkContainer *get_container_handle() override
-		{
-			return GTK_CONTAINER(m_box);
-		}
-	};
+        GtkContainer *get_container_handle() override
+        {
+            return GTK_CONTAINER(m_box);
+        }
+    };
 
-	// (var) M
-	// FIXME explain
-	GtkWidget *M;
+    // (var) M
+    // FIXME explain
+    GtkWidget *M;
 
-	// (var) m_slots
-	// FIXME explain
-	std::list<slot> m_slots;
+    // (var) m_slots
+    // FIXME explain
+    std::list<slot> m_slots;
 
 public:
-	// (explicit ctor)
-	// Creates the gridview with the specified number of rows and columns,
-	// and adds it to the parent widget. If `absolute' is true, the grid
-	// cells each have equal size and the grid is stretched to fit the
-	// available space; otherwise, the grid is sized to fit its contents.
-	explicit gridview(container &parent,int cols,int rows,bool absolute);
+    // (explicit ctor)
+    // Creates the gridview with the specified number of rows and columns,
+    // and adds it to the parent widget. If `absolute' is true, the grid
+    // cells each have equal size and the grid is stretched to fit the
+    // available space; otherwise, the grid is sized to fit its contents.
+    explicit gridview(container &parent,int cols,int rows,bool absolute);
 
-	// (dtor)
-	// Destroys the widget and removes it from its parent.
-	~gridview();
+    // (dtor)
+    // Destroys the widget and removes it from its parent.
+    ~gridview();
 
-	// (func) get_handle
-	// See gui::widget::get_handle.
-	GtkWidget *get_handle() override;
+    // (func) get_handle
+    // See gui::widget::get_handle.
+    GtkWidget *get_handle() override;
 
-	// (func) make_slot
-	// Creates a slot at the specified column and row (zero-based) with
-	// a width and height of (col_count,row_count) in columns and rows,
-	// and returns a reference to this slot as a container.
-	container &make_slot(
-		int col,
-		int row,
-		int col_count = 1,
-		int row_count = 1);
+    // (func) make_slot
+    // Creates a slot at the specified column and row (zero-based) with
+    // a width and height of (col_count,row_count) in columns and rows,
+    // and returns a reference to this slot as a container.
+    container &make_slot(
+        int col,
+        int row,
+        int col_count = 1,
+        int row_count = 1);
 };
 
 /*
@@ -310,44 +310,44 @@ public:
  */
 class treeview : public widget {
 public:
-	// inner class defined later in this file
-	class node;
+    // inner class defined later in this file
+    class node;
 
 private:
-	// (var) m_scroll
-	// FIXME explain
-	GtkWidget *m_scroll;
+    // (var) m_scroll
+    // FIXME explain
+    GtkWidget *m_scroll;
 
-	// (var) m_tree
-	// FIXME explain
-	GtkWidget *m_tree;
+    // (var) m_tree
+    // FIXME explain
+    GtkWidget *m_tree;
 
-	// (var) m_store
-	// FIXME explain
-	GtkTreeStore *m_store;
+    // (var) m_store
+    // FIXME explain
+    GtkTreeStore *m_store;
 
-	// (var) m_selected_node
-	// FIXME explain
-	node *m_selected_node = nullptr;
+    // (var) m_selected_node
+    // FIXME explain
+    node *m_selected_node = nullptr;
 
-	// (s-func) sigh_changed
-	// FIXME explain
-	static void sigh_changed(
-		GtkTreeSelection *treeselection,
-		gpointer user_data);
+    // (s-func) sigh_changed
+    // FIXME explain
+    static void sigh_changed(
+        GtkTreeSelection *treeselection,
+        gpointer user_data);
 
 public:
-	// (explicit ctor)
-	// FIXME explain
-	explicit treeview(container &parent);
+    // (explicit ctor)
+    // FIXME explain
+    explicit treeview(container &parent);
 
-	// (dtor)
-	// FIXME explain
-	~treeview();
+    // (dtor)
+    // FIXME explain
+    ~treeview();
 
-	// (func) get_handle
-	// See gui::widget::get_handle.
-	GtkWidget *get_handle() override;
+    // (func) get_handle
+    // See gui::widget::get_handle.
+    GtkWidget *get_handle() override;
 };
 
 /*
@@ -357,42 +357,42 @@ public:
  */
 class treeview::node : private util::nocopy {
 private:
-	// (var) m_view
-	// FIXME explain
-	treeview &m_view;
+    // (var) m_view
+    // FIXME explain
+    treeview &m_view;
 
-	// (var) m_store
-	// FIXME explain
-	GtkTreeStore *m_store;
+    // (var) m_store
+    // FIXME explain
+    GtkTreeStore *m_store;
 
-	// (var) m_iter
-	// FIXME explain
-	GtkTreeIter m_iter;
+    // (var) m_iter
+    // FIXME explain
+    GtkTreeIter m_iter;
 
 public:
-	// (explicit ctor)
-	// FIXME explain
-	explicit node(treeview &parent);
+    // (explicit ctor)
+    // FIXME explain
+    explicit node(treeview &parent);
 
-	// (explicit ctor)
-	// FIXME explain
-	explicit node(node &parent);
+    // (explicit ctor)
+    // FIXME explain
+    explicit node(node &parent);
 
-	// (dtor)
-	// FIXME explain
-	~node();
+    // (dtor)
+    // FIXME explain
+    ~node();
 
-	// (func) set_text
-	// FIXME explain
-	void set_text(const std::string &text);
+    // (func) set_text
+    // FIXME explain
+    void set_text(const std::string &text);
 
-	// (event) on_select
-	// FIXME explain
-	util::event<> on_select;
+    // (event) on_select
+    // FIXME explain
+    util::event<> on_select;
 
-	// (event) on_deselect
-	// FIXME explain
-	util::event<> on_deselect;
+    // (event) on_deselect
+    // FIXME explain
+    util::event<> on_deselect;
 };
 
 /*
@@ -402,85 +402,85 @@ public:
  */
 class gl_canvas : public widget, public gl::old::machine {
 private:
-	// (var) M
-	// FIXME explain
-	GtkWidget *M;
+    // (var) M
+    // FIXME explain
+    GtkWidget *M;
 
-	// (s-func) sigh_draw
-	// FIXME explain
-	static gboolean sigh_draw(
-		GtkWidget *widget,
-		cairo_t *cr,
-		gpointer user_data);
+    // (s-func) sigh_draw
+    // FIXME explain
+    static gboolean sigh_draw(
+        GtkWidget *widget,
+        cairo_t *cr,
+        gpointer user_data);
 
-	// (s-func) sigh_motion_notify_event
-	// FIXME explain
-	static gboolean sigh_motion_notify_event(
-		GtkWidget *widget,
-		GdkEvent *event,
-		gpointer user_data);
+    // (s-func) sigh_motion_notify_event
+    // FIXME explain
+    static gboolean sigh_motion_notify_event(
+        GtkWidget *widget,
+        GdkEvent *event,
+        gpointer user_data);
 
-	// (s-func) sigh_scroll_event
-	// FIXME explain
-	static gboolean sigh_scroll_event(
-		GtkWidget *widget,
-		GdkEvent *event,
-		gpointer user_data);
+    // (s-func) sigh_scroll_event
+    // FIXME explain
+    static gboolean sigh_scroll_event(
+        GtkWidget *widget,
+        GdkEvent *event,
+        gpointer user_data);
 
-	// (s-func) sigh_button_event
-	// FIXME explain
-	static gboolean sigh_button_event(
-		GtkWidget *widget,
-		GdkEvent *event,
-		gpointer user_data);
+    // (s-func) sigh_button_event
+    // FIXME explain
+    static gboolean sigh_button_event(
+        GtkWidget *widget,
+        GdkEvent *event,
+        gpointer user_data);
 
-	// (s-func) sigh_key_event
-	// FIXME explain
-	static gboolean sigh_key_event(
-		GtkWidget *widget,
-		GdkEvent *event,
-		gpointer user_data);
+    // (s-func) sigh_key_event
+    // FIXME explain
+    static gboolean sigh_key_event(
+        GtkWidget *widget,
+        GdkEvent *event,
+        gpointer user_data);
 
 public:
-	// (explicit ctor)
-	// FIXME explain
-	explicit gl_canvas(container &parent);
+    // (explicit ctor)
+    // FIXME explain
+    explicit gl_canvas(container &parent);
 
-	// (dtor)
-	// FIXME explain
-	~gl_canvas();
+    // (dtor)
+    // FIXME explain
+    ~gl_canvas();
 
-	// (func) get_handle
-	// See gui::widget::get_handle.
-	GtkWidget *get_handle() override;
+    // (func) get_handle
+    // See gui::widget::get_handle.
+    GtkWidget *get_handle() override;
 
-	// (func) invalidate
-	// FIXME explain
-	void invalidate();
+    // (func) invalidate
+    // FIXME explain
+    void invalidate();
 
-	// (event) on_render
-	// FIXME explain
-	util::event<int,int> on_render;
+    // (event) on_render
+    // FIXME explain
+    util::event<int,int> on_render;
 
-	// (event) on_mousemove
-	// FIXME explain
-	util::event<int,int> on_mousemove;
+    // (event) on_mousemove
+    // FIXME explain
+    util::event<int,int> on_mousemove;
 
-	// (event) on_mousewheel
-	// FIXME explain
-	util::event<int> on_mousewheel;
+    // (event) on_mousewheel
+    // FIXME explain
+    util::event<int> on_mousewheel;
 
-	// (event) on_mousebutton
-	// FIXME explain
-	util::event<int,bool> on_mousebutton;
+    // (event) on_mousebutton
+    // FIXME explain
+    util::event<int,bool> on_mousebutton;
 
-	// (event) on_key
-	// FIXME explain
-	util::event<int,bool> on_key;
+    // (event) on_key
+    // FIXME explain
+    util::event<int,bool> on_key;
 
-	// (event) on_text
-	// FIXME explain
-	util::event<const char *> on_text;
+    // (event) on_text
+    // FIXME explain
+    util::event<const char *> on_text;
 };
 
 /*
@@ -489,29 +489,29 @@ public:
  * FIXME explain
  */
 class menu : private util::nocopy {
-	friend class menu_item;
+    friend class menu_item;
 
 private:
-	// (var) m_item
-	// FIXME explain
-	GtkWidget *m_item;
+    // (var) m_item
+    // FIXME explain
+    GtkWidget *m_item;
 
-	// (var) m_menu
-	// FIXME explain
-	GtkWidget *m_menu;
+    // (var) m_menu
+    // FIXME explain
+    GtkWidget *m_menu;
 
 public:
-	// (explicit ctor)
-	// FIXME explain
-	explicit menu(window &parent,const std::string &text);
+    // (explicit ctor)
+    // FIXME explain
+    explicit menu(window &parent,const std::string &text);
 
-	// (explicit ctor)
-	// FIXME explain
-	explicit menu(menu &parent,const std::string &text);
+    // (explicit ctor)
+    // FIXME explain
+    explicit menu(menu &parent,const std::string &text);
 
-	// (dtor)
-	// FIXME explain
-	~menu();
+    // (dtor)
+    // FIXME explain
+    ~menu();
 };
 
 /*
@@ -521,26 +521,26 @@ public:
  */
 class menu_item : private util::nocopy {
 private:
-	// (var) M
-	// FIXME explain
-	GtkWidget *M;
+    // (var) M
+    // FIXME explain
+    GtkWidget *M;
 
-	// (s-func) sigh_activate
-	// FIXME explain
-	static void sigh_activate(GtkMenuItem *menuitem,gpointer user_data);
+    // (s-func) sigh_activate
+    // FIXME explain
+    static void sigh_activate(GtkMenuItem *menuitem,gpointer user_data);
 
 public:
-	// (explicit ctor)
-	// FIXME explain
-	explicit menu_item(menu &parent,const std::string &text);
+    // (explicit ctor)
+    // FIXME explain
+    explicit menu_item(menu &parent,const std::string &text);
 
-	// (dtor)
-	// FIXME explain
-	~menu_item();
+    // (dtor)
+    // FIXME explain
+    ~menu_item();
 
-	// (event) on_click
-	// FIXME explain
-	util::event<> on_click;
+    // (event) on_click
+    // FIXME explain
+    util::event<> on_click;
 };
 
 // FIXME obsolete
@@ -549,31 +549,31 @@ namespace im {
 using namespace ImGui;
 
 void label(
-	const std::string &text);
+    const std::string &text);
 
 void subwindow(
-	const std::string &id,
-	const std::string &title,
-	const std::function<void()> &f);
+    const std::string &id,
+    const std::string &title,
+    const std::function<void()> &f);
 
 void main_menu_bar(
-	const std::function<void()> &f);
+    const std::function<void()> &f);
 
 void menu(
-	const std::string &text,
-	const std::function<void()> &f = nullptr);
+    const std::string &text,
+    const std::function<void()> &f = nullptr);
 
 void menu_item(
-	const std::string &text,
-	const std::function<void()> &f = nullptr);
+    const std::string &text,
+    const std::function<void()> &f = nullptr);
 
 void menu_separator();
 
 class scope : private util::nocopy {
 public:
-	explicit scope(int id);
-	explicit scope(void *ptr);
-	~scope();
+    explicit scope(int id);
+    explicit scope(void *ptr);
+    ~scope();
 };
 
 }

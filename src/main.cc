@@ -26,23 +26,23 @@
 
 int main(int argc,char *argv[])
 {
-	using namespace drnsf;
+    using namespace drnsf;
 
-	// Initialize GTK+.
-	gtk_init(&argc,&argv);
+    // Initialize GTK+.
+    gtk_init(&argc,&argv);
 
-	// Create the global OpenGL context.
-	gl::init();
+    // Create the global OpenGL context.
+    gl::init();
 
-	// Create the editor.
-	edit::core editor;
+    // Create the editor.
+    edit::core editor;
 
-	edit::main_window wnd;
-	wnd.show();
-	wnd.set_project(editor.m_proj);
+    edit::main_window wnd;
+    wnd.show();
+    wnd.set_project(editor.m_proj);
 
-	// Run the main application/game loop.
-	gtk_main();
+    // Run the main application/game loop.
+    gtk_main();
 
-	return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }

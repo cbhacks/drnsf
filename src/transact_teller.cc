@@ -26,70 +26,70 @@ namespace transact {
 
 // declared in transact.hh
 teller::teller() :
-	m_done(false),
-	m_desc("[UNLABELED ACTION - REPORT BUG]")
+    m_done(false),
+    m_desc("[UNLABELED ACTION - REPORT BUG]")
 {
 }
 
 // declared in transact.hh
 teller::~teller()
 {
-	// If this teller never committed, then the destructor should rollback
-	// all of its operations. This is done by executing each of the
-	// operations again in reverse order.
-	if (!m_done) {
-		for (auto &&op : m_ops) {
-			op->execute();
-		}
-	}
+    // If this teller never committed, then the destructor should rollback
+    // all of its operations. This is done by executing each of the
+    // operations again in reverse order.
+    if (!m_done) {
+        for (auto &&op : m_ops) {
+            op->execute();
+        }
+    }
 }
 
 // declared in transact.hh
 std::unique_ptr<transaction> teller::commit()
 {
-	// Ensure this teller hasn't already committed its transaction.
-	if (m_done) {
-		throw 0; // FIXME
-	}
+    // Ensure this teller hasn't already committed its transaction.
+    if (m_done) {
+        throw 0; // FIXME
+    }
 
-	// Mark this teller as complete.
-	m_done = true;
+    // Mark this teller as complete.
+    m_done = true;
 
-	// Produce the resulting transaction object and return it.
-	return std::unique_ptr<transaction>(
-		new transaction(
-			std::move(m_ops),
-			m_desc
-		)
-	);
+    // Produce the resulting transaction object and return it.
+    return std::unique_ptr<transaction>(
+        new transaction(
+            std::move(m_ops),
+            m_desc
+        )
+    );
 }
 
 // declared in transact.hh
 void teller::describe(std::string desc)
 {
-	m_desc = desc;
+    m_desc = desc;
 }
 
 // declared in transact.hh
 void teller::push_op(std::unique_ptr<operation> op)
 {
-	// Ensure this teller hasn't already committed its transaction.
-	if (m_done) {
-		throw 0; // FIXME
-	}
+    // Ensure this teller hasn't already committed its transaction.
+    if (m_done) {
+        throw 0; // FIXME
+    }
 
-	// Add the operation at the front of the list. When a transaction (or
-	// teller) is rolled back, the operations are undone front-to-back.
-	//
-	// This operation 'moves' the op into the list, so the variable `op'
-	// is no longer usable after this.
-	m_ops.push_front(std::move(op));
+    // Add the operation at the front of the list. When a transaction (or
+    // teller) is rolled back, the operations are undone front-to-back.
+    //
+    // This operation 'moves' the op into the list, so the variable `op'
+    // is no longer usable after this.
+    m_ops.push_front(std::move(op));
 
-	// Execute the operation. This is done after pushing the operation in
-	// case pushing throws an exception (out-of-memory, etc).
-	//
-	// `op' cannot be invoked directly anymore because it was moved from.
-	m_ops.front()->execute();
+    // Execute the operation. This is done after pushing the operation in
+    // case pushing throws an exception (out-of-memory, etc).
+    //
+    // `op' cannot be invoked directly anymore because it was moved from.
+    m_ops.front()->execute();
 }
 
 }

@@ -24,58 +24,58 @@
 namespace drnsf {
 
 namespace embed {
-	namespace meshframe_vert {
-		extern const unsigned char data[];
-		extern const std::size_t size;
-	}
-	namespace meshframe_frag {
-		extern const unsigned char data[];
-		extern const std::size_t size;
-	}
+    namespace meshframe_vert {
+        extern const unsigned char data[];
+        extern const std::size_t size;
+    }
+    namespace meshframe_frag {
+        extern const unsigned char data[];
+        extern const std::size_t size;
+    }
 }
 
 namespace render {
 
 const float cube_vb_data[] = {
-	-1, -1, -1,
-	+1, -1, -1,
-	+1, +1, -1,
-	-1, +1, -1,
-	-1, -1, +1,
-	+1, -1, +1,
-	+1, +1, +1,
-	-1, +1, +1
+    -1, -1, -1,
+    +1, -1, -1,
+    +1, +1, -1,
+    -1, +1, -1,
+    -1, -1, +1,
+    +1, -1, +1,
+    +1, +1, +1,
+    -1, +1, +1
 };
 
 const unsigned char cube_ib_data[] = {
-	0, 1,
-	0, 2,
-	0, 3,
-	0, 4,
-	0, 5,
-	0, 6,
-	0, 7,
-	1, 2,
-	1, 3,
-	1, 4,
-	1, 5,
-	1, 6,
-	1, 7,
-	2, 3,
-	2, 4,
-	2, 5,
-	2, 6,
-	2, 7,
-	3, 4,
-	3, 5,
-	3, 6,
-	3, 7,
-	4, 5,
-	4, 6,
-	4, 7,
-	5, 6,
-	5, 7,
-	6, 7
+    0, 1,
+    0, 2,
+    0, 3,
+    0, 4,
+    0, 5,
+    0, 6,
+    0, 7,
+    1, 2,
+    1, 3,
+    1, 4,
+    1, 5,
+    1, 6,
+    1, 7,
+    2, 3,
+    2, 4,
+    2, 5,
+    2, 6,
+    2, 7,
+    3, 4,
+    3, 5,
+    3, 6,
+    3, 7,
+    4, 5,
+    4, 6,
+    4, 7,
+    5, 6,
+    5, 7,
+    6, 7
 };
 
 // (s-var) s_vao
@@ -103,61 +103,61 @@ static int s_matrix_uni;
 // Otherwise, no operation occurs.
 static void init()
 {
-	// Exit now if this function has been run previously.
-	static bool s_is_init = false;
-	if (s_is_init) return;
-	s_is_init = true;
+    // Exit now if this function has been run previously.
+    static bool s_is_init = false;
+    if (s_is_init) return;
+    s_is_init = true;
 
-	glBindVertexArray(s_vao);
-	glBindBuffer(GL_ARRAY_BUFFER,s_vbo);
-	glBufferData(
-		GL_ARRAY_BUFFER,
-		sizeof(cube_vb_data),
-		cube_vb_data,
-		GL_STATIC_DRAW
-	);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3,GL_FLOAT,0,0);
-	glBindBuffer(GL_ARRAY_BUFFER,0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,s_ibo);
-	glBufferData(
-		GL_ELEMENT_ARRAY_BUFFER,
-		sizeof(cube_ib_data),
-		cube_ib_data,
-		GL_STATIC_DRAW
-	);
-	glBindVertexArray(0);
+    glBindVertexArray(s_vao);
+    glBindBuffer(GL_ARRAY_BUFFER,s_vbo);
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        sizeof(cube_vb_data),
+        cube_vb_data,
+        GL_STATIC_DRAW
+    );
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(3,GL_FLOAT,0,0);
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,s_ibo);
+    glBufferData(
+        GL_ELEMENT_ARRAY_BUFFER,
+        sizeof(cube_ib_data),
+        cube_ib_data,
+        GL_STATIC_DRAW
+    );
+    glBindVertexArray(0);
 
-	gl::vert_shader vs;
-	vs.compile({
-		reinterpret_cast<const char *>(embed::meshframe_vert::data),
-		embed::meshframe_vert::size
-	});
-	glAttachShader(s_prog,vs);
+    gl::vert_shader vs;
+    vs.compile({
+        reinterpret_cast<const char *>(embed::meshframe_vert::data),
+        embed::meshframe_vert::size
+    });
+    glAttachShader(s_prog,vs);
 
-	gl::frag_shader fs;
-	fs.compile({
-		reinterpret_cast<const char *>(embed::meshframe_frag::data),
-		embed::meshframe_frag::size
-	});
-	glAttachShader(s_prog,fs);
+    gl::frag_shader fs;
+    fs.compile({
+        reinterpret_cast<const char *>(embed::meshframe_frag::data),
+        embed::meshframe_frag::size
+    });
+    glAttachShader(s_prog,fs);
 
-	glLinkProgram(s_prog);
+    glLinkProgram(s_prog);
 
-	s_matrix_uni = glGetUniformLocation(s_prog,"u_Matrix");
+    s_matrix_uni = glGetUniformLocation(s_prog,"u_Matrix");
 }
 
 // declared in render.hh
 void meshframe_fig::draw(const env &e)
 {
-	init();
+    init();
 
-	glUseProgram(s_prog);
-	glUniformMatrix4fv(s_matrix_uni,1,false,&e.matrix[0][0]);
-	glBindVertexArray(s_vao);
-	glDrawElements(GL_LINES,56,GL_UNSIGNED_BYTE,0);
-	glBindVertexArray(0);
-	glUseProgram(0);
+    glUseProgram(s_prog);
+    glUniformMatrix4fv(s_matrix_uni,1,false,&e.matrix[0][0]);
+    glBindVertexArray(s_vao);
+    glDrawElements(GL_LINES,56,GL_UNSIGNED_BYTE,0);
+    glBindVertexArray(0);
+    glUseProgram(0);
 }
 
 }

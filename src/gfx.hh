@@ -38,14 +38,14 @@ namespace gfx {
  * FIXME explain
  */
 struct vertex {
-	union {
-		struct {
-			float x;
-			float y;
-			float z;
-		};
-		float v[3];
-	};
+    union {
+        struct {
+            float x;
+            float y;
+            float z;
+        };
+        float v[3];
+    };
 };
 
 /*
@@ -54,14 +54,14 @@ struct vertex {
  * FIXME explain
  */
 struct color {
-	union {
-		struct {
-			unsigned char r;
-			unsigned char g;
-			unsigned char b;
-		};
-		unsigned char v[3];
-	};
+    union {
+        struct {
+            unsigned char r;
+            unsigned char g;
+            unsigned char b;
+        };
+        unsigned char v[3];
+    };
 };
 
 /*
@@ -70,30 +70,30 @@ struct color {
  * FIXME explain
  */
 class frame : public res::asset {
-	friend class res::asset;
+    friend class res::asset;
 
 private:
-	// (explicit ctor)
-	// FIXME explain
-	explicit frame(res::project &proj) :
-		asset(proj) {}
+    // (explicit ctor)
+    // FIXME explain
+    explicit frame(res::project &proj) :
+        asset(proj) {}
 
 public:
-	// (typedef) ref
-	// FIXME explain
-	using ref = res::ref<frame>;
+    // (typedef) ref
+    // FIXME explain
+    using ref = res::ref<frame>;
 
-	// (prop) vertices
-	// FIXME explain
-	DEFINE_APROP(vertices,std::vector<vertex>);
+    // (prop) vertices
+    // FIXME explain
+    DEFINE_APROP(vertices,std::vector<vertex>);
 
-	// FIXME obsolete
-	template <typename Reflector>
-	void reflect(Reflector &rfl)
-	{
-		asset::reflect(rfl);
-		rfl.field(p_vertices,"Vertices");
-	}
+    // FIXME obsolete
+    template <typename Reflector>
+    void reflect(Reflector &rfl)
+    {
+        asset::reflect(rfl);
+        rfl.field(p_vertices,"Vertices");
+    }
 };
 
 /*
@@ -102,30 +102,30 @@ public:
  * FIXME explain
  */
 class anim : public res::asset {
-	friend class res::asset;
+    friend class res::asset;
 
 private:
-	// (explicit ctor)
-	// FIXME explain
-	explicit anim(res::project &proj) :
-		asset(proj) {}
+    // (explicit ctor)
+    // FIXME explain
+    explicit anim(res::project &proj) :
+        asset(proj) {}
 
 public:
-	// (typedef) ref
-	// FIXME explain
-	using ref = res::ref<anim>;
+    // (typedef) ref
+    // FIXME explain
+    using ref = res::ref<anim>;
 
-	// (prop) frames
-	// FIXME explain
-	DEFINE_APROP(frames,std::vector<frame::ref>);
+    // (prop) frames
+    // FIXME explain
+    DEFINE_APROP(frames,std::vector<frame::ref>);
 
-	// FIXME obsolete
-	template <typename Reflector>
-	void reflect(Reflector &rfl)
-	{
-		asset::reflect(rfl);
-		rfl.field(p_frames,"Frames");
-	}
+    // FIXME obsolete
+    template <typename Reflector>
+    void reflect(Reflector &rfl)
+    {
+        asset::reflect(rfl);
+        rfl.field(p_frames,"Frames");
+    }
 };
 
 /*
@@ -134,8 +134,8 @@ public:
  * FIXME explain
  */
 struct poly_vert {
-	int vertex_index;
-	int color_index;
+    int vertex_index;
+    int color_index;
 };
 
 /*
@@ -158,40 +158,40 @@ using quad = std::array<poly_vert,4>;
  * FIXME explain
  */
 class mesh : public res::asset {
-	friend class res::asset;
+    friend class res::asset;
 
 private:
-	// (explicit ctor)
-	// FIXME explain
-	explicit mesh(res::project &proj) :
-		asset(proj) {}
+    // (explicit ctor)
+    // FIXME explain
+    explicit mesh(res::project &proj) :
+        asset(proj) {}
 
 public:
-	// (typedef) ref
-	// FIXME explain
-	using ref = res::ref<mesh>;
+    // (typedef) ref
+    // FIXME explain
+    using ref = res::ref<mesh>;
 
-	// (prop) triangles
-	// FIXME explain
-	DEFINE_APROP(triangles,std::vector<triangle>);
+    // (prop) triangles
+    // FIXME explain
+    DEFINE_APROP(triangles,std::vector<triangle>);
 
-	// (prop) quads
-	// FIXME explain
-	DEFINE_APROP(quads,std::vector<quad>);
+    // (prop) quads
+    // FIXME explain
+    DEFINE_APROP(quads,std::vector<quad>);
 
-	// (prop) colors
-	// FIXME explain
-	DEFINE_APROP(colors,std::vector<color>);
+    // (prop) colors
+    // FIXME explain
+    DEFINE_APROP(colors,std::vector<color>);
 
-	// FIXME obsolete
-	template <typename Reflector>
-	void reflect(Reflector &rfl)
-	{
-		asset::reflect(rfl);
-		rfl.field(p_triangles,"Triangles");
-		rfl.field(p_quads,"Quads");
-		rfl.field(p_colors,"Colors");
-	}
+    // FIXME obsolete
+    template <typename Reflector>
+    void reflect(Reflector &rfl)
+    {
+        asset::reflect(rfl);
+        rfl.field(p_triangles,"Triangles");
+        rfl.field(p_quads,"Quads");
+        rfl.field(p_colors,"Colors");
+    }
 };
 
 /*
@@ -200,44 +200,44 @@ public:
  * FIXME explain
  */
 class model : public res::asset {
-	friend class res::asset;
+    friend class res::asset;
 
 private:
-	// (explicit ctor)
-	// FIXME explain
-	explicit model(res::project &proj) :
-		asset(proj) {}
+    // (explicit ctor)
+    // FIXME explain
+    explicit model(res::project &proj) :
+        asset(proj) {}
 
 public:
-	// (typedef) ref
-	// FIXME explain
-	using ref = res::ref<model>;
+    // (typedef) ref
+    // FIXME explain
+    using ref = res::ref<model>;
 
-	// (prop) anim
-	// FIXME explain
-	DEFINE_APROP(anim,anim::ref);
+    // (prop) anim
+    // FIXME explain
+    DEFINE_APROP(anim,anim::ref);
 
-	// (prop) mesh
-	// FIXME explain
-	DEFINE_APROP(mesh,mesh::ref);
+    // (prop) mesh
+    // FIXME explain
+    DEFINE_APROP(mesh,mesh::ref);
 
-	// (prop) scene_x, scene_y, scene_z
-	// FIXME explain
-	DEFINE_APROP(scene_x,double,0.0);
-	DEFINE_APROP(scene_y,double,0.0);
-	DEFINE_APROP(scene_z,double,0.0);
+    // (prop) scene_x, scene_y, scene_z
+    // FIXME explain
+    DEFINE_APROP(scene_x,double,0.0);
+    DEFINE_APROP(scene_y,double,0.0);
+    DEFINE_APROP(scene_z,double,0.0);
 
-	// FIXME obsolete
-	template <typename Reflector>
-	void reflect(Reflector &rfl)
-	{
-		asset::reflect(rfl);
-		rfl.field(p_anim,"Animation");
-		rfl.field(p_mesh,"Mesh");
-		rfl.field(p_scene_x,"Scene X");
-		rfl.field(p_scene_y,"Scene Y");
-		rfl.field(p_scene_z,"Scene Z");
-	}
+    // FIXME obsolete
+    template <typename Reflector>
+    void reflect(Reflector &rfl)
+    {
+        asset::reflect(rfl);
+        rfl.field(p_anim,"Animation");
+        rfl.field(p_mesh,"Mesh");
+        rfl.field(p_scene_x,"Scene X");
+        rfl.field(p_scene_y,"Scene Y");
+        rfl.field(p_scene_z,"Scene Z");
+    }
 };
 
 }

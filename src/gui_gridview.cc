@@ -27,49 +27,49 @@ namespace gui {
 // declared in gui.hh
 GtkWidget *gridview::get_handle()
 {
-	return M;
+    return M;
 }
 
 // declared in gui.hh
 gridview::gridview(container &parent,int cols,int rows,bool absolute)
 {
-	M = gtk_grid_new();
-	gtk_container_add(parent.get_container_handle(),M);
+    M = gtk_grid_new();
+    gtk_container_add(parent.get_container_handle(),M);
 
-	if (absolute) {
-		gtk_grid_set_column_homogeneous(GTK_GRID(M),true);
-		gtk_grid_set_row_homogeneous(GTK_GRID(M),true);
-	}
+    if (absolute) {
+        gtk_grid_set_column_homogeneous(GTK_GRID(M),true);
+        gtk_grid_set_row_homogeneous(GTK_GRID(M),true);
+    }
 
-	// Add the (empty) rows and columns.
-	for (int i = 0; i < cols; i++) {
-		gtk_grid_insert_column(GTK_GRID(M),0);
-	}
-	for (int i = 0; i < rows; i++) {
-		gtk_grid_insert_row(GTK_GRID(M),0);
-	}
+    // Add the (empty) rows and columns.
+    for (int i = 0; i < cols; i++) {
+        gtk_grid_insert_column(GTK_GRID(M),0);
+    }
+    for (int i = 0; i < rows; i++) {
+        gtk_grid_insert_row(GTK_GRID(M),0);
+    }
 }
 
 // declared in gui.hh
 gridview::~gridview()
 {
-	gtk_widget_destroy(M);
+    gtk_widget_destroy(M);
 }
 
 // declared in gui.hh
 container &gridview::make_slot(int col,int row,int col_count,int row_count)
 {
-	// TODO some kind of error checking
+    // TODO some kind of error checking
 
-	m_slots.emplace_front();
-	GtkWidget *&box = m_slots.front().m_box;
+    m_slots.emplace_front();
+    GtkWidget *&box = m_slots.front().m_box;
 
-	box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
-	gtk_box_set_homogeneous(GTK_BOX(box),true);
-	gtk_widget_show(box);
-	gtk_grid_attach(GTK_GRID(M),box,col,row,col_count,row_count);
+    box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+    gtk_box_set_homogeneous(GTK_BOX(box),true);
+    gtk_widget_show(box);
+    gtk_grid_attach(GTK_GRID(M),box,col,row,col_count,row_count);
 
-	return m_slots.front();
+    return m_slots.front();
 }
 
 }

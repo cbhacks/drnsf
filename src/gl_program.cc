@@ -27,85 +27,85 @@ namespace gl {
 namespace old {
 
 program::program(machine &mach) :
-	m_mach(mach),
-	m_id_p(std::make_shared<unsigned int>(0))
+    m_mach(mach),
+    m_id_p(std::make_shared<unsigned int>(0))
 {
-	mach.post_job([id_p = m_id_p]{
-		*id_p = glCreateProgram();
-	});
+    mach.post_job([id_p = m_id_p]{
+        *id_p = glCreateProgram();
+    });
 }
 
 program::~program()
 {
-	m_mach.post_job([id_p = m_id_p]{
-		glDeleteProgram(*id_p);
-	});
+    m_mach.post_job([id_p = m_id_p]{
+        glDeleteProgram(*id_p);
+    });
 }
 
 void program::attach(shader &sh)
 {
-	m_mach.post_job([id_p = m_id_p,sh_id_p = sh.m_id_p]{
-		glAttachShader(*id_p,*sh_id_p);
-	});
+    m_mach.post_job([id_p = m_id_p,sh_id_p = sh.m_id_p]{
+        glAttachShader(*id_p,*sh_id_p);
+    });
 }
 
 void program::detach(shader &sh)
 {
-	m_mach.post_job([id_p = m_id_p,sh_id_p = sh.m_id_p]{
-		glDetachShader(*id_p,*sh_id_p);
-	});
+    m_mach.post_job([id_p = m_id_p,sh_id_p = sh.m_id_p]{
+        glDetachShader(*id_p,*sh_id_p);
+    });
 }
 
 void program::link()
 {
-	m_mach.post_job([id_p = m_id_p]{
-		glLinkProgram(*id_p);
+    m_mach.post_job([id_p = m_id_p]{
+        glLinkProgram(*id_p);
 
-		int status;
-		glGetProgramiv(*id_p,GL_LINK_STATUS,&status);
+        int status;
+        glGetProgramiv(*id_p,GL_LINK_STATUS,&status);
 
-		if (!status) {
-			int log_size;
-			glGetProgramiv(*id_p,GL_INFO_LOG_LENGTH,&log_size);
+        if (!status) {
+            int log_size;
+            glGetProgramiv(*id_p,GL_INFO_LOG_LENGTH,&log_size);
 
-			std::vector<char> log_buffer(log_size);
-			glGetProgramInfoLog(
-				*id_p,
-				log_size,
-				nullptr,
-				log_buffer.data()
-			);
+            std::vector<char> log_buffer(log_size);
+            glGetProgramInfoLog(
+                *id_p,
+                log_size,
+                nullptr,
+                log_buffer.data()
+            );
 
-			std::cerr << " == BEGIN PROGRAM LOG ==" << std::endl;
-			std::cerr << log_buffer.data() << std::endl;
-			std::cerr << " === END PROGRAM LOG ===" << std::endl;
+            std::cerr << " == BEGIN PROGRAM LOG ==" << std::endl;
+            std::cerr << log_buffer.data() << std::endl;
+            std::cerr << " === END PROGRAM LOG ===" << std::endl;
 
-			throw 0;//FIXME
-		}
-	});
+            throw 0;//FIXME
+        }
+    });
 }
 
 unsigned int program::get_id()
 {
-	return *m_id_p;
+    return *m_id_p;
 }
 
 attrib program::find_attrib(std::string name)
 {
-	auto atr_id_p = std::make_shared<int>(-1);
-	m_mach.post_job([id_p = m_id_p,name,atr_id_p]{
-		*atr_id_p = glGetAttribLocation(*id_p,name.c_str());
-	});
-	return attrib(atr_id_p);
+    auto atr_id_p = std::make_shared<int>(-1);
+    m_mach.post_job([id_p = m_id_p,name,atr_id_p]{
+        *atr_id_p = glGetAttribLocation(*id_p,name.c_str());
+    });
+    return attrib(atr_id_p);
 }
 
 uniform program::find_uniform(std::string name)
 {
-	auto uni_id_p = std::make_shared<int>(-1);
-	m_mach.post_job([id_p = m_id_p,name,uni_id_p]{
-		*uni_id_p = glGetUniformLocation(*id_p,name.c_str());
-	});
-	return uniform(uni_id_p);
+    auto uni_id_p = std::make_shared<int>(-1);
+    m_mach.post_job([id_p = m_id_p,name,uni_id_p]{
+        *uni_id_p = glGetUniformLocation(*id_p,name.c_str());
+    });
+    return uniform(uni_id_p);
 }
 
 }

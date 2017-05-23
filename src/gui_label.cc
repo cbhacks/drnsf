@@ -27,26 +27,26 @@ namespace gui {
 // declared in gui.hh
 GtkWidget *label::get_handle()
 {
-	return M;
+    return M;
 }
 
 // declared in gui.hh
 label::label(container &parent,const std::string &text)
 {
-	M = gtk_label_new(text.c_str());
-	gtk_container_add(parent.get_container_handle(),M);
+    M = gtk_label_new(text.c_str());
+    gtk_container_add(parent.get_container_handle(),M);
 }
 
 // declared in gui.hh
 label::~label()
 {
-	gtk_widget_destroy(M);
+    gtk_widget_destroy(M);
 }
 
 // declared in gui.hh
 void label::set_text(const std::string &text)
 {
-	gtk_label_set_text(GTK_LABEL(M),text.c_str());
+    gtk_label_set_text(GTK_LABEL(M),text.c_str());
 }
 
 }

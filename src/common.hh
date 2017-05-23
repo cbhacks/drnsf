@@ -79,7 +79,7 @@ namespace drnsf {
  */
 inline auto operator "" _fmt(const char *s,long unsigned int sz)
 {
-	return util::fmt(s);
+    return util::fmt(s);
 }
 
 }

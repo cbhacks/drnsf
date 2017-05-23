@@ -42,13 +42,13 @@ namespace render {
  * the application.
  */
 struct camera {
-	static constexpr float default_yaw = 30.0f;
-	static constexpr float default_pitch = 30.0f;
-	static constexpr float default_zoom = 5000.0f;
+    static constexpr float default_yaw = 30.0f;
+    static constexpr float default_pitch = 30.0f;
+    static constexpr float default_zoom = 5000.0f;
 
-	float yaw = default_yaw;
-	float pitch = default_pitch;
-	float zoom = default_zoom;;
+    float yaw = default_yaw;
+    float pitch = default_pitch;
+    float zoom = default_zoom;;
 };
 
 // defined later in this file
@@ -60,39 +60,39 @@ class figure;
  * FIXME explain
  */
 class viewport : public gui::widget {
-	friend class figure;
+    friend class figure;
 
 private:
-	// inner class defined in render_viewport.cc
-	class impl;
+    // inner class defined in render_viewport.cc
+    class impl;
 
-	// (var) M
-	// The pointer to the internal implementation object (PIMPL).
-	impl *M;
+    // (var) M
+    // The pointer to the internal implementation object (PIMPL).
+    impl *M;
 
-	// (var) m_figs
-	// The set of all figures associated with the viewport, both visible
-	// and invisible.
-	std::unordered_set<figure *> m_figs;
+    // (var) m_figs
+    // The set of all figures associated with the viewport, both visible
+    // and invisible.
+    std::unordered_set<figure *> m_figs;
 
-	// (func) invalidate
-	// Used by `render::figure'. Marks the viewport's display as invalid
-	// or "dirty" so that it will be re-rendered when necessary.
-	void invalidate();
+    // (func) invalidate
+    // Used by `render::figure'. Marks the viewport's display as invalid
+    // or "dirty" so that it will be re-rendered when necessary.
+    void invalidate();
 
 public:
-	// (explicit ctor)
-	// Constructs an empty viewport widget and places it in the given
-	// parent container.
-	explicit viewport(gui::container &parent);
+    // (explicit ctor)
+    // Constructs an empty viewport widget and places it in the given
+    // parent container.
+    explicit viewport(gui::container &parent);
 
-	// (dtor)
-	// Destroys the widget, removing it from the parent container.
-	~viewport();
+    // (dtor)
+    // Destroys the widget, removing it from the parent container.
+    ~viewport();
 
-	// (func) get_handle
-	// See gui::widget::get_handle.
-	GtkWidget *get_handle() override;
+    // (func) get_handle
+    // See gui::widget::get_handle.
+    GtkWidget *get_handle() override;
 };
 
 /*
@@ -101,73 +101,73 @@ public:
  * FIXME explain
  */
 class figure : private util::nocopy {
-	friend class viewport;
+    friend class viewport;
 
 protected:
-	// (inner class) env
-	// This structure is used to pass information to the `draw' method
-	// without the need to change the function signature every time new
-	// information needs to be passed through.
-	struct env {
-		glm::mat4 projection_matrix;
-		glm::mat4 modelview_matrix;
-		glm::mat4 matrix;
-	};
+    // (inner class) env
+    // This structure is used to pass information to the `draw' method
+    // without the need to change the function signature every time new
+    // information needs to be passed through.
+    struct env {
+        glm::mat4 projection_matrix;
+        glm::mat4 modelview_matrix;
+        glm::mat4 matrix;
+    };
 
 private:
-	// (var) m_vp
-	// A reference to the viewport this figure exists within.
-	viewport &m_vp;
+    // (var) m_vp
+    // A reference to the viewport this figure exists within.
+    viewport &m_vp;
 
-	// (var) m_visible
-	// True if the figure is visible; false otherwise. A figure which is
-	// visible must invalidate its viewport whenever it changes, however a
-	// hidden one need not do this (as it is invisible, and therefore does
-	// not affect the scene). The viewport must also be invalidated when
-	// the visibility of a figure changes.
-	bool m_visible = false;
+    // (var) m_visible
+    // True if the figure is visible; false otherwise. A figure which is
+    // visible must invalidate its viewport whenever it changes, however a
+    // hidden one need not do this (as it is invisible, and therefore does
+    // not affect the scene). The viewport must also be invalidated when
+    // the visibility of a figure changes.
+    bool m_visible = false;
 
-	// (var) m_matrix
-	// The "model" matrix for this figure Together with the viewport's view
-	// matrix, this forms the typical "model-view" matrix. Read about 3D
-	// graphics and OpenGL for more details.
-	glm::mat4 m_matrix = glm::mat4(1.0f);
+    // (var) m_matrix
+    // The "model" matrix for this figure Together with the viewport's view
+    // matrix, this forms the typical "model-view" matrix. Read about 3D
+    // graphics and OpenGL for more details.
+    glm::mat4 m_matrix = glm::mat4(1.0f);
 
-	// (pure func) draw
-	// Derived classes must implement this method to draw themselves in
-	// whatever way is appropriate. The modelview and projection matrices
-	// are given as parameters.
-	virtual void draw(const env &e) = 0;
+    // (pure func) draw
+    // Derived classes must implement this method to draw themselves in
+    // whatever way is appropriate. The modelview and projection matrices
+    // are given as parameters.
+    virtual void draw(const env &e) = 0;
 
 protected:
-	// (explicit ctor)
-	// Constructs a figure which is associated with the given viewport. The
-	// figure is initially not visible.
-	explicit figure(viewport &vp);
+    // (explicit ctor)
+    // Constructs a figure which is associated with the given viewport. The
+    // figure is initially not visible.
+    explicit figure(viewport &vp);
 
-	// (dtor)
-	// Destroys the figure and removes it from the viewport. If the figure
-	// was visible, the viewport is invalidated.
-	~figure();
+    // (dtor)
+    // Destroys the figure and removes it from the viewport. If the figure
+    // was visible, the viewport is invalidated.
+    ~figure();
 
-	// (func) invalidate
-	// Derived classes should call this function whenever their visual
-	// appearance may have changed (such as a moved vertex, color change,
-	// texture change, etc). Calling this function on a visible figure will
-	// cause the associated viewport to be invalidated (marked as stale or
-	// "dirty" so that it will be redrawn).
-	void invalidate();
+    // (func) invalidate
+    // Derived classes should call this function whenever their visual
+    // appearance may have changed (such as a moved vertex, color change,
+    // texture change, etc). Calling this function on a visible figure will
+    // cause the associated viewport to be invalidated (marked as stale or
+    // "dirty" so that it will be redrawn).
+    void invalidate();
 
 public:
-	// (func) show
-	// Makes the figure visible, if it was not visible. A change in
-	// visibility will invalidate the viewport.
-	void show();
+    // (func) show
+    // Makes the figure visible, if it was not visible. A change in
+    // visibility will invalidate the viewport.
+    void show();
 
-	// (func) hide
-	// Makes the figure invisible, if it was visible. A change in
-	// visibility will invalidate the viewport.
-	void hide();
+    // (func) hide
+    // Makes the figure invisible, if it was visible. A change in
+    // visibility will invalidate the viewport.
+    void hide();
 };
 
 /*
@@ -178,15 +178,15 @@ public:
  */
 class reticle_fig : public figure {
 private:
-	// (func) draw
-	// Implements `figure::draw'.
-	void draw(const env &e) override;
+    // (func) draw
+    // Implements `figure::draw'.
+    void draw(const env &e) override;
 
 public:
-	// (explicit ctor)
-	// Constructs the reticle figure.
-	explicit reticle_fig(viewport &vp) :
-		figure(vp) {}
+    // (explicit ctor)
+    // Constructs the reticle figure.
+    explicit reticle_fig(viewport &vp) :
+        figure(vp) {}
 };
 
 /*
@@ -198,24 +198,24 @@ public:
  */
 class meshframe_fig : public figure {
 private:
-	// (var) m_mesh
-	// The reference to the mesh used by this figure.
-	gfx::mesh::ref m_mesh;
+    // (var) m_mesh
+    // The reference to the mesh used by this figure.
+    gfx::mesh::ref m_mesh;
 
-	// (var) m_frame
-	// The reference to the frame used by this figure.
-	gfx::frame::ref m_frame;
+    // (var) m_frame
+    // The reference to the frame used by this figure.
+    gfx::frame::ref m_frame;
 
-	// (func) draw
-	// Implements `figure::draw'.
-	void draw(const env &e) override;
+    // (func) draw
+    // Implements `figure::draw'.
+    void draw(const env &e) override;
 
 public:
-	// (explicit ctor)
-	// Constructs the figure. Initially, it does not reference any mesh
-	// or frame.
-	explicit meshframe_fig(viewport &vp) :
-		figure(vp) {}
+    // (explicit ctor)
+    // Constructs the figure. Initially, it does not reference any mesh
+    // or frame.
+    explicit meshframe_fig(viewport &vp) :
+        figure(vp) {}
 };
 
 }

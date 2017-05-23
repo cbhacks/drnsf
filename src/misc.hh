@@ -51,30 +51,30 @@ namespace misc {
  * as a `misc::raw_data' asset as this also fits that purpose.
  */
 class raw_data : public res::asset {
-	friend class res::asset;
+    friend class res::asset;
 
 private:
-	// (explicit ctor)
-	// FIXME explain
-	explicit raw_data(res::project &proj) :
-		asset(proj) {}
+    // (explicit ctor)
+    // FIXME explain
+    explicit raw_data(res::project &proj) :
+        asset(proj) {}
 
 public:
-	// (typedef) ref
-	// FIXME explain
-	using ref = res::ref<raw_data>;
+    // (typedef) ref
+    // FIXME explain
+    using ref = res::ref<raw_data>;
 
-	// (prop) data
-	// FIXME explain
-	DEFINE_APROP(data,util::blob);
+    // (prop) data
+    // FIXME explain
+    DEFINE_APROP(data,util::blob);
 
-	// FIXME obsolete
-	template <typename Reflector>
-	void reflect(Reflector &rfl)
-	{
-		asset::reflect(rfl);
-		rfl.field(p_data,"Data");
-	}
+    // FIXME obsolete
+    template <typename Reflector>
+    void reflect(Reflector &rfl)
+    {
+        asset::reflect(rfl);
+        rfl.field(p_data,"Data");
+    }
 };
 
 }

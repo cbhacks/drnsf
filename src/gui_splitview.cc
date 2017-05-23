@@ -27,48 +27,48 @@ namespace gui {
 // declared in gui.hh
 GtkWidget *splitview::get_handle()
 {
-	return M;
+    return M;
 }
 
 // declared in gui.hh
 splitview::splitview(container &parent)
 {
-	M = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
-	gtk_container_add(parent.get_container_handle(),M);
+    M = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
+    gtk_container_add(parent.get_container_handle(),M);
 
-	m_left.M = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
-	gtk_box_set_homogeneous(GTK_BOX(m_left.M),true);
-	gtk_widget_show(m_left.M);
-	gtk_paned_add1(GTK_PANED(M),m_left.M);
+    m_left.M = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+    gtk_box_set_homogeneous(GTK_BOX(m_left.M),true);
+    gtk_widget_show(m_left.M);
+    gtk_paned_add1(GTK_PANED(M),m_left.M);
 
-	m_right.M = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
-	gtk_box_set_homogeneous(GTK_BOX(m_right.M),true);
-	gtk_widget_show(m_right.M);
-	gtk_paned_add2(GTK_PANED(M),m_right.M);
+    m_right.M = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
+    gtk_box_set_homogeneous(GTK_BOX(m_right.M),true);
+    gtk_widget_show(m_right.M);
+    gtk_paned_add2(GTK_PANED(M),m_right.M);
 }
 
 // declared in gui.hh
 splitview::~splitview()
 {
-	gtk_widget_destroy(M);
+    gtk_widget_destroy(M);
 }
 
 // declared in gui.hh
 container &splitview::get_left()
 {
-	return m_left;
+    return m_left;
 }
 
 // declared in gui.hh
 container &splitview::get_right()
 {
-	return m_right;
+    return m_right;
 }
 
 // declared in gui.hh
 GtkContainer *splitview::side::get_container_handle()
 {
-	return GTK_CONTAINER(M);
+    return GTK_CONTAINER(M);
 }
 
 }

@@ -27,7 +27,7 @@ namespace gui {
 // declared in gui.hh
 void widget::show()
 {
-	gtk_widget_show(get_handle());
+    gtk_widget_show(get_handle());
 }
 
 }
