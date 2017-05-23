@@ -17,38 +17,38 @@ based on prototype code seen in `src/edit_mode_classic.cc`.
  * Move undo/redo menu options from `src/edit_main_view` into the proper
 user interface.
  * Remove the following:
-  * Class `edit::main_view`
-  * Class `edit::old_editor`
-  * Class `edit::pane`
-  * Class `edit::mode`
-  * Class `edit::modedef`
-  * Class `edit::modedef_of<T>`
-  * File `src/edit_mode_classic.cc`
+   * Class `edit::main_view`
+   * Class `edit::old_editor`
+   * Class `edit::pane`
+   * Class `edit::mode`
+   * Class `edit::modedef`
+   * Class `edit::modedef_of<T>`
+   * File `src/edit_mode_classic.cc`
  * Implement model/mesh/anim/frame rendering in the new "render" system,
 in the class `render::meshframe_fig`. The older rendering code, seen in
 `src/module_testbox.cc` uses immediate mode rendering (as CrashEdit did). The
 new rendering code should be at or near OpenGL "core" level functionality.
  * Add project-control menu options to new UI:
-  * New Project -> Blank
-  * New Project -> From NSF (C2)
-  * Close Project
-  * Undo { name of transaction to be undone }
-  * Redo { name of transaction to be redone }
+   * New Project -> Blank
+   * New Project -> From NSF (C2)
+   * Close Project
+   * Undo { name of transaction to be undone }
+   * Redo { name of transaction to be redone }
  * Remove the following:
-  * Class `edit::core`
-  * File `module.hh`
-  * File `module_testbox.cc`
-  * File `gui_im.cc`
-  * Namespace `gui::im`
-  * Usage of `gl::old::machine` in `gui::gl_canvas`
-  * Namespace `gl::old`
+   * Class `edit::core`
+   * File `module.hh`
+   * File `module_testbox.cc`
+   * File `gui_im.cc`
+   * Namespace `gui::im`
+   * Usage of `gl::old::machine` in `gui::gl_canvas`
+   * Namespace `gl::old`
  * Remove imgui.
  * Fix unused variable warnings in `nsf::wgeo_v2::import_entry`. This will
 require adding more fields to various asset types to store this data so it can
 be saved out later, as well as modified by the user.
  * Add menu options:
-  * Export NSF
-  * Export NSF As...
+   * Export NSF
+   * Export NSF As...
 
 Note that this is a general outline and could be missing some important steps.
 
