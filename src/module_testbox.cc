@@ -48,12 +48,12 @@ void frame(int delta)
     auto &&ns = m_core.m_proj.get_asset_root();
     auto &&proj = m_core.m_proj;
 
-    if (ImGui::Button("Load /tmp/nsfile")) {
+    if (ImGui::Button("Load nsfile")) {
         nx << [&](TRANSACT) {
-            TS.describe("Load /tmp/nsfile");
+            TS.describe("Load nsfile");
             nsf::archive::ref raw = ns / "nsfile";
             raw.create(TS,proj);
-            raw->import_file(TS,read_file("/tmp/nsfile"));
+            raw->import_file(TS,read_file("nsfile"));
             for (misc::raw_data::ref page : raw->get_pages()) {
                 if (page->get_data()[2] == 1)
                     continue;
