@@ -82,6 +82,25 @@ For GLM, see `glm/copying.txt`.
 
 For imgui, see `imgui/LICENSE`.
 
+## Building ##
+You will need the following dependencies to build DRNSF:
+
+ * CMake >= 3.5
+ * PkgConfig
+ * GTK+3
+ * libepoxy
+ * OpenGL
+
+You will also need a C++14 compiler and standard library.
+
+Building is done using cmake. This should be done out-of-tree. The `build/`
+directory is reserved in `.gitignore` for this purpose so it will not be
+included in git commits.
+
+For now, you may need to run with something to limit the OpenGL function level
+to 3.0. With mesa, you can use `MESA_GL_VERSION_OVERRIDE=3.0` as an environment
+variable.
+
 ## Contributing ##
 
 ### Licensing and Attribution ###
