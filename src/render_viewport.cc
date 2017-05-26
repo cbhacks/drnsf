@@ -180,7 +180,7 @@ viewport::~viewport()
 }
 
 // declared in render.hh
-GtkWidget *viewport::get_handle()
+gui::sys_handle viewport::get_handle()
 {
     return M->m_canvas.get_handle();
 }

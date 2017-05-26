@@ -92,7 +92,7 @@ public:
 
     // (func) get_handle
     // See gui::widget::get_handle.
-    GtkWidget *get_handle() override;
+    gui::sys_handle get_handle() override;
 };
 
 /*

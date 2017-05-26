@@ -77,7 +77,7 @@ asset_viewport::~asset_viewport()
 }
 
 // declared in edit.hh
-GtkWidget *asset_viewport::get_handle()
+gui::sys_handle asset_viewport::get_handle()
 {
     return M->m_viewport.get_handle();
 }

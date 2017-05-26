@@ -25,7 +25,7 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-GtkWidget *label::get_handle()
+sys_handle label::get_handle()
 {
     return M;
 }

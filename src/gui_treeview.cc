@@ -61,7 +61,7 @@ void treeview::sigh_changed(GtkTreeSelection *treeselection,gpointer user_data)
 }
 
 // declared in gui.hh
-GtkWidget *treeview::get_handle()
+sys_handle treeview::get_handle()
 {
     return m_scroll;
 }

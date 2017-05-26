@@ -62,7 +62,7 @@ public:
 
     // (func) get_handle
     // See gui::widget::get_handle.
-    GtkWidget *get_handle() override;
+    gui::sys_handle get_handle() override;
 };
 
 /*
@@ -90,7 +90,7 @@ public:
 
     // (func) get_handle
     // See gui::widget::get_handle.
-    GtkWidget *get_handle() override;
+    gui::sys_handle get_handle() override;
 
     // (event) on_select
     // Raised when the selected asset has changed. Note that this can be
@@ -124,7 +124,7 @@ public:
 
     // (func) get_handle
     // See gui::widget::get_handle.
-    GtkWidget *get_handle() override;
+    gui::sys_handle get_handle() override;
 
     // (func) set_selected_asset
     // Sets the asset name which this widget should show information for.
@@ -156,7 +156,7 @@ public:
 
     // (func) get_handle
     // See gui::widget::get_handle.
-    GtkWidget *get_handle() override;
+    gui::sys_handle get_handle() override;
 };
 
 /*
@@ -184,7 +184,7 @@ public:
 
     // (func) get_handle
     // See gui::widget::get_handle.
-    GtkWidget *get_handle() override;
+    gui::sys_handle get_handle() override;
 };
 
 // FIXME - temporary global for compatibility

@@ -157,7 +157,7 @@ gboolean gl_canvas::sigh_key_event(
 }
 
 // declared in gui.hh
-GtkWidget *gl_canvas::get_handle()
+sys_handle gl_canvas::get_handle()
 {
     return M;
 }

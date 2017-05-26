@@ -25,7 +25,7 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-GtkWidget *splitview::get_handle()
+sys_handle splitview::get_handle()
 {
     return M;
 }

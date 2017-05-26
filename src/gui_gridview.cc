@@ -25,7 +25,7 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-GtkWidget *gridview::get_handle()
+sys_handle gridview::get_handle()
 {
     return M;
 }

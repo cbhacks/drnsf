@@ -88,7 +88,7 @@ asset_propview::~asset_propview()
 }
 
 // declared in edit.hh
-GtkWidget *asset_propview::get_handle()
+gui::sys_handle asset_propview::get_handle()
 {
     return M->m_dummy.get_handle();
 }

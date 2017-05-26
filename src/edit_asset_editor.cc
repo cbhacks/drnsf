@@ -111,7 +111,7 @@ asset_editor::~asset_editor()
 }
 
 // declared in edit.hh
-GtkWidget *asset_editor::get_handle()
+gui::sys_handle asset_editor::get_handle()
 {
     return M->m_split.get_handle();
 }

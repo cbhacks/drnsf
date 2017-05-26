@@ -34,6 +34,14 @@ namespace drnsf {
 namespace gui {
 
 /*
+ * gui::sys_handle
+ *
+ * This is an alias for whatever type is appropriate for representing a system
+ * handle representing a GUI widget.
+ */
+using sys_handle = GtkWidget *;
+
+/*
  * gui::widget
  *
  * Common base class for all widget types.
@@ -45,7 +53,7 @@ public:
     // most widgets, there is only a single GTK widget inside, but some may
     // have multiple (for instance, if one needs a menubar or scroll view
     // as well).
-    virtual GtkWidget *get_handle() = 0;
+    virtual sys_handle get_handle() = 0;
 
     // (func) show
     // Shows the widget, if it is hidden. By default, every widget is
@@ -130,7 +138,7 @@ public:
 
     // (func) get_handle
     // See gui::widget::get_handle.
-    GtkWidget *get_handle() override;
+    sys_handle get_handle() override;
 
     // (func) set_text
     // Sets the text displayed by the label.
@@ -162,7 +170,7 @@ public:
 
     // (func) get_handle
     // See gui::widget::get_handle.
-    GtkWidget *get_handle() override;
+    sys_handle get_handle() override;
 };
 
 /*
@@ -237,7 +245,7 @@ public:
 
     // (func) get_handle
     // See gui::widget::get_handle.
-    GtkWidget *get_handle() override;
+    sys_handle get_handle() override;
 
     // (func) get_left
     // FIXME explain
@@ -290,7 +298,7 @@ public:
 
     // (func) get_handle
     // See gui::widget::get_handle.
-    GtkWidget *get_handle() override;
+    sys_handle get_handle() override;
 
     // (func) make_slot
     // Creates a slot at the specified column and row (zero-based) with
@@ -347,7 +355,7 @@ public:
 
     // (func) get_handle
     // See gui::widget::get_handle.
-    GtkWidget *get_handle() override;
+    sys_handle get_handle() override;
 };
 
 /*
@@ -452,7 +460,7 @@ public:
 
     // (func) get_handle
     // See gui::widget::get_handle.
-    GtkWidget *get_handle() override;
+    sys_handle get_handle() override;
 
     // (func) invalidate
     // FIXME explain

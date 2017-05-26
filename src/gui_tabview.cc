@@ -25,7 +25,7 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-GtkWidget *tabview::get_handle()
+sys_handle tabview::get_handle()
 {
     return M;
 }
