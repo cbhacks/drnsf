@@ -42,7 +42,7 @@ namespace edit {
  *
  * FIXME explain
  */
-class asset_editor : public gui::widget {
+class asset_editor : public gui::widgetlike {
 private:
     // inner class defined in edit_asset_editor.cc
     class impl;
@@ -60,9 +60,8 @@ public:
     // Destroys the widget, removing it from the parent container.
     ~asset_editor();
 
-    // (func) get_handle
-    // See gui::widget::get_handle.
-    gui::sys_handle get_handle() override;
+    // FIXME obsolete
+    gui::widget &get_widget() override;
 };
 
 /*
@@ -70,7 +69,7 @@ public:
  *
  * FIXME explain
  */
-class asset_tree : public gui::widget {
+class asset_tree : public gui::widgetlike {
 private:
     // inner class defined in edit_asset_tree.cc
     class impl;
@@ -88,9 +87,8 @@ public:
     // Destroys the widget, removing it from the parent container.
     ~asset_tree();
 
-    // (func) get_handle
-    // See gui::widget::get_handle.
-    gui::sys_handle get_handle() override;
+    // FIXME obsolete
+    gui::widget &get_widget() override;
 
     // (event) on_select
     // Raised when the selected asset has changed. Note that this can be
@@ -104,7 +102,7 @@ public:
  *
  * FIXME explain
  */
-class asset_infoview : public gui::widget {
+class asset_infoview : public gui::widgetlike {
 private:
     // inner class defined in edit_asset_infoview.cc
     class impl;
@@ -122,9 +120,8 @@ public:
     // Destroys the widget, removing it from the parent container.
     ~asset_infoview();
 
-    // (func) get_handle
-    // See gui::widget::get_handle.
-    gui::sys_handle get_handle() override;
+    // FIXME obsolete
+    gui::widget &get_widget() override;
 
     // (func) set_selected_asset
     // Sets the asset name which this widget should show information for.
@@ -136,7 +133,7 @@ public:
  *
  * FIXME explain
  */
-class asset_propview : public gui::widget {
+class asset_propview : public gui::widgetlike {
 private:
     // inner class defined in edit_asset_propview.cc
     class impl;
@@ -154,9 +151,8 @@ public:
     // Destroys the widget, removing it from the parent container.
     ~asset_propview();
 
-    // (func) get_handle
-    // See gui::widget::get_handle.
-    gui::sys_handle get_handle() override;
+    // FIXME obsolete
+    gui::widget &get_widget() override;
 };
 
 /*
@@ -164,7 +160,7 @@ public:
  *
  * FIXME explain
  */
-class asset_viewport : public gui::widget {
+class asset_viewport : public gui::widgetlike {
 private:
     // inner class defined in edit_asset_viewport.cc
     class impl;
@@ -182,9 +178,8 @@ public:
     // Destroys the widget, removing it from the parent container.
     ~asset_viewport();
 
-    // (func) get_handle
-    // See gui::widget::get_handle.
-    gui::sys_handle get_handle() override;
+    // FIXME obsolete
+    gui::widget &get_widget() override;
 };
 
 // FIXME - temporary global for compatibility

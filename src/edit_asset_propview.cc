@@ -88,9 +88,9 @@ asset_propview::~asset_propview()
 }
 
 // declared in edit.hh
-gui::sys_handle asset_propview::get_handle()
+gui::widget &asset_propview::get_widget()
 {
-    return M->m_dummy.get_handle();
+    return M->m_dummy;
 }
 
 }

@@ -180,9 +180,9 @@ viewport::~viewport()
 }
 
 // declared in render.hh
-gui::sys_handle viewport::get_handle()
+gui::widget &viewport::get_widget()
 {
-    return M->m_canvas.get_handle();
+    return M->m_canvas;
 }
 
 // declared in render.hh

@@ -132,9 +132,9 @@ asset_infoview::~asset_infoview()
 }
 
 // declared in edit.hh
-gui::sys_handle asset_infoview::get_handle()
+gui::widget &asset_infoview::get_widget()
 {
-    return M->m_grid.get_handle();
+    return M->m_grid;
 }
 
 // declared in edit.hh

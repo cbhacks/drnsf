@@ -194,9 +194,9 @@ asset_tree::~asset_tree()
 }
 
 // declared in edit.hh
-gui::sys_handle asset_tree::get_handle()
+gui::widget &asset_tree::get_widget()
 {
-    return M->m_tree.get_handle();
+    return M->m_tree;
 }
 
 }

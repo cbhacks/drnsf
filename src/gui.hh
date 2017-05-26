@@ -46,8 +46,8 @@ using sys_handle = GtkWidget *;
  *
  * Common base class for all widget types.
  */
-class widget : private util::nocopy {
-public:
+class widget : public util::nocopy {
+private:
     // (pure func) get_handle
     // Retrieves a handle to the "main" GTK widget behind this object. For
     // most widgets, there is only a single GTK widget inside, but some may
@@ -55,6 +55,7 @@ public:
     // as well).
     virtual sys_handle get_handle() = 0;
 
+public:
     // (func) show
     // Shows the widget, if it is hidden. By default, every widget is
     // hidden when first constructed.
@@ -64,6 +65,21 @@ public:
     // Hides the widget, if it is visible. By default, every widget is already
     // hidden when constructed.
     void hide();
+};
+
+/*
+ * gui::widgetlike
+ *
+ * Type which provides widget-like functions (show, hide) which forward to an
+ * actual widget object.
+ *
+ * FIXME temporary object (obsolete soon)
+ */
+class widgetlike : private util::nocopy {
+public:
+    virtual widget &get_widget() = 0;
+    void show() { get_widget().show(); }
+    void hide() { get_widget().hide(); }
 };
 
 /*
@@ -161,6 +177,10 @@ private:
     // FIXME explain
     GtkWidget *M;
 
+    // (func) get_handle
+    // See gui::widget::get_handle.
+    sys_handle get_handle() override;
+
 public:
     // inner class defined later in this file
     class page;
@@ -172,10 +192,6 @@ public:
     // (dtor)
     // FIXME explain
     ~tabview();
-
-    // (func) get_handle
-    // See gui::widget::get_handle.
-    sys_handle get_handle() override;
 };
 
 /*
@@ -239,6 +255,10 @@ private:
     side m_left;
     side m_right;
 
+    // (func) get_handle
+    // See gui::widget::get_handle.
+    sys_handle get_handle() override;
+
 public:
     // (explicit ctor)
     // FIXME explain
@@ -247,10 +267,6 @@ public:
     // (dtor)
     // FIXME explain
     ~splitview();
-
-    // (func) get_handle
-    // See gui::widget::get_handle.
-    sys_handle get_handle() override;
 
     // (func) get_left
     // FIXME explain
@@ -289,6 +305,10 @@ private:
     // FIXME explain
     std::list<slot> m_slots;
 
+    // (func) get_handle
+    // See gui::widget::get_handle.
+    sys_handle get_handle() override;
+
 public:
     // (explicit ctor)
     // Creates the gridview with the specified number of rows and columns,
@@ -300,10 +320,6 @@ public:
     // (dtor)
     // Destroys the widget and removes it from its parent.
     ~gridview();
-
-    // (func) get_handle
-    // See gui::widget::get_handle.
-    sys_handle get_handle() override;
 
     // (func) make_slot
     // Creates a slot at the specified column and row (zero-based) with
@@ -349,6 +365,10 @@ private:
         GtkTreeSelection *treeselection,
         gpointer user_data);
 
+    // (func) get_handle
+    // See gui::widget::get_handle.
+    sys_handle get_handle() override;
+
 public:
     // (explicit ctor)
     // FIXME explain
@@ -357,10 +377,6 @@ public:
     // (dtor)
     // FIXME explain
     ~treeview();
-
-    // (func) get_handle
-    // See gui::widget::get_handle.
-    sys_handle get_handle() override;
 };
 
 /*
@@ -454,6 +470,10 @@ private:
         GdkEvent *event,
         gpointer user_data);
 
+    // (func) get_handle
+    // See gui::widget::get_handle.
+    sys_handle get_handle() override;
+
 public:
     // (explicit ctor)
     // FIXME explain
@@ -462,10 +482,6 @@ public:
     // (dtor)
     // FIXME explain
     ~gl_canvas();
-
-    // (func) get_handle
-    // See gui::widget::get_handle.
-    sys_handle get_handle() override;
 
     // (func) invalidate
     // FIXME explain

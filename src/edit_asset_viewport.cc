@@ -77,9 +77,9 @@ asset_viewport::~asset_viewport()
 }
 
 // declared in edit.hh
-gui::sys_handle asset_viewport::get_handle()
+gui::widget &asset_viewport::get_widget()
 {
-    return M->m_viewport.get_handle();
+    return M->m_viewport.get_widget();
 }
 
 }
