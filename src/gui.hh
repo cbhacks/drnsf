@@ -47,15 +47,25 @@ using sys_handle = GtkWidget *;
  * Common base class for all widget types.
  */
 class widget : public util::nocopy {
-private:
-    // (pure func) get_handle
-    // Retrieves a handle to the "main" GTK widget behind this object. For
-    // most widgets, there is only a single GTK widget inside, but some may
-    // have multiple (for instance, if one needs a menubar or scroll view
-    // as well).
-    virtual sys_handle get_handle() = 0;
+protected:
+    // (var) m_handle
+    // The internal system handle for this widget. The base widget class will
+    // release this handle or destroy the associated system object.
+    const sys_handle m_handle;
+
+    // (explicit ctor)
+    // FIXME explain
+    //
+    // This constructor takes ownership of the handle, and will free it when
+    // the object is destroyed or if the constructor throws an exception.
+    explicit widget(sys_handle handle);
 
 public:
+    // (dtor)
+    // Destroys the widget (including the internal system handle), removing it
+    // from its parent. A visible widget will vanish if destroyed.
+    ~widget();
+
     // (func) show
     // Shows the widget, if it is hidden. By default, every widget is
     // hidden when first constructed.
@@ -143,23 +153,10 @@ public:
  * FIXME explain
  */
 class composite : public widget, public container {
-private:
-    // (var) M
-    // FIXME explain
-    GtkWidget *M;
-
-    // (func) get_handle
-    // See gui::widget::get_handle
-    sys_handle get_handle() override;
-
 public:
     // (explicit ctor)
     // FIXME explain
     explicit composite(container &parent);
-
-    // (dtor)
-    // FIXME explain
-    ~composite();
 
     // (func) get_container_handle
     // FIXME explain
@@ -172,23 +169,10 @@ public:
  * FIXME explain
  */
 class label : public widget {
-private:
-    // (var) M
-    // FIXME explain
-    GtkWidget *M;
-
-    // (func) get_handle
-    // See gui::widget::get_handle.
-    sys_handle get_handle() override;
-
 public:
     // (explicit ctor)
     // FIXME explain
     explicit label(container &parent,const std::string &text = "");
-
-    // (dtor)
-    // FIXME explain
-    ~label();
 
     // (func) set_text
     // Sets the text displayed by the label.
@@ -201,15 +185,6 @@ public:
  * FIXME explain
  */
 class tabview : public widget {
-private:
-    // (var) M
-    // FIXME explain
-    GtkWidget *M;
-
-    // (func) get_handle
-    // See gui::widget::get_handle.
-    sys_handle get_handle() override;
-
 public:
     // inner class defined later in this file
     class page;
@@ -217,10 +192,6 @@ public:
     // (explicit ctor)
     // FIXME explain
     explicit tabview(container &parent);
-
-    // (dtor)
-    // FIXME explain
-    ~tabview();
 };
 
 /*
@@ -263,10 +234,6 @@ public:
  */
 class splitview : public widget {
 private:
-    // (var) M
-    // FIXME explain
-    GtkWidget *M;
-
     // (inner class) side
     // FIXME explain
     struct side : public container {
@@ -284,18 +251,10 @@ private:
     side m_left;
     side m_right;
 
-    // (func) get_handle
-    // See gui::widget::get_handle.
-    sys_handle get_handle() override;
-
 public:
     // (explicit ctor)
     // FIXME explain
     explicit splitview(container &parent);
-
-    // (dtor)
-    // FIXME explain
-    ~splitview();
 
     // (func) get_left
     // FIXME explain
@@ -326,17 +285,9 @@ private:
         }
     };
 
-    // (var) M
-    // FIXME explain
-    GtkWidget *M;
-
     // (var) m_slots
     // FIXME explain
     std::list<slot> m_slots;
-
-    // (func) get_handle
-    // See gui::widget::get_handle.
-    sys_handle get_handle() override;
 
 public:
     // (explicit ctor)
@@ -345,10 +296,6 @@ public:
     // cells each have equal size and the grid is stretched to fit the
     // available space; otherwise, the grid is sized to fit its contents.
     explicit gridview(container &parent,int cols,int rows,bool absolute);
-
-    // (dtor)
-    // Destroys the widget and removes it from its parent.
-    ~gridview();
 
     // (func) make_slot
     // Creates a slot at the specified column and row (zero-based) with
@@ -372,10 +319,6 @@ public:
     class node;
 
 private:
-    // (var) m_scroll
-    // FIXME explain
-    GtkWidget *m_scroll;
-
     // (var) m_tree
     // FIXME explain
     GtkWidget *m_tree;
@@ -394,18 +337,10 @@ private:
         GtkTreeSelection *treeselection,
         gpointer user_data);
 
-    // (func) get_handle
-    // See gui::widget::get_handle.
-    sys_handle get_handle() override;
-
 public:
     // (explicit ctor)
     // FIXME explain
     explicit treeview(container &parent);
-
-    // (dtor)
-    // FIXME explain
-    ~treeview();
 };
 
 /*
@@ -460,10 +395,6 @@ public:
  */
 class gl_canvas : public widget, public gl::old::machine {
 private:
-    // (var) M
-    // FIXME explain
-    GtkWidget *M;
-
     // (s-func) sigh_draw
     // FIXME explain
     static gboolean sigh_draw(
@@ -499,18 +430,10 @@ private:
         GdkEvent *event,
         gpointer user_data);
 
-    // (func) get_handle
-    // See gui::widget::get_handle.
-    sys_handle get_handle() override;
-
 public:
     // (explicit ctor)
     // FIXME explain
     explicit gl_canvas(container &parent);
-
-    // (dtor)
-    // FIXME explain
-    ~gl_canvas();
 
     // (func) invalidate
     // FIXME explain

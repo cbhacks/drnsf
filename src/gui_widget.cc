@@ -25,15 +25,27 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
+widget::widget(sys_handle handle) :
+    m_handle(handle)
+{
+}
+
+// declared in gui.hh
+widget::~widget()
+{
+    gtk_widget_destroy(m_handle);
+}
+
+// declared in gui.hh
 void widget::show()
 {
-    gtk_widget_show(get_handle());
+    gtk_widget_show(m_handle);
 }
 
 // declared in gui.hh
 void widget::hide()
 {
-    gtk_widget_hide(get_handle());
+    gtk_widget_hide(m_handle);
 }
 
 }

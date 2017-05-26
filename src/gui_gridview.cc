@@ -25,35 +25,23 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-sys_handle gridview::get_handle()
+gridview::gridview(container &parent,int cols,int rows,bool absolute) :
+    widget(gtk_grid_new())
 {
-    return M;
-}
-
-// declared in gui.hh
-gridview::gridview(container &parent,int cols,int rows,bool absolute)
-{
-    M = gtk_grid_new();
-    gtk_container_add(parent.get_container_handle(),M);
+    gtk_container_add(parent.get_container_handle(),m_handle);
 
     if (absolute) {
-        gtk_grid_set_column_homogeneous(GTK_GRID(M),true);
-        gtk_grid_set_row_homogeneous(GTK_GRID(M),true);
+        gtk_grid_set_column_homogeneous(GTK_GRID(m_handle),true);
+        gtk_grid_set_row_homogeneous(GTK_GRID(m_handle),true);
     }
 
     // Add the (empty) rows and columns.
     for (int i = 0; i < cols; i++) {
-        gtk_grid_insert_column(GTK_GRID(M),0);
+        gtk_grid_insert_column(GTK_GRID(m_handle),0);
     }
     for (int i = 0; i < rows; i++) {
-        gtk_grid_insert_row(GTK_GRID(M),0);
+        gtk_grid_insert_row(GTK_GRID(m_handle),0);
     }
-}
-
-// declared in gui.hh
-gridview::~gridview()
-{
-    gtk_widget_destroy(M);
 }
 
 // declared in gui.hh
@@ -67,7 +55,7 @@ container &gridview::make_slot(int col,int row,int col_count,int row_count)
     box = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
     gtk_box_set_homogeneous(GTK_BOX(box),true);
     gtk_widget_show(box);
-    gtk_grid_attach(GTK_GRID(M),box,col,row,col_count,row_count);
+    gtk_grid_attach(GTK_GRID(m_handle),box,col,row,col_count,row_count);
 
     return m_slots.front();
 }

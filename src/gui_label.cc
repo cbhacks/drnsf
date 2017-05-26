@@ -25,28 +25,16 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-sys_handle label::get_handle()
+label::label(container &parent,const std::string &text) :
+    widget(gtk_label_new(text.c_str()))
 {
-    return M;
-}
-
-// declared in gui.hh
-label::label(container &parent,const std::string &text)
-{
-    M = gtk_label_new(text.c_str());
-    gtk_container_add(parent.get_container_handle(),M);
-}
-
-// declared in gui.hh
-label::~label()
-{
-    gtk_widget_destroy(M);
+    gtk_container_add(parent.get_container_handle(),m_handle);
 }
 
 // declared in gui.hh
 void label::set_text(const std::string &text)
 {
-    gtk_label_set_text(GTK_LABEL(M),text.c_str());
+    gtk_label_set_text(GTK_LABEL(m_handle),text.c_str());
 }
 
 }

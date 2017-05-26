@@ -25,32 +25,20 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-sys_handle splitview::get_handle()
+splitview::splitview(container &parent) :
+    widget(gtk_paned_new(GTK_ORIENTATION_HORIZONTAL))
 {
-    return M;
-}
-
-// declared in gui.hh
-splitview::splitview(container &parent)
-{
-    M = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
-    gtk_container_add(parent.get_container_handle(),M);
+    gtk_container_add(parent.get_container_handle(),m_handle);
 
     m_left.M = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
     gtk_box_set_homogeneous(GTK_BOX(m_left.M),true);
     gtk_widget_show(m_left.M);
-    gtk_paned_add1(GTK_PANED(M),m_left.M);
+    gtk_paned_add1(GTK_PANED(m_handle),m_left.M);
 
     m_right.M = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
     gtk_box_set_homogeneous(GTK_BOX(m_right.M),true);
     gtk_widget_show(m_right.M);
-    gtk_paned_add2(GTK_PANED(M),m_right.M);
-}
-
-// declared in gui.hh
-splitview::~splitview()
-{
-    gtk_widget_destroy(M);
+    gtk_paned_add2(GTK_PANED(m_handle),m_right.M);
 }
 
 // declared in gui.hh

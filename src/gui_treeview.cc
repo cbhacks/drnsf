@@ -61,13 +61,8 @@ void treeview::sigh_changed(GtkTreeSelection *treeselection,gpointer user_data)
 }
 
 // declared in gui.hh
-sys_handle treeview::get_handle()
-{
-    return m_scroll;
-}
-
-// declared in gui.hh
-treeview::treeview(container &parent)
+treeview::treeview(container &parent) :
+    widget(gtk_scrolled_window_new(nullptr,nullptr))
 {
     m_store = gtk_tree_store_new(2,G_TYPE_STRING,G_TYPE_POINTER);
     m_tree = gtk_tree_view_new_with_model(GTK_TREE_MODEL(m_store));
@@ -80,21 +75,13 @@ treeview::treeview(container &parent)
         nullptr
     );
     gtk_tree_view_append_column(GTK_TREE_VIEW(m_tree),column);
-    m_scroll = gtk_scrolled_window_new(nullptr,nullptr);
-    gtk_container_add(parent.get_container_handle(),m_scroll);
-    gtk_container_add(GTK_CONTAINER(m_scroll),m_tree);
+    gtk_container_add(parent.get_container_handle(),m_handle);
+    gtk_container_add(GTK_CONTAINER(m_handle),m_tree);
 
     auto tvs = gtk_tree_view_get_selection(GTK_TREE_VIEW(m_tree));
     g_signal_connect(tvs,"changed",G_CALLBACK(sigh_changed),this);
 
     gtk_widget_show(m_tree);
-}
-
-// declared in gui.hh
-treeview::~treeview()
-{
-    gtk_widget_destroy(m_scroll);
-    // FIXME - destroy tree store?
 }
 
 // declared in gui.hh

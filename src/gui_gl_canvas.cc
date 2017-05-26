@@ -157,17 +157,11 @@ gboolean gl_canvas::sigh_key_event(
 }
 
 // declared in gui.hh
-sys_handle gl_canvas::get_handle()
+gl_canvas::gl_canvas(container &parent) :
+    widget(gtk_drawing_area_new())
 {
-    return M;
-}
-
-// declared in gui.hh
-gl_canvas::gl_canvas(container &parent)
-{
-    M = gtk_drawing_area_new();
     gtk_widget_set_events(
-        M,
+        m_handle,
         GDK_POINTER_MOTION_MASK |
         GDK_SMOOTH_SCROLL_MASK |
         GDK_BUTTON_PRESS_MASK |
@@ -175,62 +169,56 @@ gl_canvas::gl_canvas(container &parent)
         GDK_KEY_PRESS_MASK |
         GDK_KEY_RELEASE_MASK
     );
-    gtk_widget_set_can_focus(M,true);
-    g_signal_connect(M,"draw",G_CALLBACK(sigh_draw),this);
+    gtk_widget_set_can_focus(m_handle,true);
+    g_signal_connect(m_handle,"draw",G_CALLBACK(sigh_draw),this);
     g_signal_connect(
-        M,
+        m_handle,
         "motion-notify-event",
         G_CALLBACK(sigh_motion_notify_event),
         this
     );
     g_signal_connect(
-        M,
+        m_handle,
         "scroll-event",
         G_CALLBACK(sigh_scroll_event),
         this
     );
     g_signal_connect(
-        M,
+        m_handle,
         "button-press-event",
         G_CALLBACK(sigh_button_event),
         this
     );
     g_signal_connect(
-        M,
+        m_handle,
         "button-release-event",
         G_CALLBACK(sigh_button_event),
         this
     );
     g_signal_connect(
-        M,
+        m_handle,
         "key-press-event",
         G_CALLBACK(sigh_key_event),
         this
     );
     g_signal_connect(
-        M,
+        m_handle,
         "key-release-event",
         G_CALLBACK(sigh_key_event),
         this
     );
-    gtk_container_add(parent.get_container_handle(),M);
-}
-
-// declared in gui.hh
-gl_canvas::~gl_canvas()
-{
-    gtk_widget_destroy(M);
+    gtk_container_add(parent.get_container_handle(),m_handle);
 }
 
 // declared in gui.hh
 void gl_canvas::invalidate()
 {
     gtk_widget_queue_draw_area(
-        M,
+        m_handle,
         0,
         0,
-        gtk_widget_get_allocated_width(M),
-        gtk_widget_get_allocated_height(M)
+        gtk_widget_get_allocated_width(m_handle),
+        gtk_widget_get_allocated_height(m_handle)
     );
 }
 

@@ -25,29 +25,17 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-sys_handle composite::get_handle()
+composite::composite(container &parent) :
+    widget(gtk_box_new(GTK_ORIENTATION_VERTICAL,0))
 {
-    return M;
-}
-
-// declared in gui.hh
-composite::composite(container &parent)
-{
-    M = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
-    gtk_container_add(parent.get_container_handle(),M);
-    gtk_box_set_homogeneous(GTK_BOX(M),true);
-}
-
-// declared in gui.hh
-composite::~composite()
-{
-    gtk_widget_destroy(M);
+    gtk_container_add(parent.get_container_handle(),m_handle);
+    gtk_box_set_homogeneous(GTK_BOX(m_handle),true);
 }
 
 // declared in gui.hh
 GtkContainer *composite::get_container_handle()
 {
-    return GTK_CONTAINER(M);
+    return GTK_CONTAINER(m_handle);
 }
 
 }
