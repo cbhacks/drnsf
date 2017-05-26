@@ -59,7 +59,7 @@ class figure;
  *
  * FIXME explain
  */
-class viewport : public gui::widgetlike {
+class viewport : private gui::composite {
     friend class figure;
 
 private:
@@ -90,8 +90,8 @@ public:
     // Destroys the widget, removing it from the parent container.
     ~viewport();
 
-    // FIXME obsolete
-    gui::widget &get_widget() override;
+    using composite::show;
+    using composite::hide;
 };
 
 /*

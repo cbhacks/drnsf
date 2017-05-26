@@ -73,9 +73,8 @@ public:
     // Initializes the editor, and constructs the necessary widgets.
     explicit impl(
         asset_editor &outer,
-        gui::container &parent,
         res::project &proj) :
-        composite(parent),
+        composite(static_cast<container&>(outer)),
         m_outer(outer),
         m_proj(proj),
         m_split(*this),
@@ -101,21 +100,17 @@ public:
 };
 
 // declared in edit.hh
-asset_editor::asset_editor(gui::container &parent,res::project &proj)
+asset_editor::asset_editor(gui::container &parent,res::project &proj) :
+    composite(parent)
 {
-    M = new impl(*this,parent,proj);
+    M = new impl(*this,proj);
+    M->show();
 }
 
 // declared in edit.hh
 asset_editor::~asset_editor()
 {
     delete M;
-}
-
-// declared in edit.hh
-gui::widget &asset_editor::get_widget()
-{
-    return *M;
 }
 
 }

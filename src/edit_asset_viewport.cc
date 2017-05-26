@@ -53,9 +53,8 @@ public:
     // Initializes the viewport widget.
     explicit impl(
         asset_viewport &outer,
-        gui::container &parent,
         res::project &proj) :
-        composite(parent),
+        composite(static_cast<container&>(outer)),
         m_outer(outer),
         m_proj(proj),
         m_viewport(*this),
@@ -67,21 +66,17 @@ public:
 };
 
 // declared in edit.hh
-asset_viewport::asset_viewport(gui::container &parent,res::project &proj)
+asset_viewport::asset_viewport(gui::container &parent,res::project &proj) :
+    composite(parent)
 {
-    M = new impl(*this,parent,proj);
+    M = new impl(*this,proj);
+    M->show();
 }
 
 // declared in edit.hh
 asset_viewport::~asset_viewport()
 {
     delete M;
-}
-
-// declared in edit.hh
-gui::widget &asset_viewport::get_widget()
-{
-    return *M;
 }
 
 }

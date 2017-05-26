@@ -73,9 +73,8 @@ public:
     // Initializes the widget and installs event handlers.
     explicit impl(
         asset_infoview &outer,
-        gui::container &parent,
         res::project &proj) :
-        composite(parent),
+        composite(static_cast<container&>(outer)),
         m_outer(outer),
         m_proj(proj),
         m_grid(*this,2,2,true),
@@ -122,21 +121,17 @@ public:
 };
 
 // declared in edit.hh
-asset_infoview::asset_infoview(gui::container &parent,res::project &proj)
+asset_infoview::asset_infoview(gui::container &parent,res::project &proj) :
+    composite(parent)
 {
-    M = new impl(*this,parent,proj);
+    M = new impl(*this,proj);
+    M->show();
 }
 
 // declared in edit.hh
 asset_infoview::~asset_infoview()
 {
     delete M;
-}
-
-// declared in edit.hh
-gui::widget &asset_infoview::get_widget()
-{
-    return *M;
 }
 
 // declared in edit.hh

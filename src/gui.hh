@@ -78,21 +78,6 @@ public:
 };
 
 /*
- * gui::widgetlike
- *
- * Type which provides widget-like functions (show, hide) which forward to an
- * actual widget object.
- *
- * FIXME temporary object (obsolete soon)
- */
-class widgetlike : private util::nocopy {
-public:
-    virtual widget &get_widget() = 0;
-    void show() { get_widget().show(); }
-    void hide() { get_widget().hide(); }
-};
-
-/*
  * gui::container
  *
  * FIXME explain

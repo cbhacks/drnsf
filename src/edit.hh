@@ -42,7 +42,7 @@ namespace edit {
  *
  * FIXME explain
  */
-class asset_editor : public gui::widgetlike {
+class asset_editor : private gui::composite {
 private:
     // inner class defined in edit_asset_editor.cc
     class impl;
@@ -60,8 +60,8 @@ public:
     // Destroys the widget, removing it from the parent container.
     ~asset_editor();
 
-    // FIXME obsolete
-    gui::widget &get_widget() override;
+    using composite::show;
+    using composite::hide;
 };
 
 /*
@@ -69,7 +69,7 @@ public:
  *
  * FIXME explain
  */
-class asset_tree : public gui::widgetlike {
+class asset_tree : private gui::composite {
 private:
     // inner class defined in edit_asset_tree.cc
     class impl;
@@ -87,8 +87,8 @@ public:
     // Destroys the widget, removing it from the parent container.
     ~asset_tree();
 
-    // FIXME obsolete
-    gui::widget &get_widget() override;
+    using composite::show;
+    using composite::hide;
 
     // (event) on_select
     // Raised when the selected asset has changed. Note that this can be
@@ -102,7 +102,7 @@ public:
  *
  * FIXME explain
  */
-class asset_infoview : public gui::widgetlike {
+class asset_infoview : private gui::composite {
 private:
     // inner class defined in edit_asset_infoview.cc
     class impl;
@@ -120,8 +120,8 @@ public:
     // Destroys the widget, removing it from the parent container.
     ~asset_infoview();
 
-    // FIXME obsolete
-    gui::widget &get_widget() override;
+    using composite::show;
+    using composite::hide;
 
     // (func) set_selected_asset
     // Sets the asset name which this widget should show information for.
@@ -133,7 +133,7 @@ public:
  *
  * FIXME explain
  */
-class asset_propview : public gui::widgetlike {
+class asset_propview : private gui::composite {
 private:
     // inner class defined in edit_asset_propview.cc
     class impl;
@@ -151,8 +151,8 @@ public:
     // Destroys the widget, removing it from the parent container.
     ~asset_propview();
 
-    // FIXME obsolete
-    gui::widget &get_widget() override;
+    using composite::show;
+    using composite::hide;
 };
 
 /*
@@ -160,7 +160,7 @@ public:
  *
  * FIXME explain
  */
-class asset_viewport : public gui::widgetlike {
+class asset_viewport : private gui::composite {
 private:
     // inner class defined in edit_asset_viewport.cc
     class impl;
@@ -178,8 +178,8 @@ public:
     // Destroys the widget, removing it from the parent container.
     ~asset_viewport();
 
-    // FIXME obsolete
-    gui::widget &get_widget() override;
+    using composite::show;
+    using composite::hide;
 };
 
 // FIXME - temporary global for compatibility

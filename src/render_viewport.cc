@@ -72,9 +72,8 @@ public:
     // (explicit ctor)
     // Initializes the viewport widget.
     explicit impl(
-        viewport &outer,
-        gui::container &parent) :
-        composite(parent),
+        viewport &outer) :
+        composite(static_cast<gui::container&>(outer)),
         m_outer(outer),
         m_canvas(*this)
     {
@@ -171,21 +170,17 @@ public:
 };
 
 // declared in render.hh
-viewport::viewport(gui::container &parent)
+viewport::viewport(gui::container &parent) :
+    composite(parent)
 {
-    M = new impl(*this,parent);
+    M = new impl(*this);
+    M->show();
 }
 
 // declared in render.hh
 viewport::~viewport()
 {
     delete M;
-}
-
-// declared in render.hh
-gui::widget &viewport::get_widget()
-{
-    return *M;
 }
 
 // declared in render.hh
