@@ -30,5 +30,11 @@ void widget::show()
     gtk_widget_show(get_handle());
 }
 
+// declared in gui.hh
+void widget::hide()
+{
+    gtk_widget_hide(get_handle());
+}
+
 }
 }

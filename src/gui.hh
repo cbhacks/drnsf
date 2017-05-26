@@ -59,6 +59,11 @@ public:
     // Shows the widget, if it is hidden. By default, every widget is
     // hidden when first constructed.
     void show();
+
+    // (func) hide
+    // Hides the widget, if it is visible. By default, every widget is already
+    // hidden when constructed.
+    void hide();
 };
 
 /*
