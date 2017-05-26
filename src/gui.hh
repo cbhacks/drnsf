@@ -149,6 +149,116 @@ public:
 };
 
 /*
+ * gui::widget_gl
+ *
+ * FIXME explain
+ */
+class widget_gl : private widget {
+private:
+    // (s-func) sigh_draw
+    // Internal signal handler for GtkWidget::'draw'.
+    static gboolean sigh_draw(
+        GtkWidget *widget,
+        cairo_t *cr,
+        gpointer user_data);
+
+    // (s-func) sigh_motion_notify_event
+    // Internal signal handler for GtkWidget::'motion-notify-event'.
+    static gboolean sigh_motion_notify_event(
+        GtkWidget *widget,
+        GdkEvent *event,
+        gpointer user_data);
+
+    // (s-func) sigh_scroll_event
+    // Internal signal handler for GtkWidget::'scroll-event'.
+    static gboolean sigh_scroll_event(
+        GtkWidget *widget,
+        GdkEvent *event,
+        gpointer user_data);
+
+    // (s-func) sigh_button_event
+    // Internal signal handler for GtkWidget::'button-event'.
+    static gboolean sigh_button_event(
+        GtkWidget *widget,
+        GdkEvent *event,
+        gpointer user_data);
+
+    // (s-func) sigh_key_event
+    // Internal signal handler for GtkWidget::'key-event'.
+    static gboolean sigh_key_event(
+        GtkWidget *widget,
+        GdkEvent *event,
+        gpointer user_data);
+
+protected:
+    // (pure func) draw_gl
+    // Draws the contents of this widget to the specified renderbuffer. Derived
+    // classes must implement this method. This function will not be called on
+    // every frame, only when the widget is resized or after invalidate is
+    // called (see below).
+    //
+    // All global GL state will be default when this function is called. When
+    // overriding it, you must ensure you return in such a state as well, or
+    // this guarantee will not be met for widgets drawn afterwards.
+    virtual void draw_gl(int width,int height,gl::renderbuffer &rbo) = 0;
+
+    // (func) invalidate
+    // Marks the current rendered output of this widget as out-of-date or stale
+    // so that draw_gl will be called again. If the widget is not currently
+    // visible to the user (due to being hidden, obscured, off-screen, etc)
+    // then the call to draw_gl may be deferred until this is not the case, or
+    // it may never be called if the widget is destroyed before such a case
+    // occurs.
+    void invalidate();
+
+    // (func) mousemove
+    // Called when the mouse moves into or while inside of the widget.
+    //
+    // The default implementation performs no operation.
+    virtual void mousemove(int x,int y) {}
+
+    // (func) mousewheel
+    // Called when the mouse wheel is scrolled vertically. Whether this happens
+    // to the focused widget or to the widget currently under the mouse could
+    // vary by operating system.
+    //
+    // The default implementation performs no operation.
+    virtual void mousewheel(int delta_y) {}
+
+    // (func) mousebutton
+    // Called when a mouse button is pressed or released while this widget has
+    // focus. The button press could potentially be one which causes the widget
+    // to gain focus.
+    //
+    // The default implementation performs no operation.
+    virtual void mousebutton(int number,bool down) {}
+
+    // (func) key
+    // Called when a key is pressed or released while this widget has focus.
+    //
+    // The default implementation performs no operation.
+    virtual void key(int code,bool down) {}
+
+    // (func) text
+    // Called when text is entered into the widget. This is different from key
+    // input, as multiple keys in series could input one character, or another
+    // sequence of different characters. For more information, read about input
+    // methods such as IME and methods used for inputting characters often used
+    // in southeast asian languages.
+    //
+    // The default implementation performs no operation.
+    virtual void text(const char *str) {}
+
+public:
+    // (explicit ctor)
+    // FIXME explain
+    explicit widget_gl(container &parent);
+
+    using widget::show;
+    using widget::hide;
+};
+
+/*
  * gui::label
  *
  * FIXME explain

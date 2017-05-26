@@ -42,6 +42,7 @@ add_executable (drnsf
     src/gui_widget.cc
     src/gui_window.cc
     src/gui_composite.cc
+    src/gui_widget_gl.cc
     src/gui_label.cc
     src/gui_tabview.cc
     src/gui_splitview.cc
