@@ -26,7 +26,7 @@ namespace edit {
 
 // (inner class) impl
 // Implementation class for asset_tree (PIMPL).
-class asset_tree::impl : private util::nocopy {
+class asset_tree::impl final : private gui::composite {
     friend class asset_tree;
 
 private:
@@ -86,9 +86,10 @@ public:
         asset_tree &outer,
         gui::container &parent,
         res::project &proj) :
+        composite(parent),
         m_outer(outer),
         m_proj(proj),
-        m_tree(parent)
+        m_tree(*this)
     {
         h_asset_appear <<= [this](res::asset &asset) {
             auto name = asset.get_name();
@@ -109,6 +110,8 @@ public:
             m_asset_nodes.erase(&asset);
         };
         h_asset_disappear.bind(m_proj.on_asset_disappear);
+
+        m_tree.show();
     }
 };
 
@@ -196,7 +199,7 @@ asset_tree::~asset_tree()
 // declared in edit.hh
 gui::widget &asset_tree::get_widget()
 {
-    return M->m_tree;
+    return *M;
 }
 
 }

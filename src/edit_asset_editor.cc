@@ -26,7 +26,7 @@ namespace edit {
 
 // (inner class) impl
 // FIXME explain
-class asset_editor::impl : private util::nocopy {
+class asset_editor::impl final : private gui::composite {
     friend class asset_editor;
 
 private:
@@ -75,9 +75,10 @@ public:
         asset_editor &outer,
         gui::container &parent,
         res::project &proj) :
+        composite(parent),
         m_outer(outer),
         m_proj(proj),
-        m_split(parent),
+        m_split(*this),
         m_tree(m_split.get_left(),proj),
         m_grid(m_split.get_right(),2,2,true),
         m_infoview(m_grid.make_slot(0,0,1,1),proj),
@@ -90,6 +91,7 @@ public:
         };
         h_tree_select.bind(m_tree.on_select);
 
+        m_split.show();
         m_tree.show();
         m_grid.show();
         m_infoview.show();
@@ -113,7 +115,7 @@ asset_editor::~asset_editor()
 // declared in edit.hh
 gui::widget &asset_editor::get_widget()
 {
-    return M->m_split;
+    return *M;
 }
 
 }

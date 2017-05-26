@@ -138,6 +138,35 @@ public:
 };
 
 /*
+ * gui::composite
+ *
+ * FIXME explain
+ */
+class composite : public widget, public container {
+private:
+    // (var) M
+    // FIXME explain
+    GtkWidget *M;
+
+    // (func) get_handle
+    // See gui::widget::get_handle
+    sys_handle get_handle() override;
+
+public:
+    // (explicit ctor)
+    // FIXME explain
+    explicit composite(container &parent);
+
+    // (dtor)
+    // FIXME explain
+    ~composite();
+
+    // (func) get_container_handle
+    // FIXME explain
+    GtkContainer *get_container_handle() override;
+};
+
+/*
  * gui::label
  *
  * FIXME explain
@@ -148,6 +177,10 @@ private:
     // FIXME explain
     GtkWidget *M;
 
+    // (func) get_handle
+    // See gui::widget::get_handle.
+    sys_handle get_handle() override;
+
 public:
     // (explicit ctor)
     // FIXME explain
@@ -156,10 +189,6 @@ public:
     // (dtor)
     // FIXME explain
     ~label();
-
-    // (func) get_handle
-    // See gui::widget::get_handle.
-    sys_handle get_handle() override;
 
     // (func) set_text
     // Sets the text displayed by the label.

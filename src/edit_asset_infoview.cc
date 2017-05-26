@@ -26,7 +26,7 @@ namespace edit {
 
 // (inner class) impl
 // Implementation class for asset_infoview (PIMPL).
-class asset_infoview::impl : private util::nocopy {
+class asset_infoview::impl final : private gui::composite {
     friend class asset_infoview;
 
 private:
@@ -75,9 +75,10 @@ public:
         asset_infoview &outer,
         gui::container &parent,
         res::project &proj) :
+        composite(parent),
         m_outer(outer),
         m_proj(proj),
-        m_grid(parent,2,2,true),
+        m_grid(*this,2,2,true),
         m_assetname(m_grid.make_slot(1,0)),
         m_assetname_title(m_grid.make_slot(0,0),"Asset Name"),
         m_assettype(m_grid.make_slot(1,1)),
@@ -97,6 +98,7 @@ public:
         };
         h_asset_disappear.bind(m_proj.on_asset_disappear);
 
+        m_grid.show();
         m_assetname.show();
         m_assetname_title.show();
         m_assettype.show();
@@ -134,7 +136,7 @@ asset_infoview::~asset_infoview()
 // declared in edit.hh
 gui::widget &asset_infoview::get_widget()
 {
-    return M->m_grid;
+    return *M;
 }
 
 // declared in edit.hh

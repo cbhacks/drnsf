@@ -26,7 +26,7 @@ namespace edit {
 
 // (inner class) impl
 // Implementation class for asset_propview (PIMPL).
-class asset_propview::impl : private util::nocopy {
+class asset_propview::impl final : private gui::composite {
     friend class asset_propview;
 
 private:
@@ -59,9 +59,10 @@ public:
         asset_propview &outer,
         gui::container &parent,
         res::project &proj) :
+        composite(parent),
         m_outer(outer),
         m_proj(proj),
-        m_dummy(parent,"[asset properties here]")
+        m_dummy(*this,"[asset properties here]")
     {
         h_asset_appear <<= [this](res::asset &asset) {
             // TODO
@@ -72,6 +73,8 @@ public:
             // TODO
         };
         h_asset_disappear.bind(m_proj.on_asset_disappear);
+
+        m_dummy.show();
     }
 };
 
@@ -90,7 +93,7 @@ asset_propview::~asset_propview()
 // declared in edit.hh
 gui::widget &asset_propview::get_widget()
 {
-    return M->m_dummy;
+    return *M;
 }
 
 }

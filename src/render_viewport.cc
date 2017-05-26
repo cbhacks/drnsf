@@ -29,7 +29,7 @@ namespace render {
 
 // (inner class) impl
 // Implementation class for viewport (PIMPL).
-class viewport::impl : private util::nocopy {
+class viewport::impl final : private gui::composite {
     friend class viewport;
 
 private:
@@ -74,8 +74,9 @@ public:
     explicit impl(
         viewport &outer,
         gui::container &parent) :
+        composite(parent),
         m_outer(outer),
-        m_canvas(parent)
+        m_canvas(*this)
     {
         h_render <<= [this](int width,int height) {
             // Clear the display and reset the depth buffer.
@@ -164,6 +165,8 @@ public:
             }
         };
         h_mousebutton.bind(m_canvas.on_mousebutton);
+
+        m_canvas.show();
     }
 };
 
@@ -182,7 +185,7 @@ viewport::~viewport()
 // declared in render.hh
 gui::widget &viewport::get_widget()
 {
-    return M->m_canvas;
+    return *M;
 }
 
 // declared in render.hh

@@ -26,7 +26,7 @@ namespace edit {
 
 // (inner class) impl
 // Implementation class for asset_viewport (PIMPL).
-class asset_viewport::impl : private util::nocopy {
+class asset_viewport::impl final : private gui::composite {
     friend class asset_viewport;
 
 private:
@@ -55,11 +55,13 @@ public:
         asset_viewport &outer,
         gui::container &parent,
         res::project &proj) :
+        composite(parent),
         m_outer(outer),
         m_proj(proj),
-        m_viewport(parent),
+        m_viewport(*this),
         m_reticle(m_viewport)
     {
+        m_viewport.show();
         m_reticle.show();
     }
 };
@@ -79,7 +81,7 @@ asset_viewport::~asset_viewport()
 // declared in edit.hh
 gui::widget &asset_viewport::get_widget()
 {
-    return M->m_viewport.get_widget();
+    return *M;
 }
 
 }
