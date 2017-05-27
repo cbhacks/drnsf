@@ -40,8 +40,7 @@ new rendering code should be at or near OpenGL "core" level functionality.
    * File `module_testbox.cc`
    * File `gui_im.cc`
    * Namespace `gui::im`
-   * Usage of `gl::old::machine` in `gui::gl_canvas`
-   * Namespace `gl::old`
+   * Class `edit::im_canvas`
  * Remove imgui.
  * Fix unused variable warnings in `nsf::wgeo_v2::import_entry`. This will
 require adding more fields to various asset types to store this data so it can
