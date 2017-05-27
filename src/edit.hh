@@ -221,15 +221,6 @@ private:
     ImGuiIO *m_io;
     guint m_timer;
     long m_last_update;
-    gl::old::program m_gl_program;
-    gl::old::shader m_gl_vert_shader;
-    gl::old::shader m_gl_frag_shader;
-    gl::old::texture m_gl_tex_font;
-    gl::old::buffer m_gl_vb;
-    gl::old::buffer m_gl_ib;
-    gl::old::vert_array m_gl_va;
-    gl::old::uniform m_gl_u_screenortho;
-    gl::old::uniform m_gl_u_font;
     decltype(m_canvas.on_render)::watch h_render;
     decltype(m_canvas.on_mousemove)::watch h_mousemove;
     decltype(m_canvas.on_mousewheel)::watch h_mousewheel;

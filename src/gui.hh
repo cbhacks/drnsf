@@ -488,7 +488,7 @@ public:
  *
  * FIXME explain
  */
-class gl_canvas : public widget, public gl::old::machine {
+class gl_canvas : public widget {
 private:
     // (s-func) sigh_draw
     // FIXME explain

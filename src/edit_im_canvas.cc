@@ -25,222 +25,49 @@
 #include "../imgui/imgui.h"
 #include "edit.hh"
 
+// FIXME FIXME this file will be obsolete; as such there are no real comments
+
 namespace drnsf {
 namespace edit {
 
-void im_canvas::render(int width,int height)
+static gl::program s_prog;
+static gl::texture s_font_tex;
+static gl::vert_array s_vao;
+static gl::buffer s_ibo;
+static gl::buffer s_vbo;
+
+static void init()
 {
-    m_io->DisplaySize.x = width;
-    m_io->DisplaySize.y = height;
-    glViewport(0,0,width,height);
-
-    long current_time = g_get_monotonic_time();
-    long delta_time = current_time - m_last_update;
-    m_last_update = current_time;
-    m_io->DeltaTime = delta_time / 1000000.0;
-
-    auto previous_im = ImGui::GetCurrentContext();
-    ImGui::SetCurrentContext(m_im);
-    ImGui::NewFrame();
-
-    on_frame(width,height,delta_time / 1000);
-
-    ImGui::Render();
-    ImDrawData *draw_data = ImGui::GetDrawData();
-
-    m_canvas.post_job([this]{
-        glUseProgram(m_gl_program.get_id());
-        glUniform1i(m_gl_u_font.get_id(),0);
-    });
-
-    // Prepare a simple 2D orthographic projection.
-    //
-    // This adjusts the GL vertex coordinates to be:
-    // X left-to-right as 0 to +<width>
-    // Y top-to-bottom as 0 to +<height>
-    // ImGui expects this layout.
-    //
-    // Without this, instead you get -1 to +1 left-to-right *and also
-    // bottom-to-top* which is the inverse of what we want.
-    //
-    // The Z coordinates are left as-is; they are not meaningful for ImGui.
-    m_canvas.post_job([this,width,height]{
-        glUniformMatrix4fv(
-            m_gl_u_screenortho.get_id(),
-            1,
-            false,
-            &glm::ortho<float>(
-                0,
-                width,
-                height,
-                0,
-                -1,
-                +1
-            )[0][0]
-        );
-    });
-
-    m_canvas.post_job([this]{
-        glBindVertexArray(m_gl_va.get_id());
-    });
-
-    // Enable alpha blending. ImGui requires this for its fonts.
-    m_canvas.post_job([]{
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-    });
-
-    // Enable the GL scissor test. This is used to clip gui widgets to only
-    // render within their given area.
-    m_canvas.post_job([]{
-        glEnable(GL_SCISSOR_TEST);
-    });
-
-    // Draw each of the command lists. Each list contains a set of draw
-    // commands associated with a particular set of vertex arrays.
-    for (int i = 0;i < draw_data->CmdListsCount;i++) {
-        ImDrawList *draw_list = draw_data->CmdLists[i];
-
-        util::blob vtxbuf = {
-            reinterpret_cast<util::byte *>(
-                draw_list->VtxBuffer.Data
-            ),
-            reinterpret_cast<util::byte *>(
-                draw_list->VtxBuffer.Data
-                    + draw_list->VtxBuffer.Size
-            )
-        };
-        m_gl_vb.put_data(
-            std::move(vtxbuf),
-            GL_DYNAMIC_DRAW
-        );
-
-        util::blob idxbuf = {
-            reinterpret_cast<util::byte *>(
-                draw_list->IdxBuffer.Data
-            ),
-            reinterpret_cast<util::byte *>(
-                draw_list->IdxBuffer.Data
-                    + draw_list->IdxBuffer.Size
-            )
-        };
-        m_gl_ib.put_data(
-            std::move(idxbuf),
-            GL_DYNAMIC_DRAW
-        );
-
-        // Get the index array (IBO-like). Each draw command pulls some
-        // amount of these elements out from the front.
-        ImDrawIdx *index_array = 0;
-
-        // Draw each of the commands in the list.
-        for (auto &c : draw_list->CmdBuffer) {
-            m_canvas.post_job([this,index_array,c,height]{
-                glBindTexture(
-                    GL_TEXTURE_2D,
-                    m_gl_tex_font.get_id()
-                );
-                glScissor(
-                    c.ClipRect.x,
-                    height - c.ClipRect.w,
-                    c.ClipRect.z - c.ClipRect.x,
-                    c.ClipRect.w - c.ClipRect.y
-                );
-                glDrawElements(
-                    GL_TRIANGLES,
-                    c.ElemCount,
-                    sizeof(ImDrawIdx) == 2 ?
-                        GL_UNSIGNED_SHORT :
-                        GL_UNSIGNED_INT,
-                    index_array
-                );
-            });
-
-            // Move past the indices which have already been used
-            // for drawing.
-            index_array += c.ElemCount;
-        }
-    }
-
-    // Re-disable scissor test.
-    m_canvas.post_job([]{
-        glDisable(GL_SCISSOR_TEST);
-    });
-
-    // Unbind whatever texture was bound by the last draw command.
-    m_canvas.post_job([]{
-        glBindTexture(GL_TEXTURE_2D,0);
-    });
-
-    // Restore the previous blending setup.
-    m_canvas.post_job([]{
-        glDisable(GL_BLEND);
-        glBlendFunc(GL_ONE,GL_ZERO);
-    });
-
-    m_canvas.post_job([]{
-        glBindVertexArray(0);
-        glUseProgram(0);
-    });
-
-    ImGui::SetCurrentContext(previous_im);
-}
-
-im_canvas::im_canvas(gui::container &parent) :
-    m_canvas(parent),
-    m_gl_program(m_canvas),
-    m_gl_vert_shader(m_canvas,GL_VERTEX_SHADER),
-    m_gl_frag_shader(m_canvas,GL_FRAGMENT_SHADER),
-    m_gl_tex_font(m_canvas,GL_TEXTURE_2D),
-    m_gl_vb(m_canvas),
-    m_gl_ib(m_canvas),
-    m_gl_va(m_canvas)
-{
-    m_timer = g_timeout_add(
-        10,
-        [](gpointer user_data) -> gboolean {
-            auto self = static_cast<im_canvas *>(user_data);
-            self->m_canvas.invalidate();
-            return G_SOURCE_CONTINUE;
-        },
-        this
-    );
-
-    m_im = ImGui::CreateContext();
-    auto previous_im = ImGui::GetCurrentContext();
-    ImGui::SetCurrentContext(m_im);
-    m_io = &ImGui::GetIO();
-
-    m_io->IniFilename = "imgui.ini";
-
-    // Configure the ImGui keymap.
-    for (int i = 0;i < ImGuiKey_COUNT;i++) {
-        m_io->KeyMap[i] = i;
-    }
-
-    m_last_update = g_get_monotonic_time();
+    static bool s_is_init = false;
+    if (s_is_init) return;
+    s_is_init = true;
 
     // Get the ImGui font.
     unsigned char *font_pixels;
     int font_width;
     int font_height;
-    m_io->Fonts->GetTexDataAsRGBA32(
+    ImGui::GetIO().Fonts->GetTexDataAsRGBA32(
         &font_pixels,
         &font_width,
         &font_height
     );
 
     // Upload the font as a texture to OpenGL.
-    m_gl_tex_font.put_data_2d(
-        {font_pixels,font_pixels + font_width * font_height * 4},
+    glBindTexture(GL_TEXTURE_2D,s_font_tex);
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
         GL_RGBA,
         font_width,
         font_height,
+        0,
         GL_RGBA,
-        GL_UNSIGNED_BYTE
+        GL_UNSIGNED_BYTE,
+        font_pixels
     );
-    m_gl_tex_font.set_parameter(GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    m_gl_tex_font.set_parameter(GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D,0);
 
     const char vert_code[] = R"(
 
@@ -264,7 +91,8 @@ void main()
 
 )";
 
-    m_gl_vert_shader.compile(vert_code);
+    gl::vert_shader vert_shader;
+    vert_shader.compile(vert_code);
 
     const char frag_code[] = R"(
 
@@ -282,43 +110,202 @@ void main()
 
 )";
 
-    m_gl_frag_shader.compile(frag_code);
+    gl::frag_shader frag_shader;
+    frag_shader.compile(frag_code);
 
-    m_gl_program.attach(m_gl_vert_shader);
-    m_gl_program.attach(m_gl_frag_shader);
-    m_gl_program.link();
+    glAttachShader(s_prog,vert_shader);
+    glAttachShader(s_prog,frag_shader);
+    glBindAttribLocation(s_prog,0,"a_Position");
+    glBindAttribLocation(s_prog,1,"a_TexCoord");
+    glBindAttribLocation(s_prog,2,"a_Color");
+    glLinkProgram(s_prog);
 
-    m_gl_u_screenortho = m_gl_program.find_uniform("u_ScreenOrtho");
-    m_gl_u_font = m_gl_program.find_uniform("u_Font");
-
-    m_gl_va.bind_ibo(m_gl_ib);
-    m_gl_va.bind_vbo(
-        m_gl_vb,
-        m_gl_program.find_attrib("a_Position"),
+    glBindVertexArray(s_vao);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,s_ibo);
+    glBindBuffer(GL_ARRAY_BUFFER,s_vbo);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(
+        0,
         2,
         GL_FLOAT,
         false,
         sizeof(ImDrawVert),
-        offsetof(ImDrawVert,pos)
+        reinterpret_cast<void *>(offsetof(ImDrawVert,pos))
     );
-    m_gl_va.bind_vbo(
-        m_gl_vb,
-        m_gl_program.find_attrib("a_TexCoord"),
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(
+        1,
         2,
         GL_FLOAT,
         false,
         sizeof(ImDrawVert),
-        offsetof(ImDrawVert,uv)
+        reinterpret_cast<void *>(offsetof(ImDrawVert,uv))
     );
-    m_gl_va.bind_vbo(
-        m_gl_vb,
-        m_gl_program.find_attrib("a_Color"),
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(
+        2,
         4,
         GL_UNSIGNED_BYTE,
         true,
         sizeof(ImDrawVert),
-        offsetof(ImDrawVert,col)
+        reinterpret_cast<void *>(offsetof(ImDrawVert,col))
     );
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+    glBindVertexArray(0);
+}
+
+void im_canvas::render(int width,int height)
+{
+    m_io->DisplaySize.x = width;
+    m_io->DisplaySize.y = height;
+    glViewport(0,0,width,height);
+
+    long current_time = g_get_monotonic_time();
+    long delta_time = current_time - m_last_update;
+    m_last_update = current_time;
+    m_io->DeltaTime = delta_time / 1000000.0;
+
+    auto previous_im = ImGui::GetCurrentContext();
+    ImGui::SetCurrentContext(m_im);
+    ImGui::NewFrame();
+
+    on_frame(width,height,delta_time / 1000);
+
+    ImGui::Render();
+    ImDrawData *draw_data = ImGui::GetDrawData();
+
+    glUseProgram(s_prog);
+    int uni_screenortho = glGetUniformLocation(s_prog,"u_ScreenOrtho");
+    glUniform1i(glGetUniformLocation(s_prog,"u_Font"),0);
+
+    // Prepare a simple 2D orthographic projection.
+    //
+    // This adjusts the GL vertex coordinates to be:
+    // X left-to-right as 0 to +<width>
+    // Y top-to-bottom as 0 to +<height>
+    // ImGui expects this layout.
+    //
+    // Without this, instead you get -1 to +1 left-to-right *and also
+    // bottom-to-top* which is the inverse of what we want.
+    //
+    // The Z coordinates are left as-is; they are not meaningful for ImGui.
+    glUniformMatrix4fv(
+        uni_screenortho,
+        1,
+        false,
+        &glm::ortho<float>(
+            0,
+            width,
+            height,
+            0,
+            -1,
+            +1
+        )[0][0]
+    );
+
+    glBindVertexArray(s_vao);
+
+    // Enable alpha blending. ImGui requires this for its fonts.
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+    // Enable the GL scissor test. This is used to clip gui widgets to only
+    // render within their given area.
+    glEnable(GL_SCISSOR_TEST);
+
+    // Draw each of the command lists. Each list contains a set of draw
+    // commands associated with a particular set of vertex arrays.
+    for (int i = 0;i < draw_data->CmdListsCount;i++) {
+        ImDrawList *draw_list = draw_data->CmdLists[i];
+
+        glBindBuffer(GL_COPY_WRITE_BUFFER,s_vbo);
+        glBufferData(
+            GL_COPY_WRITE_BUFFER,
+            draw_list->VtxBuffer.Size * sizeof(ImDrawVert),
+            draw_list->VtxBuffer.Data,
+            GL_DYNAMIC_DRAW
+        );
+        glBindBuffer(GL_COPY_WRITE_BUFFER,s_ibo);
+        glBufferData(
+            GL_COPY_WRITE_BUFFER,
+            draw_list->IdxBuffer.Size * sizeof(ImDrawIdx),
+            draw_list->IdxBuffer.Data,
+            GL_DYNAMIC_DRAW
+        );
+        glBindBuffer(GL_COPY_WRITE_BUFFER,0);
+
+        // Get the index array (IBO-like). Each draw command pulls some
+        // amount of these elements out from the front.
+        ImDrawIdx *index_array = 0;
+
+        // Draw each of the commands in the list.
+        for (auto &c : draw_list->CmdBuffer) {
+            glBindTexture(GL_TEXTURE_2D,s_font_tex);
+            glScissor(
+                c.ClipRect.x,
+                height - c.ClipRect.w,
+                c.ClipRect.z - c.ClipRect.x,
+                c.ClipRect.w - c.ClipRect.y
+            );
+            glDrawElements(
+                GL_TRIANGLES,
+                c.ElemCount,
+                sizeof(ImDrawIdx) == 2 ?
+                    GL_UNSIGNED_SHORT :
+                    GL_UNSIGNED_INT,
+                index_array
+            );
+
+            // Move past the indices which have already been used
+            // for drawing.
+            index_array += c.ElemCount;
+        }
+    }
+
+    // Re-disable scissor test.
+    glDisable(GL_SCISSOR_TEST);
+
+    // Unbind whatever texture was bound by the last draw command.
+    glBindTexture(GL_TEXTURE_2D,0);
+
+    // Restore the previous blending setup.
+    glDisable(GL_BLEND);
+    glBlendFunc(GL_ONE,GL_ZERO);
+
+    glBindVertexArray(0);
+    glUseProgram(0);
+
+    ImGui::SetCurrentContext(previous_im);
+}
+
+im_canvas::im_canvas(gui::container &parent) :
+    m_canvas(parent)
+{
+    init();
+
+    m_timer = g_timeout_add(
+        10,
+        [](gpointer user_data) -> gboolean {
+            auto self = static_cast<im_canvas *>(user_data);
+            self->m_canvas.invalidate();
+            return G_SOURCE_CONTINUE;
+        },
+        this
+    );
+
+    m_im = ImGui::CreateContext();
+    auto previous_im = ImGui::GetCurrentContext();
+    ImGui::SetCurrentContext(m_im);
+    m_io = &ImGui::GetIO();
+
+    m_io->IniFilename = "imgui.ini";
+
+    // Configure the ImGui keymap.
+    for (int i = 0;i < ImGuiKey_COUNT;i++) {
+        m_io->KeyMap[i] = i;
+    }
+
+    m_last_update = g_get_monotonic_time();
 
     h_render <<= [this](int width,int height) {
         render(width,height);
