@@ -137,7 +137,7 @@ public:
  *
  * FIXME explain
  */
-class composite : public widget, public container {
+class composite : private widget, public container {
 public:
     // (explicit ctor)
     // FIXME explain
@@ -146,6 +146,9 @@ public:
     // (func) get_container_handle
     // FIXME explain
     GtkContainer *get_container_handle() override;
+
+    using widget::show;
+    using widget::hide;
 };
 
 /*
