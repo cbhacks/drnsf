@@ -26,10 +26,8 @@ namespace gui {
 
 // declared in gui.hh
 splitview::splitview(container &parent) :
-    widget(gtk_paned_new(GTK_ORIENTATION_HORIZONTAL))
+    widget(gtk_paned_new(GTK_ORIENTATION_HORIZONTAL),parent)
 {
-    gtk_container_add(parent.get_container_handle(),m_handle);
-
     m_left.M = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
     gtk_box_set_homogeneous(GTK_BOX(m_left.M),true);
     gtk_widget_show(m_left.M);

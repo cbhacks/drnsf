@@ -26,9 +26,8 @@ namespace gui {
 
 // declared in gui.hh
 composite::composite(container &parent) :
-    widget(gtk_box_new(GTK_ORIENTATION_VERTICAL,0))
+    widget(gtk_box_new(GTK_ORIENTATION_VERTICAL,0),parent)
 {
-    gtk_container_add(parent.get_container_handle(),m_handle);
     gtk_box_set_homogeneous(GTK_BOX(m_handle),true);
 }
 

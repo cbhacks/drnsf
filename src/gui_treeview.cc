@@ -62,7 +62,7 @@ void treeview::sigh_changed(GtkTreeSelection *treeselection,gpointer user_data)
 
 // declared in gui.hh
 treeview::treeview(container &parent) :
-    widget(gtk_scrolled_window_new(nullptr,nullptr))
+    widget(gtk_scrolled_window_new(nullptr,nullptr),parent)
 {
     m_store = gtk_tree_store_new(2,G_TYPE_STRING,G_TYPE_POINTER);
     m_tree = gtk_tree_view_new_with_model(GTK_TREE_MODEL(m_store));
@@ -75,7 +75,6 @@ treeview::treeview(container &parent) :
         nullptr
     );
     gtk_tree_view_append_column(GTK_TREE_VIEW(m_tree),column);
-    gtk_container_add(parent.get_container_handle(),m_handle);
     gtk_container_add(GTK_CONTAINER(m_handle),m_tree);
 
     auto tvs = gtk_tree_view_get_selection(GTK_TREE_VIEW(m_tree));

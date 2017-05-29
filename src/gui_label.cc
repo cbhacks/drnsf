@@ -26,9 +26,8 @@ namespace gui {
 
 // declared in gui.hh
 label::label(container &parent,const std::string &text) :
-    widget(gtk_label_new(text.c_str()))
+    widget(gtk_label_new(text.c_str()),parent)
 {
-    gtk_container_add(parent.get_container_handle(),m_handle);
 }
 
 // declared in gui.hh

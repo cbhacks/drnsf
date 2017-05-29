@@ -25,9 +25,15 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-widget::widget(sys_handle handle) :
-    m_handle(handle)
+widget::widget(sys_handle &&handle,container &parent,layout layout) try :
+    m_handle(handle),
+    m_parent(parent),
+    m_layout(layout)
 {
+    gtk_container_add(parent.get_container_handle(),m_handle);
+} catch (...) {
+    gtk_widget_destroy(handle);
+    throw;
 }
 
 // declared in gui.hh

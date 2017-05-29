@@ -42,6 +42,65 @@ namespace gui {
 using sys_handle = GtkWidget *;
 
 /*
+ * gui::layout
+ *
+ * FIXME explain
+ */
+struct layout {
+    /*
+     * gui::layout::h_pin
+     * gui::layout::v_pin
+     *
+     * These types define a horizontal or vertical position for one side of a
+     * widget (left, right, top, or bottom) relative to its parent container. The
+     * `factor' field defines the anchor point in the parent container; a value of
+     * 0.0f corresponds to the top or left side of the container, while a value of
+     * 1.0f corresponds to the bottom or right side of the container. The `offset'
+     * field specifies an offset from that point, in pixels, for this location.
+     * X values increase from left to right, and Y values increase from top to
+     * bottom (NOT bottom to top).
+     *
+     * For example, some possible pin values:
+     *
+     * `h_pin( 0.0f, 10 )`  10 pixels from the left side of the container
+     * `h_pin( 0.5f, 0 )`   the horizontal center of the container
+     * `h_pin( 1.0f, -64 )` 64 pixels from the right side of the container
+     * `v_pin( 1.0f, 0 )`   the bottom of the container
+     */
+    struct h_pin {
+        float factor;
+        int offset;
+    };
+    struct v_pin {
+        float factor;
+        int offset;
+    };
+
+    /*
+     * gui::layout::h_bar
+     * gui::layout::v_bar
+     *
+     * These types consist of h_pin or v_pin pairs, respectively. An h_bar defines
+     * the left and right side positions of a widget relative to its container, and
+     * a v_bar defines the top and bottom side positions.
+     */
+    struct h_bar {
+        h_pin left;
+        h_pin right;
+    };
+    struct v_bar {
+        v_pin top;
+        v_pin bottom;
+    };
+
+    h_bar h;
+    v_bar v;
+};
+
+// defined later in this file
+class container;
+
+/*
  * gui::widget
  *
  * Common base class for all widget types.
@@ -53,12 +112,31 @@ protected:
     // release this handle or destroy the associated system object.
     const sys_handle m_handle;
 
+    // (var) m_parent
+    // A reference to the container this widget exists inside of. All widgets
+    // must exist within a container.
+    container &m_parent;
+
+    // (var) m_layout
+    // The layout area which defines the location and size of this widget
+    // relative to its container.
+    layout m_layout;
+
     // (explicit ctor)
-    // FIXME explain
+    // Constructs the base widget data with the given handle, parent, and
+    // layout. The widget will automatically be resized according to its parent
+    // and specified layout.
     //
-    // This constructor takes ownership of the handle, and will free it when
-    // the object is destroyed or if the constructor throws an exception.
-    explicit widget(sys_handle handle);
+    // This constructor takes ownership of the given handle, and will free it
+    // even if an exception is thrown in the constructor. The handle parameter
+    // takes an rvalue reference to avoid accidentally passing a handle which
+    // was not meant to be relinquished to `gui::widget'.
+    explicit widget(sys_handle &&handle,container &parent,layout layout);
+
+    // (explicit ctor)
+    // FIXME obsolete
+    explicit widget(sys_handle &&handle,container &parent)
+        : widget(std::move(handle),parent,{}) {}
 
 public:
     // (dtor)

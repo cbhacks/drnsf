@@ -131,7 +131,7 @@ gboolean widget_gl::sigh_key_event(
 
 // declared in gui.hh
 widget_gl::widget_gl(container &parent) :
-    widget(gtk_drawing_area_new())
+    widget(gtk_drawing_area_new(),parent)
 {
     gtk_widget_set_events(
         m_handle,
@@ -180,7 +180,6 @@ widget_gl::widget_gl(container &parent) :
         G_CALLBACK(sigh_key_event),
         this
     );
-    gtk_container_add(parent.get_container_handle(),m_handle);
 }
 
 // declared in gui.hh

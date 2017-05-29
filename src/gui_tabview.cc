@@ -26,9 +26,8 @@ namespace gui {
 
 // declared in gui.hh
 tabview::tabview(container &parent) :
-    widget(gtk_notebook_new())
+    widget(gtk_notebook_new(),parent)
 {
-    gtk_container_add(parent.get_container_handle(),m_handle);
 }
 
 // declared in gui.hh
