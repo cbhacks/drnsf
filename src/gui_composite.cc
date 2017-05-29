@@ -32,7 +32,7 @@ composite::composite(container &parent) :
 }
 
 // declared in gui.hh
-GtkContainer *composite::get_container_handle()
+sys_container_handle composite::get_container_handle()
 {
     return GTK_CONTAINER(m_handle);
 }

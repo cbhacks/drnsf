@@ -53,7 +53,7 @@ tabview::page::~page()
 }
 
 // declared in gui.hh
-GtkContainer *tabview::page::get_container_handle()
+sys_container_handle tabview::page::get_container_handle()
 {
     return GTK_CONTAINER(M);
 }

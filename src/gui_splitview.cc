@@ -52,7 +52,7 @@ container &splitview::get_right()
 }
 
 // declared in gui.hh
-GtkContainer *splitview::side::get_container_handle()
+sys_container_handle splitview::side::get_container_handle()
 {
     return GTK_CONTAINER(M);
 }

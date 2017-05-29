@@ -59,7 +59,7 @@ void window::show()
 }
 
 // declared in gui.hh
-GtkContainer *window::get_container_handle()
+sys_container_handle window::get_container_handle()
 {
     return GTK_CONTAINER(m_content);
 }

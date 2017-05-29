@@ -35,11 +35,13 @@ namespace gui {
 
 /*
  * gui::sys_handle
+ * gui::sys_container_handle
  *
- * This is an alias for whatever type is appropriate for representing a system
- * handle representing a GUI widget.
+ * These are aliases for whatever types are appropriate for representing a
+ * widget handle and widget-container handle on the system, respectively.
  */
 using sys_handle = GtkWidget *;
+using sys_container_handle = GtkContainer *;
 
 /*
  * gui::layout
@@ -164,7 +166,7 @@ class container : private util::nocopy {
 public:
     // (pure func) get_container_handle
     // FIXME explain
-    virtual GtkContainer *get_container_handle() = 0;
+    virtual sys_container_handle get_container_handle() = 0;
 };
 
 /*
@@ -207,7 +209,7 @@ public:
 
     // (func) get_container_handle
     // FIXME explain
-    GtkContainer *get_container_handle() override;
+    sys_container_handle get_container_handle() override;
 };
 
 /*
@@ -223,7 +225,7 @@ public:
 
     // (func) get_container_handle
     // FIXME explain
-    GtkContainer *get_container_handle() override;
+    sys_container_handle get_container_handle() override;
 
     using widget::show;
     using widget::hide;
@@ -400,7 +402,7 @@ public:
 
     // (func) get_container_handle
     // FIXME explain
-    GtkContainer *get_container_handle() override;
+    sys_container_handle get_container_handle() override;
 };
 
 /*
@@ -419,7 +421,7 @@ private:
 
         // (func) get_container_handle
         // FIXME explain
-        GtkContainer *get_container_handle() override;
+        sys_container_handle get_container_handle() override;
     };
 
     // (var) m_left, m_right
@@ -455,7 +457,7 @@ private:
 
         slot() = default;
 
-        GtkContainer *get_container_handle() override
+        sys_container_handle get_container_handle() override
         {
             return GTK_CONTAINER(m_box);
         }
