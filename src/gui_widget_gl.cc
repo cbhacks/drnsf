@@ -133,7 +133,7 @@ gboolean widget_gl::sigh_key_event(
 widget_gl::widget_gl(container &parent) :
     widget(gtk_drawing_area_new(),parent)
 {
-    gtk_widget_set_events(
+    gtk_widget_add_events(
         m_handle,
         GDK_POINTER_MOTION_MASK |
         GDK_SMOOTH_SCROLL_MASK |

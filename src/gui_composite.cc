@@ -26,9 +26,21 @@ namespace gui {
 
 // declared in gui.hh
 composite::composite(container &parent) :
-    widget(gtk_box_new(GTK_ORIENTATION_VERTICAL,0),parent)
+    widget(gtk_fixed_new(),parent)
 {
-    gtk_box_set_homogeneous(GTK_BOX(m_handle),true);
+    auto sigh_size_allocate =
+        static_cast<void (*)(GtkWidget *,GdkRectangle *,gpointer)>(
+            [](GtkWidget *,GdkRectangle *allocation,gpointer user_data) {
+                static_cast<composite *>(user_data)->apply_layouts(
+                    *allocation
+                );
+            });
+    g_signal_connect(
+        m_handle,
+        "size-allocate",
+        G_CALLBACK(sigh_size_allocate),
+        this
+    );
 }
 
 // declared in gui.hh

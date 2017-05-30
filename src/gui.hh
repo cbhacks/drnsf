@@ -26,6 +26,7 @@
  * FIXME explain
  */
 
+#include <unordered_set>
 #include <gtk/gtk.h>
 #include "../imgui/imgui.h"
 #include "gl.hh"
@@ -97,6 +98,37 @@ struct layout {
 
     h_bar h;
     v_bar v;
+
+    // FIXME comment
+    static constexpr layout fill()
+    {
+        return {
+            { { 0.0f, 0 }, { 1.0f, 0 } },
+            { { 0.0f, 0 }, { 1.0f, 0 } }
+        };
+    }
+
+    static constexpr layout grid(
+        int h_num_offset,
+        int h_num_width,
+        int h_denom,
+        int v_num_offset,
+        int v_num_width,
+        int v_denom)
+    {
+        float h_denom_f = h_denom;
+        float v_denom_f = v_denom;
+        return {
+            {
+                { h_num_offset / h_denom_f, 0 },
+                { (h_num_offset + h_num_width) / h_denom_f, 0 }
+            },
+            {
+                { v_num_offset / v_denom_f, 0 },
+                { (v_num_offset + v_num_width) / v_denom_f, 0 }
+            }
+        };
+    }
 };
 
 // defined later in this file
@@ -108,6 +140,14 @@ class container;
  * Common base class for all widget types.
  */
 class widget : public util::nocopy {
+    friend class container;
+
+private:
+    // (func) apply_layout
+    // Internal function for applying the widget layout to the actual widget
+    // handle used by the system.
+    void apply_layout(GtkAllocation &ctn_alloc);
+
 protected:
     // (var) m_handle
     // The internal system handle for this widget. The base widget class will
@@ -138,7 +178,7 @@ protected:
     // (explicit ctor)
     // FIXME obsolete
     explicit widget(sys_handle &&handle,container &parent)
-        : widget(std::move(handle),parent,{}) {}
+        : widget(std::move(handle),parent,layout::fill()) {}
 
 public:
     // (dtor)
@@ -163,6 +203,18 @@ public:
  * FIXME explain
  */
 class container : private util::nocopy {
+    friend class widget;
+
+private:
+    // (func) m_widgets
+    // The set of widgets contained inside this container.
+    std::unordered_set<widget *> m_widgets;
+
+protected:
+    // (func) apply_layouts
+    // FIXME explain
+    void apply_layouts(GtkAllocation &alloc);
+
 public:
     // (pure func) get_container_handle
     // FIXME explain
