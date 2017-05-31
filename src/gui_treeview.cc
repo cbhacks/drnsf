@@ -61,8 +61,8 @@ void treeview::sigh_changed(GtkTreeSelection *treeselection,gpointer user_data)
 }
 
 // declared in gui.hh
-treeview::treeview(container &parent) :
-    widget(gtk_scrolled_window_new(nullptr,nullptr),parent)
+treeview::treeview(container &parent,layout layout) :
+    widget(gtk_scrolled_window_new(nullptr,nullptr),parent,layout)
 {
     m_store = gtk_tree_store_new(2,G_TYPE_STRING,G_TYPE_POINTER);
     m_tree = gtk_tree_view_new_with_model(GTK_TREE_MODEL(m_store));

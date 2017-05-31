@@ -85,10 +85,10 @@ public:
     explicit impl(
         asset_tree &outer,
         res::project &proj) :
-        composite(static_cast<container&>(outer)),
+        composite(outer,gui::layout::fill()),
         m_outer(outer),
         m_proj(proj),
-        m_tree(*this)
+        m_tree(*this,gui::layout::fill())
     {
         h_asset_appear <<= [this](res::asset &asset) {
             auto name = asset.get_name();
@@ -184,8 +184,8 @@ public:
 };
 
 // declared in edit.hh
-asset_tree::asset_tree(gui::container &parent,res::project &proj) :
-    composite(parent)
+asset_tree::asset_tree(gui::container &parent,gui::layout layout,res::project &proj) :
+    composite(parent,layout)
 {
     M = new impl(*this,proj);
     M->show();

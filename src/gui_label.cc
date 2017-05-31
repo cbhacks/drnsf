@@ -25,8 +25,8 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-label::label(container &parent,const std::string &text) :
-    widget(gtk_label_new(text.c_str()),parent)
+label::label(container &parent,layout layout,const std::string &text) :
+    widget(gtk_label_new(text.c_str()),parent,layout)
 {
 }
 

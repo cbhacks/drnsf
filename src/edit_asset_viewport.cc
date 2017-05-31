@@ -54,10 +54,10 @@ public:
     explicit impl(
         asset_viewport &outer,
         res::project &proj) :
-        composite(static_cast<container&>(outer)),
+        composite(outer,gui::layout::fill()),
         m_outer(outer),
         m_proj(proj),
-        m_viewport(*this),
+        m_viewport(*this,gui::layout::fill()),
         m_reticle(m_viewport)
     {
         m_viewport.show();
@@ -66,8 +66,8 @@ public:
 };
 
 // declared in edit.hh
-asset_viewport::asset_viewport(gui::container &parent,res::project &proj) :
-    composite(parent)
+asset_viewport::asset_viewport(gui::container &parent,gui::layout layout,res::project &proj) :
+    composite(parent,layout)
 {
     M = new impl(*this,proj);
     M->show();

@@ -278,8 +278,8 @@ void im_canvas::render(int width,int height)
     ImGui::SetCurrentContext(previous_im);
 }
 
-im_canvas::im_canvas(gui::container &parent) :
-    m_canvas(parent)
+im_canvas::im_canvas(gui::container &parent,gui::layout layout) :
+    m_canvas(parent,layout)
 {
     init();
 

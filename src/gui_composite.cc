@@ -25,8 +25,8 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-composite::composite(container &parent) :
-    widget(gtk_fixed_new(),parent)
+composite::composite(container &parent,layout layout) :
+    widget(gtk_fixed_new(),parent,layout)
 {
     auto sigh_size_allocate =
         static_cast<void (*)(GtkWidget *,GdkRectangle *,gpointer)>(

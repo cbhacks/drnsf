@@ -175,11 +175,6 @@ protected:
     // was not meant to be relinquished to `gui::widget'.
     explicit widget(sys_handle &&handle,container &parent,layout layout);
 
-    // (explicit ctor)
-    // FIXME obsolete
-    explicit widget(sys_handle &&handle,container &parent)
-        : widget(std::move(handle),parent,layout::fill()) {}
-
 public:
     // (dtor)
     // Destroys the widget (including the internal system handle), removing it
@@ -271,9 +266,9 @@ public:
  */
 class composite : private widget, public container {
 public:
-    // (explicit ctor)
+    // (ctor)
     // FIXME explain
-    explicit composite(container &parent);
+    composite(container &parent,layout layout);
 
     // (func) get_container_handle
     // FIXME explain
@@ -385,9 +380,9 @@ protected:
     virtual void text(const char *str) {}
 
 public:
-    // (explicit ctor)
+    // (ctor)
     // FIXME explain
-    explicit widget_gl(container &parent);
+    widget_gl(container &parent,layout layout);
 
     using widget::show;
     using widget::hide;
@@ -402,7 +397,7 @@ class label : public widget {
 public:
     // (explicit ctor)
     // FIXME explain
-    explicit label(container &parent,const std::string &text = "");
+    explicit label(container &parent,layout layout,const std::string &text = "");
 
     // (func) set_text
     // Sets the text displayed by the label.
@@ -421,7 +416,7 @@ public:
 
     // (explicit ctor)
     // FIXME explain
-    explicit tabview(container &parent);
+    explicit tabview(container &parent,layout layout);
 };
 
 /*
@@ -484,7 +479,7 @@ private:
 public:
     // (explicit ctor)
     // FIXME explain
-    explicit splitview(container &parent);
+    explicit splitview(container &parent,layout layout);
 
     // (func) get_left
     // FIXME explain
@@ -525,7 +520,7 @@ public:
     // and adds it to the parent widget. If `absolute' is true, the grid
     // cells each have equal size and the grid is stretched to fit the
     // available space; otherwise, the grid is sized to fit its contents.
-    explicit gridview(container &parent,int cols,int rows,bool absolute);
+    explicit gridview(container &parent,layout layout,int cols,int rows,bool absolute);
 
     // (func) make_slot
     // Creates a slot at the specified column and row (zero-based) with
@@ -570,7 +565,7 @@ private:
 public:
     // (explicit ctor)
     // FIXME explain
-    explicit treeview(container &parent);
+    explicit treeview(container &parent,layout layout);
 };
 
 /*
@@ -663,7 +658,7 @@ private:
 public:
     // (explicit ctor)
     // FIXME explain
-    explicit gl_canvas(container &parent);
+    explicit gl_canvas(container &parent,layout layout);
 
     // (func) invalidate
     // FIXME explain

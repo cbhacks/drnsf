@@ -30,8 +30,8 @@ main_view::main_view(old_editor &ed) :
     m_ed(ed),
     m_canvas_wnd("Old UI",800,600),
     m_cryptos_wnd("Ancient UI",800,600),
-    m_canvas(m_canvas_wnd),
-    m_cryptos(m_cryptos_wnd)
+    m_canvas(m_canvas_wnd,gui::layout::fill()),
+    m_cryptos(m_cryptos_wnd,gui::layout::fill())
 {
     h_frame <<= [this](int width,int height,int delta_time) {
         frame(delta_time);

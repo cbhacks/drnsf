@@ -25,8 +25,8 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-tabview::tabview(container &parent) :
-    widget(gtk_notebook_new(),parent)
+tabview::tabview(container &parent,layout layout) :
+    widget(gtk_notebook_new(),parent,layout)
 {
 }
 

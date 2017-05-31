@@ -52,9 +52,9 @@ private:
     impl *M;
 
 public:
-    // (explicit ctor)
+    // (ctor)
     // Constructs the widget and places it in the given parent container.
-    explicit asset_editor(gui::container &parent,res::project &proj);
+    asset_editor(gui::container &parent,gui::layout layout,res::project &proj);
 
     // (dtor)
     // Destroys the widget, removing it from the parent container.
@@ -79,9 +79,9 @@ private:
     impl *M;
 
 public:
-    // (explicit ctor)
+    // (ctor)
     // Constructs the widget and places it in the given parent container.
-    explicit asset_tree(gui::container &parent,res::project &proj);
+    asset_tree(gui::container &parent,gui::layout layout,res::project &proj);
 
     // (dtor)
     // Destroys the widget, removing it from the parent container.
@@ -112,9 +112,9 @@ private:
     impl *M;
 
 public:
-    // (explicit ctor)
+    // (ctor)
     // Constructs the widget and places it in the given parent container.
-    explicit asset_infoview(gui::container &parent,res::project &proj);
+    asset_infoview(gui::container &parent,gui::layout layout,res::project &proj);
 
     // (dtor)
     // Destroys the widget, removing it from the parent container.
@@ -143,9 +143,9 @@ private:
     impl *M;
 
 public:
-    // (explicit ctor)
+    // (ctor)
     // Constructs the widget and places it in the given parent container.
-    explicit asset_propview(gui::container &parent,res::project &proj);
+    asset_propview(gui::container &parent,gui::layout layout,res::project &proj);
 
     // (dtor)
     // Destroys the widget, removing it from the parent container.
@@ -170,9 +170,9 @@ private:
     impl *M;
 
 public:
-    // (explicit ctor)
+    // (ctor)
     // Constructs the widget and places it in the given parent container.
-    explicit asset_viewport(gui::container &parent,res::project &proj);
+    asset_viewport(gui::container &parent,gui::layout layout,res::project &proj);
 
     // (dtor)
     // Destroys the widget, removing it from the parent container.
@@ -231,7 +231,7 @@ private:
     void render(int width,int height);
 
 public:
-    explicit im_canvas(gui::container &parent);
+    im_canvas(gui::container &parent,gui::layout layout);
     ~im_canvas();
 
     void show();

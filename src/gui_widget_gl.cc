@@ -130,8 +130,8 @@ gboolean widget_gl::sigh_key_event(
 }
 
 // declared in gui.hh
-widget_gl::widget_gl(container &parent) :
-    widget(gtk_drawing_area_new(),parent)
+widget_gl::widget_gl(container &parent,layout layout) :
+    widget(gtk_drawing_area_new(),parent,layout)
 {
     gtk_widget_add_events(
         m_handle,

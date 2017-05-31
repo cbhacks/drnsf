@@ -157,8 +157,8 @@ gboolean gl_canvas::sigh_key_event(
 }
 
 // declared in gui.hh
-gl_canvas::gl_canvas(container &parent) :
-    widget(gtk_drawing_area_new(),parent)
+gl_canvas::gl_canvas(container &parent,layout layout) :
+    widget(gtk_drawing_area_new(),parent,layout)
 {
     gtk_widget_set_events(
         m_handle,

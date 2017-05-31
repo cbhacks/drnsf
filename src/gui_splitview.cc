@@ -25,8 +25,8 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-splitview::splitview(container &parent) :
-    widget(gtk_paned_new(GTK_ORIENTATION_HORIZONTAL),parent)
+splitview::splitview(container &parent,layout layout) :
+    widget(gtk_paned_new(GTK_ORIENTATION_HORIZONTAL),parent,layout)
 {
     m_left.M = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
     gtk_box_set_homogeneous(GTK_BOX(m_left.M),true);

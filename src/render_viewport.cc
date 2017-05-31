@@ -57,17 +57,16 @@ private:
 public:
     // (explicit ctor)
     // Initializes the viewport widget.
-    explicit impl(
-        viewport &outer) :
-        widget_gl(outer),
+    explicit impl(viewport &outer) :
+        widget_gl(outer,gui::layout::fill()),
         m_outer(outer)
     {
     }
 };
 
 // declared in render.hh
-viewport::viewport(gui::container &parent) :
-    composite(parent)
+viewport::viewport(gui::container &parent,gui::layout layout) :
+    composite(parent,layout)
 {
     M = new impl(*this);
     M->show();

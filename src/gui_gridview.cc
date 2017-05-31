@@ -25,8 +25,8 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-gridview::gridview(container &parent,int cols,int rows,bool absolute) :
-    widget(gtk_grid_new(),parent)
+gridview::gridview(container &parent,layout layout,int cols,int rows,bool absolute) :
+    widget(gtk_grid_new(),parent,layout)
 {
     if (absolute) {
         gtk_grid_set_column_homogeneous(GTK_GRID(m_handle),true);
