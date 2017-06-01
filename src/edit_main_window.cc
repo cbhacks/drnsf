@@ -31,16 +31,12 @@ namespace edit {
 main_window::main_window() :
     m_wnd(APP_TITLE,1024,768),
     m_menu_file(m_wnd,"File"),
-    m_menu_file_exit(m_menu_file,"Exit"),
-    m_tabs(m_wnd,gui::layout::fill()),
-    m_assets_tab(m_tabs,"Assets")
+    m_menu_file_exit(m_menu_file,"Exit")
 {
     h_menu_file_exit_click <<= [this]{
         gtk_main_quit();
     };
     h_menu_file_exit_click.bind(m_menu_file_exit.on_click);
-
-    m_tabs.show();
 }
 
 void main_window::show()
@@ -51,7 +47,7 @@ void main_window::show()
 void main_window::set_project(res::project &proj)
 {
     m_proj_p = &proj;
-    m_assets_view = std::make_unique<asset_editor>(m_assets_tab,gui::layout::fill(),proj);
+    m_assets_view = std::make_unique<asset_editor>(m_wnd,gui::layout::fill(),proj);
 
     m_assets_view->show();
 }

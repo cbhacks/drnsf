@@ -197,8 +197,6 @@ private:
     gui::window m_wnd;
     gui::menu m_menu_file;
     gui::menu_item m_menu_file_exit;
-    gui::tabview m_tabs;
-    gui::tabview::page m_assets_tab;
     res::project *m_proj_p;
     std::unique_ptr<asset_editor> m_assets_view;
 

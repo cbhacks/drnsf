@@ -405,54 +405,6 @@ public:
 };
 
 /*
- * gui::tabview
- *
- * FIXME explain
- */
-class tabview : public widget {
-public:
-    // inner class defined later in this file
-    class page;
-
-    // (explicit ctor)
-    // FIXME explain
-    explicit tabview(container &parent,layout layout);
-};
-
-/*
- * gui::tabview::page
- *
- * FIXME explain
- */
-class tabview::page : public container {
-private:
-    // (var) M
-    // FIXME explain
-    GtkWidget *M;
-
-    // (var) m_view
-    // FIXME explain
-    tabview &m_view;
-
-    // (var) m_pagenum
-    // FIXME explain
-    int m_pagenum;
-
-public:
-    // (explicit ctor)
-    // FIXME explain
-    explicit page(tabview &view,const std::string &title);
-
-    // (dtor)
-    // FIXME explain
-    ~page();
-
-    // (func) get_container_handle
-    // FIXME explain
-    sys_container_handle get_container_handle() override;
-};
-
-/*
  * gui::treeview
  *
  * FIXME explain
