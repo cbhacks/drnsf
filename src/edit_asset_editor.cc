@@ -38,18 +38,9 @@ private:
     // A reference to the project this editor operates on.
     res::project &m_proj;
 
-    // (var) m_split
-    // A vertical split of the widget. The left side contains the asset
-    // tree while the right side contains the selected asset's details.
-    gui::splitview m_split;
-
     // (var) m_tree
     // FIXME explain
     asset_tree m_tree;
-
-    // (var) m_grid
-    // FIXME explain
-    gui::gridview m_grid;
 
     // (var) m_infoview
     // General informational widget for the currently selected asset.
@@ -77,12 +68,10 @@ public:
         composite(outer,gui::layout::fill()),
         m_outer(outer),
         m_proj(proj),
-        m_split(*this,gui::layout::fill()),
-        m_tree(m_split.get_left(),gui::layout::fill(),proj),
-        m_grid(m_split.get_right(),gui::layout::fill(),2,2,true),
-        m_infoview(m_grid.make_slot(0,0,1,1),gui::layout::fill(),proj),
-        m_propview(m_grid.make_slot(0,1,2,1),gui::layout::fill(),proj),
-        m_viewport(m_grid.make_slot(1,0,1,1),gui::layout::fill(),proj)
+        m_tree(*this,gui::layout::grid(0,1,3,0,2,2),proj),
+        m_infoview(*this,gui::layout::grid(1,1,3,0,1,2),proj),
+        m_propview(*this,gui::layout::grid(1,2,3,1,1,2),proj),
+        m_viewport(*this,gui::layout::grid(2,1,3,0,1,2),proj)
     {
         h_tree_select <<= [this](res::atom atom) {
             g_selected_asset = atom;
@@ -90,9 +79,7 @@ public:
         };
         h_tree_select.bind(m_tree.on_select);
 
-        m_split.show();
         m_tree.show();
-        m_grid.show();
         m_infoview.show();
         m_propview.show();
         m_viewport.show();

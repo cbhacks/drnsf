@@ -42,10 +42,6 @@ private:
     // The currently selected asset name.
     res::atom m_selected_asset;
 
-    // (var) m_grid
-    // A gridview used to layout the widget's information.
-    gui::gridview m_grid;
-
     // (var) m_assetname, m_assetname_title
     // A label showing the selected asset's name. The _title widget is a
     // label to identify the purpose of the other to the user.
@@ -77,11 +73,10 @@ public:
         composite(outer,gui::layout::fill()),
         m_outer(outer),
         m_proj(proj),
-        m_grid(*this,gui::layout::fill(),2,2,true),
-        m_assetname(m_grid.make_slot(1,0),gui::layout::fill()),
-        m_assetname_title(m_grid.make_slot(0,0),gui::layout::fill(),"Asset Name"),
-        m_assettype(m_grid.make_slot(1,1),gui::layout::fill()),
-        m_assettype_title(m_grid.make_slot(0,1),gui::layout::fill(),"Asset Type")
+        m_assetname(*this,gui::layout::grid(1,1,2,0,1,2)),
+        m_assetname_title(*this,gui::layout::grid(0,1,2,0,1,2),"Asset Name"),
+        m_assettype(*this,gui::layout::grid(1,1,2,1,1,2)),
+        m_assettype_title(*this,gui::layout::grid(0,1,2,1,1,2),"Asset Type")
     {
         h_asset_appear <<= [this](res::asset &asset) {
             if (asset.get_name() == m_selected_asset) {
@@ -97,7 +92,6 @@ public:
         };
         h_asset_disappear.bind(m_proj.on_asset_disappear);
 
-        m_grid.show();
         m_assetname.show();
         m_assetname_title.show();
         m_assettype.show();
