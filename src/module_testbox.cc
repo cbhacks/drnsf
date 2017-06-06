@@ -18,15 +18,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "module.hh"
+#include "common.hh"
 #include <stdio.h>
+#include "edit.hh"
 #include "gfx.hh"
 #include "nsf.hh"
 #include "misc.hh"
 
 namespace drnsf {
-
-BEGIN_MODULE
 
 static std::vector<unsigned char> read_file(const std::string &filename)
 {
@@ -42,7 +41,7 @@ static std::vector<unsigned char> read_file(const std::string &filename)
     return data;
 }
 
-void frame(int delta)
+static void frame(edit::core &m_core,int delta)
 {
     auto &&nx = m_core.m_proj.get_transact();
     auto &&ns = m_core.m_proj.get_asset_root();
@@ -174,12 +173,10 @@ void frame(int delta)
     glDisable(GL_TEXTURE_2D);
 }
 
-END_MODULE
-
 std::function<void(int)> create_mod_testbox(edit::core &core)
 {
-    return [m = mod(core)](int delta_time) mutable {
-        m.frame(delta_time);
+    return [&core](int delta_time) {
+        frame(core,delta_time);
     };
 }
 

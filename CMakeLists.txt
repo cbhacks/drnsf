@@ -93,7 +93,6 @@ add_executable (drnsf
     src/nsf_raw_entry.cc
     src/nsf_wgeo_v2.cc
 
-    src/module.hh
     src/module_testbox.cc
 
     $<TARGET_OBJECTS:imgui>
