@@ -25,15 +25,41 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
+void label::draw_2d(int width,int height,cairo_t *cr)
+{
+    cairo_set_source_rgb(cr,0.0,0.0,0.0);
+    cairo_select_font_face(
+        cr,
+        "Monospace",
+        CAIRO_FONT_SLANT_NORMAL,
+        CAIRO_FONT_WEIGHT_NORMAL
+    );
+    cairo_set_font_size(cr,12);
+
+    auto str = m_text.c_str();
+
+    cairo_text_extents_t area;
+    cairo_text_extents(cr,str,&area);
+    cairo_move_to(
+        cr,
+        width / 2 - area.width / 2,
+        height / 2
+    );
+    cairo_show_text(cr,str);
+}
+
+// declared in gui.hh
 label::label(container &parent,layout layout,const std::string &text) :
-    widget(gtk_label_new(text.c_str()),parent,layout)
+    widget_2d(parent,layout),
+    m_text(text)
 {
 }
 
 // declared in gui.hh
 void label::set_text(const std::string &text)
 {
-    gtk_label_set_text(GTK_LABEL(m_handle),text.c_str());
+    m_text = text;
+    invalidate();
 }
 
 }
