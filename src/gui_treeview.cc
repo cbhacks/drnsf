@@ -25,81 +25,76 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-void treeview::sigh_changed(GtkTreeSelection *treeselection,gpointer user_data)
+void treeview::frame()
 {
-    auto self = static_cast<treeview *>(user_data);
-
-    GtkTreeIter iter;
-    bool selection_exists = gtk_tree_selection_get_selected(
-        treeselection,
-        nullptr,
-        &iter
-    );
-
-    if (selection_exists) {
-        GValue value = G_VALUE_INIT;
-        gtk_tree_model_get_value(
-            GTK_TREE_MODEL(self->m_store),
-            &iter,
-            1,
-            &value
-        );
-        auto np = static_cast<node *>(g_value_get_pointer(&value));
-        g_value_unset(&value);
-
-        if (np != self->m_selected_node) {
-            if (self->m_selected_node) {
-                self->m_selected_node->on_deselect();
-            }
-            self->m_selected_node = np;
-            np->on_select();
-        }
-    } else if (self->m_selected_node) {
-        self->m_selected_node->on_deselect();
-        self->m_selected_node = nullptr;
+    for (auto &&node : m_nodes) {
+        node->run();
     }
 }
 
 // declared in gui.hh
 treeview::treeview(container &parent,layout layout) :
-    widget(gtk_scrolled_window_new(nullptr,nullptr),parent,layout)
+    widget_im(parent,layout)
 {
-    m_store = gtk_tree_store_new(2,G_TYPE_STRING,G_TYPE_POINTER);
-    m_tree = gtk_tree_view_new_with_model(GTK_TREE_MODEL(m_store));
-    GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
-    GtkTreeViewColumn *column = gtk_tree_view_column_new_with_attributes(
-        "Name",
-        renderer,
-        "text",
-        0,
-        nullptr
-    );
-    gtk_tree_view_append_column(GTK_TREE_VIEW(m_tree),column);
-    gtk_container_add(GTK_CONTAINER(m_handle),m_tree);
+}
 
-    auto tvs = gtk_tree_view_get_selection(GTK_TREE_VIEW(m_tree));
-    g_signal_connect(tvs,"changed",G_CALLBACK(sigh_changed),this);
+// declared in gui.hh
+void treeview::node::run()
+{
+    ImGui::PushID(this);
 
-    gtk_widget_show(m_tree);
+    // Display the "+" or "-" button if this node has children.
+    if (!m_subnodes.empty()) {
+        if (ImGui::SmallButton(m_expanded ? "-" : "+")) {
+            m_expanded = !m_expanded;
+        }
+    } else {
+        ImGui::Dummy({14,0});
+    }
+    ImGui::SameLine();
+
+    // Display the actual selectable text for this node. If the node is not
+    // already selected, provide a handler for clicking which shifts the
+    // selection to this node.
+    if (m_view.m_selected_node == this) {
+        ImGui::Selectable(m_text.c_str(),true);
+    } else if (ImGui::Selectable(m_text.c_str(),false)) {
+        if (m_view.m_selected_node) {
+            m_view.m_selected_node->on_deselect();
+        }
+        m_view.m_selected_node = this;
+        on_select();
+    }
+
+    // Display the child nodes if the node is expanded.
+    if (m_expanded) {
+        ImGui::Indent(16);
+        for (auto &&subnode : m_subnodes) {
+            subnode->run();
+        }
+        ImGui::Unindent(16);
+    }
+
+    ImGui::PopID();
 }
 
 // declared in gui.hh
 treeview::node::node(treeview &parent) :
     m_view(parent),
-    m_store(parent.m_store)
+    m_parent(nullptr)
 {
-    gtk_tree_store_insert(m_store,&m_iter,nullptr,-1);
-    gtk_tree_store_set(m_store,&m_iter,1,this,-1);
+    parent.m_nodes.push_front(this);
+    m_iter = parent.m_nodes.begin();
 }
 
 // declared in gui.hh
 treeview::node::node(node &parent) :
     nocopy(),
     m_view(parent.m_view),
-    m_store(parent.m_store)
+    m_parent(&parent)
 {
-    gtk_tree_store_insert(m_store,&m_iter,&parent.m_iter,-1);
-    gtk_tree_store_set(m_store,&m_iter,1,this,-1);
+    parent.m_subnodes.push_front(this);
+    m_iter = parent.m_subnodes.begin();
 }
 
 // declared in gui.hh
@@ -109,13 +104,17 @@ treeview::node::~node()
         on_deselect();
         m_view.m_selected_node = nullptr;
     }
-    gtk_tree_store_remove(m_store,&m_iter);
+    if (m_parent) {
+        m_parent->m_subnodes.erase(m_iter);
+    } else {
+        m_view.m_nodes.erase(m_iter);
+    }
 }
 
 // declared in gui.hh
 void treeview::node::set_text(const std::string &text)
 {
-    gtk_tree_store_set(m_store,&m_iter,0,text.c_str(),-1);
+    m_text = text;
 }
 
 }

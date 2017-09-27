@@ -596,34 +596,31 @@ public:
  *
  * FIXME explain
  */
-class treeview : public widget {
+class treeview : private widget_im {
 public:
     // inner class defined later in this file
     class node;
 
 private:
-    // (var) m_tree
-    // FIXME explain
-    GtkWidget *m_tree;
-
-    // (var) m_store
-    // FIXME explain
-    GtkTreeStore *m_store;
+    // (var) m_nodes
+    // The list of pointers to the top-level nodes in the treeview.
+    std::list<node *> m_nodes;
 
     // (var) m_selected_node
     // FIXME explain
     node *m_selected_node = nullptr;
 
-    // (s-func) sigh_changed
+    // (func) frame
     // FIXME explain
-    static void sigh_changed(
-        GtkTreeSelection *treeselection,
-        gpointer user_data);
+    void frame() final override;
 
 public:
-    // (explicit ctor)
+    // (ctor)
     // FIXME explain
-    explicit treeview(container &parent,layout layout);
+    treeview(container &parent,layout layout);
+
+    using widget_im::show;
+    using widget_im::hide;
 };
 
 /*
@@ -632,18 +629,39 @@ public:
  * FIXME explain
  */
 class treeview::node : private util::nocopy {
+    friend class treeview;
+
 private:
     // (var) m_view
-    // FIXME explain
+    // The treeview this node is contained within.
     treeview &m_view;
 
-    // (var) m_store
-    // FIXME explain
-    GtkTreeStore *m_store;
+    // (var) m_parent
+    // A pointer to the parent node of this node, or null if this is a
+    // top-level node.
+    node *m_parent;
+
+    // (var) m_subnodes
+    // A list of pointers to the child nodes of this node.
+    std::list<node *> m_subnodes;
 
     // (var) m_iter
-    // FIXME explain
-    GtkTreeIter m_iter;
+    // An iterator pointing to the pointer to this subnode in the parent's
+    // node list, or the treeview's node list if this is a top-level node.
+    std::list<node *>::iterator m_iter;
+
+    // (var) m_expanded
+    // True if this node is expanded (its child nodes are visible) or false
+    // otherwise.
+    bool m_expanded = false;
+
+    // (var) m_text
+    // The text displayed for this tree node.
+    std::string m_text;
+
+    // (func) run
+    // Handles and displays this treenode (for ImGui).
+    void run();
 
 public:
     // (explicit ctor)
