@@ -494,6 +494,76 @@ public:
 };
 
 /*
+ * gui::widget_im
+ *
+ * FIXME explain
+ */
+class widget_im : private widget_gl {
+private:
+    // (var) m_im
+    // The ImGui context for this widget. Each `widget_im' instance has its own
+    // context so that they do not interfere with eachother.
+    ImGuiContext *m_im;
+
+    // (var) m_io
+    // A pointer to a structure for the ImGui context which is used to provide
+    // input into ImGui, such as mouse position or keystroke inputs.
+    ImGuiIO *m_io;
+
+    // (var) m_timer
+    // A handle to a timer used to repeatedly invalidate the underlying GL
+    // widget so that ImGui can run every frame.
+    guint m_timer;
+
+    // (var) m_last_update
+    // The time of the last update. This information is used each `draw_gl'
+    // call to determine the amount of time passed since the previous update,
+    // which is needed by ImGui.
+    long m_last_update;
+
+    // (func) draw_gl
+    // FIXME explain
+    void draw_gl(int width,int height,gl::renderbuffer &rbo) final override;
+
+    // (func) mousemove
+    // FIXME explain
+    void mousemove(int x,int y) final override;
+
+    // (func) mousewheel
+    // FIXME explain
+    void mousewheel(int delta_y) final override;
+
+    // (func) mousebutton
+    // FIXME explain
+    void mousebutton(int number,bool down) final override;
+
+    // (func) key
+    // FIXME explain
+    void key(int code,bool down) final override;
+
+    // (func) text
+    // FIXME explain
+    void text(const char *str) final override;
+
+protected:
+    // (pure func) frame
+    // FIXME explain
+    virtual void frame() = 0;
+
+public:
+    // (ctor)
+    // FIXME explain
+    widget_im(container &parent,layout layout);
+
+    // (dtor)
+    // FIXME explain
+    ~widget_im();
+
+    using widget_gl::show;
+    using widget_gl::hide;
+};
+
+/*
  * gui::label
  *
  * FIXME explain
