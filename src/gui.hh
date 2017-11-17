@@ -35,6 +35,22 @@ namespace drnsf {
 namespace gui {
 
 /*
+ * gui::init
+ *
+ * This function should be called before any gui::* objects are created. The
+ * `argc' and `argv' parameters to `main' should be given by-reference, as
+ * some GUI targets require this.
+ */
+void init(int &argc, char **&argv);
+
+/*
+ * gui::run
+ *
+ * Runs the main window event loop for the GUI used.
+ */
+void run();
+
+/*
  * gui::sys_handle
  * gui::sys_container_handle
  *

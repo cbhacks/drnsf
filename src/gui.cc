@@ -19,27 +19,22 @@
 //
 
 #include "common.hh"
-#include "edit.hh"
 #include "gui.hh"
-#include "gl.hh"
 
-int main(int argc,char *argv[])
+namespace drnsf {
+namespace gui {
+
+// declared in gui.hh
+void init(int &argc, char **&argv)
 {
-    using namespace drnsf;
+    gtk_init(&argc, &argv);
+}
 
-    // Initialize GTK+.
-    gui::init(argc, argv);
-    gl::init();
+// declared in gui.hh
+void run()
+{
+    gtk_main();
+}
 
-    // Create the editor.
-    edit::core editor;
-
-    edit::main_window wnd;
-    wnd.show();
-    wnd.set_project(editor.m_proj);
-
-    // Run the main application/game loop.
-    gui::run();
-
-    return EXIT_SUCCESS;
+}
 }
