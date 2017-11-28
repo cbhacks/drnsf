@@ -710,42 +710,14 @@ public:
  *
  * FIXME explain
  */
-class gl_canvas : public widget {
+class gl_canvas : private widget_gl {
 private:
-    // (s-func) sigh_draw
-    // FIXME explain
-    static gboolean sigh_draw(
-        GtkWidget *widget,
-        cairo_t *cr,
-        gpointer user_data);
-
-    // (s-func) sigh_motion_notify_event
-    // FIXME explain
-    static gboolean sigh_motion_notify_event(
-        GtkWidget *widget,
-        GdkEvent *event,
-        gpointer user_data);
-
-    // (s-func) sigh_scroll_event
-    // FIXME explain
-    static gboolean sigh_scroll_event(
-        GtkWidget *widget,
-        GdkEvent *event,
-        gpointer user_data);
-
-    // (s-func) sigh_button_event
-    // FIXME explain
-    static gboolean sigh_button_event(
-        GtkWidget *widget,
-        GdkEvent *event,
-        gpointer user_data);
-
-    // (s-func) sigh_key_event
-    // FIXME explain
-    static gboolean sigh_key_event(
-        GtkWidget *widget,
-        GdkEvent *event,
-        gpointer user_data);
+    void draw_gl(int width, int height, gl::renderbuffer &rbo) final override;
+    void mousemove(int x, int y) final override;
+    void mousewheel(int delta_y) final override;
+    void mousebutton(int number, bool down) final override;
+    void key(int code, bool down) final override;
+    void text(const char *str) final override;
 
 public:
     // (explicit ctor)
@@ -754,7 +726,7 @@ public:
 
     // (func) invalidate
     // FIXME explain
-    void invalidate();
+    using widget_gl::invalidate;
 
     // (event) on_render
     // FIXME explain
@@ -779,6 +751,9 @@ public:
     // (event) on_text
     // FIXME explain
     util::event<const char *> on_text;
+
+    using widget_gl::show;
+    using widget_gl::hide;
 };
 
 /*

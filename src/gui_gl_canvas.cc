@@ -33,23 +33,11 @@ namespace gl {
 namespace gui {
 
 // declared in gui.hh
-gboolean gl_canvas::sigh_draw(
-    GtkWidget *widget,
-    cairo_t *cr,
-    gpointer user_data)
+void gl_canvas::draw_gl(int width, int height, gl::renderbuffer &rbo)
 {
-    auto self = static_cast<gl_canvas *>(user_data);
-
-    auto width = gtk_widget_get_allocated_width(widget);
-    auto height = gtk_widget_get_allocated_height(widget);
-
     gl::framebuffer fbo;
-
-    gl::renderbuffer rbo_color;
     gl::renderbuffer rbo_depth;
 
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo_color);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB8, width, height);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo_depth);
     glRenderbufferStorage(
         GL_RENDERBUFFER,
@@ -64,7 +52,7 @@ gboolean gl_canvas::sigh_draw(
         GL_DRAW_FRAMEBUFFER,
         GL_COLOR_ATTACHMENT0,
         GL_RENDERBUFFER,
-        rbo_color
+        rbo
     );
     glFramebufferRenderbuffer(
         GL_DRAW_FRAMEBUFFER,
@@ -73,152 +61,45 @@ gboolean gl_canvas::sigh_draw(
         rbo_depth
     );
 
-    glViewport(0, 0, width, height);
-
-    self->on_render(width, height);
+    on_render(width, height);
 
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
-    gdk_cairo_draw_from_gl(
-        cr,
-        gl::g_wnd,
-        rbo_color,
-        GL_RENDERBUFFER,
-        1,
-        0,
-        0,
-        width,
-        height
-    );
-
-    gdk_gl_context_make_current(gl::g_glctx);
-
-    return true;
 }
 
 // declared in gui.hh
-gboolean gl_canvas::sigh_motion_notify_event(
-    GtkWidget *widget,
-    GdkEvent *event,
-    gpointer user_data)
+void gl_canvas::mousemove(int x, int y)
 {
-    static_cast<gl_canvas *>(user_data)->on_mousemove(
-        event->motion.x,
-        event->motion.y
-    );
-    return true;
+    on_mousemove(x, y);
 }
 
 // declared in gui.hh
-gboolean gl_canvas::sigh_scroll_event(
-    GtkWidget *widget,
-    GdkEvent *event,
-    gpointer user_data)
+void gl_canvas::mousewheel(int delta_y)
 {
-    if (event->scroll.direction != GDK_SCROLL_SMOOTH) {
-        return false;
-    }
-
-    static_cast<gl_canvas *>(user_data)->on_mousewheel(
-        -event->scroll.delta_y
-    );
-    return true;
+    on_mousewheel(delta_y);
 }
 
 // declared in gui.hh
-gboolean gl_canvas::sigh_button_event(
-    GtkWidget *widget,
-    GdkEvent *event,
-    gpointer user_data)
+void gl_canvas::mousebutton(int number, bool down)
 {
-    static_cast<gl_canvas *>(user_data)->on_mousebutton(
-        event->button.button,
-        event->button.type == GDK_BUTTON_PRESS
-    );
-    return true;
+    on_mousebutton(number, down);
 }
 
 // declared in gui.hh
-gboolean gl_canvas::sigh_key_event(
-    GtkWidget *widget,
-    GdkEvent *event,
-    gpointer user_data)
+void gl_canvas::key(int code, bool down)
 {
-    auto self = static_cast<gl_canvas *>(user_data);
-    self->on_key(
-        event->key.keyval,
-        event->key.type == GDK_KEY_PRESS
-    );
-    if (event->key.type == GDK_KEY_PRESS) {
-        // FIXME deprecated garbage
-        self->on_text(event->key.string);
-    }
-    return true;
+    on_key(code, down);
+}
+
+// declared in gui.hh
+void gl_canvas::text(const char *str)
+{
+    on_text(str);
 }
 
 // declared in gui.hh
 gl_canvas::gl_canvas(container &parent, layout layout) :
-    widget(gtk_drawing_area_new(), parent, layout)
+    widget_gl(parent, layout)
 {
-    gtk_widget_set_events(
-        m_handle,
-        GDK_POINTER_MOTION_MASK |
-        GDK_SMOOTH_SCROLL_MASK |
-        GDK_BUTTON_PRESS_MASK |
-        GDK_BUTTON_RELEASE_MASK |
-        GDK_KEY_PRESS_MASK |
-        GDK_KEY_RELEASE_MASK
-    );
-    gtk_widget_set_can_focus(m_handle, true);
-    g_signal_connect(m_handle, "draw", G_CALLBACK(sigh_draw), this);
-    g_signal_connect(
-        m_handle,
-        "motion-notify-event",
-        G_CALLBACK(sigh_motion_notify_event),
-        this
-    );
-    g_signal_connect(
-        m_handle,
-        "scroll-event",
-        G_CALLBACK(sigh_scroll_event),
-        this
-    );
-    g_signal_connect(
-        m_handle,
-        "button-press-event",
-        G_CALLBACK(sigh_button_event),
-        this
-    );
-    g_signal_connect(
-        m_handle,
-        "button-release-event",
-        G_CALLBACK(sigh_button_event),
-        this
-    );
-    g_signal_connect(
-        m_handle,
-        "key-press-event",
-        G_CALLBACK(sigh_key_event),
-        this
-    );
-    g_signal_connect(
-        m_handle,
-        "key-release-event",
-        G_CALLBACK(sigh_key_event),
-        this
-    );
-}
-
-// declared in gui.hh
-void gl_canvas::invalidate()
-{
-    gtk_widget_queue_draw_area(
-        m_handle,
-        0,
-        0,
-        gtk_widget_get_allocated_width(m_handle),
-        gtk_widget_get_allocated_height(m_handle)
-    );
 }
 
 }
