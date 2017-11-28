@@ -31,7 +31,20 @@ namespace edit {
 main_window::main_window() :
     m_wnd(APP_TITLE, 1024, 768),
     m_menu_file(m_wnd, "File"),
-    m_menu_file_exit(m_menu_file, "Exit")
+    m_menu_file_exit(m_menu_file, "Exit"),
+    m_newmenubar(m_wnd),
+    m_newmenubar_x(m_newmenubar, "Menu X"),
+    m_newmenu_a(m_newmenubar_x, "Option A"),
+    m_newmenu_b(m_newmenubar_x, "Option B"),
+    m_newmenu_c(m_newmenubar_x, "Option C"),
+    m_newmenubar_y(m_newmenubar, "Menu Y"),
+    m_newmenu_1(m_newmenubar_y, "Option 1"),
+    m_newmenu_2(m_newmenubar_y, "Option 2"),
+    m_newmenu_3(m_newmenubar_y, "Option 3"),
+    m_newmenubar_z(m_newmenubar, "Menu Z"),
+    m_newmenu_alpha(m_newmenubar_z, "Option \u03b1"),
+    m_newmenu_beta(m_newmenubar_z, "Option \u03b2"),
+    m_newmenu_gamma(m_newmenubar_z, "Option \u03b3")
 {
     h_menu_file_exit_click <<= [this]{
         gtk_main_quit();

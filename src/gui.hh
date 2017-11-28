@@ -276,6 +276,59 @@ public:
 };
 
 /*
+ * gui::popup
+ *
+ * This class implements a "popup window". This is similar to a normal window,
+ * however it cannot have a menubar associated with it, and usually does not
+ * have any usual window stylings such as a title bar, close button, etc.
+ *
+ * This kind of window is useful for implementing dropdowns, tooltips, menus,
+ * etc.
+ */
+class popup : public container {
+private:
+    // (var) M
+    // A handle to the underlying system window.
+    GtkWidget *M;
+
+public:
+    // (explicit ctor)
+    // FIXME explain
+    explicit popup(int width, int height);
+
+    // (dtor)
+    // Destroys the popup. If it is visible, it will vanish from the screen.
+    ~popup();
+
+    // (func) show_at
+    // Makes the popup visible at the specified location in screen coordinates.
+    // If the popup is already visible, it is moved to the location.
+    //
+    // The location specified matches the top-left of the popup.
+    void show_at(int x, int y);
+
+    // (func) show_at_mouse
+    // Makes the popup visible at the current location of the mouse cursor. If
+    // the popup is already visible, it is moved to that location.
+    //
+    // The location matches the top-left corner of the popup.
+    void show_at_mouse();
+
+    // (func) hide
+    // Makes the popup invisible. If it is already invisible, no change occurs.
+    void hide();
+
+    // (func) set_size
+    // Sets the size of the popup, with the same behavior as the size passed to
+    // the constructor.
+    void set_size(int width, int height);
+
+    // (func) get_container_handle
+    // FIXME explain
+    sys_container_handle get_container_handle() override;
+};
+
+/*
  * gui::composite
  *
  * FIXME explain
@@ -703,6 +756,158 @@ public:
     // (event) on_deselect
     // FIXME explain
     util::event<> on_deselect;
+};
+
+/*
+ * gui::menu2
+ *
+ * FIXME explain
+ * FIXME rename to 'menu' after removing older gui::menu class
+ */
+class menu2 : private popup, private widget_2d {
+    friend class menubar;
+
+public:
+    // inner class defined later in this file
+    class item;
+
+private:
+    // (var) m_items
+    // The list of pointers to all of the contained menu items.
+    std::vector<item *> m_items;
+
+    // (var) m_active_item
+    // A pointer to the currently active item in the menu. This is null if
+    // there is no such item. The active item is whatever is currently under
+    // the mouse cursor, or potentially an item whose submenu is currently
+    // open and active.
+    item *m_active_item = nullptr;
+
+    // (func) draw_2d
+    // Implements draw_2d to draw the menu items.
+    void draw_2d(int width, int height, cairo_t *cr) final override;
+
+    // (func) mousemove
+    // Implements mousemove for hovering over menu items.
+    void mousemove(int x, int y) final override;
+
+    // Solve ambiguity of popup::hide vs widget_2d::hide. The widget base
+    // should never be hidden.
+    using popup::hide;
+
+public:
+    // (ctor)
+    // Initializes an empty menu.
+    menu2();
+};
+
+/*
+ * gui::menu2::item
+ *
+ * FIXME explain
+ */
+class menu2::item : private util::nocopy {
+    friend class menu2;
+
+private:
+    // (var) m_menu
+    // The menu this item exists in.
+    menu2 &m_menu;
+
+    // (var) m_text
+    // The text displayed on this menu item.
+    std::string m_text;
+
+    // (var) m_enabled
+    // If false, this menu item does not respond to clicks and may be displayed
+    // in a disabled style, such as with gray text.
+    bool m_enabled = true;
+
+public:
+    // (explicit ctor)
+    // Initializes a menu item with the given text, and adds it to the given
+    // menu.
+    explicit item(menu2 &menu, std::string text);
+
+    // (dtor)
+    // Removes the menu item from its associated menu.
+    ~item();
+};
+
+/*
+ * gui::menubar
+ *
+ * FIXME explain
+ */
+class menubar : private widget_2d {
+public:
+    // inner class defined later in this file
+    class item;
+
+private:
+    // (var) m_wnd
+    // The window this menubar is attached to.
+    window &m_wnd;
+
+    // (var) m_items
+    // The list of pointers to all of the contained menubar items.
+    std::vector<item *> m_items;
+
+    // (var) m_hover_item
+    // A pointer to the currently selected menubar item, whether by mouse-hover
+    // or keyboard input. If there is no such item, this pointer is null.
+    item *m_hover_item = nullptr;
+
+    // (var) m_open_item
+    // A pointer to the menubar item which has its menu open, or null if there
+    // is none.
+    item *m_open_item = nullptr;
+
+    // (func) draw_2d
+    // Implements draw_2d to draw the menubar items.
+    void draw_2d(int width, int height, cairo_t *cr) final override;
+
+    // (func) mousemove
+    // Implements mousemove for hovering over menubar items.
+    void mousemove(int x, int y) final override;
+
+    // (func) mousebutton
+    // Implements mouse click for clicking on menubar items.
+    void mousebutton(int button, bool down) final override;
+
+public:
+    // (explicit ctor)
+    // Initializes an empty menubar and associates it with the given window.
+    // The window must not already have a menubar associated with it.
+    explicit menubar(window &wnd);
+};
+
+/*
+ * gui::menubar::item
+ *
+ * FIXME explain
+ */
+class menubar::item : public menu2 {
+    friend class menubar;
+
+private:
+    // (var) m_menubar
+    // The menubar this item exists in.
+    menubar &m_menubar;
+
+    // (var) m_text
+    // The text displayed on this menubar item.
+    std::string m_text;
+
+public:
+    // (explicit ctor)
+    // Initializes a menubar item with the given text, and adds it to the end
+    // of the given menubar.
+    explicit item(menubar &menubar, std::string text);
+
+    // (dtor)
+    // Removes the menubar item from its associated menubar.
+    ~item();
 };
 
 /*

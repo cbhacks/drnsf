@@ -197,6 +197,19 @@ private:
     gui::window m_wnd;
     gui::menu m_menu_file;
     gui::menu_item m_menu_file_exit;
+    gui::menubar m_newmenubar;
+    gui::menubar::item m_newmenubar_x;
+    gui::menu2::item m_newmenu_a;
+    gui::menu2::item m_newmenu_b;
+    gui::menu2::item m_newmenu_c;
+    gui::menubar::item m_newmenubar_y;
+    gui::menu2::item m_newmenu_1;
+    gui::menu2::item m_newmenu_2;
+    gui::menu2::item m_newmenu_3;
+    gui::menubar::item m_newmenubar_z;
+    gui::menu2::item m_newmenu_alpha;
+    gui::menu2::item m_newmenu_beta;
+    gui::menu2::item m_newmenu_gamma;
     res::project *m_proj_p;
     std::unique_ptr<asset_editor> m_assets_view;
 
