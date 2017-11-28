@@ -32,7 +32,7 @@
  * TRANSACT
  *
  * Simple alias for `teller &TS'. This is intended to be used in function
- * prototypes, such as `void set_foo(TRANSACT,int new_value)' to nicely
+ * prototypes, such as `void set_foo(TRANSACT, int new_value)' to nicely
  * demonstrate that it is transactional and must be run with a teller.
  */
 #define TRANSACT ::drnsf::transact::teller &TS
@@ -76,7 +76,7 @@ public:
     // (explicit ctor)
     // FIXME explain
     template <typename T2>
-    explicit assign_op(T &dest,T2 src) :
+    explicit assign_op(T &dest, T2 src) :
         m_dest(dest),
         m_src(std::move(src)) {}
 
@@ -85,7 +85,7 @@ public:
     void execute() noexcept override
     {
         using std::swap;
-        swap(m_dest,m_src);
+        swap(m_dest, m_src);
     }
 };
 
@@ -141,9 +141,9 @@ public:
     // FIXME explain
     void execute() noexcept override
     {
-        m_dest_list->splice(m_dest_iter,*m_src_list,m_value_iter);
-        std::swap(m_dest_list,m_src_list);
-        std::swap(m_dest_iter,m_src_iter);
+        m_dest_list->splice(m_dest_iter, *m_src_list, m_value_iter);
+        std::swap(m_dest_list, m_src_list);
+        std::swap(m_dest_iter, m_src_iter);
     }
 
     // (func) get_value_iterator
@@ -202,9 +202,9 @@ public:
     // FIXME explain
     void execute() noexcept override
     {
-        m_dest_list->splice(m_dest_iter,*m_src_list,m_value_iter);
-        std::swap(m_dest_list,m_src_list);
-        std::swap(m_dest_iter,m_src_iter);
+        m_dest_list->splice(m_dest_iter, *m_src_list, m_value_iter);
+        std::swap(m_dest_list, m_src_list);
+        std::swap(m_dest_iter, m_src_iter);
     }
 };
 
@@ -286,15 +286,15 @@ public:
 
     // (func) set
     // FIXME explain
-    template <typename T,typename T2>
-    void set(T &dest,T2 src)
+    template <typename T, typename T2>
+    void set(T &dest, T2 src)
     {
-        push_op(std::make_unique<assign_op<T>>(dest,std::move(src)));
+        push_op(std::make_unique<assign_op<T>>(dest, std::move(src)));
     }
 
     // (func) insert
     // FIXME explain
-    template <typename T,typename T2>
+    template <typename T, typename T2>
     typename std::list<T>::iterator insert(
         std::list<T> &list,
         typename std::list<T>::iterator pos,
@@ -313,9 +313,9 @@ public:
     // (func) erase
     // FIXME explain
     template <typename T>
-    void erase(std::list<T> &list,typename std::list<T>::iterator pos)
+    void erase(std::list<T> &list, typename std::list<T>::iterator pos)
     {
-        push_op(std::make_unique<erase_op<T>>(list,pos));
+        push_op(std::make_unique<erase_op<T>>(list, pos));
     }
 };
 

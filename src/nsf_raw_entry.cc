@@ -25,7 +25,7 @@ namespace drnsf {
 namespace nsf {
 
 // declared in res.hh
-void raw_entry::import_file(TRANSACT,const util::blob &data)
+void raw_entry::import_file(TRANSACT, const util::blob &data)
 {
     assert_alive();
 
@@ -66,17 +66,17 @@ void raw_entry::import_file(TRANSACT,const util::blob &data)
             throw 0; // FIXME
 
         // Extract the item's data.
-        items[i] = {&data[item_start_offset],&data[item_end_offset]};
+        items[i] = {&data[item_start_offset], &data[item_end_offset]};
     }
 
     // Finish importing.
-    set_eid(TS,eid);
-    set_type(TS,type);
-    set_items(TS,std::move(items));
+    set_eid(TS, eid);
+    set_type(TS, type);
+    set_items(TS, std::move(items));
 }
 
 // declared in res.hh
-bool raw_entry::process_by_type(TRANSACT,game_ver ver)
+bool raw_entry::process_by_type(TRANSACT, game_ver ver)
 {
     assert_alive();
 

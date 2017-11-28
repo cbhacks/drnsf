@@ -25,7 +25,7 @@ namespace drnsf {
 namespace nsf {
 
 // declared in res.hh
-void wgeo_v2::import_entry(TRANSACT,const std::vector<util::blob> &items)
+void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
 {
     assert_alive();
 
@@ -79,7 +79,7 @@ void wgeo_v2::import_entry(TRANSACT,const std::vector<util::blob> &items)
 
         // TODO - explain vertex format here
 
-        r.begin(&item_vertices[(vertex_count - 1 - i) * 4],4);
+        r.begin(&item_vertices[(vertex_count - 1 - i) * 4], 4);
         auto color_mid  = r.read_ubits(4);
         auto x          = r.read_sbits(12);
         auto color_high = r.read_ubits(2);
@@ -87,7 +87,7 @@ void wgeo_v2::import_entry(TRANSACT,const std::vector<util::blob> &items)
         auto y          = r.read_sbits(12);
         r.end();
 
-        r.begin(&item_vertices[vertex_count * 4 + i * 2],2);
+        r.begin(&item_vertices[vertex_count * 4 + i * 2], 2);
         auto color_low = r.read_ubits(4);
         auto z         = r.read_sbits(12);
         r.end();
@@ -110,13 +110,13 @@ void wgeo_v2::import_entry(TRANSACT,const std::vector<util::blob> &items)
 
         // TODO - explain triangle format here
 
-        r.begin(&item_triangles[(triangle_count - 1 - i) * 4],4);
+        r.begin(&item_triangles[(triangle_count - 1 - i) * 4], 4);
         auto triangle_unk0 = r.read_ubits(8);
         auto vertex0       = r.read_ubits(12);
         auto vertex1       = r.read_ubits(12);
         r.end();
 
-        r.begin(&item_triangles[triangle_count * 4 + i * 2],2);
+        r.begin(&item_triangles[triangle_count * 4 + i * 2], 2);
         auto triangle_unk1 = r.read_ubits(4);
         auto vertex2       = r.read_ubits(12);
         r.end();
@@ -208,36 +208,36 @@ void wgeo_v2::import_entry(TRANSACT,const std::vector<util::blob> &items)
 
     // Create the frame which will contain this scene's vertex positions.
     gfx::frame::ref frame = atom / "frame";
-    frame.create(TS,get_proj());
-    frame->set_vertices(TS,std::move(vertices));
+    frame.create(TS, get_proj());
+    frame->set_vertices(TS, std::move(vertices));
 
     // Create the animation for this scene (just one frame, scenes are not
     // vertex-animated).
     gfx::anim::ref anim = atom / "anim";
-    anim.create(TS,get_proj());
-    anim->set_frames(TS,{frame});
+    anim.create(TS, get_proj());
+    anim->set_frames(TS, {frame});
 
     // Create the mesh for this scene.
     gfx::mesh::ref mesh = atom / "mesh";
-    mesh.create(TS,get_proj());
-    mesh->set_triangles(TS,std::move(triangles));
-    mesh->set_quads(TS,std::move(quads));
-    mesh->set_colors(TS,std::move(colors));
+    mesh.create(TS, get_proj());
+    mesh->set_triangles(TS, std::move(triangles));
+    mesh->set_quads(TS, std::move(quads));
+    mesh->set_colors(TS, std::move(colors));
 
     // Create the model for this scene.
     gfx::model::ref model = atom;
-    model.create(TS,get_proj());
-    model->set_anim(TS,anim);
-    model->set_mesh(TS,mesh);
-    model->set_scene_x(TS,scene_x);
-    model->set_scene_y(TS,scene_y);
-    model->set_scene_z(TS,scene_z);
+    model.create(TS, get_proj());
+    model->set_anim(TS, anim);
+    model->set_mesh(TS, mesh);
+    model->set_scene_x(TS, scene_x);
+    model->set_scene_y(TS, scene_y);
+    model->set_scene_z(TS, scene_z);
 
     // Finish importing.
-    set_item0(TS,items[0]);
-    set_item4(TS,items[4]);
-    set_item6(TS,items[6]);
-    set_model(TS,model);
+    set_item0(TS, items[0]);
+    set_item4(TS, items[4]);
+    set_item6(TS, items[6]);
+    set_model(TS, model);
 }
 
 }

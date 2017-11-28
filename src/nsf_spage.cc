@@ -26,7 +26,7 @@ namespace drnsf {
 namespace nsf {
 
 // declared in res.hh
-void spage::import_file(TRANSACT,const util::blob &data)
+void spage::import_file(TRANSACT, const util::blob &data)
 {
     assert_alive();
 
@@ -76,18 +76,18 @@ void spage::import_file(TRANSACT,const util::blob &data)
 
         // Create the pagelet asset.
         pagelet = get_name() / "pagelet-$"_fmt(i);
-        pagelet.create(TS,get_proj());
+        pagelet.create(TS, get_proj());
 
         // Copy the pagelet data into the asset.
         pagelet->set_data(TS,
-            {&data[pagelet_start_offset],&data[pagelet_end_offset]}
+            {&data[pagelet_start_offset], &data[pagelet_end_offset]}
         );
     }
 
     // Finish importing.
-    set_type(TS,type);
-    set_cid(TS,cid);
-    set_pagelets(TS,{pagelets.begin(),pagelets.end()});
+    set_type(TS, type);
+    set_cid(TS, cid);
+    set_pagelets(TS, {pagelets.begin(), pagelets.end()});
 }
 
 }

@@ -23,7 +23,7 @@
 #include "gui.hh"
 #include "gl.hh"
 
-int main(int argc,char *argv[])
+int main(int argc, char *argv[])
 {
     using namespace drnsf;
 

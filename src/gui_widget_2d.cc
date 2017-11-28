@@ -36,7 +36,7 @@ gboolean widget_2d::sigh_draw(
     auto width = gtk_widget_get_allocated_width(widget);
     auto height = gtk_widget_get_allocated_height(widget);
 
-    self->draw_2d(width,height,cr);
+    self->draw_2d(width, height, cr);
 
     return true;
 }
@@ -102,8 +102,8 @@ gboolean widget_2d::sigh_key_event(
 }
 
 // declared in gui.hh
-widget_2d::widget_2d(container &parent,layout layout) :
-    widget(gtk_drawing_area_new(),parent,layout)
+widget_2d::widget_2d(container &parent, layout layout) :
+    widget(gtk_drawing_area_new(), parent, layout)
 {
     gtk_widget_add_events(
         m_handle,
@@ -114,8 +114,8 @@ widget_2d::widget_2d(container &parent,layout layout) :
         GDK_KEY_PRESS_MASK |
         GDK_KEY_RELEASE_MASK
     );
-    gtk_widget_set_can_focus(m_handle,true);
-    g_signal_connect(m_handle,"draw",G_CALLBACK(sigh_draw),this);
+    gtk_widget_set_can_focus(m_handle, true);
+    g_signal_connect(m_handle, "draw", G_CALLBACK(sigh_draw), this);
     g_signal_connect(
         m_handle,
         "motion-notify-event",

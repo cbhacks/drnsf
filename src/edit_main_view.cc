@@ -28,12 +28,12 @@ namespace edit {
 
 main_view::main_view(old_editor &ed) :
     m_ed(ed),
-    m_canvas_wnd("Old UI",800,600),
-    m_cryptos_wnd("Ancient UI",800,600),
-    m_canvas(m_canvas_wnd,gui::layout::fill()),
-    m_cryptos(m_cryptos_wnd,gui::layout::fill())
+    m_canvas_wnd("Old UI", 800, 600),
+    m_cryptos_wnd("Ancient UI", 800, 600),
+    m_canvas(m_canvas_wnd, gui::layout::fill()),
+    m_cryptos(m_cryptos_wnd, gui::layout::fill())
 {
-    h_frame <<= [this](int width,int height,int delta_time) {
+    h_frame <<= [this](int width, int height, int delta_time) {
         frame(delta_time);
     };
     h_frame.bind(m_canvas.on_frame);
@@ -50,13 +50,13 @@ void main_view::frame(int delta_time)
     glClear(GL_COLOR_BUFFER_BIT);
 
     im::main_menu_bar([&]{
-        im::menu("Edit",[&]{
+        im::menu("Edit", [&]{
             auto &&transact = m_ed.m_proj.get_transact();
 
             if (transact.has_undo()) {
                 auto title = transact.get_undo().describe();
 
-                im::menu_item("Undo: $"_fmt(title),[&]{
+                im::menu_item("Undo: $"_fmt(title), [&]{
                     transact.undo();
                 });
             } else {
@@ -66,7 +66,7 @@ void main_view::frame(int delta_time)
             if (transact.has_redo()) {
                 auto title = transact.get_redo().describe();
 
-                im::menu_item("Redo: $"_fmt(title),[&]{
+                im::menu_item("Redo: $"_fmt(title), [&]{
                     transact.redo();
                 });
             } else {
@@ -77,7 +77,7 @@ void main_view::frame(int delta_time)
 
             for (auto &&modedef : modedef::get_list()) {
                 auto title = modedef->get_title();
-                im::menu_item("Mode: $"_fmt(title),[&]{
+                im::menu_item("Mode: $"_fmt(title), [&]{
                     m_ed.m_mode = modedef->create(m_ed);
                 });
             }
@@ -93,7 +93,7 @@ void main_view::frame(int delta_time)
         }
 
         for (auto &&pane : m_ed.m_panes) {
-            im::subwindow(pane->get_id(),pane->get_title(),[&]{
+            im::subwindow(pane->get_id(), pane->get_title(), [&]{
                 pane->show();
             });
         }

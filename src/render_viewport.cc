@@ -49,24 +49,24 @@ private:
     int m_mouse_y_prev;
 
     // FIXME non-pimpl later on
-    void draw_gl(int width,int height,gl::renderbuffer &rbo) override;
-    void mousemove(int x,int y) override;
+    void draw_gl(int width, int height, gl::renderbuffer &rbo) override;
+    void mousemove(int x, int y) override;
     void mousewheel(int delta_y) override;
-    void mousebutton(int number,bool down) override;
+    void mousebutton(int number, bool down) override;
 
 public:
     // (explicit ctor)
     // Initializes the viewport widget.
     explicit impl(viewport &outer) :
-        widget_gl(outer,gui::layout::fill()),
+        widget_gl(outer, gui::layout::fill()),
         m_outer(outer)
     {
     }
 };
 
 // declared in render.hh
-viewport::viewport(gui::container &parent,gui::layout layout) :
-    composite(parent,layout)
+viewport::viewport(gui::container &parent, gui::layout layout) :
+    composite(parent, layout)
 {
     M = new impl(*this);
     M->show();
@@ -79,22 +79,22 @@ viewport::~viewport()
 }
 
 // declared above FIXME
-void viewport::impl::draw_gl(int width,int height,gl::renderbuffer &rbo)
+void viewport::impl::draw_gl(int width, int height, gl::renderbuffer &rbo)
 {
     // Prepare a depth buffer.
     gl::renderbuffer depth_rbo;
-    glBindRenderbuffer(GL_RENDERBUFFER,depth_rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, depth_rbo);
     glRenderbufferStorage(
         GL_RENDERBUFFER,
         GL_DEPTH_COMPONENT16,
         width,
         height
     );
-    glBindRenderbuffer(GL_RENDERBUFFER,0);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
     // Prepare the framebuffer for this render job.
     gl::framebuffer fbo;
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER,fbo);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
     glFramebufferRenderbuffer(
         GL_DRAW_FRAMEBUFFER,
         GL_COLOR_ATTACHMENT0,
@@ -123,11 +123,11 @@ void viewport::impl::draw_gl(int width,int height,gl::renderbuffer &rbo)
     );
     projection = glm::translate(
         projection,
-        glm::vec3(0.0f,0.0f,-800.0f)
+        glm::vec3(0.0f, 0.0f, -800.0f)
     );
     projection = glm::translate(
         projection,
-        glm::vec3(0.0f,0.0f,-edit::g_camera_zoom)
+        glm::vec3(0.0f, 0.0f, -edit::g_camera_zoom)
     );
 
     // Build the view matrix.
@@ -135,12 +135,12 @@ void viewport::impl::draw_gl(int width,int height,gl::renderbuffer &rbo)
     view = glm::rotate(
         view,
         glm::radians(edit::g_camera_pitch),
-        glm::vec3(1.0f,0.0f,0.0f)
+        glm::vec3(1.0f, 0.0f, 0.0f)
     );
     view = glm::rotate(
         view,
         glm::radians(edit::g_camera_yaw),
-        glm::vec3(0.0f,1.0f,0.0f)
+        glm::vec3(0.0f, 1.0f, 0.0f)
     );
 
     // Render the viewport's visible figures.
@@ -155,11 +155,11 @@ void viewport::impl::draw_gl(int width,int height,gl::renderbuffer &rbo)
 
     // Restore the default GL state.
     glDisable(GL_DEPTH_TEST);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER,0);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
 // declared above FIXME
-void viewport::impl::mousemove(int x,int y)
+void viewport::impl::mousemove(int x, int y)
 {
     if (m_mouse_down) {
         int delta_x = x - m_mouse_x_prev;
@@ -191,7 +191,7 @@ void viewport::impl::mousewheel(int delta_y)
 }
 
 // declared above FIXME
-void viewport::impl::mousebutton(int number,bool down)
+void viewport::impl::mousebutton(int number, bool down)
 {
     if (number == 1) {
         m_mouse_down = down;

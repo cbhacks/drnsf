@@ -85,14 +85,14 @@ public:
 
     // (prop) vertices
     // FIXME explain
-    DEFINE_APROP(vertices,std::vector<vertex>);
+    DEFINE_APROP(vertices, std::vector<vertex>);
 
     // FIXME obsolete
     template <typename Reflector>
     void reflect(Reflector &rfl)
     {
         asset::reflect(rfl);
-        rfl.field(p_vertices,"Vertices");
+        rfl.field(p_vertices, "Vertices");
     }
 };
 
@@ -117,14 +117,14 @@ public:
 
     // (prop) frames
     // FIXME explain
-    DEFINE_APROP(frames,std::vector<frame::ref>);
+    DEFINE_APROP(frames, std::vector<frame::ref>);
 
     // FIXME obsolete
     template <typename Reflector>
     void reflect(Reflector &rfl)
     {
         asset::reflect(rfl);
-        rfl.field(p_frames,"Frames");
+        rfl.field(p_frames, "Frames");
     }
 };
 
@@ -143,14 +143,14 @@ struct poly_vert {
  *
  * FIXME explain
  */
-using triangle = std::array<poly_vert,3>;
+using triangle = std::array<poly_vert, 3>;
 
 /*
  * gfx::quad
  *
  * FIXME explain
  */
-using quad = std::array<poly_vert,4>;
+using quad = std::array<poly_vert, 4>;
 
 /*
  * gfx::mesh
@@ -173,24 +173,24 @@ public:
 
     // (prop) triangles
     // FIXME explain
-    DEFINE_APROP(triangles,std::vector<triangle>);
+    DEFINE_APROP(triangles, std::vector<triangle>);
 
     // (prop) quads
     // FIXME explain
-    DEFINE_APROP(quads,std::vector<quad>);
+    DEFINE_APROP(quads, std::vector<quad>);
 
     // (prop) colors
     // FIXME explain
-    DEFINE_APROP(colors,std::vector<color>);
+    DEFINE_APROP(colors, std::vector<color>);
 
     // FIXME obsolete
     template <typename Reflector>
     void reflect(Reflector &rfl)
     {
         asset::reflect(rfl);
-        rfl.field(p_triangles,"Triangles");
-        rfl.field(p_quads,"Quads");
-        rfl.field(p_colors,"Colors");
+        rfl.field(p_triangles, "Triangles");
+        rfl.field(p_quads, "Quads");
+        rfl.field(p_colors, "Colors");
     }
 };
 
@@ -215,28 +215,28 @@ public:
 
     // (prop) anim
     // FIXME explain
-    DEFINE_APROP(anim,anim::ref);
+    DEFINE_APROP(anim, anim::ref);
 
     // (prop) mesh
     // FIXME explain
-    DEFINE_APROP(mesh,mesh::ref);
+    DEFINE_APROP(mesh, mesh::ref);
 
     // (prop) scene_x, scene_y, scene_z
     // FIXME explain
-    DEFINE_APROP(scene_x,double,0.0);
-    DEFINE_APROP(scene_y,double,0.0);
-    DEFINE_APROP(scene_z,double,0.0);
+    DEFINE_APROP(scene_x, double, 0.0);
+    DEFINE_APROP(scene_y, double, 0.0);
+    DEFINE_APROP(scene_z, double, 0.0);
 
     // FIXME obsolete
     template <typename Reflector>
     void reflect(Reflector &rfl)
     {
         asset::reflect(rfl);
-        rfl.field(p_anim,"Animation");
-        rfl.field(p_mesh,"Mesh");
-        rfl.field(p_scene_x,"Scene X");
-        rfl.field(p_scene_y,"Scene Y");
-        rfl.field(p_scene_z,"Scene Z");
+        rfl.field(p_anim, "Animation");
+        rfl.field(p_mesh, "Mesh");
+        rfl.field(p_scene_x, "Scene X");
+        rfl.field(p_scene_y, "Scene Y");
+        rfl.field(p_scene_z, "Scene Z");
     }
 };
 

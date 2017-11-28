@@ -33,8 +33,8 @@ void treeview::frame()
 }
 
 // declared in gui.hh
-treeview::treeview(container &parent,layout layout) :
-    widget_im(parent,layout)
+treeview::treeview(container &parent, layout layout) :
+    widget_im(parent, layout)
 {
 }
 
@@ -49,7 +49,7 @@ void treeview::node::run()
             m_expanded = !m_expanded;
         }
     } else {
-        ImGui::Dummy({14,0});
+        ImGui::Dummy({14, 0});
     }
     ImGui::SameLine();
 
@@ -57,8 +57,8 @@ void treeview::node::run()
     // already selected, provide a handler for clicking which shifts the
     // selection to this node.
     if (m_view.m_selected_node == this) {
-        ImGui::Selectable(m_text.c_str(),true);
-    } else if (ImGui::Selectable(m_text.c_str(),false)) {
+        ImGui::Selectable(m_text.c_str(), true);
+    } else if (ImGui::Selectable(m_text.c_str(), false)) {
         if (m_view.m_selected_node) {
             m_view.m_selected_node->on_deselect();
         }

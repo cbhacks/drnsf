@@ -53,7 +53,7 @@ static void init()
     );
 
     // Upload the font as a texture to OpenGL.
-    glBindTexture(GL_TEXTURE_2D,s_font_tex);
+    glBindTexture(GL_TEXTURE_2D, s_font_tex);
     glTexImage2D(
         GL_TEXTURE_2D,
         0,
@@ -65,9 +65,9 @@ static void init()
         GL_UNSIGNED_BYTE,
         font_pixels
     );
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glBindTexture(GL_TEXTURE_2D,0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     const char vert_code[] = R"(
 
@@ -105,7 +105,7 @@ in vec4 v_Color;
 
 void main()
 {
-    gl_FragColor = v_Color * texture2D(u_Font,v_TexCoord);
+    gl_FragColor = v_Color * texture2D(u_Font, v_TexCoord);
 }
 
 )";
@@ -113,16 +113,16 @@ void main()
     gl::frag_shader frag_shader;
     frag_shader.compile(frag_code);
 
-    glAttachShader(s_prog,vert_shader);
-    glAttachShader(s_prog,frag_shader);
-    glBindAttribLocation(s_prog,0,"a_Position");
-    glBindAttribLocation(s_prog,1,"a_TexCoord");
-    glBindAttribLocation(s_prog,2,"a_Color");
+    glAttachShader(s_prog, vert_shader);
+    glAttachShader(s_prog, frag_shader);
+    glBindAttribLocation(s_prog, 0, "a_Position");
+    glBindAttribLocation(s_prog, 1, "a_TexCoord");
+    glBindAttribLocation(s_prog, 2, "a_Color");
     glLinkProgram(s_prog);
 
     glBindVertexArray(s_vao);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,s_ibo);
-    glBindBuffer(GL_ARRAY_BUFFER,s_vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_ibo);
+    glBindBuffer(GL_ARRAY_BUFFER, s_vbo);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(
         0,
@@ -130,7 +130,7 @@ void main()
         GL_FLOAT,
         false,
         sizeof(ImDrawVert),
-        reinterpret_cast<void *>(offsetof(ImDrawVert,pos))
+        reinterpret_cast<void *>(offsetof(ImDrawVert, pos))
     );
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(
@@ -139,7 +139,7 @@ void main()
         GL_FLOAT,
         false,
         sizeof(ImDrawVert),
-        reinterpret_cast<void *>(offsetof(ImDrawVert,uv))
+        reinterpret_cast<void *>(offsetof(ImDrawVert, uv))
     );
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(
@@ -148,17 +148,17 @@ void main()
         GL_UNSIGNED_BYTE,
         true,
         sizeof(ImDrawVert),
-        reinterpret_cast<void *>(offsetof(ImDrawVert,col))
+        reinterpret_cast<void *>(offsetof(ImDrawVert, col))
     );
-    glBindBuffer(GL_ARRAY_BUFFER,0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
 
-void im_canvas::render(int width,int height)
+void im_canvas::render(int width, int height)
 {
     m_io->DisplaySize.x = width;
     m_io->DisplaySize.y = height;
-    glViewport(0,0,width,height);
+    glViewport(0, 0, width, height);
 
     long current_time = g_get_monotonic_time();
     long delta_time = current_time - m_last_update;
@@ -169,14 +169,14 @@ void im_canvas::render(int width,int height)
     ImGui::SetCurrentContext(m_im);
     ImGui::NewFrame();
 
-    on_frame(width,height,delta_time / 1000);
+    on_frame(width, height, delta_time / 1000);
 
     ImGui::Render();
     ImDrawData *draw_data = ImGui::GetDrawData();
 
     glUseProgram(s_prog);
-    int uni_screenortho = glGetUniformLocation(s_prog,"u_ScreenOrtho");
-    glUniform1i(glGetUniformLocation(s_prog,"u_Font"),0);
+    int uni_screenortho = glGetUniformLocation(s_prog, "u_ScreenOrtho");
+    glUniform1i(glGetUniformLocation(s_prog, "u_Font"), 0);
 
     // Prepare a simple 2D orthographic projection.
     //
@@ -207,7 +207,7 @@ void im_canvas::render(int width,int height)
 
     // Enable alpha blending. ImGui requires this for its fonts.
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Enable the GL scissor test. This is used to clip gui widgets to only
     // render within their given area.
@@ -218,21 +218,21 @@ void im_canvas::render(int width,int height)
     for (int i = 0;i < draw_data->CmdListsCount;i++) {
         ImDrawList *draw_list = draw_data->CmdLists[i];
 
-        glBindBuffer(GL_COPY_WRITE_BUFFER,s_vbo);
+        glBindBuffer(GL_COPY_WRITE_BUFFER, s_vbo);
         glBufferData(
             GL_COPY_WRITE_BUFFER,
             draw_list->VtxBuffer.Size * sizeof(ImDrawVert),
             draw_list->VtxBuffer.Data,
             GL_DYNAMIC_DRAW
         );
-        glBindBuffer(GL_COPY_WRITE_BUFFER,s_ibo);
+        glBindBuffer(GL_COPY_WRITE_BUFFER, s_ibo);
         glBufferData(
             GL_COPY_WRITE_BUFFER,
             draw_list->IdxBuffer.Size * sizeof(ImDrawIdx),
             draw_list->IdxBuffer.Data,
             GL_DYNAMIC_DRAW
         );
-        glBindBuffer(GL_COPY_WRITE_BUFFER,0);
+        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
 
         // Get the index array (IBO-like). Each draw command pulls some
         // amount of these elements out from the front.
@@ -240,7 +240,7 @@ void im_canvas::render(int width,int height)
 
         // Draw each of the commands in the list.
         for (auto &c : draw_list->CmdBuffer) {
-            glBindTexture(GL_TEXTURE_2D,s_font_tex);
+            glBindTexture(GL_TEXTURE_2D, s_font_tex);
             glScissor(
                 c.ClipRect.x,
                 height - c.ClipRect.w,
@@ -266,11 +266,11 @@ void im_canvas::render(int width,int height)
     glDisable(GL_SCISSOR_TEST);
 
     // Unbind whatever texture was bound by the last draw command.
-    glBindTexture(GL_TEXTURE_2D,0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     // Restore the previous blending setup.
     glDisable(GL_BLEND);
-    glBlendFunc(GL_ONE,GL_ZERO);
+    glBlendFunc(GL_ONE, GL_ZERO);
 
     glBindVertexArray(0);
     glUseProgram(0);
@@ -278,8 +278,8 @@ void im_canvas::render(int width,int height)
     ImGui::SetCurrentContext(previous_im);
 }
 
-im_canvas::im_canvas(gui::container &parent,gui::layout layout) :
-    m_canvas(parent,layout)
+im_canvas::im_canvas(gui::container &parent, gui::layout layout) :
+    m_canvas(parent, layout)
 {
     init();
 
@@ -307,12 +307,12 @@ im_canvas::im_canvas(gui::container &parent,gui::layout layout) :
 
     m_last_update = g_get_monotonic_time();
 
-    h_render <<= [this](int width,int height) {
-        render(width,height);
+    h_render <<= [this](int width, int height) {
+        render(width, height);
     };
     h_render.bind(m_canvas.on_render);
 
-    h_mousemove <<= [this](int x,int y) {
+    h_mousemove <<= [this](int x, int y) {
         m_io->MousePos.x = x;
         m_io->MousePos.y = y;
     };
@@ -323,7 +323,7 @@ im_canvas::im_canvas(gui::container &parent,gui::layout layout) :
     };
     h_mousewheel.bind(m_canvas.on_mousewheel);
 
-    h_mousebutton <<= [this](int button,bool down) {
+    h_mousebutton <<= [this](int button, bool down) {
         switch (button) {
         case 1:
             m_io->MouseDown[0] = down;
@@ -338,7 +338,7 @@ im_canvas::im_canvas(gui::container &parent,gui::layout layout) :
     };
     h_mousebutton.bind(m_canvas.on_mousebutton);
 
-    h_key <<= [this](int key,bool down) {
+    h_key <<= [this](int key, bool down) {
         switch (key) {
         case GDK_KEY_Shift_L:
         case GDK_KEY_Shift_R:

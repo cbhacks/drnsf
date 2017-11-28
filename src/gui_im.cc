@@ -38,7 +38,7 @@ void subwindow(
     const std::string &title,
     const std::function<void()> &f)
 {
-    auto str = "$###subwnd_$"_fmt(title,id);
+    auto str = "$###subwnd_$"_fmt(title, id);
 
     if (Begin(str.c_str())) {
         f();
@@ -60,7 +60,7 @@ void menu(
     const std::function<void()> &f)
 {
     if (!f) {
-        BeginMenu(text.c_str(),false);
+        BeginMenu(text.c_str(), false);
         return;
     }
     if (BeginMenu(text.c_str())) {
@@ -74,7 +74,7 @@ void menu_item(
     const std::function<void()> &f)
 {
     if (!f) {
-        MenuItem(text.c_str(),nullptr,false,false);
+        MenuItem(text.c_str(), nullptr, false, false);
         return;
     }
     if (MenuItem(text.c_str())) {

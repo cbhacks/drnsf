@@ -26,7 +26,7 @@ namespace drnsf {
 namespace nsf {
 
 // declared in nsf.hh
-void archive::import_file(TRANSACT,const util::blob &data)
+void archive::import_file(TRANSACT, const util::blob &data)
 {
     assert_alive();
 
@@ -45,16 +45,16 @@ void archive::import_file(TRANSACT,const util::blob &data)
 
         // Create the page asset.
         page = get_name() / "page-$"_fmt(i);
-        page.create(TS,get_proj());
+        page.create(TS, get_proj());
 
         // Copy the page data into the asset.
         page->set_data(TS,
-            {&data[page_size * i],&data[page_size * (i + 1)]}
+            {&data[page_size * i], &data[page_size * (i + 1)]}
         );
     }
 
     // Finish importing.
-    set_pages(TS,{pages.begin(),pages.end()});
+    set_pages(TS, {pages.begin(), pages.end()});
 }
 
 }

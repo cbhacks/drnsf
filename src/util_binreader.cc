@@ -35,7 +35,7 @@ binreader::binreader() :
 }
 
 // declared in util.hh
-void binreader::begin(const unsigned char *data,std::size_t size)
+void binreader::begin(const unsigned char *data, std::size_t size)
 {
     if (m_data)
         throw 0; // FIXME
@@ -202,7 +202,7 @@ void binreader::expect_u32(std::uint32_t value)
 }
 
 // declared in util.hh
-void binreader::expect_ubits(int bits,std::int64_t value)
+void binreader::expect_ubits(int bits, std::int64_t value)
 {
     if (read_ubits(bits) != value)
         throw 0; // FIXME
@@ -230,7 +230,7 @@ void binreader::expect_s32(std::int32_t value)
 }
 
 // declared in util.hh
-void binreader::expect_sbits(int bits,std::int64_t value)
+void binreader::expect_sbits(int bits, std::int64_t value)
 {
     if (read_sbits(bits) != value)
         throw 0; // FIXME

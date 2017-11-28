@@ -28,9 +28,9 @@ namespace res {
 // (internal class) nucleus_name_comparator
 // FIXME explain
 struct nucleus_name_comparator {
-    bool operator()(const char *lhs,const char *rhs)
+    bool operator()(const char *lhs, const char *rhs)
     {
-        return (std::strcmp(lhs,rhs) < 0);
+        return (std::strcmp(lhs, rhs) < 0);
     }
 };
 
@@ -55,7 +55,7 @@ struct atom::nucleus {
 
     // (var) m_children
     // FIXME explain
-    std::map<const char *,nucleus *,nucleus_name_comparator> m_children;
+    std::map<const char *, nucleus *, nucleus_name_comparator> m_children;
 };
 
 // declared in res.hh
@@ -144,7 +144,7 @@ atom::~atom() noexcept
 // declared in res.hh
 atom &atom::operator =(atom rhs)
 {
-    std::swap(m_nuc,rhs.m_nuc);
+    std::swap(m_nuc, rhs.m_nuc);
     return *this;
 }
 
@@ -225,10 +225,10 @@ atom atom::operator /(const char *s) const
     newnuc->m_name = name;
     newnuc->m_parent = m_nuc;
     newnuc->m_asset = nullptr;
-    std::strcpy(name,s);
+    std::strcpy(name, s);
 
     try {
-        m_nuc->m_children.insert({name,newnuc});
+        m_nuc->m_children.insert({name, newnuc});
     } catch (...) {
         newnuc->~nucleus();
         std::free(newnuc_space);

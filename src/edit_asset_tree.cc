@@ -55,13 +55,13 @@ private:
     // The tree nodes for each atom. These are weak pointers to ensure that
     // atoms only have nodes if they are bound to an asset or have a
     // descendant node which are.
-    std::map<res::atom,std::weak_ptr<node>> m_atom_nodes;
+    std::map<res::atom, std::weak_ptr<node>> m_atom_nodes;
 
     // (var) m_asset_nodes
     // The tree nodes for each asset in the project. This map's shared_ptrs
     // also keep the nodes alive whereas the m_atom_nodes field above does
     // not.
-    std::map<res::asset *,std::shared_ptr<node>> m_asset_nodes;
+    std::map<res::asset *, std::shared_ptr<node>> m_asset_nodes;
 
     // (var) m_selected_node
     // The node under the selected asset name. This shared_ptr keeps the
@@ -85,10 +85,10 @@ public:
     explicit impl(
         asset_tree &outer,
         res::project &proj) :
-        composite(outer,gui::layout::fill()),
+        composite(outer, gui::layout::fill()),
         m_outer(outer),
         m_proj(proj),
-        m_tree(*this,gui::layout::fill())
+        m_tree(*this, gui::layout::fill())
     {
         h_asset_appear <<= [this](res::asset &asset) {
             auto name = asset.get_name();
@@ -143,7 +143,7 @@ public:
     // Constructs the node object and the backing treeview node at the
     // correct location in the treeview. This may also construct parent
     // nodes if they do not yet exist.
-    explicit node(impl &view,res::atom atom)
+    explicit node(impl &view, res::atom atom)
     {
         auto parent_atom = atom.get_parent();
         if (parent_atom == view.m_proj.get_asset_root()) {
@@ -166,14 +166,14 @@ public:
         }
         m_treenode->set_text(atom.name());
 
-        h_select <<= [this,atom,&view]{
+        h_select <<= [this, atom, &view]{
             view.m_selected_asset = atom;
             view.m_outer.on_select(atom);
             view.m_selected_node = view.m_atom_nodes[atom].lock();
         };
         h_select.bind(m_treenode->on_select);
 
-        h_deselect <<= [this,atom,&view]{
+        h_deselect <<= [this, atom, &view]{
             if (view.m_selected_asset == atom) {
                 view.m_selected_asset = nullptr;
                 view.m_outer.on_select(nullptr);
@@ -184,10 +184,10 @@ public:
 };
 
 // declared in edit.hh
-asset_tree::asset_tree(gui::container &parent,gui::layout layout,res::project &proj) :
-    composite(parent,layout)
+asset_tree::asset_tree(gui::container &parent, gui::layout layout, res::project &proj) :
+    composite(parent, layout)
 {
-    M = new impl(*this,proj);
+    M = new impl(*this, proj);
     M->show();
 }
 

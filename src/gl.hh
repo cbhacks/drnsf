@@ -59,21 +59,21 @@ public:
     // FIXME explain
     texture(texture &&src)
     {
-        std::swap(m_id,src.m_id);
+        std::swap(m_id, src.m_id);
     }
 
     // (dtor)
     // FIXME explain
     ~texture()
     {
-        glDeleteTextures(1,&m_id);
+        glDeleteTextures(1, &m_id);
     }
 
     // (move-assignment operator)
     // FIXME explain
     texture &operator =(texture &&rhs)
     {
-        std::swap(m_id,rhs.m_id);
+        std::swap(m_id, rhs.m_id);
         return *this;
     }
 
@@ -82,7 +82,7 @@ public:
     operator decltype(m_id)() &
     {
         if (!m_id) {
-            glGenTextures(1,&m_id);
+            glGenTextures(1, &m_id);
         }
         return m_id;
     }
@@ -108,21 +108,21 @@ public:
     // FIXME explain
     buffer(buffer &&src)
     {
-        std::swap(m_id,src.m_id);
+        std::swap(m_id, src.m_id);
     }
 
     // (dtor)
     // FIXME explain
     ~buffer()
     {
-        glDeleteBuffers(1,&m_id);
+        glDeleteBuffers(1, &m_id);
     }
 
     // (move-assignment operator)
     // FIXME explain
     buffer &operator =(buffer &&rhs)
     {
-        std::swap(m_id,rhs.m_id);
+        std::swap(m_id, rhs.m_id);
         return *this;
     }
 
@@ -131,7 +131,7 @@ public:
     operator decltype(m_id)() &
     {
         if (!m_id) {
-            glGenBuffers(1,&m_id);
+            glGenBuffers(1, &m_id);
         }
         return m_id;
     }
@@ -157,21 +157,21 @@ public:
     // FIXME explain
     vert_array(vert_array &&src)
     {
-        std::swap(m_id,src.m_id);
+        std::swap(m_id, src.m_id);
     }
 
     // (dtor)
     // FIXME explain
     ~vert_array()
     {
-        glDeleteVertexArrays(1,&m_id);
+        glDeleteVertexArrays(1, &m_id);
     }
 
     // (move-assignment operator)
     // FIXME explain
     vert_array &operator =(vert_array &&rhs)
     {
-        std::swap(m_id,rhs.m_id);
+        std::swap(m_id, rhs.m_id);
         return *this;
     }
 
@@ -180,7 +180,7 @@ public:
     operator decltype(m_id)() &
     {
         if (!m_id) {
-            glGenVertexArrays(1,&m_id);
+            glGenVertexArrays(1, &m_id);
         }
         return m_id;
     }
@@ -206,21 +206,21 @@ public:
     // FIXME explain
     renderbuffer(renderbuffer &&src)
     {
-        std::swap(m_id,src.m_id);
+        std::swap(m_id, src.m_id);
     }
 
     // (dtor)
     // FIXME explain
     ~renderbuffer()
     {
-        glDeleteRenderbuffers(1,&m_id);
+        glDeleteRenderbuffers(1, &m_id);
     }
 
     // (move-assignment operator)
     // FIXME explain
     renderbuffer &operator =(renderbuffer &&rhs)
     {
-        std::swap(m_id,rhs.m_id);
+        std::swap(m_id, rhs.m_id);
         return *this;
     }
 
@@ -229,7 +229,7 @@ public:
     operator decltype(m_id)() &
     {
         if (!m_id) {
-            glGenRenderbuffers(1,&m_id);
+            glGenRenderbuffers(1, &m_id);
         }
         return m_id;
     }
@@ -255,21 +255,21 @@ public:
     // FIXME explain
     framebuffer(framebuffer &&src)
     {
-        std::swap(m_id,src.m_id);
+        std::swap(m_id, src.m_id);
     }
 
     // (dtor)
     // FIXME explain
     ~framebuffer()
     {
-        glDeleteFramebuffers(1,&m_id);
+        glDeleteFramebuffers(1, &m_id);
     }
 
     // (move-assignment operator)
     // FIXME explain
     framebuffer &operator =(framebuffer &&rhs)
     {
-        std::swap(m_id,rhs.m_id);
+        std::swap(m_id, rhs.m_id);
         return *this;
     }
 
@@ -278,7 +278,7 @@ public:
     operator decltype(m_id)() &
     {
         if (!m_id) {
-            glGenFramebuffers(1,&m_id);
+            glGenFramebuffers(1, &m_id);
         }
         return m_id;
     }
@@ -304,7 +304,7 @@ public:
     // FIXME explain
     program(program &&src)
     {
-        std::swap(m_id,src.m_id);
+        std::swap(m_id, src.m_id);
     }
 
     // (dtor)
@@ -318,7 +318,7 @@ public:
     // FIXME explain
     program &operator =(program &&rhs)
     {
-        std::swap(m_id,rhs.m_id);
+        std::swap(m_id, rhs.m_id);
         return *this;
     }
 
@@ -354,7 +354,7 @@ public:
     // FIXME explain
     shader(shader &&src)
     {
-        std::swap(m_id,src.m_id);
+        std::swap(m_id, src.m_id);
     }
 
     // (dtor)
@@ -368,7 +368,7 @@ public:
     // FIXME explain
     shader &operator =(shader &&rhs)
     {
-        std::swap(m_id,rhs.m_id);
+        std::swap(m_id, rhs.m_id);
         return *this;
     }
 
@@ -387,15 +387,15 @@ public:
     void compile(const std::string &code)
     {
         const char *code_cstr = code.c_str();
-        glShaderSource(*this,1,&code_cstr,nullptr);
+        glShaderSource(*this, 1, &code_cstr, nullptr);
         glCompileShader(*this);
 
         int status;
-        glGetShaderiv(*this,GL_COMPILE_STATUS,&status);
+        glGetShaderiv(*this, GL_COMPILE_STATUS, &status);
 
         if (!status) {
             int log_size;
-            glGetShaderiv(*this,GL_INFO_LOG_LENGTH,&log_size);
+            glGetShaderiv(*this, GL_INFO_LOG_LENGTH, &log_size);
 
             std::vector<char> log_buffer(log_size);
             glGetShaderInfoLog(
@@ -405,9 +405,9 @@ public:
                 log_buffer.data()
             );
 
-            fprintf(stderr," == BEGIN SHADER COMPILE LOG ==\n");
-            fprintf(stderr,"%s\n",log_buffer.data());
-            fprintf(stderr," === END SHADER COMPILE LOG ===\n");
+            fprintf(stderr, " == BEGIN SHADER COMPILE LOG ==\n");
+            fprintf(stderr, "%s\n", log_buffer.data());
+            fprintf(stderr, " === END SHADER COMPILE LOG ===\n");
 
             throw 0;//FIXME
         }

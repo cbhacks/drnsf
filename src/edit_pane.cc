@@ -24,7 +24,7 @@
 namespace drnsf {
 namespace edit {
 
-pane::pane(old_editor &ed,std::string id) :
+pane::pane(old_editor &ed, std::string id) :
     m_id(id),
     m_ed(ed)
 {

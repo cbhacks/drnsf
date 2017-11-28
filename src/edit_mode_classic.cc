@@ -36,8 +36,8 @@ private:
     mode_classic &m_mode;
 
 public:
-    explicit asset_pane(old_editor &ed,mode_classic &mode) :
-        pane(ed,"classic_asset"),
+    explicit asset_pane(old_editor &ed, mode_classic &mode) :
+        pane(ed, "classic_asset"),
         m_mode(mode) {}
 
     void show() override;
@@ -45,7 +45,7 @@ public:
     std::string get_title() const override;
 
     template <typename T>
-    bool field(const T &value,std::string label)
+    bool field(const T &value, std::string label)
     {
         gui::im::label(label);
         gui::im::NextColumn();
@@ -56,13 +56,13 @@ public:
     }
 
     template <typename T>
-    std::enable_if_t<std::is_integral<T>::value,bool>
-        field(T &value,std::string label)
+    std::enable_if_t<std::is_integral<T>::value, bool>
+        field(T &value, std::string label)
     {
         int ivalue = value;
         gui::im::label(label);
         gui::im::NextColumn();
-        bool changed = gui::im::InputInt("##value",&ivalue);
+        bool changed = gui::im::InputInt("##value", &ivalue);
         gui::im::NextColumn();
         if (changed) {
             value = ivalue;
@@ -71,13 +71,13 @@ public:
     }
 
     template <typename T>
-    std::enable_if_t<std::is_floating_point<T>::value,bool>
-        field(T &value,std::string label)
+    std::enable_if_t<std::is_floating_point<T>::value, bool>
+        field(T &value, std::string label)
     {
         float fvalue = value;
         gui::im::label(label);
         gui::im::NextColumn();
-        bool changed = gui::im::InputFloat("##value",&fvalue);
+        bool changed = gui::im::InputFloat("##value", &fvalue);
         gui::im::NextColumn();
         if (changed) {
             value = fvalue;
@@ -85,7 +85,7 @@ public:
         return changed;
     }
 
-    bool field(gfx::color &value,std::string label)
+    bool field(gfx::color &value, std::string label)
     {
         gui::im::label(label);
         gui::im::NextColumn();
@@ -94,7 +94,7 @@ public:
             value.g / 255.0f,
             value.b / 255.0f
         };
-        bool changed = gui::im::ColorEdit3("##value",fcolor);
+        bool changed = gui::im::ColorEdit3("##value", fcolor);
         if (changed) {
             value.r = fcolor[0] * 255;
             value.g = fcolor[1] * 255;
@@ -104,17 +104,17 @@ public:
         return changed;
     }
 
-    bool field(gfx::vertex &value,std::string label)
+    bool field(gfx::vertex &value, std::string label)
     {
         gui::im::label(label);
         gui::im::NextColumn();
-        bool changed = gui::im::InputFloat3("##value",value.v);
+        bool changed = gui::im::InputFloat3("##value", value.v);
         gui::im::NextColumn();
         return changed;
     }
 
     template <typename T>
-    bool field(res::ref<T> &value,std::string label)
+    bool field(res::ref<T> &value, std::string label)
     {
         gui::im::label(label);
         gui::im::NextColumn();
@@ -138,7 +138,7 @@ public:
     }
 
     template <typename T>
-    bool field(std::vector<T> &list,std::string label)
+    bool field(std::vector<T> &list, std::string label)
     {
         gui::im::AlignFirstTextHeightToWidgets();
         bool is_open = gui::im::TreeNode(label.c_str());
@@ -155,41 +155,41 @@ public:
         bool changed = false;
         for (auto &&i : util::range_of(list)) {
             gui::im::scope index_scope(i);
-            changed |= field(list[i],"[$]"_fmt(i));
+            changed |= field(list[i], "[$]"_fmt(i));
         }
         gui::im::TreePop();
         return changed;
     }
 
     template <typename T>
-    void field(res::prop<T> &prop,std::string label)
+    void field(res::prop<T> &prop, std::string label)
     {
         gui::im::scope prop_scope(&prop);
         auto value = prop.get();
-        bool changed = field(value,label);
+        bool changed = field(value, label);
         if (changed) {
             m_ed.get_project().get_transact() << [&](TRANSACT) {
                 TS.describe("Edit '$'"_fmt(label));
-                prop.set(TS,std::move(value));
+                prop.set(TS, std::move(value));
             };
         }
     }
 };
 
-template <typename Reflector,typename Base>
-static void dyn_reflect(Reflector &rfl,Base &value)
+template <typename Reflector, typename Base>
+static void dyn_reflect(Reflector &rfl, Base &value)
 {
     // None of the given types match this.
 }
 
-template <typename Reflector,typename Base,typename T,typename... Remaining>
-static void dyn_reflect(Reflector &rfl,Base &value)
+template <typename Reflector, typename Base, typename T, typename... Remaining>
+static void dyn_reflect(Reflector &rfl, Base &value)
 {
     T *t = dynamic_cast<T *>(&value);
     if (t) {
         return t->reflect(rfl);
     } else {
-        return dyn_reflect<Reflector,Base,Remaining...>(rfl,value);
+        return dyn_reflect<Reflector, Base, Remaining...>(rfl, value);
     }
 }
 
@@ -202,7 +202,7 @@ private:
 public:
     explicit mode_classic(old_editor &ed) :
         mode(ed),
-        m_asset(ed,*this) {}
+        m_asset(ed, *this) {}
 };
 
 static modedef_of<mode_classic> g_mode_classic_def("Classic");
@@ -234,7 +234,7 @@ void asset_pane::show()
         nsf::spage,
         nsf::raw_entry,
         nsf::wgeo_v2,
-        nsf::entry> (*this,*g_selected_asset.get());
+        nsf::entry> (*this, *g_selected_asset.get());
     im::Columns(1);
 }
 

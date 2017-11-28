@@ -47,7 +47,7 @@ void init()
 
     // Create the hidden window. This window is necessary to actually get
     // an OpenGL context, even if we don't render to it.
-    g_wnd = gdk_window_new(nullptr,&wnd_attr,0);
+    g_wnd = gdk_window_new(nullptr, &wnd_attr, 0);
     // Failure presumably results in a crash or premature exit/abort. This
     // is the typical behavior in GTK/GDK/Glib, and nothing can be done
     // about it. Blame their devs.
@@ -58,7 +58,7 @@ void init()
     // jobs should target an FBO+RBO or FBO+texture which can then be
     // blitted to the actual appropriate display widget.
     GError *error = nullptr;
-    g_glctx = gdk_window_create_gl_context(g_wnd,&error);
+    g_glctx = gdk_window_create_gl_context(g_wnd, &error);
     if (!g_glctx) {
         // TODO
     }

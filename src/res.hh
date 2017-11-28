@@ -35,15 +35,15 @@
  *
  * FIXME explain
  */
-#define DEFINE_APROP(name,type,...) \
+#define DEFINE_APROP(name, type, ...) \
     ::drnsf::res::prop<type> p_##name = { *this, {__VA_ARGS__} }; \
     const type &get_##name() const \
     { \
         return p_##name.get(); \
     } \
-    void set_##name(TRANSACT,type value) \
+    void set_##name(TRANSACT, type value) \
     { \
-        p_##name.set(TS,std::move(value)); \
+        p_##name.set(TS, std::move(value)); \
     }
 
 namespace drnsf {
@@ -269,7 +269,7 @@ private:
 
     // (func) create_imple
     // FIXME explain
-    void create_impl(TRANSACT,atom name);
+    void create_impl(TRANSACT, atom name);
 
 protected:
     // (explicit ctor)
@@ -289,7 +289,7 @@ public:
     // (s-func) create<T>
     // FIXME explain
     template <typename T>
-    static void create(TRANSACT,atom name,project &proj)
+    static void create(TRANSACT, atom name, project &proj)
     {
         if (!name)
             throw 0; // FIXME
@@ -297,12 +297,12 @@ public:
         if (name.get())
             throw 0; // FIXME
 
-        (new T(proj))->create_impl(TS,name);
+        (new T(proj))->create_impl(TS, name);
     }
 
     // (func) rename
     // FIXME explain
-    void rename(TRANSACT,atom name);
+    void rename(TRANSACT, atom name);
 
     // (func) destroy
     // FIXME explain
@@ -342,7 +342,7 @@ private:
 public:
     // (ctor)
     // FIXME explain
-    prop(asset &owner,T value) :
+    prop(asset &owner, T value) :
         m_owner(owner),
         m_value(value) {}
 
@@ -356,10 +356,10 @@ public:
 
     // (func) set
     // FIXME explain
-    void set(TRANSACT,T value)
+    void set(TRANSACT, T value)
     {
         m_owner.assert_alive();
-        TS.set(m_value,std::move(value));
+        TS.set(m_value, std::move(value));
     }
 };
 
@@ -387,9 +387,9 @@ public:
 
     // (func) create
     // FIXME explain
-    void create(TRANSACT,project &proj) const
+    void create(TRANSACT, project &proj) const
     {
-        res::asset::create<T>(TS,*this,proj);
+        res::asset::create<T>(TS, *this, proj);
     }
 
     // (func) ok

@@ -36,8 +36,8 @@ core::core() :
     m_ed(m_proj),
     m_wnd(m_ed)
 {
-    h_frame <<= [this](int width,int height,int delta_time) {
-        frame(width,height,delta_time);
+    h_frame <<= [this](int width, int height, int delta_time) {
+        frame(width, height, delta_time);
     };
     h_frame.bind(m_wnd.m_cryptos.on_frame);
 
@@ -47,7 +47,7 @@ core::core() :
     m_wnd.show();
 }
 
-void core::frame(int width,int height,int delta)
+void core::frame(int width, int height, int delta)
 {
     // Clear the screen.
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -61,8 +61,8 @@ void core::frame(int width,int height,int delta)
         500.0f,
         200000.0f
     )[0][0]);
-    glTranslatef(0,0,-800.0f);
-    glTranslatef(0,0,-g_camera_zoom);
+    glTranslatef(0, 0, -800.0f);
+    glTranslatef(0, 0, -g_camera_zoom);
     glMatrixMode(GL_MODELVIEW);
 
     // Enable z-buffering.

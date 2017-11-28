@@ -207,7 +207,7 @@ public:
  *
  * These functions provide a mechanism for converting some known common types
  * to strings. Any code using these should consider allowing for ADL using the
- * same idiom as the `using std::swap; swap(x,y);' concept.
+ * same idiom as the `using std::swap; swap(x, y);' concept.
  *
  * This code actually already exists in the standard library, so it should be
  * removed from here. [ FIXME ]
@@ -223,7 +223,7 @@ std::string to_string(long long ll);
  * the explicit constructor provided in this class.
  *
  * A format string object is used by applying the arguments to it using the call
- * operator (as one would call a function, `f(a,b,c)') which yields the string
+ * operator (as one would call a function, `f(a, b, c)') which yields the string
  * produced by the formatting. The format string is not altered or destroyed by
  * this operation, and may be reused as many times as desired.
  *
@@ -232,7 +232,7 @@ std::string to_string(long long ll);
  * but without regard to type. No format specifiers (e.g. %05d) are supported
  * yet.
  *
- * Example: `fmt("pos: $,$  size: $,$")(x,y,width,height)'
+ * Example: `fmt("pos: $,$  size: $,$")(x, y, width, height)'
  *
  * This class is also available using the _fmt user-defined literal defined in
  * `common.hh'. See that definition for more details.
@@ -251,14 +251,14 @@ public:
 
     // (call operator)
     // FIXME explain
-    template <typename T,typename... Args>
-    std::string operator()(T t,Args... args) const
+    template <typename T, typename... Args>
+    std::string operator()(T t, Args... args) const
     {
         auto delim_pos = m_format.find('$');
         if (delim_pos == std::string::npos)
             throw 0; // FIXME
 
-        return m_format.substr(0,delim_pos)
+        return m_format.substr(0, delim_pos)
             + to_string(t)
             + fmt(m_format.substr(delim_pos + 1))
                 (std::forward<Args>(args)...);
@@ -283,7 +283,7 @@ public:
  * range of values, generally intended for use in for-range loops. This
  * construct works like this:
  *
- * `for (auto x : range(1,9,2)) { ... }'
+ * `for (auto x : range(1, 9, 2)) { ... }'
  *
  * Which would work the same as the common BASIC language for loop:
  *
@@ -303,7 +303,7 @@ public:
  * returns `ubound + step' which will only match exact hits.
  */
 template <typename T>
-inline auto range(T lbound,T ubound,T step = 1)
+inline auto range(T lbound, T ubound, T step = 1)
 {
     // (inner class) range_type
     // FIXME explain
@@ -338,7 +338,7 @@ inline auto range(T lbound,T ubound,T step = 1)
 
             // (explicit ctor)
             // FIXME explain
-            explicit iterator(T value,T step) :
+            explicit iterator(T value, T step) :
                 m_value(value),
                 m_step(step) {}
 
@@ -368,7 +368,7 @@ inline auto range(T lbound,T ubound,T step = 1)
 
         // (ctor)
         // FIXME explain
-        range_type(T start,T end,T step) :
+        range_type(T start, T end, T step) :
             m_start(start),
             m_end(end),
             m_step(step) {}
@@ -377,18 +377,18 @@ inline auto range(T lbound,T ubound,T step = 1)
         // FIXME explain
         iterator begin() const
         {
-            return iterator(m_start,m_step);
+            return iterator(m_start, m_step);
         }
 
         // (func) end
         // FIXME explain
         iterator end() const
         {
-            return iterator(m_end + m_step,m_step);
+            return iterator(m_end + m_step, m_step);
         }
     };
 
-    return range_type(lbound,ubound,step);
+    return range_type(lbound, ubound, step);
 }
 
 /*
@@ -402,7 +402,7 @@ inline auto range(T lbound,T ubound,T step = 1)
 template <typename T>
 inline auto range_of(T &container)
 {
-    return range<typename T::size_type>(0,container.size() - 1);
+    return range<typename T::size_type>(0, container.size() - 1);
 }
 
 /*
@@ -459,7 +459,7 @@ public:
 
     // (func) begin
     // FIXME explain
-    void begin(const unsigned char *data,std::size_t size);
+    void begin(const unsigned char *data, std::size_t size);
 
     // (func) begin
     // FIXME explain
@@ -519,7 +519,7 @@ public:
 
     // (func) expect_ubits
     // FIXME explain
-    void expect_ubits(int bits,std::int64_t value);
+    void expect_ubits(int bits, std::int64_t value);
 
     // (func) expect_u8
     // FIXME explain
@@ -535,7 +535,7 @@ public:
 
     // (func) expect_sbits
     // FIXME explain
-    void expect_sbits(int bits,std::int64_t value);
+    void expect_sbits(int bits, std::int64_t value);
 
     // (func) discard
     // FIXME explain

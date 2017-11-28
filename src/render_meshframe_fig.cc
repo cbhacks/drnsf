@@ -109,7 +109,7 @@ static void init()
     s_is_init = true;
 
     glBindVertexArray(s_vao);
-    glBindBuffer(GL_ARRAY_BUFFER,s_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, s_vbo);
     glBufferData(
         GL_ARRAY_BUFFER,
         sizeof(cube_vb_data),
@@ -117,9 +117,9 @@ static void init()
         GL_STATIC_DRAW
     );
     glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3,GL_FLOAT,0,0);
-    glBindBuffer(GL_ARRAY_BUFFER,0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,s_ibo);
+    glVertexPointer(3, GL_FLOAT, 0, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_ibo);
     glBufferData(
         GL_ELEMENT_ARRAY_BUFFER,
         sizeof(cube_ib_data),
@@ -133,18 +133,18 @@ static void init()
         reinterpret_cast<const char *>(embed::meshframe_vert::data),
         embed::meshframe_vert::size
     });
-    glAttachShader(s_prog,vs);
+    glAttachShader(s_prog, vs);
 
     gl::frag_shader fs;
     fs.compile({
         reinterpret_cast<const char *>(embed::meshframe_frag::data),
         embed::meshframe_frag::size
     });
-    glAttachShader(s_prog,fs);
+    glAttachShader(s_prog, fs);
 
     glLinkProgram(s_prog);
 
-    s_matrix_uni = glGetUniformLocation(s_prog,"u_Matrix");
+    s_matrix_uni = glGetUniformLocation(s_prog, "u_Matrix");
 }
 
 // declared in render.hh
@@ -153,9 +153,9 @@ void meshframe_fig::draw(const env &e)
     init();
 
     glUseProgram(s_prog);
-    glUniformMatrix4fv(s_matrix_uni,1,false,&e.matrix[0][0]);
+    glUniformMatrix4fv(s_matrix_uni, 1, false, &e.matrix[0][0]);
     glBindVertexArray(s_vao);
-    glDrawElements(GL_LINES,56,GL_UNSIGNED_BYTE,0);
+    glDrawElements(GL_LINES, 56, GL_UNSIGNED_BYTE, 0);
     glBindVertexArray(0);
     glUseProgram(0);
 }

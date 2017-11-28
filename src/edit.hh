@@ -54,7 +54,7 @@ private:
 public:
     // (ctor)
     // Constructs the widget and places it in the given parent container.
-    asset_editor(gui::container &parent,gui::layout layout,res::project &proj);
+    asset_editor(gui::container &parent, gui::layout layout, res::project &proj);
 
     // (dtor)
     // Destroys the widget, removing it from the parent container.
@@ -81,7 +81,7 @@ private:
 public:
     // (ctor)
     // Constructs the widget and places it in the given parent container.
-    asset_tree(gui::container &parent,gui::layout layout,res::project &proj);
+    asset_tree(gui::container &parent, gui::layout layout, res::project &proj);
 
     // (dtor)
     // Destroys the widget, removing it from the parent container.
@@ -114,7 +114,7 @@ private:
 public:
     // (ctor)
     // Constructs the widget and places it in the given parent container.
-    asset_infoview(gui::container &parent,gui::layout layout,res::project &proj);
+    asset_infoview(gui::container &parent, gui::layout layout, res::project &proj);
 
     // (dtor)
     // Destroys the widget, removing it from the parent container.
@@ -145,7 +145,7 @@ private:
 public:
     // (ctor)
     // Constructs the widget and places it in the given parent container.
-    asset_propview(gui::container &parent,gui::layout layout,res::project &proj);
+    asset_propview(gui::container &parent, gui::layout layout, res::project &proj);
 
     // (dtor)
     // Destroys the widget, removing it from the parent container.
@@ -172,7 +172,7 @@ private:
 public:
     // (ctor)
     // Constructs the widget and places it in the given parent container.
-    asset_viewport(gui::container &parent,gui::layout layout,res::project &proj);
+    asset_viewport(gui::container &parent, gui::layout layout, res::project &proj);
 
     // (dtor)
     // Destroys the widget, removing it from the parent container.
@@ -226,15 +226,15 @@ private:
     decltype(m_canvas.on_key)::watch h_key;
     decltype(m_canvas.on_text)::watch h_text;
 
-    void render(int width,int height);
+    void render(int width, int height);
 
 public:
-    im_canvas(gui::container &parent,gui::layout layout);
+    im_canvas(gui::container &parent, gui::layout layout);
     ~im_canvas();
 
     void show();
 
-    util::event<int,int,int> on_frame;
+    util::event<int, int, int> on_frame;
 };
 
 using res::project;
@@ -291,7 +291,7 @@ protected:
     old_editor &m_ed;
 
 public:
-    explicit pane(old_editor &ed,std::string id);
+    explicit pane(old_editor &ed, std::string id);
     ~pane();
 
     virtual void show() = 0;
@@ -356,7 +356,7 @@ public:
 
     core();
 
-    void frame(int width,int height,int delta);
+    void frame(int width, int height, int delta);
 };
 
 }

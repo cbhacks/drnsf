@@ -25,25 +25,25 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-menu::menu(window &parent,const std::string &text)
+menu::menu(window &parent, const std::string &text)
 {
     m_item = gtk_menu_item_new_with_label(text.c_str());
     m_menu = gtk_menu_new();
 
-    gtk_menu_shell_append(GTK_MENU_SHELL(parent.m_menubar),m_item);
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(m_item),m_menu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(parent.m_menubar), m_item);
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(m_item), m_menu);
 
     gtk_widget_show(m_item);
 }
 
 // declared in gui.hh
-menu::menu(menu &parent,const std::string &text)
+menu::menu(menu &parent, const std::string &text)
 {
     m_item = gtk_menu_item_new_with_label(text.c_str());
     m_menu = gtk_menu_new();
 
-    gtk_menu_shell_append(GTK_MENU_SHELL(parent.m_menu),m_item);
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(m_item),m_menu);
+    gtk_menu_shell_append(GTK_MENU_SHELL(parent.m_menu), m_item);
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(m_item), m_menu);
 
     gtk_widget_show(m_item);
 }

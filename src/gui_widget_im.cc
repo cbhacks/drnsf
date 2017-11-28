@@ -51,7 +51,7 @@ static void init()
     );
 
     // Upload the font as a texture to OpenGL.
-    glBindTexture(GL_TEXTURE_2D,s_font_tex);
+    glBindTexture(GL_TEXTURE_2D, s_font_tex);
     glTexImage2D(
         GL_TEXTURE_2D,
         0,
@@ -63,9 +63,9 @@ static void init()
         GL_UNSIGNED_BYTE,
         font_pixels
     );
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glBindTexture(GL_TEXTURE_2D,0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     const char vert_code[] = R"(
 
@@ -103,7 +103,7 @@ in vec4 v_Color;
 
 void main()
 {
-    gl_FragColor = v_Color * texture2D(u_Font,v_TexCoord);
+    gl_FragColor = v_Color * texture2D(u_Font, v_TexCoord);
 }
 
 )";
@@ -111,16 +111,16 @@ void main()
     gl::frag_shader frag_shader;
     frag_shader.compile(frag_code);
 
-    glAttachShader(s_prog,vert_shader);
-    glAttachShader(s_prog,frag_shader);
-    glBindAttribLocation(s_prog,0,"a_Position");
-    glBindAttribLocation(s_prog,1,"a_TexCoord");
-    glBindAttribLocation(s_prog,2,"a_Color");
+    glAttachShader(s_prog, vert_shader);
+    glAttachShader(s_prog, frag_shader);
+    glBindAttribLocation(s_prog, 0, "a_Position");
+    glBindAttribLocation(s_prog, 1, "a_TexCoord");
+    glBindAttribLocation(s_prog, 2, "a_Color");
     glLinkProgram(s_prog);
 
     glBindVertexArray(s_vao);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,s_ibo);
-    glBindBuffer(GL_ARRAY_BUFFER,s_vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_ibo);
+    glBindBuffer(GL_ARRAY_BUFFER, s_vbo);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(
         0,
@@ -128,7 +128,7 @@ void main()
         GL_FLOAT,
         false,
         sizeof(ImDrawVert),
-        reinterpret_cast<void *>(offsetof(ImDrawVert,pos))
+        reinterpret_cast<void *>(offsetof(ImDrawVert, pos))
     );
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(
@@ -137,7 +137,7 @@ void main()
         GL_FLOAT,
         false,
         sizeof(ImDrawVert),
-        reinterpret_cast<void *>(offsetof(ImDrawVert,uv))
+        reinterpret_cast<void *>(offsetof(ImDrawVert, uv))
     );
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(
@@ -146,16 +146,16 @@ void main()
         GL_UNSIGNED_BYTE,
         true,
         sizeof(ImDrawVert),
-        reinterpret_cast<void *>(offsetof(ImDrawVert,col))
+        reinterpret_cast<void *>(offsetof(ImDrawVert, col))
     );
-    glBindBuffer(GL_ARRAY_BUFFER,0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
 
-void widget_im::draw_gl(int width,int height,gl::renderbuffer &rbo)
+void widget_im::draw_gl(int width, int height, gl::renderbuffer &rbo)
 {
     gl::framebuffer fbo;
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER,fbo);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
     glFramebufferRenderbuffer(
         GL_DRAW_FRAMEBUFFER,
         GL_COLOR_ATTACHMENT0,
@@ -163,13 +163,13 @@ void widget_im::draw_gl(int width,int height,gl::renderbuffer &rbo)
         rbo
     );
 
-    glClearColor(0.8f,0.8f,0.8f,1.0f);
+    glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    glClearColor(0.0f,0.0f,0.0f,0.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
     m_io->DisplaySize.x = width;
     m_io->DisplaySize.y = height;
-    glViewport(0,0,width,height);
+    glViewport(0, 0, width, height);
 
     long current_time = g_get_monotonic_time();
     long delta_time = current_time - m_last_update;
@@ -180,7 +180,7 @@ void widget_im::draw_gl(int width,int height,gl::renderbuffer &rbo)
     ImGui::SetCurrentContext(m_im);
     ImGui::NewFrame();
 
-    ImGui::SetNextWindowPos({0,0});
+    ImGui::SetNextWindowPos({0, 0});
     ImGui::SetNextWindowSize({
         static_cast<float>(width),
         static_cast<float>(height)
@@ -199,8 +199,8 @@ void widget_im::draw_gl(int width,int height,gl::renderbuffer &rbo)
     ImDrawData *draw_data = ImGui::GetDrawData();
 
     glUseProgram(s_prog);
-    int uni_screenortho = glGetUniformLocation(s_prog,"u_ScreenOrtho");
-    glUniform1i(glGetUniformLocation(s_prog,"u_Font"),0);
+    int uni_screenortho = glGetUniformLocation(s_prog, "u_ScreenOrtho");
+    glUniform1i(glGetUniformLocation(s_prog, "u_Font"), 0);
 
     // Prepare a simple 2D orthographic projection.
     //
@@ -231,7 +231,7 @@ void widget_im::draw_gl(int width,int height,gl::renderbuffer &rbo)
 
     // Enable alpha blending. ImGui requires this for its fonts.
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Enable the GL scissor test. This is used to clip gui widgets to only
     // render within their given area.
@@ -242,26 +242,26 @@ void widget_im::draw_gl(int width,int height,gl::renderbuffer &rbo)
     for (int i = 0;i < draw_data->CmdListsCount;i++) {
         ImDrawList *draw_list = draw_data->CmdLists[i];
 
-        glBindBuffer(GL_COPY_WRITE_BUFFER,s_vbo);
+        glBindBuffer(GL_COPY_WRITE_BUFFER, s_vbo);
         glBufferData(
             GL_COPY_WRITE_BUFFER,
             draw_list->VtxBuffer.Size * sizeof(ImDrawVert),
             draw_list->VtxBuffer.Data,
             GL_DYNAMIC_DRAW
         );
-        glBindBuffer(GL_COPY_WRITE_BUFFER,s_ibo);
+        glBindBuffer(GL_COPY_WRITE_BUFFER, s_ibo);
         glBufferData(
             GL_COPY_WRITE_BUFFER,
             draw_list->IdxBuffer.Size * sizeof(ImDrawIdx),
             draw_list->IdxBuffer.Data,
             GL_DYNAMIC_DRAW
         );
-        glBindBuffer(GL_COPY_WRITE_BUFFER,0);
+        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
 
         // Draw each of the commands in the list.
         int index = 0;
         for (auto &c : draw_list->CmdBuffer) {
-            glBindTexture(GL_TEXTURE_2D,s_font_tex);
+            glBindTexture(GL_TEXTURE_2D, s_font_tex);
             glScissor(
                 c.ClipRect.x,
                 height - c.ClipRect.w,
@@ -287,20 +287,20 @@ void widget_im::draw_gl(int width,int height,gl::renderbuffer &rbo)
     glDisable(GL_SCISSOR_TEST);
 
     // Unbind whatever texture was bound by the last draw command.
-    glBindTexture(GL_TEXTURE_2D,0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
     // Restore the previous blending setup.
     glDisable(GL_BLEND);
-    glBlendFunc(GL_ONE,GL_ZERO);
+    glBlendFunc(GL_ONE, GL_ZERO);
 
     glBindVertexArray(0);
     glUseProgram(0);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER,0);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
     ImGui::SetCurrentContext(previous_im);
 }
 
-void widget_im::mousemove(int x,int y)
+void widget_im::mousemove(int x, int y)
 {
     m_io->MousePos.x = x;
     m_io->MousePos.y = y;
@@ -311,7 +311,7 @@ void widget_im::mousewheel(int delta_y)
     m_io->MouseWheel += delta_y;
 }
 
-void widget_im::mousebutton(int number,bool down)
+void widget_im::mousebutton(int number, bool down)
 {
     switch (number) {
     case 1:
@@ -326,7 +326,7 @@ void widget_im::mousebutton(int number,bool down)
     }
 }
 
-void widget_im::key(int code,bool down)
+void widget_im::key(int code, bool down)
 {
     switch (code) {
     case GDK_KEY_Shift_L:
@@ -410,8 +410,8 @@ void widget_im::text(const char *str)
     m_io->AddInputCharactersUTF8(str);
 }
 
-widget_im::widget_im(container &parent,layout layout) :
-    widget_gl(parent,layout)
+widget_im::widget_im(container &parent, layout layout) :
+    widget_gl(parent, layout)
 {
     init();
 
@@ -485,7 +485,7 @@ widget_im::widget_im(container &parent,layout layout) :
     style.Colors[ImGuiCol_PlotHistogramHovered] = default_color;
     style.Colors[ImGuiCol_TextSelectedBg]       = default_color;
     style.Colors[ImGuiCol_ModalWindowDarkening] = default_color;
-    static_assert(ImGuiCol_COUNT == 43,"ImGui color palette has changed!");
+    static_assert(ImGuiCol_COUNT == 43, "ImGui color palette has changed!");
 
     m_last_update = g_get_monotonic_time();
 

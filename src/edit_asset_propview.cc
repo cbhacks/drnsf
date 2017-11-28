@@ -58,10 +58,10 @@ public:
     explicit impl(
         asset_propview &outer,
         res::project &proj) :
-        composite(outer,gui::layout::fill()),
+        composite(outer, gui::layout::fill()),
         m_outer(outer),
         m_proj(proj),
-        m_dummy(*this,gui::layout::fill(),"[asset properties here]")
+        m_dummy(*this, gui::layout::fill(), "[asset properties here]")
     {
         h_asset_appear <<= [this](res::asset &asset) {
             // TODO
@@ -78,10 +78,10 @@ public:
 };
 
 // declared in edit.hh
-asset_propview::asset_propview(gui::container &parent,gui::layout layout,res::project &proj) :
-    composite(parent,layout)
+asset_propview::asset_propview(gui::container &parent, gui::layout layout, res::project &proj) :
+    composite(parent, layout)
 {
-    M = new impl(*this,proj);
+    M = new impl(*this, proj);
     M->show();
 }
 

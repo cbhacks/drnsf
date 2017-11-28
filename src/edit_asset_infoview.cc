@@ -70,13 +70,13 @@ public:
     explicit impl(
         asset_infoview &outer,
         res::project &proj) :
-        composite(outer,gui::layout::fill()),
+        composite(outer, gui::layout::fill()),
         m_outer(outer),
         m_proj(proj),
-        m_assetname(*this,gui::layout::grid(1,1,2,0,1,2)),
-        m_assetname_title(*this,gui::layout::grid(0,1,2,0,1,2),"Asset Name"),
-        m_assettype(*this,gui::layout::grid(1,1,2,1,1,2)),
-        m_assettype_title(*this,gui::layout::grid(0,1,2,1,1,2),"Asset Type")
+        m_assetname(*this, gui::layout::grid(1, 1, 2, 0, 1, 2)),
+        m_assetname_title(*this, gui::layout::grid(0, 1, 2, 0, 1, 2), "Asset Name"),
+        m_assettype(*this, gui::layout::grid(1, 1, 2, 1, 1, 2)),
+        m_assettype_title(*this, gui::layout::grid(0, 1, 2, 1, 1, 2), "Asset Type")
     {
         h_asset_appear <<= [this](res::asset &asset) {
             if (asset.get_name() == m_selected_asset) {
@@ -115,10 +115,10 @@ public:
 };
 
 // declared in edit.hh
-asset_infoview::asset_infoview(gui::container &parent,gui::layout layout,res::project &proj) :
-    composite(parent,layout)
+asset_infoview::asset_infoview(gui::container &parent, gui::layout layout, res::project &proj) :
+    composite(parent, layout)
 {
-    M = new impl(*this,proj);
+    M = new impl(*this, proj);
     M->show();
 }
 

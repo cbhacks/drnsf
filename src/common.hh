@@ -69,15 +69,15 @@ namespace drnsf {
  *
  * This allows one to use a construct such as the following:
  *
- *  `auto s = "Size: $, $"_fmt(width,height);'
+ *  `auto s = "Size: $, $"_fmt(width, height);'
  *
  * to format strings. This code is equivalent to:
  *
- *  `auto s = util::fmt("Size: $, $")(width,height);'
+ *  `auto s = util::fmt("Size: $, $")(width, height);'
  *
  * but is shorter and perhaps easier to read.
  */
-inline auto operator "" _fmt(const char *s,long unsigned int sz)
+inline auto operator "" _fmt(const char *s, long unsigned int sz)
 {
     return util::fmt(s);
 }

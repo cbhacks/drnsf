@@ -112,7 +112,7 @@ static void init()
     s_is_init = true;
 
     glBindVertexArray(s_vao);
-    glBindBuffer(GL_ARRAY_BUFFER,s_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, s_vbo);
     glBufferData(
         GL_ARRAY_BUFFER,
         sizeof(reticle_model),
@@ -126,7 +126,7 @@ static void init()
         GL_FLOAT,
         false,
         sizeof(reticle_vert),
-        reinterpret_cast<void *>(offsetof(reticle_vert,pos))
+        reinterpret_cast<void *>(offsetof(reticle_vert, pos))
     );
     glEnableVertexAttribArray(1);
     glVertexAttribIPointer(
@@ -134,9 +134,9 @@ static void init()
         1,
         GL_BYTE,
         sizeof(reticle_vert),
-        reinterpret_cast<void *>(offsetof(reticle_vert,axis))
+        reinterpret_cast<void *>(offsetof(reticle_vert, axis))
     );
-    glBindBuffer(GL_ARRAY_BUFFER,0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
     gl::vert_shader vs;
@@ -144,21 +144,21 @@ static void init()
         reinterpret_cast<const char *>(embed::reticle_vert::data),
         embed::reticle_vert::size
     });
-    glAttachShader(s_prog,vs);
+    glAttachShader(s_prog, vs);
 
     gl::frag_shader fs;
     fs.compile({
         reinterpret_cast<const char *>(embed::reticle_frag::data),
         embed::reticle_frag::size
     });
-    glAttachShader(s_prog,fs);
+    glAttachShader(s_prog, fs);
 
-    glBindAttribLocation(s_prog,0,"a_Position");
-    glBindAttribLocation(s_prog,1,"a_Axis");
+    glBindAttribLocation(s_prog, 0, "a_Position");
+    glBindAttribLocation(s_prog, 1, "a_Axis");
 
     glLinkProgram(s_prog);
 
-    s_matrix_uni = glGetUniformLocation(s_prog,"u_Matrix");
+    s_matrix_uni = glGetUniformLocation(s_prog, "u_Matrix");
 }
 
 // declared in render.hh
@@ -167,9 +167,9 @@ void reticle_fig::draw(const env &e)
     init();
 
     glUseProgram(s_prog);
-    glUniformMatrix4fv(s_matrix_uni,1,false,&e.matrix[0][0]);
+    glUniformMatrix4fv(s_matrix_uni, 1, false, &e.matrix[0][0]);
     glBindVertexArray(s_vao);
-    glDrawArrays(GL_LINES,0,sizeof(reticle_model) / sizeof(reticle_vert));
+    glDrawArrays(GL_LINES, 0, sizeof(reticle_model) / sizeof(reticle_vert));
     glBindVertexArray(0);
     glUseProgram(0);
 }

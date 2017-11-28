@@ -48,18 +48,18 @@ gboolean gl_canvas::sigh_draw(
     gl::renderbuffer rbo_color;
     gl::renderbuffer rbo_depth;
 
-    glBindRenderbuffer(GL_RENDERBUFFER,rbo_color);
-    glRenderbufferStorage(GL_RENDERBUFFER,GL_RGB8,width,height);
-    glBindRenderbuffer(GL_RENDERBUFFER,rbo_depth);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo_color);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB8, width, height);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo_depth);
     glRenderbufferStorage(
         GL_RENDERBUFFER,
         GL_DEPTH_COMPONENT16,
         width,
         height
     );
-    glBindRenderbuffer(GL_RENDERBUFFER,0);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER,fbo);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
     glFramebufferRenderbuffer(
         GL_DRAW_FRAMEBUFFER,
         GL_COLOR_ATTACHMENT0,
@@ -73,11 +73,11 @@ gboolean gl_canvas::sigh_draw(
         rbo_depth
     );
 
-    glViewport(0,0,width,height);
+    glViewport(0, 0, width, height);
 
-    self->on_render(width,height);
+    self->on_render(width, height);
 
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER,0);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
     gdk_cairo_draw_from_gl(
         cr,
@@ -157,8 +157,8 @@ gboolean gl_canvas::sigh_key_event(
 }
 
 // declared in gui.hh
-gl_canvas::gl_canvas(container &parent,layout layout) :
-    widget(gtk_drawing_area_new(),parent,layout)
+gl_canvas::gl_canvas(container &parent, layout layout) :
+    widget(gtk_drawing_area_new(), parent, layout)
 {
     gtk_widget_set_events(
         m_handle,
@@ -169,8 +169,8 @@ gl_canvas::gl_canvas(container &parent,layout layout) :
         GDK_KEY_PRESS_MASK |
         GDK_KEY_RELEASE_MASK
     );
-    gtk_widget_set_can_focus(m_handle,true);
-    g_signal_connect(m_handle,"draw",G_CALLBACK(sigh_draw),this);
+    gtk_widget_set_can_focus(m_handle, true);
+    g_signal_connect(m_handle, "draw", G_CALLBACK(sigh_draw), this);
     g_signal_connect(
         m_handle,
         "motion-notify-event",

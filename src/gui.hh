@@ -189,7 +189,7 @@ protected:
     // even if an exception is thrown in the constructor. The handle parameter
     // takes an rvalue reference to avoid accidentally passing a handle which
     // was not meant to be relinquished to `gui::widget'.
-    explicit widget(sys_handle &&handle,container &parent,layout layout);
+    explicit widget(sys_handle &&handle, container &parent, layout layout);
 
 public:
     // (dtor)
@@ -260,7 +260,7 @@ private:
 public:
     // (explicit ctor)
     // FIXME explain
-    explicit window(const std::string &title,int width,int height);
+    explicit window(const std::string &title, int width, int height);
 
     // (dtor)
     // FIXME explain
@@ -284,7 +284,7 @@ class composite : private widget, public container {
 public:
     // (ctor)
     // FIXME explain
-    composite(container &parent,layout layout);
+    composite(container &parent, layout layout);
 
     // (func) get_container_handle
     // FIXME explain
@@ -346,7 +346,7 @@ protected:
     // All global GL state will be default when this function is called. When
     // overriding it, you must ensure you return in such a state as well, or
     // this guarantee will not be met for widgets drawn afterwards.
-    virtual void draw_gl(int width,int height,gl::renderbuffer &rbo) = 0;
+    virtual void draw_gl(int width, int height, gl::renderbuffer &rbo) = 0;
 
     // (func) invalidate
     // Marks the current rendered output of this widget as out-of-date or stale
@@ -361,7 +361,7 @@ protected:
     // Called when the mouse moves into or while inside of the widget.
     //
     // The default implementation performs no operation.
-    virtual void mousemove(int x,int y) {}
+    virtual void mousemove(int x, int y) {}
 
     // (func) mousewheel
     // Called when the mouse wheel is scrolled vertically. Whether this happens
@@ -377,13 +377,13 @@ protected:
     // to gain focus.
     //
     // The default implementation performs no operation.
-    virtual void mousebutton(int number,bool down) {}
+    virtual void mousebutton(int number, bool down) {}
 
     // (func) key
     // Called when a key is pressed or released while this widget has focus.
     //
     // The default implementation performs no operation.
-    virtual void key(int code,bool down) {}
+    virtual void key(int code, bool down) {}
 
     // (func) text
     // Called when text is entered into the widget. This is different from key
@@ -398,7 +398,7 @@ protected:
 public:
     // (ctor)
     // FIXME explain
-    widget_gl(container &parent,layout layout);
+    widget_gl(container &parent, layout layout);
 
     using widget::show;
     using widget::hide;
@@ -451,7 +451,7 @@ protected:
     // Draws the contents of this widget. This function will not be called on
     // every frame, only when the widget is resized or after invalidate is
     // called (see below).
-    virtual void draw_2d(int width,int height,cairo_t *cr) = 0;
+    virtual void draw_2d(int width, int height, cairo_t *cr) = 0;
 
     // (func) invalidate
     // Marks the current rendered output of this widget as out-of-date or stale
@@ -466,7 +466,7 @@ protected:
     // Called when the mouse moves into or while inside of the widget.
     //
     // The default implementation performs no operation.
-    virtual void mousemove(int x,int y) {}
+    virtual void mousemove(int x, int y) {}
 
     // (func) mousewheel
     // Called when the mouse wheel is scrolled vertically. Whether this happens
@@ -482,13 +482,13 @@ protected:
     // to gain focus.
     //
     // The default implementation performs no operation.
-    virtual void mousebutton(int number,bool down) {}
+    virtual void mousebutton(int number, bool down) {}
 
     // (func) key
     // Called when a key is pressed or released while this widget has focus.
     //
     // The default implementation performs no operation.
-    virtual void key(int code,bool down) {}
+    virtual void key(int code, bool down) {}
 
     // (func) text
     // Called when text is entered into the widget. This is different from key
@@ -503,7 +503,7 @@ protected:
 public:
     // (ctor)
     // FIXME explain
-    widget_2d(container &parent,layout layout);
+    widget_2d(container &parent, layout layout);
 
     using widget::show;
     using widget::hide;
@@ -539,11 +539,11 @@ private:
 
     // (func) draw_gl
     // FIXME explain
-    void draw_gl(int width,int height,gl::renderbuffer &rbo) final override;
+    void draw_gl(int width, int height, gl::renderbuffer &rbo) final override;
 
     // (func) mousemove
     // FIXME explain
-    void mousemove(int x,int y) final override;
+    void mousemove(int x, int y) final override;
 
     // (func) mousewheel
     // FIXME explain
@@ -551,11 +551,11 @@ private:
 
     // (func) mousebutton
     // FIXME explain
-    void mousebutton(int number,bool down) final override;
+    void mousebutton(int number, bool down) final override;
 
     // (func) key
     // FIXME explain
-    void key(int code,bool down) final override;
+    void key(int code, bool down) final override;
 
     // (func) text
     // FIXME explain
@@ -569,7 +569,7 @@ protected:
 public:
     // (ctor)
     // FIXME explain
-    widget_im(container &parent,layout layout);
+    widget_im(container &parent, layout layout);
 
     // (dtor)
     // FIXME explain
@@ -592,12 +592,12 @@ private:
 
     // (func) draw_2d
     // Implements draw_2d to render the label text.
-    void draw_2d(int width,int height,cairo_t *cr) override;
+    void draw_2d(int width, int height, cairo_t *cr) override;
 
 public:
     // (ctor)
     // FIXME explain
-    label(container &parent,layout layout,const std::string &text = "");
+    label(container &parent, layout layout, const std::string &text = "");
 
     // (func) set_text
     // Sets the text displayed by the label.
@@ -633,7 +633,7 @@ private:
 public:
     // (ctor)
     // FIXME explain
-    treeview(container &parent,layout layout);
+    treeview(container &parent, layout layout);
 
     using widget_im::show;
     using widget_im::hide;
@@ -750,7 +750,7 @@ private:
 public:
     // (explicit ctor)
     // FIXME explain
-    explicit gl_canvas(container &parent,layout layout);
+    explicit gl_canvas(container &parent, layout layout);
 
     // (func) invalidate
     // FIXME explain
@@ -758,11 +758,11 @@ public:
 
     // (event) on_render
     // FIXME explain
-    util::event<int,int> on_render;
+    util::event<int, int> on_render;
 
     // (event) on_mousemove
     // FIXME explain
-    util::event<int,int> on_mousemove;
+    util::event<int, int> on_mousemove;
 
     // (event) on_mousewheel
     // FIXME explain
@@ -770,11 +770,11 @@ public:
 
     // (event) on_mousebutton
     // FIXME explain
-    util::event<int,bool> on_mousebutton;
+    util::event<int, bool> on_mousebutton;
 
     // (event) on_key
     // FIXME explain
-    util::event<int,bool> on_key;
+    util::event<int, bool> on_key;
 
     // (event) on_text
     // FIXME explain
@@ -801,11 +801,11 @@ private:
 public:
     // (explicit ctor)
     // FIXME explain
-    explicit menu(window &parent,const std::string &text);
+    explicit menu(window &parent, const std::string &text);
 
     // (explicit ctor)
     // FIXME explain
-    explicit menu(menu &parent,const std::string &text);
+    explicit menu(menu &parent, const std::string &text);
 
     // (dtor)
     // FIXME explain
@@ -825,12 +825,12 @@ private:
 
     // (s-func) sigh_activate
     // FIXME explain
-    static void sigh_activate(GtkMenuItem *menuitem,gpointer user_data);
+    static void sigh_activate(GtkMenuItem *menuitem, gpointer user_data);
 
 public:
     // (explicit ctor)
     // FIXME explain
-    explicit menu_item(menu &parent,const std::string &text);
+    explicit menu_item(menu &parent, const std::string &text);
 
     // (dtor)
     // FIXME explain

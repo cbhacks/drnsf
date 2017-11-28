@@ -124,6 +124,8 @@ own line. This is vaguely similar to Linux formatting guidelines.
  * Avoid exceeding 80 columns in width. Hardwrap if necessary.
  * Use UNIX-style line-endings (LF, not CRLF or CR).
  * Ensure there is a blank line at the end of every source and header file.
+ * When two comma-separated values exist on the same line, place a space after
+the comma.
 
 These are only guidelines. Following them keeps the code clean and consistent,
 but try not to let them get in the way of contribution. Misformatted code can

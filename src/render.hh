@@ -84,7 +84,7 @@ public:
     // (ctor)
     // Constructs an empty viewport widget and places it in the given
     // parent container.
-    viewport(gui::container &parent,gui::layout layout);
+    viewport(gui::container &parent, gui::layout layout);
 
     // (dtor)
     // Destroys the widget, removing it from the parent container.

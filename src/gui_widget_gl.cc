@@ -44,14 +44,14 @@ gboolean widget_gl::sigh_draw(
 
     gl::renderbuffer rbo;
 
-    glBindRenderbuffer(GL_RENDERBUFFER,rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER,GL_RGB8,width,height);
-    glBindRenderbuffer(GL_RENDERBUFFER,0);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB8, width, height);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-    glViewport(0,0,width,height);
-    glScissor(0,0,width,height);
+    glViewport(0, 0, width, height);
+    glScissor(0, 0, width, height);
 
-    self->draw_gl(width,height,rbo);
+    self->draw_gl(width, height, rbo);
 
     gdk_cairo_draw_from_gl(cr,
         gl::g_wnd,
@@ -130,8 +130,8 @@ gboolean widget_gl::sigh_key_event(
 }
 
 // declared in gui.hh
-widget_gl::widget_gl(container &parent,layout layout) :
-    widget(gtk_drawing_area_new(),parent,layout)
+widget_gl::widget_gl(container &parent, layout layout) :
+    widget(gtk_drawing_area_new(), parent, layout)
 {
     gtk_widget_add_events(
         m_handle,
@@ -142,8 +142,8 @@ widget_gl::widget_gl(container &parent,layout layout) :
         GDK_KEY_PRESS_MASK |
         GDK_KEY_RELEASE_MASK
     );
-    gtk_widget_set_can_focus(m_handle,true);
-    g_signal_connect(m_handle,"draw",G_CALLBACK(sigh_draw),this);
+    gtk_widget_set_can_focus(m_handle, true);
+    g_signal_connect(m_handle, "draw", G_CALLBACK(sigh_draw), this);
     g_signal_connect(
         m_handle,
         "motion-notify-event",

@@ -60,17 +60,17 @@ void widget::apply_layout(GtkAllocation &ctn_alloc)
 
     // Submit the new size and position.
     GtkAllocation rect = { x1, y1, x2 - x1, y2 - y1 };
-    gtk_widget_size_allocate(m_handle,&rect);
+    gtk_widget_size_allocate(m_handle, &rect);
 }
 
 // declared in gui.hh
-widget::widget(sys_handle &&handle,container &parent,layout layout) try :
+widget::widget(sys_handle &&handle, container &parent, layout layout) try :
     m_handle(handle),
     m_parent(parent),
     m_layout(layout)
 {
     // Add the underlying GTK widget to the parent container.
-    gtk_container_add(parent.get_container_handle(),m_handle);
+    gtk_container_add(parent.get_container_handle(), m_handle);
 
     // Apply the layout to the widget now if the container is already realized.
     // If not, then the container will call this later on once it does become
@@ -78,7 +78,7 @@ widget::widget(sys_handle &&handle,container &parent,layout layout) try :
     GtkWidget *ctn_handle = GTK_WIDGET(parent.get_container_handle());
     if (gtk_widget_get_realized(ctn_handle)) {
         GtkAllocation ctn_alloc;
-        gtk_widget_get_allocation(ctn_handle,&ctn_alloc);
+        gtk_widget_get_allocation(ctn_handle, &ctn_alloc);
         apply_layout(ctn_alloc);
     }
 

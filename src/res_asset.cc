@@ -43,7 +43,7 @@ private:
 public:
     // (explicit ctor)
     // FIXME explain
-    explicit asset_appear_event_op(project &proj,asset &asset,bool appear) :
+    explicit asset_appear_event_op(project &proj, asset &asset, bool appear) :
         m_proj(proj),
         m_asset(asset),
         m_appear(appear) {}
@@ -62,11 +62,11 @@ public:
 };
 
 // declared in res.hh
-void asset::create_impl(TRANSACT,atom name)
+void asset::create_impl(TRANSACT, atom name)
 {
     auto p = std::unique_ptr<asset>(this);
-    TS.set(m_name,name);
-    TS.set(name.get_internal_asset_ptr(),this);
+    TS.set(m_name, name);
+    TS.set(name.get_internal_asset_ptr(), this);
     m_iter = TS.insert(
         m_proj.m_assets,
         m_proj.m_assets.end(),
@@ -88,7 +88,7 @@ void asset::assert_alive() const
 }
 
 // declared in res.hh
-void asset::rename(TRANSACT,atom name)
+void asset::rename(TRANSACT, atom name)
 {
     assert_alive();
 
@@ -105,9 +105,9 @@ void asset::rename(TRANSACT,atom name)
         *this,
         false
     ));
-    TS.set(name.get_internal_asset_ptr(),this);
-    TS.set(m_name.get_internal_asset_ptr(),nullptr);
-    TS.set(m_name,name);
+    TS.set(name.get_internal_asset_ptr(), this);
+    TS.set(m_name.get_internal_asset_ptr(), nullptr);
+    TS.set(m_name, name);
     TS.push_op(std::make_unique<asset_appear_event_op>(
         m_proj,
         *this,
@@ -125,9 +125,9 @@ void asset::destroy(TRANSACT)
         *this,
         false
     ));
-    TS.set(m_name.get_internal_asset_ptr(),nullptr);
-    TS.set(m_name,nullptr);
-    TS.erase(m_proj.m_assets,m_iter);
+    TS.set(m_name.get_internal_asset_ptr(), nullptr);
+    TS.set(m_name, nullptr);
+    TS.erase(m_proj.m_assets, m_iter);
 }
 
 // declared in res.hh

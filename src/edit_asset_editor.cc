@@ -65,13 +65,13 @@ public:
     explicit impl(
         asset_editor &outer,
         res::project &proj) :
-        composite(outer,gui::layout::fill()),
+        composite(outer, gui::layout::fill()),
         m_outer(outer),
         m_proj(proj),
-        m_tree(*this,gui::layout::grid(0,1,3,0,2,2),proj),
-        m_infoview(*this,gui::layout::grid(1,1,3,0,1,2),proj),
-        m_propview(*this,gui::layout::grid(1,2,3,1,1,2),proj),
-        m_viewport(*this,gui::layout::grid(2,1,3,0,1,2),proj)
+        m_tree(*this, gui::layout::grid(0, 1, 3, 0, 2, 2), proj),
+        m_infoview(*this, gui::layout::grid(1, 1, 3, 0, 1, 2), proj),
+        m_propview(*this, gui::layout::grid(1, 2, 3, 1, 1, 2), proj),
+        m_viewport(*this, gui::layout::grid(2, 1, 3, 0, 1, 2), proj)
     {
         h_tree_select <<= [this](res::atom atom) {
             g_selected_asset = atom;
@@ -87,10 +87,10 @@ public:
 };
 
 // declared in edit.hh
-asset_editor::asset_editor(gui::container &parent,gui::layout layout,res::project &proj) :
-    composite(parent,layout)
+asset_editor::asset_editor(gui::container &parent, gui::layout layout, res::project &proj) :
+    composite(parent, layout)
 {
-    M = new impl(*this,proj);
+    M = new impl(*this, proj);
     M->show();
 }
 
