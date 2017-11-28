@@ -96,6 +96,15 @@ void menu2::mousemove(int x, int y)
 }
 
 // declared in gui.hh
+void menu2::mousebutton(int button, bool down)
+{
+    if (button != 1 || !down) return;
+    if (m_active_item) {
+        m_active_item->on_activate();
+    }
+}
+
+// declared in gui.hh
 menu2::menu2() :
     popup(item_width + item_pad_outer * 2, item_pad_outer * 2),
     widget_2d(*this, layout::fill())

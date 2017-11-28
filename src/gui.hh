@@ -791,6 +791,10 @@ private:
     // Implements mousemove for hovering over menu items.
     void mousemove(int x, int y) final override;
 
+    // (func) mousebutton
+    // Implements mousebutton for clicking to activate menu items.
+    void mousebutton(int button, bool down) final override;
+
     // Solve ambiguity of popup::hide vs widget_2d::hide. The widget base
     // should never be hidden.
     using popup::hide;
@@ -822,6 +826,13 @@ private:
     // If false, this menu item does not respond to clicks and may be displayed
     // in a disabled style, such as with gray text.
     bool m_enabled = true;
+
+    // (func) on_activate
+    // This function is called when the menu item is clicked by the mouse or
+    // activated by a key press.
+    //
+    // The default implementation performs no action.
+    virtual void on_activate() {}
 
 public:
     // (explicit ctor)
