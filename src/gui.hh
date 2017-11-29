@@ -759,12 +759,11 @@ public:
 };
 
 /*
- * gui::menu2
+ * gui::menu
  *
  * FIXME explain
- * FIXME rename to 'menu' after removing older gui::menu class
  */
-class menu2 : private popup, private widget_2d {
+class menu : private popup, private widget_2d {
     friend class menubar;
 
 public:
@@ -802,21 +801,21 @@ private:
 public:
     // (ctor)
     // Initializes an empty menu.
-    menu2();
+    menu();
 };
 
 /*
- * gui::menu2::item
+ * gui::menu::item
  *
  * FIXME explain
  */
-class menu2::item : private util::nocopy {
-    friend class menu2;
+class menu::item : private util::nocopy {
+    friend class menu;
 
 private:
     // (var) m_menu
     // The menu this item exists in.
-    menu2 &m_menu;
+    menu &m_menu;
 
     // (var) m_text
     // The text displayed on this menu item.
@@ -838,7 +837,7 @@ public:
     // (explicit ctor)
     // Initializes a menu item with the given text, and adds it to the given
     // menu.
-    explicit item(menu2 &menu, std::string text);
+    explicit item(menu &menu, std::string text);
 
     // (dtor)
     // Removes the menu item from its associated menu.
@@ -898,7 +897,7 @@ public:
  *
  * FIXME explain
  */
-class menubar::item : public menu2 {
+class menubar::item : public menu {
     friend class menubar;
 
 private:

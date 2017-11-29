@@ -32,7 +32,7 @@ const int item_pad_inner = 4;
 const int item_font_size = 12;
 
 // declared in gui.hh
-void menu2::draw_2d(int width, int height, cairo_t *cr)
+void menu::draw_2d(int width, int height, cairo_t *cr)
 {
     int x = item_pad_outer;
     int y = item_pad_outer;
@@ -67,7 +67,7 @@ void menu2::draw_2d(int width, int height, cairo_t *cr)
 }
 
 // declared in gui.hh
-void menu2::mousemove(int x, int y)
+void menu::mousemove(int x, int y)
 {
     item *selection;
     if (
@@ -96,7 +96,7 @@ void menu2::mousemove(int x, int y)
 }
 
 // declared in gui.hh
-void menu2::mousebutton(int button, bool down)
+void menu::mousebutton(int button, bool down)
 {
     if (button != 1 || !down) return;
     if (m_active_item) {
@@ -105,7 +105,7 @@ void menu2::mousebutton(int button, bool down)
 }
 
 // declared in gui.hh
-menu2::menu2() :
+menu::menu() :
     popup(item_width + item_pad_outer * 2, item_pad_outer * 2),
     widget_2d(*this, layout::fill())
 {
@@ -113,7 +113,7 @@ menu2::menu2() :
 }
 
 // declared in gui.hh
-menu2::item::item(menu2 &menu, std::string text) :
+menu::item::item(menu &menu, std::string text) :
     m_menu(menu),
     m_text(std::move(text))
 {
@@ -128,7 +128,7 @@ menu2::item::item(menu2 &menu, std::string text) :
 }
 
 // declared in gui.hh
-menu2::item::~item()
+menu::item::~item()
 {
     m_menu.m_items.erase(
         std::find(m_menu.m_items.begin(), m_menu.m_items.end(), this)

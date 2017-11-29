@@ -64,12 +64,12 @@ namespace menus {
  * File -> Exit
  * Exits the application.
  */
-class mni_exit : private gui::menu2::item {
+class mni_exit : private gui::menu::item {
 private:
     void on_activate() final override;
 
 public:
-    explicit mni_exit(gui::menu2 &menu) :
+    explicit mni_exit(gui::menu &menu) :
         item(menu, "Exit") {}
 };
 
