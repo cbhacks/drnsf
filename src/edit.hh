@@ -56,6 +56,39 @@ public:
     explicit editor(std::shared_ptr<res::project> proj);
 };
 
+namespace menus {
+
+/*
+ * edit::menus::mni_exit
+ *
+ * File -> Exit
+ * Exits the application.
+ */
+class mni_exit : private gui::menu2::item {
+private:
+    void on_activate() final override;
+
+public:
+    explicit mni_exit(gui::menu2 &menu) :
+        item(menu, "Exit") {}
+};
+
+/*
+ * edit::menus::mnu_file
+ *
+ * "File" menu.
+ */
+class mnu_file : private gui::menubar::item {
+private:
+    mni_exit m_exit{*this};
+
+public:
+    explicit mnu_file(gui::menubar &menubar) :
+        item(menubar, "File") {}
+};
+
+}
+
 /*
  * edit::asset_editor
  *
@@ -214,21 +247,8 @@ static float &g_camera_zoom = g_camera.zoom;
 class main_window : private util::nocopy {
 private:
     gui::window m_wnd;
-    gui::menu m_menu_file;
-    gui::menu_item m_menu_file_exit;
     gui::menubar m_newmenubar;
-    gui::menubar::item m_newmenubar_x;
-    gui::menu2::item m_newmenu_a;
-    gui::menu2::item m_newmenu_b;
-    gui::menu2::item m_newmenu_c;
-    gui::menubar::item m_newmenubar_y;
-    gui::menu2::item m_newmenu_1;
-    gui::menu2::item m_newmenu_2;
-    gui::menu2::item m_newmenu_3;
-    gui::menubar::item m_newmenubar_z;
-    gui::menu2::item m_newmenu_alpha;
-    gui::menu2::item m_newmenu_beta;
-    gui::menu2::item m_newmenu_gamma;
+    menus::mnu_file m_mnu_file{m_newmenubar};
     res::project *m_proj_p;
     std::unique_ptr<asset_editor> m_assets_view;
 

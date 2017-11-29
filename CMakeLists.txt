@@ -67,6 +67,7 @@ add_executable (drnsf
 
     src/edit.hh
     src/edit_editor2.cc
+    src/edit_menus.cc
     src/edit_asset_editor.cc
     src/edit_asset_tree.cc
     src/edit_asset_infoview.cc
