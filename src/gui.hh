@@ -972,66 +972,6 @@ public:
     using widget_gl::hide;
 };
 
-/*
- * gui::menu
- *
- * FIXME explain
- */
-class menu : private util::nocopy {
-    friend class menu_item;
-
-private:
-    // (var) m_item
-    // FIXME explain
-    GtkWidget *m_item;
-
-    // (var) m_menu
-    // FIXME explain
-    GtkWidget *m_menu;
-
-public:
-    // (explicit ctor)
-    // FIXME explain
-    explicit menu(window &parent, const std::string &text);
-
-    // (explicit ctor)
-    // FIXME explain
-    explicit menu(menu &parent, const std::string &text);
-
-    // (dtor)
-    // FIXME explain
-    ~menu();
-};
-
-/*
- * gui::menu_item
- *
- * FIXME explain
- */
-class menu_item : private util::nocopy {
-private:
-    // (var) M
-    // FIXME explain
-    GtkWidget *M;
-
-    // (s-func) sigh_activate
-    // FIXME explain
-    static void sigh_activate(GtkMenuItem *menuitem, gpointer user_data);
-
-public:
-    // (explicit ctor)
-    // FIXME explain
-    explicit menu_item(menu &parent, const std::string &text);
-
-    // (dtor)
-    // FIXME explain
-    ~menu_item();
-
-    // (event) on_click
-    // FIXME explain
-    util::event<> on_click;
-};
-
 // FIXME obsolete
 namespace im {
 

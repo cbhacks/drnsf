@@ -252,8 +252,6 @@ private:
     res::project *m_proj_p;
     std::unique_ptr<asset_editor> m_assets_view;
 
-    decltype(gui::menu_item::on_click)::watch h_menu_file_exit_click;
-
 public:
     main_window();
 

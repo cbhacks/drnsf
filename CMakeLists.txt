@@ -52,8 +52,6 @@ add_executable (drnsf
     src/gui_menu2.cc
     src/gui_menubar.cc
     src/gui_gl_canvas.cc
-    src/gui_menu.cc
-    src/gui_menu_item.cc
     src/gui_im.cc
 
     src/gl.hh
