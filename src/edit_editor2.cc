@@ -20,28 +20,15 @@
 
 #include "common.hh"
 #include "edit.hh"
-#include "gui.hh"
-#include "gl.hh"
 
-int main(int argc, char *argv[])
+namespace drnsf {
+namespace edit {
+
+// declared in edit.hh
+editor::editor(std::shared_ptr<res::project> proj) :
+    m_proj(std::move(proj))
 {
-    using namespace drnsf;
+}
 
-    // Initialize GTK+.
-    gui::init(argc, argv);
-    gl::init();
-
-    // Create the editor.
-    auto proj = std::make_shared<res::project>();
-    edit::editor editor(proj);
-    edit::core edcore(*proj);
-
-    edit::main_window wnd;
-    wnd.show();
-    wnd.set_project(*proj);
-
-    // Run the main application/game loop.
-    gui::run();
-
-    return EXIT_SUCCESS;
+}
 }

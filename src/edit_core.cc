@@ -32,7 +32,8 @@ std::function<void(int)> create_mod_testbox(edit::core &);
 
 namespace edit {
 
-core::core() :
+core::core(project &proj) :
+    m_proj(proj),
     m_ed(m_proj),
     m_wnd(m_ed)
 {

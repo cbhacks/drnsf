@@ -38,6 +38,25 @@ namespace drnsf {
 namespace edit {
 
 /*
+ * edit::editor
+ *
+ * FIXME explain
+ */
+class editor : private util::nocopy {
+private:
+    // (var) m_proj
+    // The project currently open under this editor, or null if there is no
+    // project currently open.
+    std::shared_ptr<res::project> m_proj;
+
+public:
+    // (explicit ctor)
+    // Creates an editor with the specified project open. The editor takes a
+    // copy of the shared pointer.
+    explicit editor(std::shared_ptr<res::project> proj);
+};
+
+/*
  * edit::asset_editor
  *
  * FIXME explain
@@ -361,13 +380,13 @@ public:
 
 class core : private util::nocopy {
 public:
-    project m_proj;
+    project &m_proj;
     old_editor m_ed;
     std::list<std::function<void(int)>> m_modules;
     edit::main_view m_wnd;
     decltype(m_wnd.m_cryptos.on_frame)::watch h_frame;
 
-    core();
+    core(project &proj);
 
     void frame(int width, int height, int delta);
 };
