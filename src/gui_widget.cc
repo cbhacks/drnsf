@@ -34,6 +34,66 @@ void container::apply_layouts(GtkAllocation &alloc)
 }
 
 // declared in gui.hh
+gboolean widget::sigh_motion_notify_event(
+    GtkWidget *wdg,
+    GdkEvent *event,
+    gpointer user_data)
+{
+    static_cast<widget *>(user_data)->mousemove(
+        event->motion.x,
+        event->motion.y
+    );
+    return false;
+}
+
+// declared in gui.hh
+gboolean widget::sigh_scroll_event(
+    GtkWidget *wdg,
+    GdkEvent *event,
+    gpointer user_data)
+{
+    if (event->scroll.direction != GDK_SCROLL_SMOOTH) {
+        return false;
+    }
+
+    static_cast<widget *>(user_data)->mousewheel(
+        -event->scroll.delta_y
+    );
+    return false;
+}
+
+// declared in gui.hh
+gboolean widget::sigh_button_event(
+    GtkWidget *wdg,
+    GdkEvent *event,
+    gpointer user_data)
+{
+    static_cast<widget *>(user_data)->mousebutton(
+        event->button.button,
+        event->button.type == GDK_BUTTON_PRESS
+    );
+    return false;
+}
+
+// declared in gui.hh
+gboolean widget::sigh_key_event(
+    GtkWidget *wdg,
+    GdkEvent *event,
+    gpointer user_data)
+{
+    auto self = static_cast<widget *>(user_data);
+    self->key(
+        event->key.keyval,
+        event->key.type == GDK_KEY_PRESS
+    );
+    if (event->key.type == GDK_KEY_PRESS) {
+        // FIXME deprecated garbage
+        self->text(event->key.string);
+    }
+    return false;
+}
+
+// declared in gui.hh
 void widget::apply_layout(GtkAllocation &ctn_alloc)
 {
     // Calculate the real positions according to the widget layout.
@@ -81,6 +141,54 @@ widget::widget(sys_handle &&handle, container &parent, layout layout) try :
         gtk_widget_get_allocation(ctn_handle, &ctn_alloc);
         apply_layout(ctn_alloc);
     }
+
+    // Register event handlers. "draw" is handled by derived types such as
+    // "widget_gl" and "widget_2d".
+    gtk_widget_add_events(
+        m_handle,
+        GDK_POINTER_MOTION_MASK |
+        GDK_SMOOTH_SCROLL_MASK |
+        GDK_BUTTON_PRESS_MASK |
+        GDK_BUTTON_RELEASE_MASK |
+        GDK_KEY_PRESS_MASK |
+        GDK_KEY_RELEASE_MASK
+    );
+    g_signal_connect(
+        m_handle,
+        "motion-notify-event",
+        G_CALLBACK(sigh_motion_notify_event),
+        this
+    );
+    g_signal_connect(
+        m_handle,
+        "scroll-event",
+        G_CALLBACK(sigh_scroll_event),
+        this
+    );
+    g_signal_connect(
+        m_handle,
+        "button-press-event",
+        G_CALLBACK(sigh_button_event),
+        this
+    );
+    g_signal_connect(
+        m_handle,
+        "button-release-event",
+        G_CALLBACK(sigh_button_event),
+        this
+    );
+    g_signal_connect(
+        m_handle,
+        "key-press-event",
+        G_CALLBACK(sigh_key_event),
+        this
+    );
+    g_signal_connect(
+        m_handle,
+        "key-release-event",
+        G_CALLBACK(sigh_key_event),
+        this
+    );
 
     parent.m_widgets.insert(this);
 } catch (...) {

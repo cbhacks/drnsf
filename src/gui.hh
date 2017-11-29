@@ -159,10 +159,76 @@ class widget : public util::nocopy {
     friend class container;
 
 private:
+    // (s-func) sigh_motion_notify_event
+    // Internal signal handler for GtkWidget::'motion-notify-event'.
+    static gboolean sigh_motion_notify_event(
+        GtkWidget *wdg,
+        GdkEvent *event,
+        gpointer user_data);
+
+    // (s-func) sigh_scroll_event
+    // Internal signal handler for GtkWidget::'scroll-event'.
+    static gboolean sigh_scroll_event(
+        GtkWidget *wdg,
+        GdkEvent *event,
+        gpointer user_data);
+
+    // (s-func) sigh_button_event
+    // Internal signal handler for GtkWidget::'button-event'.
+    static gboolean sigh_button_event(
+        GtkWidget *wdg,
+        GdkEvent *event,
+        gpointer user_data);
+
+    // (s-func) sigh_key_event
+    // Internal signal handler for GtkWidget::'key-event'.
+    static gboolean sigh_key_event(
+        GtkWidget *wdg,
+        GdkEvent *event,
+        gpointer user_data);
+
     // (func) apply_layout
     // Internal function for applying the widget layout to the actual widget
     // handle used by the system.
     void apply_layout(GtkAllocation &ctn_alloc);
+
+    // (func) mousemove
+    // Called when the mouse moves into or while inside of the widget.
+    //
+    // The default implementation performs no operation.
+    virtual void mousemove(int x, int y) {}
+
+    // (func) mousewheel
+    // Called when the mouse wheel is scrolled vertically. Whether this happens
+    // to the focused widget or to the widget currently under the mouse could
+    // vary by operating system.
+    //
+    // The default implementation performs no operation.
+    virtual void mousewheel(int delta_y) {}
+
+    // (func) mousebutton
+    // Called when a mouse button is pressed or released while this widget has
+    // focus. The button press could potentially be one which causes the widget
+    // to gain focus.
+    //
+    // The default implementation performs no operation.
+    virtual void mousebutton(int number, bool down) {}
+
+    // (func) key
+    // Called when a key is pressed or released while this widget has focus.
+    //
+    // The default implementation performs no operation.
+    virtual void key(int code, bool down) {}
+
+    // (func) text
+    // Called when text is entered into the widget. This is different from key
+    // input, as multiple keys in series could input one character, or another
+    // sequence of different characters. For more information, read about input
+    // methods such as IME and methods used for inputting characters often used
+    // in southeast asian languages.
+    //
+    // The default implementation performs no operation.
+    virtual void text(const char *str) {}
 
 protected:
     // (var) m_handle
@@ -361,34 +427,6 @@ private:
         cairo_t *cr,
         gpointer user_data);
 
-    // (s-func) sigh_motion_notify_event
-    // Internal signal handler for GtkWidget::'motion-notify-event'.
-    static gboolean sigh_motion_notify_event(
-        GtkWidget *widget,
-        GdkEvent *event,
-        gpointer user_data);
-
-    // (s-func) sigh_scroll_event
-    // Internal signal handler for GtkWidget::'scroll-event'.
-    static gboolean sigh_scroll_event(
-        GtkWidget *widget,
-        GdkEvent *event,
-        gpointer user_data);
-
-    // (s-func) sigh_button_event
-    // Internal signal handler for GtkWidget::'button-event'.
-    static gboolean sigh_button_event(
-        GtkWidget *widget,
-        GdkEvent *event,
-        gpointer user_data);
-
-    // (s-func) sigh_key_event
-    // Internal signal handler for GtkWidget::'key-event'.
-    static gboolean sigh_key_event(
-        GtkWidget *widget,
-        GdkEvent *event,
-        gpointer user_data);
-
 protected:
     // (pure func) draw_gl
     // Draws the contents of this widget to the specified renderbuffer. Derived
@@ -409,44 +447,6 @@ protected:
     // it may never be called if the widget is destroyed before such a case
     // occurs.
     void invalidate();
-
-    // (func) mousemove
-    // Called when the mouse moves into or while inside of the widget.
-    //
-    // The default implementation performs no operation.
-    virtual void mousemove(int x, int y) {}
-
-    // (func) mousewheel
-    // Called when the mouse wheel is scrolled vertically. Whether this happens
-    // to the focused widget or to the widget currently under the mouse could
-    // vary by operating system.
-    //
-    // The default implementation performs no operation.
-    virtual void mousewheel(int delta_y) {}
-
-    // (func) mousebutton
-    // Called when a mouse button is pressed or released while this widget has
-    // focus. The button press could potentially be one which causes the widget
-    // to gain focus.
-    //
-    // The default implementation performs no operation.
-    virtual void mousebutton(int number, bool down) {}
-
-    // (func) key
-    // Called when a key is pressed or released while this widget has focus.
-    //
-    // The default implementation performs no operation.
-    virtual void key(int code, bool down) {}
-
-    // (func) text
-    // Called when text is entered into the widget. This is different from key
-    // input, as multiple keys in series could input one character, or another
-    // sequence of different characters. For more information, read about input
-    // methods such as IME and methods used for inputting characters often used
-    // in southeast asian languages.
-    //
-    // The default implementation performs no operation.
-    virtual void text(const char *str) {}
 
 public:
     // (ctor)
@@ -471,34 +471,6 @@ private:
         cairo_t *cr,
         gpointer user_data);
 
-    // (s-func) sigh_motion_notify_event
-    // Internal signal handler for GtkWidget::'motion-notify-event'.
-    static gboolean sigh_motion_notify_event(
-        GtkWidget *widget,
-        GdkEvent *event,
-        gpointer user_data);
-
-    // (s-func) sigh_scroll_event
-    // Internal signal handler for GtkWidget::'scroll-event'.
-    static gboolean sigh_scroll_event(
-        GtkWidget *widget,
-        GdkEvent *event,
-        gpointer user_data);
-
-    // (s-func) sigh_button_event
-    // Internal signal handler for GtkWidget::'button-event'.
-    static gboolean sigh_button_event(
-        GtkWidget *widget,
-        GdkEvent *event,
-        gpointer user_data);
-
-    // (s-func) sigh_key_event
-    // Internal signal handler for GtkWidget::'key-event'.
-    static gboolean sigh_key_event(
-        GtkWidget *widget,
-        GdkEvent *event,
-        gpointer user_data);
-
 protected:
     // (pure func) draw_2d
     // Draws the contents of this widget. This function will not be called on
@@ -514,44 +486,6 @@ protected:
     // it may never be called if the widget is destroyed before such a case
     // occurs.
     void invalidate();
-
-    // (func) mousemove
-    // Called when the mouse moves into or while inside of the widget.
-    //
-    // The default implementation performs no operation.
-    virtual void mousemove(int x, int y) {}
-
-    // (func) mousewheel
-    // Called when the mouse wheel is scrolled vertically. Whether this happens
-    // to the focused widget or to the widget currently under the mouse could
-    // vary by operating system.
-    //
-    // The default implementation performs no operation.
-    virtual void mousewheel(int delta_y) {}
-
-    // (func) mousebutton
-    // Called when a mouse button is pressed or released while this widget has
-    // focus. The button press could potentially be one which causes the widget
-    // to gain focus.
-    //
-    // The default implementation performs no operation.
-    virtual void mousebutton(int number, bool down) {}
-
-    // (func) key
-    // Called when a key is pressed or released while this widget has focus.
-    //
-    // The default implementation performs no operation.
-    virtual void key(int code, bool down) {}
-
-    // (func) text
-    // Called when text is entered into the widget. This is different from key
-    // input, as multiple keys in series could input one character, or another
-    // sequence of different characters. For more information, read about input
-    // methods such as IME and methods used for inputting characters often used
-    // in southeast asian languages.
-    //
-    // The default implementation performs no operation.
-    virtual void text(const char *str) {}
 
 public:
     // (ctor)

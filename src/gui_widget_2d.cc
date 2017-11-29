@@ -42,116 +42,11 @@ gboolean widget_2d::sigh_draw(
 }
 
 // declared in gui.hh
-gboolean widget_2d::sigh_motion_notify_event(
-    GtkWidget *widget,
-    GdkEvent *event,
-    gpointer user_data)
-{
-    static_cast<widget_2d *>(user_data)->mousemove(
-        event->motion.x,
-        event->motion.y
-    );
-    return true;
-}
-
-// declared in gui.hh
-gboolean widget_2d::sigh_scroll_event(
-    GtkWidget *widget,
-    GdkEvent *event,
-    gpointer user_data)
-{
-    if (event->scroll.direction != GDK_SCROLL_SMOOTH) {
-        return false;
-    }
-
-    static_cast<widget_2d *>(user_data)->mousewheel(
-        -event->scroll.delta_y
-    );
-    return true;
-}
-
-// declared in gui.hh
-gboolean widget_2d::sigh_button_event(
-    GtkWidget *widget,
-    GdkEvent *event,
-    gpointer user_data)
-{
-    static_cast<widget_2d *>(user_data)->mousebutton(
-        event->button.button,
-        event->button.type == GDK_BUTTON_PRESS
-    );
-    return true;
-}
-
-// declared in gui.hh
-gboolean widget_2d::sigh_key_event(
-    GtkWidget *widget,
-    GdkEvent *event,
-    gpointer user_data)
-{
-    auto self = static_cast<widget_2d *>(user_data);
-    self->key(
-        event->key.keyval,
-        event->key.type == GDK_KEY_PRESS
-    );
-    if (event->key.type == GDK_KEY_PRESS) {
-        // FIXME deprecated garbage
-        self->text(event->key.string);
-    }
-    return true;
-}
-
-// declared in gui.hh
 widget_2d::widget_2d(container &parent, layout layout) :
     widget(gtk_drawing_area_new(), parent, layout)
 {
-    gtk_widget_add_events(
-        m_handle,
-        GDK_POINTER_MOTION_MASK |
-        GDK_SMOOTH_SCROLL_MASK |
-        GDK_BUTTON_PRESS_MASK |
-        GDK_BUTTON_RELEASE_MASK |
-        GDK_KEY_PRESS_MASK |
-        GDK_KEY_RELEASE_MASK
-    );
     gtk_widget_set_can_focus(m_handle, true);
     g_signal_connect(m_handle, "draw", G_CALLBACK(sigh_draw), this);
-    g_signal_connect(
-        m_handle,
-        "motion-notify-event",
-        G_CALLBACK(sigh_motion_notify_event),
-        this
-    );
-    g_signal_connect(
-        m_handle,
-        "scroll-event",
-        G_CALLBACK(sigh_scroll_event),
-        this
-    );
-    g_signal_connect(
-        m_handle,
-        "button-press-event",
-        G_CALLBACK(sigh_button_event),
-        this
-    );
-    g_signal_connect(
-        m_handle,
-        "button-release-event",
-        G_CALLBACK(sigh_button_event),
-        this
-    );
-    g_signal_connect(
-        m_handle,
-        "key-press-event",
-        G_CALLBACK(sigh_key_event),
-        this
-    );
-    g_signal_connect(
-        m_handle,
-        "key-release-event",
-        G_CALLBACK(sigh_key_event),
-        this
-    );
 }
 
 // declared in gui.hh
