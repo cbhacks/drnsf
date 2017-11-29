@@ -19,7 +19,7 @@
 #
 
 cmake_minimum_required (VERSION 3.5)
-project (DRNSF)
+project (DRNSF VERSION 0.0)
 
 add_library (imgui OBJECT
     imgui/imgui.h
@@ -33,6 +33,7 @@ add_executable (drnsf
     src/main.cc
 
     src/common.hh
+    src/buildconfig.hh  # processed by configure_file below
 
     src/util.hh
     src/util.cc
@@ -141,6 +142,16 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     target_compile_options (drnsf PRIVATE -Wall -Wextra)
     target_compile_options (drnsf PRIVATE -Wno-unused-parameter)
 endif ()
+
+# Process buildconfig.hh
+configure_file (
+    src/buildconfig.hh
+    ${CMAKE_CURRENT_BINARY_DIR}/gen_include/drnsf_buildconfig_out.hh
+    NEWLINE_STYLE LF
+)
+target_include_directories (drnsf
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/gen_include
+)
 
 # Tool: embedgen
 # This command generates an embed_data.cc file from the `data/' directory

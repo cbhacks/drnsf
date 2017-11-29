@@ -39,26 +39,18 @@
 #include <type_traits>
 
 /*
- * APP_NAME
- *
- * FIXME explain
- */
-#define APP_NAME "DRNSF"
-
-/*
- * APP_TITLE
- *
- * FIXME explain
- */
-#define APP_TITLE "Dr. N. Essef"
-
-/*
  * STRINGIFY
  *
  * FIXME explain
  */
 #define STRINGIFY(x) STRINGIFY_(x)
 #define STRINGIFY_(x) #x
+
+// Include the application build configuration. This is partially generated
+// by CMake when configuring and generating your build system.
+#define DRNSF_BUILDCONFIG_INCLUDED_PROPERLY
+#include "drnsf_buildconfig_out.hh"
+#undef DRNSF_BUILDCONFIG_INCLUDED_PROPERLY
 
 #include "util.hh"
 
