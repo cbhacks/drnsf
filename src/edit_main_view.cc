@@ -51,30 +51,6 @@ void main_view::frame(int delta_time)
 
     im::main_menu_bar([&]{
         im::menu("Edit", [&]{
-            auto &&transact = m_ed.m_proj.get_transact();
-
-            if (transact.has_undo()) {
-                auto title = transact.get_undo().describe();
-
-                im::menu_item("Undo: $"_fmt(title), [&]{
-                    transact.undo();
-                });
-            } else {
-                im::menu_item("Undo");
-            }
-
-            if (transact.has_redo()) {
-                auto title = transact.get_redo().describe();
-
-                im::menu_item("Redo: $"_fmt(title), [&]{
-                    transact.redo();
-                });
-            } else {
-                im::menu_item("Redo");
-            }
-
-            im::menu_separator();
-
             for (auto &&modedef : modedef::get_list()) {
                 auto title = modedef->get_title();
                 im::menu_item("Mode: $"_fmt(title), [&]{

@@ -14,8 +14,6 @@ Changes which must be made before the first versioned release:
 
  * Implement a reasonable property editor (see `edit::asset_propview`)
 based on prototype code seen in `src/edit_mode_classic.cc`.
- * Move undo/redo menu options from `src/edit_main_view` into the proper
-user interface.
  * Remove the following:
    * Class `edit::main_view`
    * Class `edit::old_editor`
@@ -32,8 +30,6 @@ new rendering code should be at or near OpenGL "core" level functionality.
    * New Project -> Blank
    * New Project -> From NSF (C2)
    * Close Project
-   * Undo { name of transaction to be undone }
-   * Redo { name of transaction to be redone }
  * Remove the following:
    * Class `edit::core`
    * File `module.hh`
