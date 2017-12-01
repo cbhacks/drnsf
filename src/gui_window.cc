@@ -32,17 +32,30 @@ window::window(const std::string &title, int width, int height)
     gtk_window_set_default_size(GTK_WINDOW(M), width, height);
     g_signal_connect(M, "delete-event", G_CALLBACK(gtk_true), nullptr);
 
-    m_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-    gtk_container_add(GTK_CONTAINER(M), m_vbox);
-    gtk_widget_show(m_vbox);
-
-    m_menubar = gtk_menu_bar_new();
-    gtk_box_pack_start(GTK_BOX(m_vbox), m_menubar, false, false, 0);
-    gtk_widget_show(m_menubar);
-
-    m_content = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-    gtk_box_set_homogeneous(GTK_BOX(m_content), true);
-    gtk_box_pack_start(GTK_BOX(m_vbox), m_content, true, true, 0);
+    m_content = gtk_fixed_new();
+    auto sigh_size_allocate =
+        static_cast<void (*)(GtkWidget *, GdkRectangle *, gpointer)>(
+            [](GtkWidget *, GdkRectangle *allocation, gpointer user_data) {
+                auto self = static_cast<window *>(user_data);
+                auto alloc = *allocation;
+                auto alloc_menubar = alloc;
+                if (self->m_menubar) {
+                    alloc_menubar.height = 20;
+                    alloc.height -= 20;
+                    alloc.y += 20;
+                }
+                self->apply_layouts(alloc);
+                if (self->m_menubar) {
+                    self->m_menubar->apply_layout(alloc_menubar);
+                }
+            });
+    g_signal_connect(
+        m_content,
+        "size-allocate",
+        G_CALLBACK(sigh_size_allocate),
+        this
+    );
+    gtk_container_add(GTK_CONTAINER(M), m_content);
     gtk_widget_show(m_content);
 }
 

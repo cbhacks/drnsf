@@ -102,10 +102,20 @@ void menubar::mousebutton(int button, bool down)
 
 // declared in gui.hh
 menubar::menubar(window &wnd) :
-    widget_2d(wnd, layout { {{ 0.0f, 0 }, { 1.0f, 0 }}, {{ 1.0f, -40 }, { 1.0, 0 }} }),
+    widget_2d(wnd, layout::fill()),
     m_wnd(wnd)
 {
+    if (m_wnd.m_menubar) {
+        throw 0; //FIXME
+    }
+    m_wnd.m_menubar = this;
     widget_2d::show();
+}
+
+// declared in gui.hh
+menubar::~menubar()
+{
+    m_wnd.m_menubar = nullptr;
 }
 
 // declared in gui.hh

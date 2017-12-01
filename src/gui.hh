@@ -149,6 +149,7 @@ struct layout {
 
 // defined later in this file
 class container;
+class window;
 
 /*
  * gui::widget
@@ -157,6 +158,7 @@ class container;
  */
 class widget : public util::nocopy {
     friend class container;
+    friend class window;
 
 private:
     // (s-func) sigh_motion_notify_event
@@ -298,30 +300,30 @@ public:
     virtual sys_container_handle get_container_handle() = 0;
 };
 
+// defined later in this file
+class menubar;
+
 /*
  * gui::window
  *
  * FIXME explain
  */
 class window : public container {
-    friend class menu;
+    friend class menubar;
 
 private:
     // (var) M
     // FIXME explain
     GtkWidget *M;
 
-    // (var) m_vbox
-    // FIXME explain
-    GtkWidget *m_vbox;
-
-    // (var) m_menubar
-    // FIXME explain
-    GtkWidget *m_menubar;
-
     // (var) m_content
     // FIXME explain
     GtkWidget *m_content;
+
+    // (var) m_menubar
+    // A pointer to the menubar associated with this window, or null if there
+    // is none.
+    gui::menubar *m_menubar = nullptr;
 
 public:
     // (explicit ctor)
@@ -463,6 +465,8 @@ public:
  * FIXME explain
  */
 class widget_2d : private widget {
+    friend class window;
+
 private:
     // (s-func) sigh_draw
     // Internal signal handler for GtkWidget::'draw'.
@@ -793,6 +797,8 @@ public:
  * FIXME explain
  */
 class menubar : private widget_2d {
+    friend class window;
+
 public:
     // inner class defined later in this file
     class item;
@@ -833,6 +839,10 @@ public:
     // Initializes an empty menubar and associates it with the given window.
     // The window must not already have a menubar associated with it.
     explicit menubar(window &wnd);
+
+    // (dtor)
+    // Removes the menubar from the associated window.
+    ~menubar();
 };
 
 /*
