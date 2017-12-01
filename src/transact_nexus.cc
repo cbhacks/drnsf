@@ -88,6 +88,9 @@ void nexus::undo()
     // Ensure that there is actually a transaction to undo.
     // TODO
 
+    m_status = status::busy;
+    on_status_change();
+
     // Run each of the operations in the transaction, causing them to be
     // undone.
     for (auto &&op : m_undo->m_ops) {
@@ -111,6 +114,9 @@ void nexus::undo()
     m_undo.swap(t->m_next);
     m_redo.swap(t->m_next);
     m_redo.swap(t);
+
+    m_status = status::ready;
+    on_status_change();
 }
 
 // declared in transact.hh
@@ -122,6 +128,9 @@ void nexus::redo()
 
     // Ensure that there is actually a transaction to redo.
     // TODO
+
+    m_status = status::busy;
+    on_status_change();
 
     // Run each of the operations in the transaction, causing them to be
     // redone.
@@ -146,6 +155,9 @@ void nexus::redo()
     m_redo.swap(t->m_next);
     m_undo.swap(t->m_next);
     m_undo.swap(t);
+
+    m_status = status::ready;
+    on_status_change();
 }
 
 // declared in transact.hh

@@ -54,6 +54,13 @@ public:
     // Creates an editor with the specified project open. The editor takes a
     // copy of the shared pointer.
     explicit editor(std::shared_ptr<res::project> proj);
+
+    // (func) get_proj
+    // Read-only get method for m_proj member.
+    const std::shared_ptr<res::project> &get_proj()
+    {
+        return m_proj;
+    }
 };
 
 namespace menus {
@@ -85,6 +92,59 @@ private:
 public:
     explicit mnu_file(gui::menubar &menubar) :
         item(menubar, "File") {}
+};
+
+/*
+ * edit::menus::mni_undo
+ *
+ * Edit -> Undo
+ * Undoes the last operation.
+ */
+class mni_undo : private gui::menu::item {
+private:
+    editor &m_ed;
+    void update();
+    void on_activate() final override;
+
+    decltype(transact::nexus::on_status_change)::watch h_status_change;
+
+public:
+    explicit mni_undo(gui::menu &menu, editor &ed);
+};
+
+/*
+ * edit::menus::mni_redo
+ *
+ * Edit -> Undo
+ * Redoes the last undone operation.
+ */
+class mni_redo : private gui::menu::item {
+private:
+    editor &m_ed;
+    void update();
+    void on_activate() final override;
+
+    decltype(transact::nexus::on_status_change)::watch h_status_change;
+
+public:
+    explicit mni_redo(gui::menu &menu, editor &ed);
+};
+
+/*
+ * edit::menus::mnu_edit
+ *
+ * "Edit" menu.
+ */
+class mnu_edit : private gui::menubar::item {
+private:
+    editor &m_ed;
+    mni_undo m_undo{*this, m_ed};
+    mni_redo m_redo{*this, m_ed};
+
+public:
+    explicit mnu_edit(gui::menubar &menubar, editor &ed) :
+        item(menubar, "Edit"),
+        m_ed(ed) {}
 };
 
 }
@@ -246,14 +306,16 @@ static float &g_camera_zoom = g_camera.zoom;
 
 class main_window : private util::nocopy {
 private:
+    editor &m_ed;
     gui::window m_wnd;
     gui::menubar m_newmenubar;
     menus::mnu_file m_mnu_file{m_newmenubar};
+    menus::mnu_edit m_mnu_edit{m_newmenubar, m_ed};
     res::project *m_proj_p;
     std::unique_ptr<asset_editor> m_assets_view;
 
 public:
-    main_window();
+    explicit main_window(editor &ed);
 
     void show();
 

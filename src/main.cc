@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     edit::editor editor(proj);
     edit::core edcore(*proj);
 
-    edit::main_window wnd;
+    edit::main_window wnd(editor);
     wnd.show();
     wnd.set_project(*proj);
 

@@ -776,6 +776,15 @@ public:
     // (dtor)
     // Removes the menu item from its associated menu.
     ~item();
+
+    // (func) set_text
+    // Sets the text of the menu item.
+    void set_text(std::string text);
+
+    // (func) set_enabled
+    // Sets whether or not the menu item is enabled. Disabled items cannot be
+    // activated by the user, and may appear grayed out.
+    void set_enabled(bool enabled);
 };
 
 /*

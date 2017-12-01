@@ -144,5 +144,23 @@ menu::item::~item()
     );
 }
 
+// declared in gui.hh
+void menu::item::set_text(std::string text)
+{
+    if (m_text != text) {
+        m_text = std::move(text);
+        m_menu.invalidate();
+    }
+}
+
+// declared in gui.hh
+void menu::item::set_enabled(bool enabled)
+{
+    if (m_enabled != enabled) {
+        m_enabled = enabled;
+        m_menu.invalidate();
+    }
+}
+
 }
 }
