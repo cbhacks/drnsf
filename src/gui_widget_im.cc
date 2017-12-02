@@ -155,6 +155,7 @@ void main()
     glBindVertexArray(0);
 }
 
+// declared in gui.hh
 void widget_im::draw_gl(int width, int height, gl::renderbuffer &rbo)
 {
     gl::framebuffer fbo;
@@ -192,10 +193,8 @@ void widget_im::draw_gl(int width, int height, gl::renderbuffer &rbo)
     m_io->DisplaySize.y = height;
     glViewport(0, 0, width, height);
 
-    long current_time = g_get_monotonic_time();
-    long delta_time = current_time - m_last_update;
-    m_last_update = current_time;
-    m_io->DeltaTime = delta_time / 1000000.0;
+    m_io->DeltaTime = m_pending_time / 1000.0;
+    m_pending_time = 0;
 
     auto previous_im = ImGui::GetCurrentContext();
     ImGui::SetCurrentContext(m_im);
@@ -328,17 +327,20 @@ void widget_im::draw_gl(int width, int height, gl::renderbuffer &rbo)
     ImGui::SetCurrentContext(previous_im);
 }
 
+// declared in gui.hh
 void widget_im::mousemove(int x, int y)
 {
     m_io->MousePos.x = x;
     m_io->MousePos.y = y;
 }
 
+// declared in gui.hh
 void widget_im::mousewheel(int delta_y)
 {
     m_io->MouseWheel += delta_y;
 }
 
+// declared in gui.hh
 void widget_im::mousebutton(int number, bool down)
 {
     switch (number) {
@@ -354,6 +356,7 @@ void widget_im::mousebutton(int number, bool down)
     }
 }
 
+// declared in gui.hh
 void widget_im::key(int code, bool down)
 {
     switch (code) {
@@ -433,25 +436,25 @@ void widget_im::key(int code, bool down)
     }
 }
 
+// declared in gui.hh
 void widget_im::text(const char *str)
 {
     m_io->AddInputCharactersUTF8(str);
 }
 
+// declared in gui.hh
+int widget_im::update(int delta_ms)
+{
+    m_pending_time += delta_ms;
+    invalidate();
+    return 100;
+}
+
+// declared in gui.hh
 widget_im::widget_im(container &parent, layout layout) :
     widget_gl(parent, layout)
 {
     init();
-
-    m_timer = g_timeout_add(
-        10,
-        [](gpointer user_data) -> gboolean {
-            auto self = static_cast<widget_im *>(user_data);
-            self->invalidate();
-            return G_SOURCE_CONTINUE;
-        },
-        this
-    );
 
     m_im = ImGui::CreateContext();
     auto previous_im = ImGui::GetCurrentContext();
@@ -515,15 +518,12 @@ widget_im::widget_im(container &parent, layout layout) :
     style.Colors[ImGuiCol_ModalWindowDarkening] = default_color;
     static_assert(ImGuiCol_COUNT == 43, "ImGui color palette has changed!");
 
-    m_last_update = g_get_monotonic_time();
-
     ImGui::SetCurrentContext(previous_im);
 }
 
+// declared in gui.hh
 widget_im::~widget_im()
 {
-    g_source_remove(m_timer);
-
     auto previous_im = ImGui::GetCurrentContext();
     ImGui::SetCurrentContext(m_im);
     ImGui::DestroyContext(m_im);

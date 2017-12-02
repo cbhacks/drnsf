@@ -159,8 +159,13 @@ class window;
 class widget : public util::nocopy {
     friend class container;
     friend class window;
+    friend void run();
 
 private:
+    // (s-var) s_widgets
+    // A set containing pointers to all of the existing widgets.
+    static std::unordered_set<widget *> s_widgets;
+
     // (s-func) sigh_motion_notify_event
     // Internal signal handler for GtkWidget::'motion-notify-event'.
     static gboolean sigh_motion_notify_event(
@@ -231,6 +236,13 @@ private:
     //
     // The default implementation performs no operation.
     virtual void text(const char *str) {}
+
+    // (func) update
+    // FIXME explain
+    virtual int update(int delta_ms)
+    {
+        return INT_MAX;
+    }
 
 protected:
     // (var) m_handle
@@ -517,16 +529,11 @@ private:
     // input into ImGui, such as mouse position or keystroke inputs.
     ImGuiIO *m_io;
 
-    // (var) m_timer
-    // A handle to a timer used to repeatedly invalidate the underlying GL
-    // widget so that ImGui can run every frame.
-    guint m_timer;
-
-    // (var) m_last_update
-    // The time of the last update. This information is used each `draw_gl'
-    // call to determine the amount of time passed since the previous update,
-    // which is needed by ImGui.
-    long m_last_update;
+    // (var) m_pending_time
+    // The number of milliseconds passed since the last ImGui render. This
+    // accumulates from successive calls to `update' (see below) and is then
+    // consumed when `ImGui::NewFrame' is run.
+    int m_pending_time = 0;
 
     // (func) draw_gl
     // FIXME explain
@@ -551,6 +558,13 @@ private:
     // (func) text
     // FIXME explain
     void text(const char *str) final override;
+
+    // (func) update
+    // Implements `update' to handle updating ImGui on a regular interval.
+    // ImGui is designed for debugging games, and its design necessitates
+    // calling imgui every "frame", which is not a concept present in this
+    // gui code.
+    int update(int delta_ms) final override;
 
 protected:
     // (pure func) frame

@@ -33,6 +33,22 @@ void init(int &argc, char **&argv)
 // declared in gui.hh
 void run()
 {
+    g_idle_add([](gpointer) -> gboolean {
+        static long last_update = LONG_MAX;
+        long current_time = g_get_monotonic_time() / 1000;
+        if (current_time > last_update) {
+            int delta_time = current_time - last_update;
+            int min_delay = INT_MAX;
+            for (auto &&w : widget::s_widgets) {
+                int delay = w->update(delta_time);
+                if (delay < min_delay) {
+                    min_delay = delay;
+                }
+            }
+        }
+        last_update = current_time;
+        return G_SOURCE_CONTINUE;
+    }, nullptr);
     gtk_main();
 }
 
