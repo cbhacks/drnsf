@@ -324,27 +324,15 @@ public:
 
 //// SEEN BELOW: soon-to-be-obsolete code ////
 
-class im_canvas : private util::nocopy {
+class im_canvas : public gui::widget_im {
 private:
-    gui::gl_canvas m_canvas;
-    ImGuiContext *m_im;
-    ImGuiIO *m_io;
-    guint m_timer;
-    long m_last_update;
-    decltype(m_canvas.on_render)::watch h_render;
-    decltype(m_canvas.on_mousemove)::watch h_mousemove;
-    decltype(m_canvas.on_mousewheel)::watch h_mousewheel;
-    decltype(m_canvas.on_mousebutton)::watch h_mousebutton;
-    decltype(m_canvas.on_key)::watch h_key;
-    decltype(m_canvas.on_text)::watch h_text;
-
-    void render(int width, int height);
+    void frame() final override;
 
 public:
-    im_canvas(gui::container &parent, gui::layout layout);
-    ~im_canvas();
+    im_canvas(gui::container &parent, gui::layout layout) :
+        widget_im(parent, layout) {}
 
-    void show();
+    using widget_im::show;
 
     util::event<int, int, int> on_frame;
 };
