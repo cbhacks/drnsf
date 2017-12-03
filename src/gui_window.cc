@@ -38,15 +38,23 @@ window::window(const std::string &title, int width, int height)
             [](GtkWidget *, GdkRectangle *allocation, gpointer user_data) {
                 auto self = static_cast<window *>(user_data);
                 auto alloc = *allocation;
-                auto alloc_menubar = alloc;
                 if (self->m_menubar) {
-                    alloc_menubar.height = 20;
                     alloc.height -= 20;
                     alloc.y += 20;
                 }
-                self->apply_layouts(alloc);
+                self->apply_layouts(
+                    alloc.x,
+                    alloc.y,
+                    alloc.width,
+                    alloc.height
+                );
                 if (self->m_menubar) {
-                    self->m_menubar->apply_layout(alloc_menubar);
+                    self->m_menubar->apply_layout(
+                        alloc.x,
+                        alloc.y - 20,
+                        alloc.width,
+                        20
+                    );
                 }
             });
     g_signal_connect(

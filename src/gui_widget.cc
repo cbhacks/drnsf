@@ -26,10 +26,10 @@ namespace gui {
 
 // declared in gui.hh
 // FIXME move to gui_container.cc ?
-void container::apply_layouts(GtkAllocation &alloc)
+void container::apply_layouts(int x, int y, int w, int h)
 {
     for (auto &&widget : m_widgets) {
-        widget->apply_layout(alloc);
+        widget->apply_layout(x, y, w, h);
     }
 }
 
@@ -97,27 +97,27 @@ gboolean widget::sigh_key_event(
 }
 
 // declared in gui.hh
-void widget::apply_layout(GtkAllocation &ctn_alloc)
+void widget::apply_layout(int ctn_x, int ctn_y, int ctn_w, int ctn_h)
 {
     // Calculate the real positions according to the widget layout.
     int x1 =
-        ctn_alloc.x +
-        ctn_alloc.width *
+        ctn_x +
+        ctn_w *
         m_layout.h.left.factor +
         m_layout.h.left.offset;
     int x2 =
-        ctn_alloc.x +
-        ctn_alloc.width *
+        ctn_x +
+        ctn_w *
         m_layout.h.right.factor +
         m_layout.h.right.offset;
     int y1 =
-        ctn_alloc.y +
-        ctn_alloc.height *
+        ctn_y +
+        ctn_h *
         m_layout.v.top.factor +
         m_layout.v.top.offset;
     int y2 =
-        ctn_alloc.y +
-        ctn_alloc.height *
+        ctn_y +
+        ctn_h *
         m_layout.v.bottom.factor +
         m_layout.v.bottom.offset;
 
@@ -142,7 +142,12 @@ widget::widget(sys_handle &&handle, container &parent, layout layout) try :
     if (gtk_widget_get_realized(ctn_handle)) {
         GtkAllocation ctn_alloc;
         gtk_widget_get_allocation(ctn_handle, &ctn_alloc);
-        apply_layout(ctn_alloc);
+        apply_layout(
+            ctn_alloc.x,
+            ctn_alloc.y,
+            ctn_alloc.width,
+            ctn_alloc.height
+        );
     }
 
     // Register event handlers. "draw" is handled by derived types such as

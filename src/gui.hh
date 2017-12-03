@@ -195,9 +195,9 @@ private:
         gpointer user_data);
 
     // (func) apply_layout
-    // Internal function for applying the widget layout to the actual widget
-    // handle used by the system.
-    void apply_layout(GtkAllocation &ctn_alloc);
+    // Applies the widget's layout to its size and position based on the area
+    // of the container given as parameters.
+    void apply_layout(int ctn_x, int ctn_y, int ctn_w, int ctn_h);
 
     // (func) mousemove
     // Called when the mouse moves into or while inside of the widget.
@@ -304,7 +304,7 @@ private:
 protected:
     // (func) apply_layouts
     // FIXME explain
-    void apply_layouts(GtkAllocation &alloc);
+    void apply_layouts(int x, int y, int w, int h);
 
 public:
     // (pure func) get_container_handle

@@ -32,7 +32,10 @@ composite::composite(container &parent, layout layout) :
         static_cast<void (*)(GtkWidget *, GdkRectangle *, gpointer)>(
             [](GtkWidget *, GdkRectangle *allocation, gpointer user_data) {
                 static_cast<composite *>(user_data)->apply_layouts(
-                    *allocation
+                    allocation->x,
+                    allocation->y,
+                    allocation->width,
+                    allocation->height
                 );
             });
     g_signal_connect(
