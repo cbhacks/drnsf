@@ -25,25 +25,17 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
+void composite::on_resize(int width, int height)
+{
+    GtkAllocation alloc;
+    gtk_widget_get_allocation(m_handle, &alloc);
+    apply_layouts(alloc.x, alloc.y, width, height);
+}
+
+// declared in gui.hh
 composite::composite(container &parent, layout layout) :
     widget(gtk_fixed_new(), parent, layout)
 {
-    auto sigh_size_allocate =
-        static_cast<void (*)(GtkWidget *, GdkRectangle *, gpointer)>(
-            [](GtkWidget *, GdkRectangle *allocation, gpointer user_data) {
-                static_cast<composite *>(user_data)->apply_layouts(
-                    allocation->x,
-                    allocation->y,
-                    allocation->width,
-                    allocation->height
-                );
-            });
-    g_signal_connect(
-        m_handle,
-        "size-allocate",
-        G_CALLBACK(sigh_size_allocate),
-        this
-    );
 }
 
 // declared in gui.hh

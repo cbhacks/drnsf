@@ -97,6 +97,18 @@ gboolean widget::sigh_key_event(
 }
 
 // declared in gui.hh
+void widget::sigh_size_allocate(
+    GtkWidget *wdg,
+    GdkRectangle *allocation,
+    gpointer user_data)
+{
+    static_cast<widget *>(user_data)->on_resize(
+        allocation->width,
+        allocation->height
+    );
+}
+
+// declared in gui.hh
 void widget::apply_layout(int ctn_x, int ctn_y, int ctn_w, int ctn_h)
 {
     // Calculate the real positions according to the widget layout.
@@ -195,6 +207,12 @@ widget::widget(sys_handle &&handle, container &parent, layout layout) try :
         m_handle,
         "key-release-event",
         G_CALLBACK(sigh_key_event),
+        this
+    );
+    g_signal_connect(
+        m_handle,
+        "size-allocate",
+        G_CALLBACK(sigh_size_allocate),
         this
     );
 

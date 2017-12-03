@@ -194,6 +194,13 @@ private:
         GdkEvent *event,
         gpointer user_data);
 
+    // (s-func) sigh_size_allocate
+    // Internal signal handler for GtkWidget::'size-allocate'.
+    static void sigh_size_allocate(
+        GtkWidget *wdg,
+        GdkRectangle *allocation,
+        gpointer user_data);
+
     // (func) apply_layout
     // Applies the widget's layout to its size and position based on the area
     // of the container given as parameters.
@@ -236,6 +243,14 @@ private:
     //
     // The default implementation performs no operation.
     virtual void text(const char *str) {}
+
+    // (func) on_resize
+    // Called when the widget is resized. This may be caused by the parent
+    // container being resized, causing the child widgets to re-apply their
+    // defined layouts.
+    //
+    // The default implementation performs no operation.
+    virtual void on_resize(int width, int height) {}
 
     // (func) update
     // FIXME explain
@@ -414,6 +429,12 @@ public:
  * FIXME explain
  */
 class composite : private widget, public container {
+private:
+    // (func) on_resize
+    // Implements on_resize to apply the change in container size to the child
+    // widgets.
+    void on_resize(int width, int height) final override;
+
 public:
     // (ctor)
     // FIXME explain
