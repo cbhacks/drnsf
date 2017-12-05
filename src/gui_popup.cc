@@ -30,11 +30,18 @@ popup::popup(int width, int height)
     M = gtk_window_new(GTK_WINDOW_POPUP);
     gtk_window_set_default_size(GTK_WINDOW(M), width, height);
     g_signal_connect(M, "delete-event", G_CALLBACK(gtk_true), nullptr);
+
+    try {
+        g_popups.insert({M, this});
+    } catch (...) {
+        gtk_widget_destroy(M);
+    }
 }
 
 // declared in gui.hh
 popup::~popup()
 {
+    g_popups.erase(M);
     gtk_widget_destroy(M);
 }
 

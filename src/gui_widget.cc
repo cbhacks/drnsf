@@ -34,9 +34,6 @@ void container::apply_layouts(int x, int y, int w, int h)
 }
 
 // declared in gui.hh
-std::unordered_set<widget *> widget::s_widgets;
-
-// declared in gui.hh
 gboolean widget::sigh_motion_notify_event(
     GtkWidget *wdg,
     GdkEvent *event,
@@ -218,7 +215,7 @@ widget::widget(sys_handle &&handle, container &parent, layout layout) try :
 
     parent.m_widgets.insert(this);
     try {
-        s_widgets.insert(this);
+        g_widgets.insert({m_handle, this});
     } catch (...) {
         parent.m_widgets.erase(this);
         throw;
@@ -233,7 +230,7 @@ widget::widget(sys_handle &&handle, container &parent, layout layout) try :
 widget::~widget()
 {
     m_parent.m_widgets.erase(this);
-    s_widgets.erase(this);
+    g_widgets.erase(m_handle);
     gtk_widget_destroy(m_handle);
 }
 

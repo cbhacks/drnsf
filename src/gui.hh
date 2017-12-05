@@ -27,6 +27,7 @@
  */
 
 #include <unordered_set>
+#include <unordered_map>
 #include <gtk/gtk.h>
 #include "../imgui/imgui.h"
 #include "gl.hh"
@@ -162,10 +163,6 @@ class widget : public util::nocopy {
     friend void run();
 
 private:
-    // (s-var) s_widgets
-    // A set containing pointers to all of the existing widgets.
-    static std::unordered_set<widget *> s_widgets;
-
     // (s-func) sigh_motion_notify_event
     // Internal signal handler for GtkWidget::'motion-notify-event'.
     static gboolean sigh_motion_notify_event(
@@ -907,6 +904,17 @@ public:
     // Removes the menubar item from its associated menubar.
     ~item();
 };
+
+/*
+ * gui::internal
+ *
+ * Internal declarations for gui code.
+ */
+inline namespace internal {
+    extern std::unordered_map<GtkWidget *, widget *> g_widgets;
+    extern std::unordered_map<GtkWidget *, window *> g_windows;
+    extern std::unordered_map<GtkWidget *, popup *> g_popups;
+}
 
 /*
  * gui::gl_canvas

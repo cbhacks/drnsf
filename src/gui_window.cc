@@ -65,11 +65,19 @@ window::window(const std::string &title, int width, int height)
     );
     gtk_container_add(GTK_CONTAINER(M), m_content);
     gtk_widget_show(m_content);
+
+    try {
+        g_windows.insert({M, this});
+    } catch (...) {
+        gtk_widget_destroy(M);
+        throw;
+    }
 }
 
 // declared in gui.hh
 window::~window()
 {
+    g_windows.erase(M);
     gtk_widget_destroy(M);
 }
 
