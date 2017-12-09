@@ -349,6 +349,11 @@ private:
     // is none.
     gui::menubar *m_menubar = nullptr;
 
+protected:
+    // (func) exit_dialog
+    // FIXME explain
+    void exit_dialog();
+
 public:
     // (explicit ctor)
     // FIXME explain
@@ -361,6 +366,10 @@ public:
     // (func) show
     // FIXME explain
     void show();
+
+    // (func) show_dialog
+    // FIXME explain
+    void show_dialog();
 
     // (func) get_container_handle
     // FIXME explain

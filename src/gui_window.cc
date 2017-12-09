@@ -25,6 +25,12 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
+void window::exit_dialog()
+{
+    gtk_main_quit();
+}
+
+// declared in gui.hh
 window::window(const std::string &title, int width, int height)
 {
     M = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -85,6 +91,16 @@ window::~window()
 void window::show()
 {
     gtk_widget_show(M);
+}
+
+// declared in gui.hh
+void window::show_dialog()
+{
+    gtk_window_set_modal(GTK_WINDOW(M), true);
+    gtk_widget_show(M);
+    gtk_main();
+    gtk_widget_hide(M);
+    gtk_window_set_modal(GTK_WINDOW(M), false);
 }
 
 // declared in gui.hh
