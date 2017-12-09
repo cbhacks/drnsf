@@ -167,24 +167,6 @@ void widget_im::draw_gl(int width, int height, gl::renderbuffer &rbo)
         rbo
     );
 
-    // FIXME temporary depth buffer for edit::im_canvas
-    // remove this when edit::im_canvas is no longer in use
-    gl::renderbuffer rbo_depth;
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo_depth);
-    glRenderbufferStorage(
-        GL_RENDERBUFFER,
-        GL_DEPTH_COMPONENT16,
-        width,
-        height
-    );
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-    glFramebufferRenderbuffer(
-        GL_DRAW_FRAMEBUFFER,
-        GL_DEPTH_ATTACHMENT,
-        GL_RENDERBUFFER,
-        rbo_depth
-    );
-
     glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);

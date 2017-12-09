@@ -28,7 +28,7 @@
 
 namespace drnsf {
 
-std::function<void(int)> create_mod_testbox(edit::core &);
+std::function<void()> create_mod_testbox(edit::core &);
 
 namespace edit {
 
@@ -37,10 +37,10 @@ core::core(project &proj) :
     m_ed(m_proj),
     m_wnd(m_ed)
 {
-    h_frame <<= [this](int width, int height, int delta_time) {
-        frame(width, height, delta_time);
+    h_render <<= [this](int width, int height) {
+        frame(width, height);
     };
-    h_frame.bind(m_wnd.m_cryptos.on_frame);
+    h_render.bind(m_wnd.m_cryptos.on_render);
 
     // Create all of the editor modules.
     m_modules.push_back(create_mod_testbox(*this));
@@ -48,7 +48,7 @@ core::core(project &proj) :
     m_wnd.show();
 }
 
-void core::frame(int width, int height, int delta)
+void core::frame(int width, int height)
 {
     // Clear the screen.
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -71,7 +71,7 @@ void core::frame(int width, int height, int delta)
 
     // Run all of the enabled editor modules.
     for (auto &&mod : m_modules) {
-        mod(delta);
+        mod();
     }
 
     // Disable the previously-enabled z-buffering.

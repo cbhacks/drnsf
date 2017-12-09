@@ -373,7 +373,7 @@ private:
     gui::window m_canvas_wnd;
     gui::window m_cryptos_wnd;
     im_canvas m_canvas;
-    im_canvas m_cryptos;
+    gui::gl_canvas m_cryptos;
     decltype(m_canvas.on_frame)::watch h_frame;
 
 public:
@@ -470,13 +470,13 @@ class core : private util::nocopy {
 public:
     project &m_proj;
     old_editor m_ed;
-    std::list<std::function<void(int)>> m_modules;
+    std::list<std::function<void()>> m_modules;
     edit::main_view m_wnd;
-    decltype(m_wnd.m_cryptos.on_frame)::watch h_frame;
+    decltype(m_wnd.m_cryptos.on_render)::watch h_render;
 
     core(project &proj);
 
-    void frame(int width, int height, int delta);
+    void frame(int width, int height);
 };
 
 }

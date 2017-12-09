@@ -946,6 +946,12 @@ private:
     void key(int code, bool down) final override;
     void text(const char *str) final override;
 
+    int update(int) final override
+    {
+        invalidate();
+        return INT_MAX;
+    }
+
 public:
     // (explicit ctor)
     // FIXME explain

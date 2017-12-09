@@ -27,55 +27,9 @@
 
 namespace drnsf {
 
-static std::vector<unsigned char> read_file(const std::string &filename)
-{
-    std::vector<unsigned char> data;
-    FILE *f = fopen(filename.c_str(), "rb");
-    if (!f)
-        throw 5;
-    fseek(f, 0, SEEK_END);
-    data.resize(ftell(f));
-    fseek(f, 0, SEEK_SET);
-    fread(data.data(), data.size(), 1, f);
-    fclose(f);
-    return data;
-}
-
 static void frame(edit::core &m_core, int delta)
 {
-    auto &&nx = m_core.m_proj.get_transact();
     auto &&ns = m_core.m_proj.get_asset_root();
-    auto &&proj = m_core.m_proj;
-
-    if (ImGui::Button("Load nsfile")) {
-        nx << [&](TRANSACT) {
-            TS.describe("Load nsfile");
-            nsf::archive::ref raw = ns / "nsfile";
-            raw.create(TS, proj);
-            raw->import_file(TS, read_file("nsfile"));
-            for (misc::raw_data::ref page : raw->get_pages()) {
-                if (page->get_data()[2] == 1)
-                    continue;
-
-                nsf::spage::ref spage = page / "hewm";
-                spage.create(TS, proj);
-                spage->import_file(TS, page->get_data());
-                page->destroy(TS);
-                spage->rename(TS, page);
-                spage = page;
-
-                for (misc::raw_data::ref pagelet : spage->get_pagelets()) {
-                    nsf::raw_entry::ref entry = pagelet / "hewmy";
-                    entry.create(TS, proj);
-                    entry->import_file(TS, pagelet->get_data());
-                    pagelet->destroy(TS);
-                    entry->rename(TS, pagelet);
-                    entry = pagelet;
-                    entry->process_by_type(TS, nsf::game_ver::crash2);
-                }
-            }
-        };
-    }
 
     gfx::model::ref smodel = edit::g_selected_asset;
 
