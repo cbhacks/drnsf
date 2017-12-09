@@ -133,6 +133,11 @@ public:
     atom operator /(const char *s) const;
     atom operator /(const std::string &s) const;
 
+    // (path append operator)
+    // This operates as though `a /= b' was `a = a / b'.
+    atom &operator /=(const char *s);
+    atom &operator /=(const std::string &s);
+
     // (func) get
     // FIXME explain
     asset *get() const;

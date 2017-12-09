@@ -247,6 +247,20 @@ atom atom::operator /(const std::string &s) const
 }
 
 // declared in res.hh
+atom &atom::operator /=(const char *s)
+{
+    *this = *this / s;
+    return *this;
+}
+
+// declared in res.hh
+atom &atom::operator /=(const std::string &s)
+{
+    *this = *this / s;
+    return *this;
+}
+
+// declared in res.hh
 asset *atom::get() const
 {
     if (!m_nuc) {
