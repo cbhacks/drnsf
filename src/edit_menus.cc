@@ -20,10 +20,78 @@
 
 #include "common.hh"
 #include "edit.hh"
+#include <fstream>
+#include "nsf.hh"
+#include "misc.hh"
 
 namespace drnsf {
 namespace edit {
 namespace menus {
+
+// declared in edit.hh
+void mni_open::on_activate()
+{
+    // Get the file to open from the user.
+    std::string path = ".";
+    if (!gui::show_open_dialog(path)) return;
+
+    // Create the new project to import into.
+    auto proj_p = m_ed.get_proj(); //FIXME
+    auto &proj = *proj_p;
+
+    proj.get_transact() << [&](TRANSACT) {
+        TS.describe("Import NSF");
+
+        // Open the NSF file and read the data into memory.
+        std::ifstream nsf_file(path);
+        nsf_file.exceptions(std::ifstream::failbit | std::ifstream::eofbit);
+
+        nsf_file.seekg(0, std::ifstream::end);
+        auto nsf_size = nsf_file.tellg();
+        nsf_file.seekg(0, std::ifstream::beg);
+
+        util::blob nsf_data(nsf_size);
+        nsf_file.read(
+            reinterpret_cast<char *>(nsf_data.data()),
+            nsf_size
+        );
+        nsf_file.close();
+
+        // Import the data into an NSF asset.
+        nsf::archive::ref nsf_asset = proj.get_asset_root() / "nsfile";
+        nsf_asset.create(TS, proj);
+        nsf_asset->import_file(TS, std::move(nsf_data));
+
+        // Process all of the pages in the new NSF asset.
+        for (misc::raw_data::ref page : nsf_asset->get_pages()) {
+
+            // Pages with type 1 cannot be processed as normal pages.
+            if (page->get_data()[2] == 1)
+                continue;
+
+            nsf::spage::ref spage = page;
+            page->rename(TS, page / "_PROCESSING");
+            page /= "_PROCESSING";
+            spage.create(TS, proj);
+            spage->import_file(TS, page->get_data());
+            page->destroy(TS);
+
+            // Process all of the entries inside each standard page.
+            for (misc::raw_data::ref pagelet : spage->get_pagelets()) {
+                nsf::raw_entry::ref entry = pagelet;
+                pagelet->rename(TS, pagelet / "_PROCESSING");
+                pagelet /= "_PROCESSING";
+                entry.create(TS, proj);
+                entry->import_file(TS, pagelet->get_data());
+                pagelet->destroy(TS);
+                entry->process_by_type(TS, nsf::game_ver::crash2);
+            }
+        }
+    };
+
+    // Set the editor to use the newly opened project.
+    // TODO
+}
 
 // declared in edit.hh
 void mni_exit::on_activate()

@@ -915,6 +915,13 @@ public:
 };
 
 /*
+ * gui::show_open_dialog
+ *
+ * FIXME explain
+ */
+bool show_open_dialog(std::string &path);
+
+/*
  * gui::internal
  *
  * Internal declarations for gui code.

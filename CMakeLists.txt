@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-cmake_minimum_required (VERSION 3.5)
+cmake_minimum_required (VERSION 3.8)
 project (DRNSF VERSION 0.0)
 
 add_library (imgui OBJECT
@@ -39,6 +39,8 @@ add_executable (drnsf
     src/util.cc
     src/util_binreader.cc
 
+    src/fs.hh
+
     src/gui.hh
     src/gui.cc
     src/gui_widget.cc
@@ -52,6 +54,7 @@ add_executable (drnsf
     src/gui_treeview.cc
     src/gui_menu.cc
     src/gui_menubar.cc
+    src/gui_dialogs.cc
     src/gui_gl_canvas.cc
     src/gui_im.cc
 
@@ -107,9 +110,9 @@ add_executable (drnsf
     ${CMAKE_CURRENT_BINARY_DIR}/embed_data.cc
 )
 
-# Enable C++14
+# Enable C++17
 set_target_properties (drnsf PROPERTIES
-    CXX_STANDARD 14
+    CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
 )
 
@@ -136,6 +139,11 @@ target_compile_options (drnsf PRIVATE ${EPOXY_CFLAGS_OTHER})
 # Dependency: GLM
 # (header-only, included as a git submodule)
 target_include_directories (drnsf PRIVATE ${CMAKE_SOURCE_DIR}/glm)
+
+# Dependency: C++17 Filesystem
+if (CMAKE_COMPILER_IS_GNUCXX)
+    target_link_libraries (drnsf PRIVATE stdc++fs)
+endif ()
 
 # GCC Warnings
 if (CMAKE_COMPILER_IS_GNUCXX)

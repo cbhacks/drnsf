@@ -66,6 +66,23 @@ public:
 namespace menus {
 
 /*
+ * edit::menus::mni_open
+ *
+ * File -> Open
+ * Opens a file. (FIXME what kind?)
+ */
+class mni_open : private gui::menu::item {
+private:
+    editor &m_ed;
+    void on_activate() final override;
+
+public:
+    explicit mni_open(gui::menu &menu, editor &ed) :
+        item(menu, "Open"),
+        m_ed(ed) {}
+};
+
+/*
  * edit::menus::mni_exit
  *
  * File -> Exit
@@ -87,11 +104,14 @@ public:
  */
 class mnu_file : private gui::menubar::item {
 private:
+    editor &m_ed;
+    mni_open m_open{*this, m_ed};
     mni_exit m_exit{*this};
 
 public:
-    explicit mnu_file(gui::menubar &menubar) :
-        item(menubar, "File") {}
+    explicit mnu_file(gui::menubar &menubar, editor &ed) :
+        item(menubar, "File"),
+        m_ed(ed) {}
 };
 
 /*
@@ -309,7 +329,7 @@ private:
     editor &m_ed;
     gui::window m_wnd;
     gui::menubar m_newmenubar;
-    menus::mnu_file m_mnu_file{m_newmenubar};
+    menus::mnu_file m_mnu_file{m_newmenubar, m_ed};
     menus::mnu_edit m_mnu_edit{m_newmenubar, m_ed};
     res::project *m_proj_p;
     std::unique_ptr<asset_editor> m_assets_view;
