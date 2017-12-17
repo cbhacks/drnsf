@@ -46,6 +46,7 @@ struct vertex {
         };
         float v[3];
     };
+    unsigned int fx;
 };
 
 /*
@@ -143,14 +144,22 @@ struct poly_vert {
  *
  * FIXME explain
  */
-using triangle = std::array<poly_vert, 3>;
+struct triangle {
+    poly_vert v[3];
+    unsigned int unk0;
+    unsigned int unk1;
+};
 
 /*
  * gfx::quad
  *
  * FIXME explain
  */
-using quad = std::array<poly_vert, 4>;
+struct quad {
+    poly_vert v[4];
+    unsigned int unk0;
+    unsigned int unk1;
+};
 
 /*
  * gfx::mesh

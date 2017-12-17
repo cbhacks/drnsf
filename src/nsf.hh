@@ -168,6 +168,10 @@ public:
     // FIXME explain
     DEFINE_APROP(cid, uint32_t);
 
+    // (prop) checksum
+    // FIXME explain
+    DEFINE_APROP(checksum, uint32_t);
+
     // (func) import_file
     // FIXME explain
     void import_file(TRANSACT, const util::blob &data);
@@ -297,9 +301,20 @@ public:
     // FIXME explain
     using ref = res::ref<wgeo_v2>;
 
-    // (prop) item0
+    // (prop) info_unk0
     // FIXME explain
-    DEFINE_APROP(item0, util::blob);
+    DEFINE_APROP(info_unk0, std::uint32_t);
+
+    // (prop) tpag_ref_count, tpag_ref*
+    DEFINE_APROP(tpag_ref_count, std::uint32_t);
+    DEFINE_APROP(tpag_ref0, std::uint32_t);
+    DEFINE_APROP(tpag_ref1, std::uint32_t);
+    DEFINE_APROP(tpag_ref2, std::uint32_t);
+    DEFINE_APROP(tpag_ref3, std::uint32_t);
+    DEFINE_APROP(tpag_ref4, std::uint32_t);
+    DEFINE_APROP(tpag_ref5, std::uint32_t);
+    DEFINE_APROP(tpag_ref6, std::uint32_t);
+    DEFINE_APROP(tpag_ref7, std::uint32_t);
 
     // (prop) item4
     // FIXME explain
@@ -323,7 +338,6 @@ public:
     {
         entry::reflect(rfl);
         rfl.field(p_model, "Model");
-        rfl.field(p_item0, "Item 0");
         rfl.field(p_item4, "Item 4");
         rfl.field(p_item6, "Item 6");
     }

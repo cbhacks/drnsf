@@ -87,6 +87,7 @@ void spage::import_file(TRANSACT, const util::blob &data)
     // Finish importing.
     set_type(TS, type);
     set_cid(TS, cid);
+    set_checksum(TS, checksum);
     set_pagelets(TS, {pagelets.begin(), pagelets.end()});
 }
 

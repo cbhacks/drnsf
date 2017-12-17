@@ -95,6 +95,7 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
         vertex.x = x * 16;
         vertex.y = y * 16;
         vertex.z = z * 16;
+        vertex.fx = fx;
 
         vertex_color = color_low | color_mid << 4 | color_high << 8;
     }
@@ -121,16 +122,19 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
         auto vertex2       = r.read_ubits(12);
         r.end();
 
-        triangle[0].vertex_index = vertex0;
-        triangle[1].vertex_index = vertex1;
-        triangle[2].vertex_index = vertex2;
+        triangle.v[0].vertex_index = vertex0;
+        triangle.v[1].vertex_index = vertex1;
+        triangle.v[2].vertex_index = vertex2;
 
         // For whatever reason, some triangles may have invalid vertex
         // indices. In this case, we can't grab the vertex color (there
         // is none).
-        triangle[0].color_index = (vertex0 < vertex_count) ? vertex_colors[vertex0] : -1;
-        triangle[1].color_index = (vertex1 < vertex_count) ? vertex_colors[vertex1] : -1;
-        triangle[2].color_index = (vertex2 < vertex_count) ? vertex_colors[vertex2] : -1;
+        triangle.v[0].color_index = (vertex0 < vertex_count) ? vertex_colors[vertex0] : -1;
+        triangle.v[1].color_index = (vertex1 < vertex_count) ? vertex_colors[vertex1] : -1;
+        triangle.v[2].color_index = (vertex2 < vertex_count) ? vertex_colors[vertex2] : -1;
+
+        triangle.unk0 = triangle_unk0;
+        triangle.unk1 = triangle_unk1;
     }
 
     // Ensure the quad count is correct.
@@ -150,17 +154,20 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
         auto vertex2   = r.read_ubits(12);
         auto vertex3   = r.read_ubits(12);
 
-        quad[0].vertex_index = vertex0;
-        quad[1].vertex_index = vertex1;
-        quad[2].vertex_index = vertex2;
-        quad[3].vertex_index = vertex3;
+        quad.v[0].vertex_index = vertex0;
+        quad.v[1].vertex_index = vertex1;
+        quad.v[2].vertex_index = vertex2;
+        quad.v[3].vertex_index = vertex3;
 
         // For whatever reason, some quads may have invalid vertex
         // indices. See above with triangles (same issue).
-        quad[0].color_index = (vertex0 < vertex_count) ? vertex_colors[vertex0] : -1;
-        quad[1].color_index = (vertex1 < vertex_count) ? vertex_colors[vertex1] : -1;
-        quad[2].color_index = (vertex2 < vertex_count) ? vertex_colors[vertex2] : -1;
-        quad[3].color_index = (vertex3 < vertex_count) ? vertex_colors[vertex3] : -1;
+        quad.v[0].color_index = (vertex0 < vertex_count) ? vertex_colors[vertex0] : -1;
+        quad.v[1].color_index = (vertex1 < vertex_count) ? vertex_colors[vertex1] : -1;
+        quad.v[2].color_index = (vertex2 < vertex_count) ? vertex_colors[vertex2] : -1;
+        quad.v[3].color_index = (vertex3 < vertex_count) ? vertex_colors[vertex3] : -1;
+
+        quad.unk0 = quad_unk0;
+        quad.unk1 = quad_unk1;
     }
     r.end();
 
@@ -234,7 +241,16 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
     model->set_scene_z(TS, scene_z);
 
     // Finish importing.
-    set_item0(TS, items[0]);
+    set_info_unk0(TS, info_unk0);
+    set_tpag_ref_count(TS, tpag_ref_count);
+    set_tpag_ref0(TS, tpag_ref0);
+    set_tpag_ref1(TS, tpag_ref1);
+    set_tpag_ref2(TS, tpag_ref2);
+    set_tpag_ref3(TS, tpag_ref3);
+    set_tpag_ref4(TS, tpag_ref4);
+    set_tpag_ref5(TS, tpag_ref5);
+    set_tpag_ref6(TS, tpag_ref6);
+    set_tpag_ref7(TS, tpag_ref7);
     set_item4(TS, items[4]);
     set_item6(TS, items[6]);
     set_model(TS, model);
