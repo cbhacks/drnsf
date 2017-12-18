@@ -76,13 +76,13 @@ For imgui, see `imgui/LICENSE`.
 ## Building ##
 You will need the following dependencies to build DRNSF:
 
- * CMake >= 3.5
+ * CMake >= 3.8
  * PkgConfig
  * GTK+3
  * libepoxy
  * OpenGL
 
-You will also need a C++14 compiler and standard library.
+You will also need a C++17 compiler and standard library.
 
 Building is done using cmake. This should be done out-of-tree. The `build/`
 directory is reserved in `.gitignore` for this purpose so it will not be
