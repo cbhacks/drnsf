@@ -27,176 +27,176 @@
 
 static int process_file(FILE *outfile,const char *file_name)
 {
-	FILE *file = fopen(file_name,"rb");
-	if (!file) {
-		perror(file_name);
-		return -1;
-	}
+    FILE *file = fopen(file_name,"rb");
+    if (!file) {
+        perror(file_name);
+        return -1;
+    }
 
-	fprintf(outfile,"\textern const unsigned char data[] = {\n");
+    fprintf(outfile,"\textern const unsigned char data[] = {\n");
 
-	unsigned char buffer[16];
-	while (!feof(file)) {
-		size_t len = fread(buffer,1,sizeof(buffer),file);
+    unsigned char buffer[16];
+    while (!feof(file)) {
+        size_t len = fread(buffer,1,sizeof(buffer),file);
 
-		if (len == 0) continue;
+        if (len == 0) continue;
 
-		fprintf(outfile,"\t\t");
+        fprintf(outfile,"\t\t");
 
-		for (size_t i = 0; i < len; i++) {
-			fprintf(outfile,"0x%02x,",buffer[i]);
-		}
+        for (size_t i = 0; i < len; i++) {
+            fprintf(outfile,"0x%02x,",buffer[i]);
+        }
 
-		fprintf(outfile,"\n");
+        fprintf(outfile,"\n");
 
-		if (ferror(file)) {
-			perror(file_name);
-			fclose(file);
-			return -1;
-		}
-	}
+        if (ferror(file)) {
+            perror(file_name);
+            fclose(file);
+            return -1;
+        }
+    }
 
-	fprintf(outfile,
-		"\t};\n"
-		"\textern const std::size_t size = sizeof(data);\n");
+    fprintf(outfile,
+        "\t};\n"
+        "\textern const std::size_t size = sizeof(data);\n");
 
-	fclose(file);
-	return 0;
+    fclose(file);
+    return 0;
 }
 
 static int process_dir(FILE *outfile,const char *dir_name)
 {
-	DIR *dir = opendir(dir_name);
-	if (!dir) {
-		perror(dir_name);
-		return -1;
-	}
+    DIR *dir = opendir(dir_name);
+    if (!dir) {
+        perror(dir_name);
+        return -1;
+    }
 
-	int result = 0;
+    int result = 0;
 
-	errno = 0;
-	struct dirent *ent;
-	while (ent = readdir(dir)) {
-		if (ent->d_name[0] == '.' || ent->d_name[0] == '\0') {
-			continue;
-		}
+    errno = 0;
+    struct dirent *ent;
+    while (ent = readdir(dir)) {
+        if (ent->d_name[0] == '.' || ent->d_name[0] == '\0') {
+            continue;
+        }
 
-		size_t fullname_len =
-			strlen(dir_name)
-			+ 1 // '/'
-			+ strlen(ent->d_name);
+        size_t fullname_len =
+            strlen(dir_name)
+            + 1 // '/'
+            + strlen(ent->d_name);
 
-		char *fullname = malloc(fullname_len + 1);
-		if (!fullname) {
-			perror("malloc");
-			result = -1;
-			continue;
-		}
+        char *fullname = malloc(fullname_len + 1);
+        if (!fullname) {
+            perror("malloc");
+            result = -1;
+            continue;
+        }
 
-		strcpy(fullname,dir_name);
-		strcat(fullname,"/");
-		strcat(fullname,ent->d_name);
+        strcpy(fullname,dir_name);
+        strcat(fullname,"/");
+        strcat(fullname,ent->d_name);
 
-		char *nicename = malloc(strlen(ent->d_name) + 1);
-		if (!nicename) {
-			perror("malloc");
-			free(fullname);
-			result = -1;
-			continue;
-		}
+        char *nicename = malloc(strlen(ent->d_name) + 1);
+        if (!nicename) {
+            perror("malloc");
+            free(fullname);
+            result = -1;
+            continue;
+        }
 
-		strcpy(nicename,ent->d_name);
+        strcpy(nicename,ent->d_name);
 
-		if (!isalpha(nicename[0])) {
-			fprintf(
-				stderr,
-				"%s: Not-nice name (non-alpha first char)!\n",
-				fullname);
-			nicename[0] = 'A';
-		}
+        if (!isalpha(nicename[0])) {
+            fprintf(
+                stderr,
+                "%s: Not-nice name (non-alpha first char)!\n",
+                fullname);
+            nicename[0] = 'A';
+        }
 
-		for (char *p = nicename + 1; *p; p++) {
-			if (!isalnum(*p)) {
-				*p = '_';
-			}
-		}
+        for (char *p = nicename + 1; *p; p++) {
+            if (!isalnum(*p)) {
+                *p = '_';
+            }
+        }
 
-		if (ent->d_type == DT_DIR) {
-			fprintf(outfile,"namespace %s {\n\n",nicename);
+        if (ent->d_type == DT_DIR) {
+            fprintf(outfile,"namespace %s {\n\n",nicename);
 
-			if (process_dir(outfile,fullname) == -1) {
-				result = -1;
-			}
+            if (process_dir(outfile,fullname) == -1) {
+                result = -1;
+            }
 
-			fprintf(outfile,"}\n\n");
-		} else if (ent->d_type == DT_REG) {
-			fprintf(outfile,"namespace %s {\n\n",nicename);
+            fprintf(outfile,"}\n\n");
+        } else if (ent->d_type == DT_REG) {
+            fprintf(outfile,"namespace %s {\n\n",nicename);
 
-			if (process_file(outfile,fullname) == -1) {
-				result = -1;
-			}
+            if (process_file(outfile,fullname) == -1) {
+                result = -1;
+            }
 
-			fprintf(outfile,"}\n\n");
-		} else {
-			fprintf(
-				stderr,
-				"%s/%s: Not a regular file or directory. "
-				"Ignoring...\n",
-				dir_name,ent->d_name);
-		}
+            fprintf(outfile,"}\n\n");
+        } else {
+            fprintf(
+                stderr,
+                "%s/%s: Not a regular file or directory. "
+                "Ignoring...\n",
+                dir_name,ent->d_name);
+        }
 
-		free(fullname);
-	}
+        free(fullname);
+    }
 
-	if (errno != 0) {
-		perror(dir_name);
-		closedir(dir);
-		return -1;
-	}
+    if (errno != 0) {
+        perror(dir_name);
+        closedir(dir);
+        return -1;
+    }
 
-	closedir(dir);
+    closedir(dir);
 
-	return result;
+    return result;
 }
 
 int main(int argc,char *argv[])
 {
-	if (argc != 3) {
-		fprintf(stderr,"Usage: embedgen <dir> <outfile.cc>\n");
-		return EXIT_FAILURE;
-	}
+    if (argc != 3) {
+        fprintf(stderr,"Usage: embedgen <dir> <outfile.cc>\n");
+        return EXIT_FAILURE;
+    }
 
-	const char *prog_name = argv[0];
-	const char *indir_name = argv[1];
-	const char *outfile_name = argv[2];
+    const char *prog_name = argv[0];
+    const char *indir_name = argv[1];
+    const char *outfile_name = argv[2];
 
-	FILE *outfile = fopen(outfile_name,"w");
-	if (!outfile) {
-		perror(outfile_name);
-		return EXIT_FAILURE;
-	}
+    FILE *outfile = fopen(outfile_name,"w");
+    if (!outfile) {
+        perror(outfile_name);
+        return EXIT_FAILURE;
+    }
 
-	fprintf(outfile,
-		"//\n"
-		"// THIS FILE IS AUTOMATICALLY GENERATED\n"
-		"//\n"
-		"// DO NOT EDIT IT\n"
-		"// (your changes will just be overwritten anyway)\n"
-		"//\n"
-		"\n"
-		"#include <cstddef>\n"
-		"\n"
-		"namespace drnsf {\n"
-		"namespace embed {\n"
-		"\n");
+    fprintf(outfile,
+        "//\n"
+        "// THIS FILE IS AUTOMATICALLY GENERATED\n"
+        "//\n"
+        "// DO NOT EDIT IT\n"
+        "// (your changes will just be overwritten anyway)\n"
+        "//\n"
+        "\n"
+        "#include <cstddef>\n"
+        "\n"
+        "namespace drnsf {\n"
+        "namespace embed {\n"
+        "\n");
 
-	int result = process_dir(outfile,indir_name);
+    int result = process_dir(outfile,indir_name);
 
-	fprintf(outfile,
-		"}\n"
-		"}\n");
+    fprintf(outfile,
+        "}\n"
+        "}\n");
 
-	fclose(outfile);
+    fclose(outfile);
 
-	return (result != -1) ? EXIT_SUCCESS : EXIT_FAILURE;
+    return (result != -1) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
