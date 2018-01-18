@@ -107,7 +107,7 @@ add_executable (drnsf
 
     $<TARGET_OBJECTS:imgui>
 
-    ${CMAKE_CURRENT_BINARY_DIR}/embed_data.cc
+    src/embed_data.cc
 )
 
 # Enable C++17
@@ -157,14 +157,18 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     target_compile_options (drnsf PRIVATE -Wno-unused-parameter)
 endif ()
 
+# Add directory for generated header/include files
+set (GEN_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen_include)
+file (MAKE_DIRECTORY ${GEN_INCLUDE_DIR})
+target_include_directories (drnsf
+    PRIVATE ${GEN_INCLUDE_DIR}
+)
+
 # Process buildconfig.hh
 configure_file (
     src/buildconfig.hh
-    ${CMAKE_CURRENT_BINARY_DIR}/gen_include/drnsf_buildconfig_out.hh
+    ${GEN_INCLUDE_DIR}/drnsf_buildconfig_out.hh
     NEWLINE_STYLE LF
-)
-target_include_directories (drnsf
-    PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/gen_include
 )
 
 # Tool: embedgen
@@ -174,7 +178,7 @@ add_executable (embedgen tools/embedgen.c)
 add_custom_target (embed_data_dir
     COMMAND embedgen
     ${CMAKE_CURRENT_SOURCE_DIR}/data
-    ${CMAKE_CURRENT_BINARY_DIR}/embed_data.cc
+    ${GEN_INCLUDE_DIR}/drnsf_embed_data.hh
     DEPENDS embedgen
     COMMENT "Packing data/ directory into embed_data.cc..."
     SOURCES data/
