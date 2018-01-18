@@ -119,6 +119,12 @@ set_target_properties (drnsf PROPERTIES
 # Dependency: pkg-config
 find_package (PkgConfig REQUIRED)
 
+# Dependency: cairo
+pkg_search_module (CAIRO REQUIRED cairo)
+target_include_directories (drnsf PRIVATE ${CAIRO_INCLUDE_DIRS})
+target_link_libraries (drnsf PRIVATE ${CAIRO_LIBRARIES})
+target_compile_options (drnsf PRIVATE ${CAIRO_CFLAGS_OTHER})
+
 # Dependency: GTK+ 3.0
 pkg_search_module (GTK3 REQUIRED gtk+-3.0)
 target_include_directories (drnsf PRIVATE ${GTK3_INCLUDE_DIRS})
