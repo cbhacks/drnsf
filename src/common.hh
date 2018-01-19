@@ -69,7 +69,7 @@ namespace drnsf {
  *
  * but is shorter and perhaps easier to read.
  */
-inline auto operator "" _fmt(const char *s, long unsigned int sz)
+inline auto operator "" _fmt(const char *s, std::size_t sz)
 {
     return util::fmt(s);
 }
