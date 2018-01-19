@@ -158,29 +158,31 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 endif ()
 
 # Add directory for generated header/include files
-set (GEN_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/gen_include)
-file (MAKE_DIRECTORY ${GEN_INCLUDE_DIR})
+set (GEN_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/gen_include")
+file (MAKE_DIRECTORY "${GEN_INCLUDE_DIR}")
 target_include_directories (drnsf
-    PRIVATE ${GEN_INCLUDE_DIR}
+    PRIVATE "${GEN_INCLUDE_DIR}"
 )
 
 # Process buildconfig.hh
 configure_file (
     src/buildconfig.hh
-    ${GEN_INCLUDE_DIR}/drnsf_buildconfig_out.hh
+    "${GEN_INCLUDE_DIR}/drnsf_buildconfig_out.hh"
     NEWLINE_STYLE LF
 )
 
+# Dependency: Python 3
+find_package (PythonInterp 3 REQUIRED)
+
 # Tool: embedgen
-# This command generates an embed_data.cc file from the `data/' directory
-# so that it can be added to the exectuable.
-add_executable (embedgen tools/embedgen.c)
+# This command generates the drnsf_embed_data.hh file from the `data/'
+# directory so that it can be added to the exectuable.
 add_custom_target (embed_data_dir
-    COMMAND embedgen
-    ${CMAKE_CURRENT_SOURCE_DIR}/data
-    ${GEN_INCLUDE_DIR}/drnsf_embed_data.hh
-    DEPENDS embedgen
-    COMMENT "Packing data/ directory into embed_data.cc..."
+    COMMAND "${PYTHON_EXECUTABLE}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/tools/embedgen.py"
+    "${CMAKE_CURRENT_SOURCE_DIR}/data"
+    "${GEN_INCLUDE_DIR}/drnsf_embed_data.hh"
+    COMMENT "Packing data/ directory for embedding..."
     SOURCES data/
 )
 add_dependencies (drnsf embed_data_dir)
