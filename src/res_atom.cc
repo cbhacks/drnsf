@@ -28,7 +28,7 @@ namespace res {
 // (internal class) nucleus_name_comparator
 // FIXME explain
 struct nucleus_name_comparator {
-    bool operator()(const char *lhs, const char *rhs)
+    bool operator()(const char *lhs, const char *rhs) const
     {
         return (std::strcmp(lhs, rhs) < 0);
     }
