@@ -116,6 +116,27 @@ set_target_properties (drnsf PROPERTIES
     CXX_STANDARD_REQUIRED ON
 )
 
+# Option: FRONTEND
+if (WIN32)
+    set (DEFAULT_FRONTEND WINAPI)
+else ()
+    set (DEFAULT_FRONTEND GTK3)
+endif ()
+set (FRONTEND "${DEFAULT_FRONTEND}" CACHE STRING
+    "User interface frontend"
+)
+set_property (CACHE FRONTEND PROPERTY STRINGS
+    GTK3
+    WINAPI
+)
+if (FRONTEND STREQUAL GTK3)
+    set (USE_GUI ON)
+    set (USE_GTK3 ON)
+elseif (FRONTEND STREQUAL WINAPI)
+    set (USE_GUI ON)
+    set (USE_WINAPI ON)
+endif ()
+
 # Dependency: pkg-config
 find_package (PkgConfig REQUIRED)
 
@@ -126,10 +147,12 @@ target_link_libraries (drnsf PRIVATE ${CAIRO_LIBRARIES})
 target_compile_options (drnsf PRIVATE ${CAIRO_CFLAGS_OTHER})
 
 # Dependency: GTK+ 3.0
-pkg_search_module (GTK3 REQUIRED gtk+-3.0)
-target_include_directories (drnsf PRIVATE ${GTK3_INCLUDE_DIRS})
-target_link_libraries (drnsf PRIVATE ${GTK3_LIBRARIES})
-target_compile_options (drnsf PRIVATE ${GTK3_CFLAGS_OTHER})
+if (USE_GTK3)
+    pkg_search_module (GTK3 REQUIRED gtk+-3.0)
+    target_include_directories (drnsf PRIVATE ${GTK3_INCLUDE_DIRS})
+    target_link_libraries (drnsf PRIVATE ${GTK3_LIBRARIES})
+    target_compile_options (drnsf PRIVATE ${GTK3_CFLAGS_OTHER})
+endif ()
 
 # Dependency: OpenGL
 find_package (OpenGL REQUIRED)

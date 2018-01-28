@@ -46,3 +46,7 @@
 #define APP_VERSION_MAJOR ${DRNSF_VERSION_MAJOR}
 #define APP_TITLE APP_FULLNAME " v${DRNSF_VERSION}"
 #endif
+
+#cmakedefine USE_GUI 1
+#cmakedefine USE_GTK3 1
+#cmakedefine USE_WINAPI 1
