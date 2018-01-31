@@ -45,7 +45,7 @@ gboolean widget_2d::sigh_draw(
 widget_2d::widget_2d(container &parent, layout layout) :
     widget(gtk_drawing_area_new(), parent, layout)
 {
-    gtk_widget_set_can_focus(m_handle, true);
+    gtk_widget_set_can_focus(GTK_WIDGET(m_handle), true);
     g_signal_connect(m_handle, "draw", G_CALLBACK(sigh_draw), this);
 }
 
@@ -53,11 +53,11 @@ widget_2d::widget_2d(container &parent, layout layout) :
 void widget_2d::invalidate()
 {
     gtk_widget_queue_draw_area(
-        m_handle,
+        GTK_WIDGET(m_handle),
         0,
         0,
-        gtk_widget_get_allocated_width(m_handle),
-        gtk_widget_get_allocated_height(m_handle)
+        gtk_widget_get_allocated_width(GTK_WIDGET(m_handle)),
+        gtk_widget_get_allocated_height(GTK_WIDGET(m_handle))
     );
 }
 

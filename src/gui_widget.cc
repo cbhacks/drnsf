@@ -132,7 +132,7 @@ void widget::apply_layout(int ctn_x, int ctn_y, int ctn_w, int ctn_h)
 
     // Submit the new size and position.
     GtkAllocation rect = { x1, y1, x2 - x1, y2 - y1 };
-    gtk_widget_size_allocate(m_handle, &rect);
+    gtk_widget_size_allocate(GTK_WIDGET(m_handle), &rect);
 }
 
 // declared in gui.hh
@@ -142,7 +142,10 @@ widget::widget(sys_handle &&handle, container &parent, layout layout) try :
     m_layout(layout)
 {
     // Add the underlying GTK widget to the parent container.
-    gtk_container_add(parent.get_container_handle(), m_handle);
+    gtk_container_add(
+        GTK_CONTAINER(parent.get_container_handle()),
+        GTK_WIDGET(m_handle)
+    );
 
     // Apply the layout to the widget now if the container is already realized.
     // If not, then the container will call this later on once it does become
@@ -162,7 +165,7 @@ widget::widget(sys_handle &&handle, container &parent, layout layout) try :
     // Register event handlers. "draw" is handled by derived types such as
     // "widget_gl" and "widget_2d".
     gtk_widget_add_events(
-        m_handle,
+        GTK_WIDGET(m_handle),
         GDK_POINTER_MOTION_MASK |
         GDK_SMOOTH_SCROLL_MASK |
         GDK_BUTTON_PRESS_MASK |
@@ -222,7 +225,7 @@ widget::widget(sys_handle &&handle, container &parent, layout layout) try :
     }
 } catch (...) {
     // Destroy the handle (GTK widget) given to us if an exception is thrown.
-    gtk_widget_destroy(handle);
+    gtk_widget_destroy(GTK_WIDGET(handle));
     throw;
 }
 
@@ -231,19 +234,19 @@ widget::~widget()
 {
     m_parent.m_widgets.erase(this);
     g_widgets.erase(m_handle);
-    gtk_widget_destroy(m_handle);
+    gtk_widget_destroy(GTK_WIDGET(m_handle));
 }
 
 // declared in gui.hh
 void widget::show()
 {
-    gtk_widget_show(m_handle);
+    gtk_widget_show(GTK_WIDGET(m_handle));
 }
 
 // declared in gui.hh
 void widget::hide()
 {
-    gtk_widget_hide(m_handle);
+    gtk_widget_hide(GTK_WIDGET(m_handle));
 }
 
 }

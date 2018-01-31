@@ -28,7 +28,7 @@ namespace gui {
 void composite::on_resize(int width, int height)
 {
     GtkAllocation alloc;
-    gtk_widget_get_allocation(m_handle, &alloc);
+    gtk_widget_get_allocation(GTK_WIDGET(m_handle), &alloc);
     apply_layouts(alloc.x, alloc.y, width, height);
 }
 
@@ -39,9 +39,9 @@ composite::composite(container &parent, layout layout) :
 }
 
 // declared in gui.hh
-sys_container_handle composite::get_container_handle()
+sys_handle composite::get_container_handle()
 {
-    return GTK_CONTAINER(m_handle);
+    return m_handle;
 }
 
 }

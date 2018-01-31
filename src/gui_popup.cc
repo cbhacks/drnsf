@@ -27,29 +27,29 @@ namespace gui {
 // declared in gui.hh
 popup::popup(int width, int height)
 {
-    M = gtk_window_new(GTK_WINDOW_POPUP);
-    gtk_window_set_default_size(GTK_WINDOW(M), width, height);
-    g_signal_connect(M, "delete-event", G_CALLBACK(gtk_true), nullptr);
+    m_handle = gtk_window_new(GTK_WINDOW_POPUP);
+    gtk_window_set_default_size(GTK_WINDOW(m_handle), width, height);
+    g_signal_connect(m_handle, "delete-event", G_CALLBACK(gtk_true), nullptr);
 
     try {
-        g_popups.insert({M, this});
+        g_popups.insert({m_handle, this});
     } catch (...) {
-        gtk_widget_destroy(M);
+        gtk_widget_destroy(GTK_WIDGET(m_handle));
     }
 }
 
 // declared in gui.hh
 popup::~popup()
 {
-    g_popups.erase(M);
-    gtk_widget_destroy(M);
+    g_popups.erase(m_handle);
+    gtk_widget_destroy(GTK_WIDGET(m_handle));
 }
 
 // declared in gui.hh
 void popup::show_at(int x, int y)
 {
-    gtk_window_move(GTK_WINDOW(M), x, y);
-    gtk_widget_show(M);
+    gtk_window_move(GTK_WINDOW(m_handle), x, y);
+    gtk_widget_show(GTK_WIDGET(m_handle));
 }
 
 // declared in gui.hh
@@ -65,19 +65,19 @@ void popup::show_at_mouse()
 // declared in gui.hh
 void popup::hide()
 {
-    gtk_widget_hide(M);
+    gtk_widget_hide(GTK_WIDGET(m_handle));
 }
 
 // declared in gui.hh
 void popup::set_size(int width, int height)
 {
-    gtk_window_resize(GTK_WINDOW(M), width, height);
+    gtk_window_resize(GTK_WINDOW(m_handle), width, height);
 }
 
 // declared in gui.hh
-sys_container_handle popup::get_container_handle()
+sys_handle popup::get_container_handle()
 {
-    return GTK_CONTAINER(M);
+    return m_handle;
 }
 
 }

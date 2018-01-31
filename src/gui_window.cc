@@ -33,10 +33,10 @@ void window::exit_dialog()
 // declared in gui.hh
 window::window(const std::string &title, int width, int height)
 {
-    M = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(M), title.c_str());
-    gtk_window_set_default_size(GTK_WINDOW(M), width, height);
-    g_signal_connect(M, "delete-event", G_CALLBACK(gtk_true), nullptr);
+    m_handle = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+    gtk_window_set_title(GTK_WINDOW(m_handle), title.c_str());
+    gtk_window_set_default_size(GTK_WINDOW(m_handle), width, height);
+    g_signal_connect(m_handle, "delete-event", G_CALLBACK(gtk_true), nullptr);
 
     m_content = gtk_fixed_new();
     auto sigh_size_allocate =
@@ -69,13 +69,13 @@ window::window(const std::string &title, int width, int height)
         G_CALLBACK(sigh_size_allocate),
         this
     );
-    gtk_container_add(GTK_CONTAINER(M), m_content);
+    gtk_container_add(GTK_CONTAINER(m_handle), m_content);
     gtk_widget_show(m_content);
 
     try {
-        g_windows.insert({M, this});
+        g_windows.insert({m_handle, this});
     } catch (...) {
-        gtk_widget_destroy(M);
+        gtk_widget_destroy(GTK_WIDGET(m_handle));
         throw;
     }
 }
@@ -83,30 +83,30 @@ window::window(const std::string &title, int width, int height)
 // declared in gui.hh
 window::~window()
 {
-    g_windows.erase(M);
-    gtk_widget_destroy(M);
+    g_windows.erase(m_handle);
+    gtk_widget_destroy(GTK_WIDGET(m_handle));
 }
 
 // declared in gui.hh
 void window::show()
 {
-    gtk_widget_show(M);
+    gtk_widget_show(GTK_WIDGET(m_handle));
 }
 
 // declared in gui.hh
 void window::show_dialog()
 {
-    gtk_window_set_modal(GTK_WINDOW(M), true);
-    gtk_widget_show(M);
+    gtk_window_set_modal(GTK_WINDOW(m_handle), true);
+    gtk_widget_show(GTK_WIDGET(m_handle));
     gtk_main();
-    gtk_widget_hide(M);
-    gtk_window_set_modal(GTK_WINDOW(M), false);
+    gtk_widget_hide(GTK_WIDGET(m_handle));
+    gtk_window_set_modal(GTK_WINDOW(m_handle), false);
 }
 
 // declared in gui.hh
-sys_container_handle window::get_container_handle()
+sys_handle window::get_container_handle()
 {
-    return GTK_CONTAINER(m_content);
+    return m_content;
 }
 
 }

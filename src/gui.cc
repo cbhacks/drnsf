@@ -26,9 +26,9 @@ namespace gui {
 
 // declared in gui.hh
 namespace internal {
-    std::unordered_map<GtkWidget *, widget *> g_widgets;
-    std::unordered_map<GtkWidget *, window *> g_windows;
-    std::unordered_map<GtkWidget *, popup *> g_popups;
+    std::unordered_map<sys_handle, widget *> g_widgets;
+    std::unordered_map<sys_handle, window *> g_windows;
+    std::unordered_map<sys_handle, popup *> g_popups;
 }
 
 // declared in gui.hh

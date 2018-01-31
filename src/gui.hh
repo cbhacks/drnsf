@@ -53,13 +53,11 @@ void run();
 
 /*
  * gui::sys_handle
- * gui::sys_container_handle
  *
- * These are aliases for whatever types are appropriate for representing a
- * widget handle and widget-container handle on the system, respectively.
+ * This type is used in place of a particular frontend's object handle types,
+ * such as Window (XLIB), GtkWidget (GTK3), HWND (WINAPI), etc.
  */
-using sys_handle = GtkWidget *;
-using sys_container_handle = GtkContainer *;
+using sys_handle = void *;
 
 /*
  * gui::layout
@@ -321,7 +319,7 @@ protected:
 public:
     // (pure func) get_container_handle
     // FIXME explain
-    virtual sys_container_handle get_container_handle() = 0;
+    virtual sys_handle get_container_handle() = 0;
 };
 
 // defined later in this file
@@ -336,9 +334,9 @@ class window : public container {
     friend class menubar;
 
 private:
-    // (var) M
-    // FIXME explain
-    GtkWidget *M;
+    // (var) m_handle
+    // Internal handle to the underlying system window.
+    sys_handle m_handle;
 
     // (var) m_content
     // FIXME explain
@@ -373,7 +371,7 @@ public:
 
     // (func) get_container_handle
     // FIXME explain
-    sys_container_handle get_container_handle() override;
+    sys_handle get_container_handle() override;
 };
 
 /*
@@ -388,9 +386,9 @@ public:
  */
 class popup : public container {
 private:
-    // (var) M
+    // (var) m_handle
     // A handle to the underlying system window.
-    GtkWidget *M;
+    sys_handle m_handle;
 
 public:
     // (explicit ctor)
@@ -426,7 +424,7 @@ public:
 
     // (func) get_container_handle
     // FIXME explain
-    sys_container_handle get_container_handle() override;
+    sys_handle get_container_handle() override;
 };
 
 /*
@@ -448,7 +446,7 @@ public:
 
     // (func) get_container_handle
     // FIXME explain
-    sys_container_handle get_container_handle() override;
+    sys_handle get_container_handle() override;
 
     using widget::show;
     using widget::hide;
@@ -927,9 +925,9 @@ bool show_open_dialog(std::string &path);
  * Internal declarations for gui code.
  */
 inline namespace internal {
-    extern std::unordered_map<GtkWidget *, widget *> g_widgets;
-    extern std::unordered_map<GtkWidget *, window *> g_windows;
-    extern std::unordered_map<GtkWidget *, popup *> g_popups;
+    extern std::unordered_map<sys_handle, widget *> g_widgets;
+    extern std::unordered_map<sys_handle, window *> g_windows;
+    extern std::unordered_map<sys_handle, popup *> g_popups;
 }
 
 /*
