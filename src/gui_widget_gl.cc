@@ -71,10 +71,12 @@ gboolean widget_gl::sigh_draw(
 
 // declared in gui.hh
 widget_gl::widget_gl(container &parent, layout layout) :
-    widget(gtk_drawing_area_new(), parent, layout)
+    widget(gtk_drawing_area_new(), parent)
 {
     gtk_widget_set_can_focus(GTK_WIDGET(m_handle), true);
     g_signal_connect(m_handle, "draw", G_CALLBACK(sigh_draw), this);
+
+    set_layout(layout);
 }
 
 // declared in gui.hh

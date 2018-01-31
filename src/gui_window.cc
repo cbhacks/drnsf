@@ -34,7 +34,9 @@ void window::exit_dialog()
 }
 
 // declared in gui.hh
-window::window(const std::string &title, int width, int height)
+window::window(const std::string &title, int width, int height) :
+    m_width(width),
+    m_height(height)
 {
     m_handle = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_window_set_title(GTK_WINDOW(m_handle), title.c_str());
@@ -47,6 +49,8 @@ window::window(const std::string &title, int width, int height)
             [](GtkWidget *, GdkRectangle *allocation, gpointer user_data) {
                 auto self = static_cast<window *>(user_data);
                 auto alloc = *allocation;
+                self->m_width = alloc.width;
+                self->m_height = alloc.height;
                 if (self->m_menubar) {
                     alloc.height -= 20;
                     alloc.y += 20;
@@ -110,6 +114,13 @@ void window::show_dialog()
 sys_handle window::get_container_handle()
 {
     return m_content;
+}
+
+// declared in gui.hh
+void window::get_container_size(int &ctn_w, int &ctn_h)
+{
+    ctn_w = m_width;
+    ctn_h = m_height;
 }
 
 }

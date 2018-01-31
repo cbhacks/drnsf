@@ -202,6 +202,11 @@ private:
         GdkRectangle *allocation,
         gpointer user_data);
 
+    // (var) m_real_width, m_real_height
+    // The actual height of the widget, in pixels.
+    int m_real_width;
+    int m_real_height;
+
     // (func) apply_layout
     // Applies the widget's layout to its size and position based on the area
     // of the container given as parameters.
@@ -274,18 +279,18 @@ protected:
     // (var) m_layout
     // The layout area which defines the location and size of this widget
     // relative to its container.
-    layout m_layout;
+    layout m_layout{};
 
     // (explicit ctor)
-    // Constructs the base widget data with the given handle, parent, and
-    // layout. The widget will automatically be resized according to its parent
-    // and specified layout.
+    // Constructs the base widget data with the given handle and parent.
+    //
+    // The derived class should call set_layout in its constructor.
     //
     // This constructor takes ownership of the given handle, and will free it
     // even if an exception is thrown in the constructor. The handle parameter
     // takes an rvalue reference to avoid accidentally passing a handle which
     // was not meant to be relinquished to `gui::widget'.
-    explicit widget(sys_handle &&handle, container &parent, layout layout);
+    explicit widget(sys_handle &&handle, container &parent);
 
 public:
     // (dtor)
@@ -302,6 +307,21 @@ public:
     // Hides the widget, if it is visible. By default, every widget is already
     // hidden when constructed.
     void hide();
+
+    // (func) get_layout, set_layout
+    // Gets or sets the widget's layout. The layout determines how the widget
+    // is positioned and sized relative to its parent widget. When the layout
+    // is changed, the widget's location will be reconfigured according to the
+    // new layout.
+    //
+    // See the definition for the gui::layout type for more details.
+    const layout &get_layout() const;
+    void set_layout(layout layout);
+
+    // (func) get_real_size
+    // Gets the real size of the widget in pixels, as determined by its layout
+    // and its parent container's real size.
+    void get_real_size(int &width, int &height);
 };
 
 /*
@@ -326,6 +346,10 @@ public:
     // (pure func) get_container_handle
     // FIXME explain
     virtual sys_handle get_container_handle() = 0;
+
+    // (pure func) get_container_size
+    // Gets the size of the container, in pixels.
+    virtual void get_container_size(int &ctn_w, int &ctn_h) = 0;
 };
 
 // defined later in this file
@@ -359,6 +383,11 @@ private:
     // is none.
     gui::menubar *m_menubar = nullptr;
 
+    // (var) m_width, m_height
+    // The size of the popup window, in pixels.
+    int m_width;
+    int m_height;
+
 protected:
     // (func) exit_dialog
     // FIXME explain
@@ -384,6 +413,10 @@ public:
     // (func) get_container_handle
     // FIXME explain
     sys_handle get_container_handle() override;
+
+    // (func) get_container_size
+    // Implements gui::container::get_container_size.
+    void get_container_size(int &ctn_w, int &ctn_h) override;
 };
 
 /*
@@ -407,6 +440,11 @@ private:
     // (var) m_handle
     // A handle to the underlying system window.
     sys_handle m_handle;
+
+    // (var) m_width, m_height
+    // The size of the popup window, in pixels.
+    int m_width;
+    int m_height;
 
 public:
     // (explicit ctor)
@@ -443,6 +481,10 @@ public:
     // (func) get_container_handle
     // FIXME explain
     sys_handle get_container_handle() override;
+
+    // (func) get_container_size
+    // Implements gui::container::get_container_size.
+    void get_container_size(int &ctn_w, int &ctn_h) override;
 };
 
 /*
@@ -465,6 +507,10 @@ public:
     // (func) get_container_handle
     // FIXME explain
     sys_handle get_container_handle() override;
+
+    // (func) get_container_size
+    // Implements gui::container::get_container_size.
+    void get_container_size(int &ctn_w, int &ctn_h) override;
 
     using widget::show;
     using widget::hide;

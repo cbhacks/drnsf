@@ -34,14 +34,21 @@ void composite::on_resize(int width, int height)
 
 // declared in gui.hh
 composite::composite(container &parent, layout layout) :
-    widget(gtk_fixed_new(), parent, layout)
+    widget(gtk_fixed_new(), parent)
 {
+    set_layout(layout);
 }
 
 // declared in gui.hh
 sys_handle composite::get_container_handle()
 {
     return m_handle;
+}
+
+// declared in gui.hh
+void composite::get_container_size(int &ctn_w, int &ctn_h)
+{
+    get_real_size(ctn_w, ctn_h);
 }
 
 }

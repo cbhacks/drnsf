@@ -28,7 +28,9 @@ namespace gui {
 std::unordered_map<sys_handle, popup *> popup::s_all_popups;
 
 // declared in gui.hh
-popup::popup(int width, int height)
+popup::popup(int width, int height) :
+    m_width(width),
+    m_height(height)
 {
     m_handle = gtk_window_new(GTK_WINDOW_POPUP);
     gtk_window_set_default_size(GTK_WINDOW(m_handle), width, height);
@@ -75,12 +77,22 @@ void popup::hide()
 void popup::set_size(int width, int height)
 {
     gtk_window_resize(GTK_WINDOW(m_handle), width, height);
+    m_width = width;
+    m_height = height;
+    // FIXME these should be set in an event handler instead
 }
 
 // declared in gui.hh
 sys_handle popup::get_container_handle()
 {
     return m_handle;
+}
+
+// declared in gui.hh
+void popup::get_container_size(int &ctn_w, int &ctn_h)
+{
+    ctn_w = m_width;
+    ctn_h = m_height;
 }
 
 }

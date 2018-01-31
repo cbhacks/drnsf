@@ -134,36 +134,22 @@ void widget::apply_layout(int ctn_x, int ctn_y, int ctn_w, int ctn_h)
         m_layout.v.bottom.offset;
 
     // Submit the new size and position.
+    m_real_width = x2 - x1;
+    m_real_height = y2 - y1;
     GtkAllocation rect = { x1, y1, x2 - x1, y2 - y1 };
     gtk_widget_size_allocate(GTK_WIDGET(m_handle), &rect);
 }
 
 // declared in gui.hh
-widget::widget(sys_handle &&handle, container &parent, layout layout) try :
+widget::widget(sys_handle &&handle, container &parent) try :
     m_handle(handle),
-    m_parent(parent),
-    m_layout(layout)
+    m_parent(parent)
 {
     // Add the underlying GTK widget to the parent container.
     gtk_container_add(
         GTK_CONTAINER(parent.get_container_handle()),
         GTK_WIDGET(m_handle)
     );
-
-    // Apply the layout to the widget now if the container is already realized.
-    // If not, then the container will call this later on once it does become
-    // realized.
-    GtkWidget *ctn_handle = GTK_WIDGET(parent.get_container_handle());
-    if (gtk_widget_get_realized(ctn_handle)) {
-        GtkAllocation ctn_alloc;
-        gtk_widget_get_allocation(ctn_handle, &ctn_alloc);
-        apply_layout(
-            ctn_alloc.x,
-            ctn_alloc.y,
-            ctn_alloc.width,
-            ctn_alloc.height
-        );
-    }
 
     // Register event handlers. "draw" is handled by derived types such as
     // "widget_gl" and "widget_2d".
@@ -250,6 +236,31 @@ void widget::show()
 void widget::hide()
 {
     gtk_widget_hide(GTK_WIDGET(m_handle));
+}
+
+// declared in gui.hh
+const layout &widget::get_layout() const
+{
+    return m_layout;
+}
+
+// declared in gui.hh
+void widget::set_layout(layout layout)
+{
+    m_layout = layout;
+
+    // Reconfigure the widget according to the new layout.
+    int ctn_w;
+    int ctn_h;
+    m_parent.get_container_size(ctn_w, ctn_h);
+    apply_layout(0, 0, ctn_w, ctn_h);
+}
+
+// declared in gui.hh
+void widget::get_real_size(int &width, int &height)
+{
+    width = m_real_width;
+    height = m_real_height;
 }
 
 }
