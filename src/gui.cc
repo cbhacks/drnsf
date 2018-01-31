@@ -25,13 +25,6 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-namespace internal {
-    std::unordered_map<sys_handle, widget *> g_widgets;
-    std::unordered_map<sys_handle, window *> g_windows;
-    std::unordered_map<sys_handle, popup *> g_popups;
-}
-
-// declared in gui.hh
 void init(int &argc, char **&argv)
 {
     gtk_init(&argc, &argv);
@@ -46,7 +39,7 @@ void run()
         if (current_time > last_update) {
             int delta_time = current_time - last_update;
             int min_delay = INT_MAX;
-            for (auto &&w : g_widgets) {
+            for (auto &&w : widget::s_all_widgets) {
                 int delay = w.second->update(delta_time);
                 if (delay < min_delay) {
                     min_delay = delay;

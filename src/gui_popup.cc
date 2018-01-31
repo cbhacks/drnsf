@@ -25,6 +25,9 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
+std::unordered_map<sys_handle, popup *> popup::s_all_popups;
+
+// declared in gui.hh
 popup::popup(int width, int height)
 {
     m_handle = gtk_window_new(GTK_WINDOW_POPUP);
@@ -32,7 +35,7 @@ popup::popup(int width, int height)
     g_signal_connect(m_handle, "delete-event", G_CALLBACK(gtk_true), nullptr);
 
     try {
-        g_popups.insert({m_handle, this});
+        s_all_popups.insert({m_handle, this});
     } catch (...) {
         gtk_widget_destroy(GTK_WIDGET(m_handle));
     }
@@ -41,7 +44,7 @@ popup::popup(int width, int height)
 // declared in gui.hh
 popup::~popup()
 {
-    g_popups.erase(m_handle);
+    s_all_popups.erase(m_handle);
     gtk_widget_destroy(GTK_WIDGET(m_handle));
 }
 

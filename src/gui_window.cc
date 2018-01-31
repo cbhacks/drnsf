@@ -25,6 +25,9 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
+std::unordered_map<sys_handle, window *> window::s_all_windows;
+
+// declared in gui.hh
 void window::exit_dialog()
 {
     gtk_main_quit();
@@ -73,7 +76,7 @@ window::window(const std::string &title, int width, int height)
     gtk_widget_show(m_content);
 
     try {
-        g_windows.insert({m_handle, this});
+        s_all_windows.insert({m_handle, this});
     } catch (...) {
         gtk_widget_destroy(GTK_WIDGET(m_handle));
         throw;
@@ -83,7 +86,7 @@ window::window(const std::string &title, int width, int height)
 // declared in gui.hh
 window::~window()
 {
-    g_windows.erase(m_handle);
+    s_all_windows.erase(m_handle);
     gtk_widget_destroy(GTK_WIDGET(m_handle));
 }
 

@@ -161,6 +161,12 @@ class widget : public util::nocopy {
     friend void run();
 
 private:
+    // (s-var) s_all_widgets
+    // The set of all existing widget objects, whether visible or not. This is
+    // a map from each widget's internal handle (m_handle, defined below) to a
+    // pointer to the respective widget object.
+    static std::unordered_map<sys_handle, widget *> s_all_widgets;
+
     // (s-func) sigh_motion_notify_event
     // Internal signal handler for GtkWidget::'motion-notify-event'.
     static gboolean sigh_motion_notify_event(
@@ -334,6 +340,12 @@ class window : public container {
     friend class menubar;
 
 private:
+    // (s-var) s_all_windows
+    // The set of all existing window objects, whether visible or not. This is
+    // a map from each window's internal handle (m_handle, defined below) to a
+    // pointer to the respective object.
+    static std::unordered_map<sys_handle, window *> s_all_windows;
+
     // (var) m_handle
     // Internal handle to the underlying system window.
     sys_handle m_handle;
@@ -391,6 +403,12 @@ private:
     sys_handle m_handle;
 
 public:
+    // (s-var) s_all_popups
+    // The set of all existing popup objects, whether visible or not. This is
+    // a map from each popup's internal handle (m_handle, defined below) to a
+    // pointer to the respective object.
+    static std::unordered_map<sys_handle, popup *> s_all_popups;
+
     // (explicit ctor)
     // FIXME explain
     explicit popup(int width, int height);
@@ -918,17 +936,6 @@ public:
  * FIXME explain
  */
 bool show_open_dialog(std::string &path);
-
-/*
- * gui::internal
- *
- * Internal declarations for gui code.
- */
-inline namespace internal {
-    extern std::unordered_map<sys_handle, widget *> g_widgets;
-    extern std::unordered_map<sys_handle, window *> g_windows;
-    extern std::unordered_map<sys_handle, popup *> g_popups;
-}
 
 /*
  * gui::gl_canvas
