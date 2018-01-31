@@ -398,17 +398,17 @@ public:
  */
 class popup : public container {
 private:
-    // (var) m_handle
-    // A handle to the underlying system window.
-    sys_handle m_handle;
-
-public:
     // (s-var) s_all_popups
     // The set of all existing popup objects, whether visible or not. This is
     // a map from each popup's internal handle (m_handle, defined below) to a
     // pointer to the respective object.
     static std::unordered_map<sys_handle, popup *> s_all_popups;
 
+    // (var) m_handle
+    // A handle to the underlying system window.
+    sys_handle m_handle;
+
+public:
     // (explicit ctor)
     // FIXME explain
     explicit popup(int width, int height);
