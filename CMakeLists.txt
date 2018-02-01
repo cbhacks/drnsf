@@ -44,9 +44,9 @@ add_executable (drnsf
     src/gui.hh
     src/gui.cc
     src/gui_widget.cc
+    src/gui_composite.cc
     src/gui_window.cc
     src/gui_popup.cc
-    src/gui_composite.cc
     src/gui_widget_gl.cc
     src/gui_widget_2d.cc
     src/gui_widget_im.cc

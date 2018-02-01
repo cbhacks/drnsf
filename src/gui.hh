@@ -352,6 +352,35 @@ public:
     virtual void get_container_size(int &ctn_w, int &ctn_h) = 0;
 };
 
+/*
+ * gui::composite
+ *
+ * FIXME explain
+ */
+class composite : private widget, public container {
+private:
+    // (func) on_resize
+    // Implements on_resize to apply the change in container size to the child
+    // widgets.
+    void on_resize(int width, int height) final override;
+
+public:
+    // (ctor)
+    // FIXME explain
+    composite(container &parent, layout layout);
+
+    // (func) get_container_handle
+    // FIXME explain
+    sys_handle get_container_handle() override;
+
+    // (func) get_container_size
+    // Implements gui::container::get_container_size.
+    void get_container_size(int &ctn_w, int &ctn_h) override;
+
+    using widget::show;
+    using widget::hide;
+};
+
 // defined later in this file
 class menubar;
 
@@ -494,35 +523,6 @@ public:
     // (func) get_container_size
     // Implements gui::container::get_container_size.
     void get_container_size(int &ctn_w, int &ctn_h) override;
-};
-
-/*
- * gui::composite
- *
- * FIXME explain
- */
-class composite : private widget, public container {
-private:
-    // (func) on_resize
-    // Implements on_resize to apply the change in container size to the child
-    // widgets.
-    void on_resize(int width, int height) final override;
-
-public:
-    // (ctor)
-    // FIXME explain
-    composite(container &parent, layout layout);
-
-    // (func) get_container_handle
-    // FIXME explain
-    sys_handle get_container_handle() override;
-
-    // (func) get_container_size
-    // Implements gui::container::get_container_size.
-    void get_container_size(int &ctn_w, int &ctn_h) override;
-
-    using widget::show;
-    using widget::hide;
 };
 
 /*
