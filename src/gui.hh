@@ -404,7 +404,10 @@ private:
     sys_handle m_handle;
 
     // (var) m_content
-    // FIXME explain
+    // A handle to a GtkFixed object contained inside the actual window. This
+    // is the true container for the window's widgets, as a GtkWindow cannot
+    // contain more than one widget. gui::widget is designed for use within
+    // GtkFixed containers only.
     GtkWidget *m_content;
 
     // (var) m_menubar
