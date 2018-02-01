@@ -28,9 +28,13 @@
 
 #include <unordered_set>
 #include <unordered_map>
-#include <gtk/gtk.h>
+#include <cairo.h>
 #include "../imgui/imgui.h"
 #include "gl.hh"
+
+#if USE_GTK3
+#include <gtk/gtk.h>
+#endif
 
 namespace drnsf {
 namespace gui {
