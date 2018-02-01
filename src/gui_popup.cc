@@ -36,6 +36,28 @@ popup::popup(int width, int height) :
     gtk_window_set_default_size(GTK_WINDOW(m_handle), width, height);
     g_signal_connect(m_handle, "delete-event", G_CALLBACK(gtk_true), nullptr);
 
+    m_content = gtk_fixed_new();
+    auto sigh_size_allocate =
+        static_cast<void (*)(GtkWidget *, GdkRectangle *, gpointer)>(
+            [](GtkWidget *, GdkRectangle *allocation, gpointer user_data) {
+                auto self = static_cast<popup *>(user_data);
+                auto alloc = *allocation;
+                self->apply_layouts(
+                    alloc.x,
+                    alloc.y,
+                    alloc.width,
+                    alloc.height
+                );
+            });
+    g_signal_connect(
+        m_content,
+        "size-allocate",
+        G_CALLBACK(sigh_size_allocate),
+        this
+    );
+    gtk_container_add(GTK_CONTAINER(m_handle), GTK_WIDGET(m_content));
+    gtk_widget_show(GTK_WIDGET(m_content));
+
     try {
         s_all_popups.insert({m_handle, this});
     } catch (...) {
@@ -85,7 +107,7 @@ void popup::set_size(int width, int height)
 // declared in gui.hh
 sys_handle popup::get_container_handle()
 {
-    return m_handle;
+    return m_content;
 }
 
 // declared in gui.hh

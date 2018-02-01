@@ -441,6 +441,15 @@ private:
     // A handle to the underlying system window.
     sys_handle m_handle;
 
+    // (var) m_content
+    // A handle to a GtkFixed object contained inside the actual popup window.
+    // This is the true container for the popup's widgets, as a GtkWindow cannot
+    // contain more than one widget. gui::widget is designed for use within
+    // GtkFixed containers only.
+    //
+    // The same strategy is used in gui::window.
+    sys_handle m_content;
+
     // (var) m_width, m_height
     // The size of the popup window, in pixels.
     int m_width;
