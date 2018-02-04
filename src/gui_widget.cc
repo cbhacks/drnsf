@@ -29,8 +29,10 @@ std::unordered_map<sys_handle, widget *> widget::s_all_widgets;
 
 // declared in gui.hh
 // FIXME move to gui_container.cc ?
-void container::apply_layouts(int x, int y, int w, int h)
+void container::apply_layouts()
 {
+    int x, y, w, h;
+    get_child_area(x, y, w, h);
     for (auto &&widget : m_widgets) {
         widget->apply_layout(x, y, w, h);
     }
@@ -111,6 +113,17 @@ void widget::sigh_size_allocate(
 // declared in gui.hh
 void widget::apply_layout(int ctn_x, int ctn_y, int ctn_w, int ctn_h)
 {
+    // Offset the specified region according to the parent container's own
+    // allocation. Our input values ctn_x and ctn_y are relative to the parent,
+    // but gtk_widget_size_allocate expects top-level window-relative units.
+    GtkAllocation parent_rect;
+    gtk_widget_get_allocation(
+        GTK_WIDGET(m_parent.get_container_handle()),
+        &parent_rect
+    );
+    ctn_x += parent_rect.x;
+    ctn_y += parent_rect.y;
+
     // Calculate the real positions according to the widget layout.
     int x1 =
         ctn_x +
@@ -250,10 +263,12 @@ void widget::set_layout(layout layout)
     m_layout = layout;
 
     // Reconfigure the widget according to the new layout.
+    int ctn_x;
+    int ctn_y;
     int ctn_w;
     int ctn_h;
-    m_parent.get_container_size(ctn_w, ctn_h);
-    apply_layout(0, 0, ctn_w, ctn_h);
+    m_parent.get_child_area(ctn_x, ctn_y, ctn_w, ctn_h);
+    apply_layout(ctn_x, ctn_y, ctn_w, ctn_h);
 }
 
 // declared in gui.hh

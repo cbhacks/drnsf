@@ -27,9 +27,7 @@ namespace gui {
 // declared in gui.hh
 void composite::on_resize(int width, int height)
 {
-    GtkAllocation alloc;
-    gtk_widget_get_allocation(GTK_WIDGET(m_handle), &alloc);
-    apply_layouts(alloc.x, alloc.y, width, height);
+    apply_layouts();
 }
 
 // declared in gui.hh
@@ -46,8 +44,10 @@ sys_handle composite::get_container_handle()
 }
 
 // declared in gui.hh
-void composite::get_container_size(int &ctn_w, int &ctn_h)
+void composite::get_child_area(int &ctn_x, int &ctn_y, int &ctn_w, int &ctn_h)
 {
+    ctn_x = 0;
+    ctn_y = 0;
     get_real_size(ctn_w, ctn_h);
 }
 

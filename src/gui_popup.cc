@@ -42,12 +42,9 @@ popup::popup(int width, int height) :
             [](GtkWidget *, GdkRectangle *allocation, gpointer user_data) {
                 auto self = static_cast<popup *>(user_data);
                 auto alloc = *allocation;
-                self->apply_layouts(
-                    alloc.x,
-                    alloc.y,
-                    alloc.width,
-                    alloc.height
-                );
+                self->m_width = alloc.width;
+                self->m_height = alloc.height;
+                self->apply_layouts();
             });
     g_signal_connect(
         m_content,
@@ -99,9 +96,6 @@ void popup::hide()
 void popup::set_size(int width, int height)
 {
     gtk_window_resize(GTK_WINDOW(m_handle), width, height);
-    m_width = width;
-    m_height = height;
-    // FIXME these should be set in an event handler instead
 }
 
 // declared in gui.hh
@@ -111,8 +105,10 @@ sys_handle popup::get_container_handle()
 }
 
 // declared in gui.hh
-void popup::get_container_size(int &ctn_w, int &ctn_h)
+void popup::get_child_area(int &ctn_x, int &ctn_y, int &ctn_w, int &ctn_h)
 {
+    ctn_x = 0;
+    ctn_y = 0;
     ctn_w = m_width;
     ctn_h = m_height;
 }

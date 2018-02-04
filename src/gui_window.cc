@@ -51,24 +51,7 @@ window::window(const std::string &title, int width, int height) :
                 auto alloc = *allocation;
                 self->m_width = alloc.width;
                 self->m_height = alloc.height;
-                if (self->m_menubar) {
-                    alloc.height -= 20;
-                    alloc.y += 20;
-                }
-                self->apply_layouts(
-                    alloc.x,
-                    alloc.y,
-                    alloc.width,
-                    alloc.height
-                );
-                if (self->m_menubar) {
-                    self->m_menubar->apply_layout(
-                        alloc.x,
-                        alloc.y - 20,
-                        alloc.width,
-                        20
-                    );
-                }
+                self->apply_layouts();
             });
     g_signal_connect(
         m_content,
@@ -117,10 +100,19 @@ sys_handle window::get_container_handle()
 }
 
 // declared in gui.hh
-void window::get_container_size(int &ctn_w, int &ctn_h)
+void window::get_child_area(int &ctn_x, int &ctn_y, int &ctn_w, int &ctn_h)
 {
+    ctn_x = 0;
+    ctn_y = 0;
     ctn_w = m_width;
     ctn_h = m_height;
+
+    // Adjust the area for a non-native menubar if present. The menubar's own
+    // layout places it above the top of the child area.
+    if (m_menubar) {
+        ctn_y += 20;
+        ctn_h -= 20;
+    }
 }
 
 }

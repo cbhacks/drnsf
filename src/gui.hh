@@ -343,17 +343,30 @@ private:
 
 protected:
     // (func) apply_layouts
-    // FIXME explain
-    void apply_layouts(int x, int y, int w, int h);
+    // Reapplies the child widgets' layouts according to the container's child
+    // area (see get_child_area below). This should be called by the derived
+    // type whenever the child area changes so that this change can be
+    // propagated to the child widgets.
+    void apply_layouts();
 
 public:
     // (pure func) get_container_handle
     // FIXME explain
     virtual sys_handle get_container_handle() = 0;
 
-    // (pure func) get_container_size
-    // Gets the size of the container, in pixels.
-    virtual void get_container_size(int &ctn_w, int &ctn_h) = 0;
+    // (pure func) get_child_area
+    // Gets the area of the container which the child widgets should use to size
+    // and position themselves according to their respective layouts.
+    //
+    // Generally, this should return (0, 0) and the container's width and
+    // height, but this may be different if the area for the child widgets is a
+    // subsection of the container's full area. For instance, this may be the
+    // case for a window with a non-native menubar.
+    virtual void get_child_area(
+        int &ctn_x,
+        int &ctn_y,
+        int &ctn_w,
+        int &ctn_h) = 0;
 };
 
 /*
@@ -377,9 +390,13 @@ public:
     // FIXME explain
     sys_handle get_container_handle() override;
 
-    // (func) get_container_size
-    // Implements gui::container::get_container_size.
-    void get_container_size(int &ctn_w, int &ctn_h) override;
+    // (func) get_child_area
+    // Implements gui::container::get_child_area.
+    void get_child_area(
+        int &ctn_x,
+        int &ctn_y,
+        int &ctn_w,
+        int &ctn_h) override;
 
     using widget::show;
     using widget::hide;
@@ -450,9 +467,13 @@ public:
     // FIXME explain
     sys_handle get_container_handle() override;
 
-    // (func) get_container_size
-    // Implements gui::container::get_container_size.
-    void get_container_size(int &ctn_w, int &ctn_h) override;
+    // (func) get_child_area
+    // Implements gui::container::get_child_area.
+    void get_child_area(
+        int &ctn_x,
+        int &ctn_y,
+        int &ctn_w,
+        int &ctn_h) override;
 };
 
 /*
@@ -527,9 +548,13 @@ public:
     // FIXME explain
     sys_handle get_container_handle() override;
 
-    // (func) get_container_size
-    // Implements gui::container::get_container_size.
-    void get_container_size(int &ctn_w, int &ctn_h) override;
+    // (func) get_child_area
+    // Implements gui::container::get_child_area.
+    void get_child_area(
+        int &ctn_x,
+        int &ctn_y,
+        int &ctn_w,
+        int &ctn_h) override;
 };
 
 /*
