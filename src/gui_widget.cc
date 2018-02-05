@@ -39,78 +39,6 @@ void container::apply_layouts()
 }
 
 // declared in gui.hh
-gboolean widget::sigh_motion_notify_event(
-    GtkWidget *wdg,
-    GdkEvent *event,
-    gpointer user_data)
-{
-    static_cast<widget *>(user_data)->mousemove(
-        event->motion.x,
-        event->motion.y
-    );
-    return false;
-}
-
-// declared in gui.hh
-gboolean widget::sigh_scroll_event(
-    GtkWidget *wdg,
-    GdkEvent *event,
-    gpointer user_data)
-{
-    if (event->scroll.direction != GDK_SCROLL_SMOOTH) {
-        return false;
-    }
-
-    static_cast<widget *>(user_data)->mousewheel(
-        -event->scroll.delta_y
-    );
-    return false;
-}
-
-// declared in gui.hh
-gboolean widget::sigh_button_event(
-    GtkWidget *wdg,
-    GdkEvent *event,
-    gpointer user_data)
-{
-    static_cast<widget *>(user_data)->mousebutton(
-        event->button.button,
-        event->button.type == GDK_BUTTON_PRESS
-    );
-    return false;
-}
-
-// declared in gui.hh
-gboolean widget::sigh_key_event(
-    GtkWidget *wdg,
-    GdkEvent *event,
-    gpointer user_data)
-{
-    auto self = static_cast<widget *>(user_data);
-    self->key(
-        event->key.keyval,
-        event->key.type == GDK_KEY_PRESS
-    );
-    if (event->key.type == GDK_KEY_PRESS) {
-        // FIXME deprecated garbage
-        self->text(event->key.string);
-    }
-    return false;
-}
-
-// declared in gui.hh
-void widget::sigh_size_allocate(
-    GtkWidget *wdg,
-    GdkRectangle *allocation,
-    gpointer user_data)
-{
-    static_cast<widget *>(user_data)->on_resize(
-        allocation->width,
-        allocation->height
-    );
-}
-
-// declared in gui.hh
 void widget::apply_layout(int ctn_x, int ctn_y, int ctn_w, int ctn_h)
 {
     // Offset the specified region according to the parent container's own
@@ -175,18 +103,48 @@ widget::widget(sys_handle &&handle, container &parent) try :
         GDK_KEY_PRESS_MASK |
         GDK_KEY_RELEASE_MASK
     );
+    auto sigh_motion_notify_event =
+        static_cast<gboolean (*)(GtkWidget *,GdkEvent *, gpointer user_data)>(
+            [](GtkWidget *wdg, GdkEvent *event, gpointer user_data) -> gboolean {
+                static_cast<widget *>(user_data)->mousemove(
+                    event->motion.x,
+                    event->motion.y
+                );
+                return false;
+            });
     g_signal_connect(
         m_handle,
         "motion-notify-event",
         G_CALLBACK(sigh_motion_notify_event),
         this
     );
+    auto sigh_scroll_event =
+        static_cast<gboolean (*)(GtkWidget *,GdkEvent *, gpointer user_data)>(
+            [](GtkWidget *wdg, GdkEvent *event, gpointer user_data) -> gboolean {
+                if (event->scroll.direction != GDK_SCROLL_SMOOTH) {
+                    return false;
+                }
+
+                static_cast<widget *>(user_data)->mousewheel(
+                    -event->scroll.delta_y
+                );
+                return false;
+            });
     g_signal_connect(
         m_handle,
         "scroll-event",
         G_CALLBACK(sigh_scroll_event),
         this
     );
+    auto sigh_button_event =
+        static_cast<gboolean (*)(GtkWidget *,GdkEvent *, gpointer user_data)>(
+            [](GtkWidget *wdg, GdkEvent *event, gpointer user_data) -> gboolean {
+                static_cast<widget *>(user_data)->mousebutton(
+                    event->button.button,
+                    event->button.type == GDK_BUTTON_PRESS
+                );
+                return false;
+            });
     g_signal_connect(
         m_handle,
         "button-press-event",
@@ -199,6 +157,20 @@ widget::widget(sys_handle &&handle, container &parent) try :
         G_CALLBACK(sigh_button_event),
         this
     );
+    auto sigh_key_event =
+        static_cast<gboolean (*)(GtkWidget *,GdkEvent *, gpointer user_data)>(
+            [](GtkWidget *wdg, GdkEvent *event, gpointer user_data) -> gboolean {
+                auto self = static_cast<widget *>(user_data);
+                self->key(
+                    event->key.keyval,
+                    event->key.type == GDK_KEY_PRESS
+                );
+                if (event->key.type == GDK_KEY_PRESS) {
+                    // FIXME deprecated garbage
+                    self->text(event->key.string);
+                }
+                return false;
+            });
     g_signal_connect(
         m_handle,
         "key-press-event",
@@ -211,6 +183,14 @@ widget::widget(sys_handle &&handle, container &parent) try :
         G_CALLBACK(sigh_key_event),
         this
     );
+    auto sigh_size_allocate =
+        static_cast<void (*)(GtkWidget *,GdkRectangle *, gpointer user_data)>(
+            [](GtkWidget *wdg, GdkRectangle *allocation, gpointer user_data) {
+                static_cast<widget *>(user_data)->on_resize(
+                    allocation->width,
+                    allocation->height
+                );
+            });
     g_signal_connect(
         m_handle,
         "size-allocate",

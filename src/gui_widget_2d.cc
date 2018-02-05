@@ -26,26 +26,22 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-gboolean widget_2d::sigh_draw(
-    GtkWidget *widget,
-    cairo_t *cr,
-    gpointer user_data)
-{
-    auto self = static_cast<widget_2d *>(user_data);
-
-    auto width = gtk_widget_get_allocated_width(widget);
-    auto height = gtk_widget_get_allocated_height(widget);
-
-    self->draw_2d(width, height, cr);
-
-    return true;
-}
-
-// declared in gui.hh
 widget_2d::widget_2d(container &parent, layout layout) :
     widget(gtk_drawing_area_new(), parent)
 {
     gtk_widget_set_can_focus(GTK_WIDGET(m_handle), true);
+    auto sigh_draw =
+        static_cast<gboolean (*)(GtkWidget *, cairo_t *, gpointer)>(
+            [](GtkWidget *widget, cairo_t *cr, gpointer user_data) -> gboolean {
+                auto self = static_cast<widget_2d *>(user_data);
+
+                auto width = gtk_widget_get_allocated_width(widget);
+                auto height = gtk_widget_get_allocated_height(widget);
+
+                self->draw_2d(width, height, cr);
+
+                return true;
+            });
     g_signal_connect(m_handle, "draw", G_CALLBACK(sigh_draw), this);
 
     set_layout(layout);

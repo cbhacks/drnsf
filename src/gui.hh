@@ -171,41 +171,6 @@ private:
     // pointer to the respective widget object.
     static std::unordered_map<sys_handle, widget *> s_all_widgets;
 
-    // (s-func) sigh_motion_notify_event
-    // Internal signal handler for GtkWidget::'motion-notify-event'.
-    static gboolean sigh_motion_notify_event(
-        GtkWidget *wdg,
-        GdkEvent *event,
-        gpointer user_data);
-
-    // (s-func) sigh_scroll_event
-    // Internal signal handler for GtkWidget::'scroll-event'.
-    static gboolean sigh_scroll_event(
-        GtkWidget *wdg,
-        GdkEvent *event,
-        gpointer user_data);
-
-    // (s-func) sigh_button_event
-    // Internal signal handler for GtkWidget::'button-event'.
-    static gboolean sigh_button_event(
-        GtkWidget *wdg,
-        GdkEvent *event,
-        gpointer user_data);
-
-    // (s-func) sigh_key_event
-    // Internal signal handler for GtkWidget::'key-event'.
-    static gboolean sigh_key_event(
-        GtkWidget *wdg,
-        GdkEvent *event,
-        gpointer user_data);
-
-    // (s-func) sigh_size_allocate
-    // Internal signal handler for GtkWidget::'size-allocate'.
-    static void sigh_size_allocate(
-        GtkWidget *wdg,
-        GdkRectangle *allocation,
-        gpointer user_data);
-
     // (var) m_real_width, m_real_height
     // The actual height of the widget, in pixels.
     int m_real_width;
@@ -563,14 +528,6 @@ public:
  * FIXME explain
  */
 class widget_gl : private widget {
-private:
-    // (s-func) sigh_draw
-    // Internal signal handler for GtkWidget::'draw'.
-    static gboolean sigh_draw(
-        GtkWidget *widget,
-        cairo_t *cr,
-        gpointer user_data);
-
 protected:
     // (pure func) draw_gl
     // Draws the contents of this widget to the specified renderbuffer. Derived
@@ -608,14 +565,6 @@ public:
  */
 class widget_2d : private widget {
     friend class window;
-
-private:
-    // (s-func) sigh_draw
-    // Internal signal handler for GtkWidget::'draw'.
-    static gboolean sigh_draw(
-        GtkWidget *widget,
-        cairo_t *cr,
-        gpointer user_data);
 
 protected:
     // (pure func) draw_2d

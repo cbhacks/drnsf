@@ -32,48 +32,44 @@ namespace gl {
 namespace gui {
 
 // declared in gui.hh
-gboolean widget_gl::sigh_draw(
-    GtkWidget *widget,
-    cairo_t *cr,
-    gpointer user_data)
-{
-    auto self = static_cast<widget_gl *>(user_data);
-
-    auto width = gtk_widget_get_allocated_width(widget);
-    auto height = gtk_widget_get_allocated_height(widget);
-
-    gl::renderbuffer rbo;
-
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB8, width, height);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-    glViewport(0, 0, width, height);
-    glScissor(0, 0, width, height);
-
-    self->draw_gl(width, height, rbo);
-
-    gdk_cairo_draw_from_gl(cr,
-        gl::g_wnd,
-        rbo,
-        GL_RENDERBUFFER,
-        1,
-        0,
-        0,
-        width,
-        height
-    );
-
-    gdk_gl_context_make_current(gl::g_glctx);
-
-    return true;
-}
-
-// declared in gui.hh
 widget_gl::widget_gl(container &parent, layout layout) :
     widget(gtk_drawing_area_new(), parent)
 {
     gtk_widget_set_can_focus(GTK_WIDGET(m_handle), true);
+    auto sigh_draw =
+        static_cast<gboolean (*)(GtkWidget *, cairo_t *, gpointer)>(
+            [](GtkWidget *widget, cairo_t *cr, gpointer user_data) -> gboolean {
+                auto self = static_cast<widget_gl *>(user_data);
+
+                auto width = gtk_widget_get_allocated_width(widget);
+                auto height = gtk_widget_get_allocated_height(widget);
+
+                gl::renderbuffer rbo;
+
+                glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+                glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB8, width, height);
+                glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+                glViewport(0, 0, width, height);
+                glScissor(0, 0, width, height);
+
+                self->draw_gl(width, height, rbo);
+
+                gdk_cairo_draw_from_gl(cr,
+                    gl::g_wnd,
+                    rbo,
+                    GL_RENDERBUFFER,
+                    1,
+                    0,
+                    0,
+                    width,
+                    height
+                );
+
+                gdk_gl_context_make_current(gl::g_glctx);
+
+                return true;
+            });
     g_signal_connect(m_handle, "draw", G_CALLBACK(sigh_draw), this);
 
     set_layout(layout);
