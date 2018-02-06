@@ -29,7 +29,7 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-std::unordered_map<sys_handle, popup *> popup::s_all_popups;
+std::unordered_set<popup *> popup::s_all_popups;
 
 // declared in gui.hh
 popup::popup(int width, int height) :
@@ -60,7 +60,7 @@ popup::popup(int width, int height) :
     gtk_widget_show(GTK_WIDGET(m_content));
 
     try {
-        s_all_popups.insert({m_handle, this});
+        s_all_popups.insert(this);
     } catch (...) {
         gtk_widget_destroy(GTK_WIDGET(m_handle));
     }
@@ -69,7 +69,7 @@ popup::popup(int width, int height) :
 // declared in gui.hh
 popup::~popup()
 {
-    s_all_popups.erase(m_handle);
+    s_all_popups.erase(this);
     gtk_widget_destroy(GTK_WIDGET(m_handle));
 }
 

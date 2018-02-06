@@ -29,7 +29,7 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-std::unordered_map<sys_handle, window *> window::s_all_windows;
+std::unordered_set<window *> window::s_all_windows;
 
 // declared in gui.hh
 void window::exit_dialog()
@@ -67,7 +67,7 @@ window::window(const std::string &title, int width, int height) :
     gtk_widget_show(GTK_WIDGET(m_content));
 
     try {
-        s_all_windows.insert({m_handle, this});
+        s_all_windows.insert(this);
     } catch (...) {
         gtk_widget_destroy(GTK_WIDGET(m_handle));
         throw;
@@ -77,7 +77,7 @@ window::window(const std::string &title, int width, int height) :
 // declared in gui.hh
 window::~window()
 {
-    s_all_windows.erase(m_handle);
+    s_all_windows.erase(this);
     gtk_widget_destroy(GTK_WIDGET(m_handle));
 }
 

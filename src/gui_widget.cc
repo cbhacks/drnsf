@@ -29,7 +29,7 @@ namespace drnsf {
 namespace gui {
 
 // declared in gui.hh
-std::unordered_map<sys_handle, widget *> widget::s_all_widgets;
+std::unordered_set<widget *> widget::s_all_widgets;
 
 // declared in gui.hh
 // FIXME move to gui_container.cc ?
@@ -204,7 +204,7 @@ widget::widget(sys_handle &&handle, container &parent) try :
 
     parent.m_widgets.insert(this);
     try {
-        s_all_widgets.insert({m_handle, this});
+        s_all_widgets.insert(this);
     } catch (...) {
         parent.m_widgets.erase(this);
         throw;
@@ -219,7 +219,7 @@ widget::widget(sys_handle &&handle, container &parent) try :
 widget::~widget()
 {
     m_parent.m_widgets.erase(this);
-    s_all_widgets.erase(m_handle);
+    s_all_widgets.erase(this);
     gtk_widget_destroy(GTK_WIDGET(m_handle));
 }
 

@@ -27,7 +27,6 @@
  */
 
 #include <unordered_set>
-#include <unordered_map>
 #include <cairo.h>
 #include "../imgui/imgui.h"
 #include "gl.hh"
@@ -162,10 +161,8 @@ class widget : public util::nocopy {
 
 private:
     // (s-var) s_all_widgets
-    // The set of all existing widget objects, whether visible or not. This is
-    // a map from each widget's internal handle (m_handle, defined below) to a
-    // pointer to the respective widget object.
-    static std::unordered_map<sys_handle, widget *> s_all_widgets;
+    // The set of all existing widget objects, whether visible or not.
+    static std::unordered_set<widget *> s_all_widgets;
 
     // (var) m_real_width, m_real_height
     // The actual height of the widget, in pixels.
@@ -376,10 +373,8 @@ class window : public container {
 
 private:
     // (s-var) s_all_windows
-    // The set of all existing window objects, whether visible or not. This is
-    // a map from each window's internal handle (m_handle, defined below) to a
-    // pointer to the respective object.
-    static std::unordered_map<sys_handle, window *> s_all_windows;
+    // The set of all existing window objects, whether visible or not.
+    static std::unordered_set<window *> s_all_windows;
 
     // (var) m_handle
     // Internal handle to the underlying system window.
@@ -450,10 +445,8 @@ public:
 class popup : public container {
 private:
     // (s-var) s_all_popups
-    // The set of all existing popup objects, whether visible or not. This is
-    // a map from each popup's internal handle (m_handle, defined below) to a
-    // pointer to the respective object.
-    static std::unordered_map<sys_handle, popup *> s_all_popups;
+    // The set of all existing popup objects, whether visible or not.
+    static std::unordered_set<popup *> s_all_popups;
 
     // (var) m_handle
     // A handle to the underlying system window.
