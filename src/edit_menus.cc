@@ -24,6 +24,11 @@
 #include "nsf.hh"
 #include "misc.hh"
 
+// FIXME temporary hack for gtk_main_quit
+#if USE_GTK3
+#include <gtk/gtk.h>
+#endif
+
 namespace drnsf {
 namespace edit {
 namespace menus {

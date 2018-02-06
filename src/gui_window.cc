@@ -21,6 +21,10 @@
 #include "common.hh"
 #include "gui.hh"
 
+#if USE_GTK3
+#include <gtk/gtk.h>
+#endif
+
 namespace drnsf {
 namespace gui {
 
@@ -59,8 +63,8 @@ window::window(const std::string &title, int width, int height) :
         G_CALLBACK(sigh_size_allocate),
         this
     );
-    gtk_container_add(GTK_CONTAINER(m_handle), m_content);
-    gtk_widget_show(m_content);
+    gtk_container_add(GTK_CONTAINER(m_handle), GTK_WIDGET(m_content));
+    gtk_widget_show(GTK_WIDGET(m_content));
 
     try {
         s_all_windows.insert({m_handle, this});

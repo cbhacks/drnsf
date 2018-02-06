@@ -32,10 +32,6 @@
 #include "../imgui/imgui.h"
 #include "gl.hh"
 
-#if USE_GTK3
-#include <gtk/gtk.h>
-#endif
-
 namespace drnsf {
 namespace gui {
 
@@ -394,7 +390,7 @@ private:
     // is the true container for the window's widgets, as a GtkWindow cannot
     // contain more than one widget. gui::widget is designed for use within
     // GtkFixed containers only.
-    GtkWidget *m_content;
+    sys_handle m_content;
 
     // (var) m_menubar
     // A pointer to the menubar associated with this window, or null if there

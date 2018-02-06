@@ -21,6 +21,10 @@
 #include "common.hh"
 #include "gui.hh"
 
+#if USE_GTK3
+#include <gtk/gtk.h>
+#endif
+
 namespace drnsf {
 namespace gui {
 
