@@ -38,6 +38,22 @@ void composite::on_resize(int width, int height)
 composite::composite(container &parent, layout layout) :
     widget(gtk_fixed_new(), parent)
 {
+    // Register event handlers.
+    auto sigh_size_allocate =
+        static_cast<void (*)(GtkWidget *,GdkRectangle *, gpointer user_data)>(
+            [](GtkWidget *wdg, GdkRectangle *allocation, gpointer user_data) {
+                static_cast<composite *>(user_data)->on_resize(
+                    allocation->width,
+                    allocation->height
+                );
+            });
+    g_signal_connect(
+        m_handle,
+        "size-allocate",
+        G_CALLBACK(sigh_size_allocate),
+        this
+    );
+
     set_layout(layout);
 }
 

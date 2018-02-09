@@ -174,6 +174,22 @@ private:
     // of the container given as parameters.
     void apply_layout(int ctn_x, int ctn_y, int ctn_w, int ctn_h);
 
+protected:
+    // (var) m_handle
+    // The internal system handle for this widget. The base widget class will
+    // release this handle or destroy the associated system object.
+    const sys_handle m_handle;
+
+    // (var) m_parent
+    // A reference to the container this widget exists inside of. All widgets
+    // must exist within a container.
+    container &m_parent;
+
+    // (var) m_layout
+    // The layout area which defines the location and size of this widget
+    // relative to its container.
+    layout m_layout{};
+
     // (func) mousemove
     // Called when the mouse moves into or while inside of the widget.
     //
@@ -226,22 +242,6 @@ private:
     {
         return INT_MAX;
     }
-
-protected:
-    // (var) m_handle
-    // The internal system handle for this widget. The base widget class will
-    // release this handle or destroy the associated system object.
-    const sys_handle m_handle;
-
-    // (var) m_parent
-    // A reference to the container this widget exists inside of. All widgets
-    // must exist within a container.
-    container &m_parent;
-
-    // (var) m_layout
-    // The layout area which defines the location and size of this widget
-    // relative to its container.
-    layout m_layout{};
 
     // (explicit ctor)
     // Constructs the base widget data with the given handle and parent.
@@ -331,12 +331,18 @@ public:
  * gui::composite
  *
  * FIXME explain
+ *
+ * Composite widgets do not receive any user input events such as mouse clicks,
+ * mouse movement, or key presses.
  */
 class composite : private widget, public container {
 private:
     // (func) on_resize
     // Implements on_resize to apply the change in container size to the child
     // widgets.
+    //
+    // Derived types which override this function MUST call up to this base
+    // implementation to ensure child widgets are moved resized appropriately.
     void on_resize(int width, int height) final override;
 
 public:
