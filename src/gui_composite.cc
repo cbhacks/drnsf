@@ -36,8 +36,14 @@ void composite::on_resize(int width, int height)
 
 // declared in gui.hh
 composite::composite(container &parent, layout layout) :
-    widget(gtk_fixed_new(), parent)
+    widget(parent)
 {
+    m_handle = gtk_fixed_new();
+    gtk_container_add(
+        GTK_CONTAINER(parent.get_container_handle()),
+        GTK_WIDGET(m_handle)
+    );
+
     // Register event handlers.
     auto sigh_size_allocate =
         static_cast<void (*)(GtkWidget *,GdkRectangle *, gpointer user_data)>(

@@ -86,16 +86,9 @@ void widget::apply_layout(int ctn_x, int ctn_y, int ctn_w, int ctn_h)
 }
 
 // declared in gui.hh
-widget::widget(sys_handle &&handle, container &parent) try :
-    m_handle(handle),
+widget::widget(container &parent) :
     m_parent(parent)
 {
-    // Add the underlying GTK widget to the parent container.
-    gtk_container_add(
-        GTK_CONTAINER(parent.get_container_handle()),
-        GTK_WIDGET(m_handle)
-    );
-
     parent.m_widgets.insert(this);
     try {
         s_all_widgets.insert(this);
@@ -103,10 +96,6 @@ widget::widget(sys_handle &&handle, container &parent) try :
         parent.m_widgets.erase(this);
         throw;
     }
-} catch (...) {
-    // Destroy the handle (GTK widget) given to us if an exception is thrown.
-    gtk_widget_destroy(GTK_WIDGET(handle));
-    throw;
 }
 
 // declared in gui.hh
@@ -114,7 +103,13 @@ widget::~widget()
 {
     m_parent.m_widgets.erase(this);
     s_all_widgets.erase(this);
-    gtk_widget_destroy(GTK_WIDGET(m_handle));
+
+    // The handle is set by the derived class, but is released by the base
+    // destructor. A derived type could release it manually and set m_handle
+    // null if necessary.
+    if (m_handle) {
+        gtk_widget_destroy(GTK_WIDGET(m_handle));
+    }
 }
 
 // declared in gui.hh

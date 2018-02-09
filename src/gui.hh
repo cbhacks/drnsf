@@ -178,7 +178,7 @@ protected:
     // (var) m_handle
     // The internal system handle for this widget. The base widget class will
     // release this handle or destroy the associated system object.
-    const sys_handle m_handle;
+    sys_handle m_handle;
 
     // (var) m_parent
     // A reference to the container this widget exists inside of. All widgets
@@ -244,20 +244,22 @@ protected:
     }
 
     // (explicit ctor)
-    // Constructs the base widget data with the given handle and parent.
+    // Constructs the base widget data for use in the given parent.
     //
-    // The derived class should call set_layout in its constructor.
+    // The derived class's constructor should:
     //
-    // This constructor takes ownership of the given handle, and will free it
-    // even if an exception is thrown in the constructor. The handle parameter
-    // takes an rvalue reference to avoid accidentally passing a handle which
-    // was not meant to be relinquished to `gui::widget'.
-    explicit widget(sys_handle &&handle, container &parent);
+    // - Create the actual underlying system object.
+    // - Set m_handle.
+    // - Call set_layout.
+    explicit widget(container &parent);
 
 public:
     // (dtor)
     // Destroys the widget (including the internal system handle), removing it
     // from its parent. A visible widget will vanish if destroyed.
+    //
+    // If a derived type wishes to release the underlying system object itself,
+    // it should set m_handle null before this destructor runs.
     ~widget();
 
     // (func) show

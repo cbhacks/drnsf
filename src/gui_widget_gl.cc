@@ -37,8 +37,13 @@ namespace gui {
 
 // declared in gui.hh
 widget_gl::widget_gl(container &parent, layout layout) :
-    widget(gtk_drawing_area_new(), parent)
+    widget(parent)
 {
+    m_handle = gtk_drawing_area_new();
+    gtk_container_add(
+        GTK_CONTAINER(parent.get_container_handle()),
+        GTK_WIDGET(m_handle)
+    );
     gtk_widget_set_can_focus(GTK_WIDGET(m_handle), true);
 
     // Register event handlers.
