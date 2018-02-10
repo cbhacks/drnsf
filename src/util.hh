@@ -546,5 +546,28 @@ public:
     void discard_bits(int bits);
 };
 
+/*
+ * util::on_exit_helper
+ *
+ * This type is provided for the DRNSF_ON_EXIT macro defined in common.hh.
+ *
+ * Generally, avoid using this type directly. Use DRNSF_ON_EXIT instead. Using
+ * this type directly is done by giving it a functor like so:
+ *
+ *   auto R = util::on_exit_helper % my_functor;
+ *
+ * When R is destroyed, the functor is invoked with no parameters.
+ */
+struct {} on_exit_helper;
+template <typename T>
+auto operator %(decltype(on_exit_helper), T &&t)
+{
+    struct handler {
+        T t;
+        ~handler() { t(); }
+    };
+    return handler{std::forward<T>(t)};
+}
+
 }
 }

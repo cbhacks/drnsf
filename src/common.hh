@@ -54,6 +54,67 @@
 
 #include "util.hh"
 
+/*
+ * DRNSF_ON_EXIT
+ *
+ * This macro can be used within a code block to provide code which will run
+ * when that code block exits, whether by a statement such as `return' or
+ * `break', or by a thrown exception. Example usage:
+ *
+ *   FILE *f = fopen("config.txt", "r");
+ *   if (!f) { exit(1); }
+ *   DRNSF_ON_EXIT { fclose(f); };
+ *   }
+ *
+ *   ...
+ *
+ *   return 0;
+ *
+ * These error handlers can also be stacked, for example:
+ *
+ *   int err = SDL_Init(SDL_INIT_VIDEO);
+ *   if (err < 0) { ... }
+ *   DRNSF_ON_EXIT { SDL_Quit(); };
+ *
+ *   auto wnd = SDL_CreateWindow(...);
+ *   if (!wnd) { ... }
+ *   DRNSF_ON_EXIT { SDL_DestroyWindow(wnd); };
+ *
+ *   ...
+ *
+ *   return 0;
+ *
+ * Using DRNSF_ON_EXIT is often more reliable than placing cleanup code after a
+ * code block because DRNSF_ON_EXIT blocks will execute even if the block exit
+ * is due to an exception being thrown. For example:
+ *
+ *   CURL *c = curl_easy_init();
+ *   if (!c) { ... }
+ *
+ *   ... some code which may throw an exception ...
+ *
+ *   curl_easy_cleanup(c);
+ *
+ * In this case, if the intervening code throws an exception, curl_easy_cleanup
+ * is not called, which results in a resource leak. Using DRNSF_ON_EXIT:
+ *
+ *   CURL *c = curl_easy_init();
+ *   if (!c) { ... }
+ *   DRNSF_ON_EXIT { curl_easy_cleanup(c); };
+ *
+ *   ... some code which may throw an exception ...
+ *
+ * In this case, even if the code throws an exception, the curl object will be
+ * released properly.
+ *
+ * IMPORTANT: Because the body of a DRNSF_ON_EXIT statement may execute as part
+ * of exception unwinding, the body code MUST NOT throw an exception itself. It
+ * is acceptable for an exception to be thrown within execution of the body,
+ * however it must also be caught within the body and not allowed to escape.
+ */
+#define DRNSF_ON_EXIT \
+    auto DRNSF_ON_EXIT__##__LINE__ = ::drnsf::util::on_exit_helper % [&]
+
 namespace drnsf {
 
 /*
