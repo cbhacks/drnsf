@@ -46,6 +46,25 @@
 #define STRINGIFY(x) STRINGIFY_(x)
 #define STRINGIFY_(x) #x
 
+/*
+ * DRNSF_CONCAT
+ *
+ * Concatenates two symbols into a single symbol. This macro is necessary
+ * because directly using FOO##BAR would simply return FOOBAR instead of the
+ * defined values for FOO and BAR concatenated.
+ */
+#define DRNSF_CONCAT_(a, b) a##b
+#define DRNSF_CONCAT(a, b) DRNSF_CONCAT_(a, b)
+
+/*
+ * DRNSF_ANON_VAR
+ *
+ * Returns a name for an "anonymous variable". These don't actually exist in
+ * C++, so this macro creates a name based on the given symbol and the current
+ * line number where this appears in the file.
+ */
+#define DRNSF_ANON_VAR(name) DRNSF_CONCAT(name, __LINE__)
+
 // Include the application build configuration. This is partially generated
 // by CMake when configuring and generating your build system.
 #define DRNSF_BUILDCONFIG_INCLUDED_PROPERLY
@@ -113,7 +132,7 @@
  * however it must also be caught within the body and not allowed to escape.
  */
 #define DRNSF_ON_EXIT \
-    auto DRNSF_ON_EXIT__##__LINE__ = ::drnsf::util::on_exit_helper % [&]
+    auto DRNSF_ANON_VAR(DRNSF_ON_EXIT__) = ::drnsf::util::on_exit_helper % [&]
 
 namespace drnsf {
 
