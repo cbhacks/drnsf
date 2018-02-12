@@ -712,6 +712,19 @@ private:
     // consumed when `ImGui::NewFrame' is run.
     int m_pending_time = 0;
 
+    // (var) m_remaining_time
+    // The number of milliseconds remaining until the next update should be
+    // performed. Usually this should be (time per update - m_pending_time) but
+    // this could be reduced to zero if an earlier update is needed, such as
+    // in response to user input.
+    int m_remaining_time = 0;
+
+    // (var) m_render_ready
+    // True if ImGui::Render() has been called and is ready for drawing to the
+    // widget, false otherwise. This is necessary because drawing occurs in
+    // draw_gl(), but ImGui::NewFrame()...ImGui::Render() occurs in update().
+    bool m_render_ready = false;
+
     // (func) draw_gl
     // FIXME explain
     void draw_gl(int width, int height, gl::renderbuffer &rbo) final override;
@@ -735,6 +748,11 @@ private:
     // (func) text
     // FIXME explain
     void text(const char *str) final override;
+
+    // (func) on_resize
+    // Clears out the m_render_ready status and reduces the remaining update
+    // time to zero so that ImGui can be updated for the new size.
+    void on_resize(int width, int height) final override;
 
     // (func) update
     // Implements `update' to handle updating ImGui on a regular interval.

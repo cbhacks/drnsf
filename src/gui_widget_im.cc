@@ -175,40 +175,15 @@ void widget_im::draw_gl(int width, int height, gl::renderbuffer &rbo)
     glClear(GL_COLOR_BUFFER_BIT);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-    m_io->DisplaySize.x = width;
-    m_io->DisplaySize.y = height;
-    glViewport(0, 0, width, height);
-
-    m_io->DeltaTime = m_pending_time / 1000.0;
-    m_pending_time = 0;
+    // Exit now after clearing if ImGui::Render has not been called yet. This
+    // happens in update().
+    if (!m_render_ready) {
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        return;
+    }
 
     auto previous_im = ImGui::GetCurrentContext();
     ImGui::SetCurrentContext(m_im);
-    ImGui::NewFrame();
-
-    // FIXME temporary hack for edit::im_canvas
-    if (dynamic_cast<edit::im_canvas *>(this)) {
-        frame();
-    } else {
-
-    ImGui::SetNextWindowPos({0, 0});
-    ImGui::SetNextWindowSize({
-        static_cast<float>(width),
-        static_cast<float>(height)
-    });
-    ImGui::Begin(
-        "###Contents",
-        nullptr,
-        ImGuiWindowFlags_NoTitleBar |
-        ImGuiWindowFlags_NoResize |
-        ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoCollapse);
-    frame();
-    ImGui::End();
-
-    }
-
-    ImGui::Render();
     ImDrawData *draw_data = ImGui::GetDrawData();
 
     glUseProgram(s_prog);
@@ -324,6 +299,7 @@ void widget_im::mousemove(int x, int y)
 void widget_im::mousewheel(int delta_y)
 {
     m_io->MouseWheel += delta_y;
+    m_remaining_time = 0;
 }
 
 // declared in gui.hh
@@ -340,6 +316,7 @@ void widget_im::mousebutton(int number, bool down)
         m_io->MouseDown[1] = down;
         break;
     }
+    m_remaining_time = 0;
 }
 
 // declared in gui.hh
@@ -424,20 +401,72 @@ void widget_im::key(keycode code, bool down)
         // values in the switch statement.
         break;
     }
+    m_remaining_time = 0;
 }
 
 // declared in gui.hh
 void widget_im::text(const char *str)
 {
     m_io->AddInputCharactersUTF8(str);
+    m_remaining_time = 0;
+}
+
+// declared in gui.hh
+void widget_im::on_resize(int width, int height)
+{
+    m_render_ready = false;
+    m_remaining_time = 0;
 }
 
 // declared in gui.hh
 int widget_im::update(int delta_ms)
 {
     m_pending_time += delta_ms;
-    invalidate();
-    return 100;
+    m_remaining_time -= delta_ms;
+    if (m_remaining_time <= 0) {
+        int width, height;
+        get_real_size(width, height);
+
+        m_io->DisplaySize.x = width;
+        m_io->DisplaySize.y = height;
+
+        m_io->DeltaTime = m_pending_time / 1000.0;
+        m_pending_time = 0;
+
+        auto previous_im = ImGui::GetCurrentContext();
+        ImGui::SetCurrentContext(m_im);
+        ImGui::NewFrame();
+
+        // FIXME temporary hack for edit::im_canvas
+        if (dynamic_cast<edit::im_canvas *>(this)) {
+            frame();
+        } else {
+
+        ImGui::SetNextWindowPos({0, 0});
+        ImGui::SetNextWindowSize({
+            static_cast<float>(width),
+            static_cast<float>(height)
+        });
+        ImGui::Begin(
+            "###Contents",
+            nullptr,
+            ImGuiWindowFlags_NoTitleBar |
+            ImGuiWindowFlags_NoResize |
+            ImGuiWindowFlags_NoMove |
+            ImGuiWindowFlags_NoCollapse);
+        frame();
+        ImGui::End();
+
+        }
+
+        ImGui::Render();
+        ImGui::SetCurrentContext(previous_im);
+
+        m_render_ready = true;
+        m_remaining_time = 100;
+        invalidate();
+    }
+    return m_remaining_time;
 }
 
 // declared in gui.hh
