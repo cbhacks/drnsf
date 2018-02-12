@@ -456,6 +456,9 @@ public:
 
     using widget::show;
     using widget::hide;
+    using widget::get_layout;
+    using widget::set_layout;
+    using widget::get_real_size;
 };
 
 // defined later in this file
@@ -635,6 +638,9 @@ public:
 
     using widget::show;
     using widget::hide;
+    using widget::get_layout;
+    using widget::set_layout;
+    using widget::get_real_size;
 };
 
 /*
@@ -678,6 +684,9 @@ public:
 
     using widget::show;
     using widget::hide;
+    using widget::get_layout;
+    using widget::set_layout;
+    using widget::get_real_size;
 };
 
 /*
@@ -750,6 +759,9 @@ public:
 
     using widget_gl::show;
     using widget_gl::hide;
+    using widget_gl::get_layout;
+    using widget_gl::set_layout;
+    using widget_gl::get_real_size;
 };
 
 /*
@@ -778,6 +790,9 @@ public:
 
     using widget_2d::show;
     using widget_2d::hide;
+    using widget_2d::get_layout;
+    using widget_2d::set_layout;
+    using widget_2d::get_real_size;
 };
 
 /*
@@ -810,6 +825,9 @@ public:
 
     using widget_im::show;
     using widget_im::hide;
+    using widget_im::get_layout;
+    using widget_im::set_layout;
+    using widget_im::get_real_size;
 };
 
 /*

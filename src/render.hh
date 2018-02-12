@@ -92,6 +92,9 @@ public:
 
     using composite::show;
     using composite::hide;
+    using composite::get_layout;
+    using composite::set_layout;
+    using composite::get_real_size;
 };
 
 /*
