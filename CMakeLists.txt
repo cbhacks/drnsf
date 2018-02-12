@@ -141,10 +141,10 @@ endif ()
 find_package (PkgConfig REQUIRED)
 
 # Dependency: cairo
-pkg_search_module (CAIRO REQUIRED cairo)
-target_include_directories (drnsf PRIVATE ${CAIRO_INCLUDE_DIRS})
-target_link_libraries (drnsf PRIVATE ${CAIRO_LIBRARIES})
-target_compile_options (drnsf PRIVATE ${CAIRO_CFLAGS_OTHER})
+if (USE_X11)
+    pkg_search_module (CAIRO REQUIRED cairo-x11 IMPORTED_TARGET)
+    target_link_libraries (drnsf PRIVATE PkgConfig::CAIRO)
+endif ()
 
 # Dependency: X11
 if (USE_X11)
@@ -155,14 +155,11 @@ endif ()
 
 # Dependency: OpenGL
 find_package (OpenGL REQUIRED)
-target_include_directories (drnsf PRIVATE ${OPENGL_INCLUDE_DIRS})
-target_link_libraries (drnsf PRIVATE ${OPENGL_LIBRARIES})
+target_link_libraries (drnsf PRIVATE OpenGL::GL)
 
 # Dependency: libepoxy
-pkg_search_module (EPOXY REQUIRED epoxy)
-target_include_directories (drnsf PRIVATE ${EPOXY_INCLUDE_DIRS})
-target_link_libraries (drnsf PRIVATE ${EPOXY_LIBRARIES})
-target_compile_options (drnsf PRIVATE ${EPOXY_CFLAGS_OTHER})
+pkg_search_module (EPOXY REQUIRED epoxy IMPORTED_TARGET)
+target_link_libraries (drnsf PRIVATE PkgConfig::EPOXY)
 
 # Dependency: GLM
 # (header-only, included as a git submodule)
