@@ -101,7 +101,7 @@ void mni_open::on_activate()
 // declared in edit.hh
 void mni_exit::on_activate()
 {
-    gtk_main_quit();
+    gui::end();
 }
 
 // (s-func) get_undo_str

@@ -19,52 +19,91 @@
 //
 
 #include "common.hh"
-#include <gtk/gtk.h>
 #include "gl.hh"
+
+#if USE_X11
+#include <X11/Xlib.h>
+#include <epoxy/glx.h>
+
+namespace drnsf {
+namespace gui {
+// defined in gui.cc
+extern Display *g_display;
+}
+}
+#endif
 
 namespace drnsf {
 namespace gl {
 
-/*
- * gl::g_wnd, gl::g_glctx
- *
- * FIXME explain
- */
-GdkWindow *g_wnd;
-GdkGLContext *g_glctx;
+#if USE_X11
+// (var) g_wnd
+// The background window which the GL context is bound to.
+Window g_wnd;
+
+// (var) g_ctx
+// The GL context.
+GLXContext g_ctx;
+
+// (var) g_vi
+// XVisualInfo pointer used for creating GLX-capable windows.
+XVisualInfo *g_vi;
+
+// (s-var) s_cmap
+// Colormap for the GLX background window.
+static Colormap s_cmap;
+#endif
 
 // declared in gl.hh
 void init()
 {
-    // Set attributes for the hidden background window we are about to
-    // create (see below).
-    GdkWindowAttr wnd_attr;
-    wnd_attr.event_mask = 0;
-    wnd_attr.width = 100;
-    wnd_attr.height = 100;
-    wnd_attr.wclass = GDK_INPUT_OUTPUT;
-    wnd_attr.window_type = GDK_WINDOW_TOPLEVEL;
+#if USE_X11
+    using gui::g_display;
 
-    // Create the hidden window. This window is necessary to actually get
-    // an OpenGL context, even if we don't render to it.
-    g_wnd = gdk_window_new(nullptr, &wnd_attr, 0);
-    // Failure presumably results in a crash or premature exit/abort. This
-    // is the typical behavior in GTK/GDK/Glib, and nothing can be done
-    // about it. Blame their devs.
-
-    // Create an OpenGL context for the hidden window. This context will
-    // be used for all rendering in the application. Normal render output
-    // will be discarded because this window will never appear, so render
-    // jobs should target an FBO+RBO or FBO+texture which can then be
-    // blitted to the actual appropriate display widget.
-    GError *error = nullptr;
-    g_glctx = gdk_window_create_gl_context(g_wnd, &error);
-    if (!g_glctx) {
-        // TODO
+    int glx_attrs[] = { GLX_RGBA, GLX_DOUBLEBUFFER, None };
+    g_vi = glXChooseVisual(g_display, DefaultScreen(g_display), glx_attrs);
+    if (!g_vi) {
+        throw 0;//FIXME
     }
+    // FIXME on error release g_glx_vi
 
-    // Set the new context as the "current" one.
-    gdk_gl_context_make_current(g_glctx);
+    s_cmap = XCreateColormap(
+        g_display,
+        DefaultRootWindow(g_display),
+        g_vi->visual,
+        AllocNone
+    );
+
+    XSetWindowAttributes x_attrs{};
+    x_attrs.colormap = s_cmap;
+    g_wnd = XCreateWindow(
+        g_display,
+        DefaultRootWindow(g_display),
+        0, 0,
+        1, 1,
+        0,
+        g_vi->depth,
+        InputOutput,
+        g_vi->visual,
+        CWColormap,
+        &x_attrs
+    );
+
+    g_ctx = glXCreateContext(g_display, g_vi, nullptr, true);
+    if (!g_ctx) {
+        // NOTE: glXCreateContext may also fail on the X server side, which may
+        // not return NULL.
+
+        throw 0;//FIXME
+    }
+    // FIXME release context on error
+
+    if (!glXMakeCurrent(g_display, g_wnd, g_ctx)) {
+        throw 0;//FIXME
+    }
+#else
+#error Unimplemented UI frontend code.
+#endif
 }
 
 }

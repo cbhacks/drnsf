@@ -343,81 +343,85 @@ void widget_im::mousebutton(int number, bool down)
 }
 
 // declared in gui.hh
-void widget_im::key(int code, bool down)
+void widget_im::key(keycode code, bool down)
 {
     switch (code) {
-    case GDK_KEY_Shift_L:
-    case GDK_KEY_Shift_R:
+    case keycode::l_shift:
+    case keycode::r_shift:
         m_io->KeyShift = down;
         break;
-    case GDK_KEY_Control_L:
-    case GDK_KEY_Control_R:
+    case keycode::l_ctrl:
+    case keycode::r_ctrl:
         m_io->KeyCtrl = down;
         break;
-    case GDK_KEY_Alt_L:
-    case GDK_KEY_Alt_R:
+    case keycode::l_alt:
+    case keycode::r_alt:
         m_io->KeyAlt = down;
         break;
-    case GDK_KEY_Meta_L:
-    case GDK_KEY_Meta_R:
+    case keycode::l_meta:
+    case keycode::r_meta:
         m_io->KeySuper = down;
         break;
-    case GDK_KEY_Tab:
+    case keycode::tab:
         m_io->KeysDown[ImGuiKey_Tab] = down;
         break;
-    case GDK_KEY_Left:
+    case keycode::left_arrow:
         m_io->KeysDown[ImGuiKey_LeftArrow] = down;
         break;
-    case GDK_KEY_Right:
+    case keycode::right_arrow:
         m_io->KeysDown[ImGuiKey_RightArrow] = down;
         break;
-    case GDK_KEY_Up:
+    case keycode::up_arrow:
         m_io->KeysDown[ImGuiKey_UpArrow] = down;
         break;
-    case GDK_KEY_Down:
+    case keycode::down_arrow:
         m_io->KeysDown[ImGuiKey_DownArrow] = down;
         break;
-    case GDK_KEY_Page_Up:
+    case keycode::page_up:
         m_io->KeysDown[ImGuiKey_PageUp] = down;
         break;
-    case GDK_KEY_Page_Down:
+    case keycode::page_down:
         m_io->KeysDown[ImGuiKey_PageDown] = down;
         break;
-    case GDK_KEY_Home:
+    case keycode::home:
         m_io->KeysDown[ImGuiKey_Home] = down;
         break;
-    case GDK_KEY_End:
+    case keycode::end:
         m_io->KeysDown[ImGuiKey_End] = down;
         break;
-    case GDK_KEY_Delete:
+    case keycode::del:
         m_io->KeysDown[ImGuiKey_Delete] = down;
         break;
-    case GDK_KEY_BackSpace:
+    case keycode::backspace:
         m_io->KeysDown[ImGuiKey_Backspace] = down;
         break;
-    case GDK_KEY_Return:
+    case keycode::enter:
         m_io->KeysDown[ImGuiKey_Enter] = down;
         break;
-    case GDK_KEY_Escape:
+    case keycode::escape:
         m_io->KeysDown[ImGuiKey_Escape] = down;
         break;
-    case GDK_KEY_a:
+    case keycode::A:
         m_io->KeysDown[ImGuiKey_A] = down;
         break;
-    case GDK_KEY_c:
+    case keycode::C:
         m_io->KeysDown[ImGuiKey_C] = down;
         break;
-    case GDK_KEY_v:
+    case keycode::V:
         m_io->KeysDown[ImGuiKey_V] = down;
         break;
-    case GDK_KEY_x:
+    case keycode::X:
         m_io->KeysDown[ImGuiKey_X] = down;
         break;
-    case GDK_KEY_y:
+    case keycode::Y:
         m_io->KeysDown[ImGuiKey_Y] = down;
         break;
-    case GDK_KEY_z:
+    case keycode::Z:
         m_io->KeysDown[ImGuiKey_Z] = down;
+        break;
+    default:
+        // Unused. This empty case silences a GCC warning about unhandled enum
+        // values in the switch statement.
         break;
     }
 }

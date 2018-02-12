@@ -19,7 +19,6 @@
 //
 
 #include "common.hh"
-#include <gtk/gtk.h>
 #include "../imgui/imgui.h"
 #include "edit.hh"
 #include "res.hh"

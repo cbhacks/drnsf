@@ -21,171 +21,118 @@
 #include "common.hh"
 #include "gui.hh"
 
-#if USE_GTK3
-#include <gtk/gtk.h>
+#if USE_X11
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xresource.h>
+#include <epoxy/glx.h>
+
+namespace drnsf {
+namespace gl {
+// defined in gl.cc
+extern Window g_wnd;
+
+// defined in gl.cc
+extern GLXContext g_ctx;
+
+// defined in gl.cc
+extern XVisualInfo *g_vi;
+}
+}
 #endif
 
 namespace drnsf {
-
-// defined in gl.cc
-namespace gl {
-    extern GdkWindow *g_wnd;
-    extern GdkGLContext *g_glctx;
-}
-
 namespace gui {
+
+#if USE_X11
+// defined in gui.cc
+extern Display *g_display;
+
+// defined in gui.cc
+extern XContext g_ctx_ptr;
+
+// declared in gui.hh
+void widget_gl::on_draw()
+{
+    int width, height;
+    get_real_size(width, height);
+
+    gl::renderbuffer rbo;
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB8, width, height);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+    glViewport(0, 0, width, height);
+    glScissor(0, 0, width, height);
+
+    draw_gl(width, height, rbo);
+
+    gl::framebuffer fbo;
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+    glFramebufferRenderbuffer(
+        GL_READ_FRAMEBUFFER,
+        GL_COLOR_ATTACHMENT0,
+        GL_RENDERBUFFER,
+        rbo
+    );
+    glXMakeCurrent(g_display, m_handle, gl::g_ctx);
+    glBlitFramebuffer(
+        0, 0,
+        width, height,
+        0, 0,
+        width, height,
+        GL_COLOR_BUFFER_BIT,
+        GL_NEAREST
+    );
+    glXSwapBuffers(g_display, m_handle);
+    glXMakeCurrent(g_display, gl::g_wnd, gl::g_ctx);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+}
+#endif
 
 // declared in gui.hh
 widget_gl::widget_gl(container &parent, layout layout) :
     widget(parent)
 {
-    m_handle = gtk_drawing_area_new();
-    gtk_container_add(
-        GTK_CONTAINER(parent.get_container_handle()),
-        GTK_WIDGET(m_handle)
-    );
-    gtk_widget_set_can_focus(GTK_WIDGET(m_handle), true);
-
-    // Register event handlers.
-    gtk_widget_add_events(
-        GTK_WIDGET(m_handle),
-        GDK_POINTER_MOTION_MASK |
-        GDK_SMOOTH_SCROLL_MASK |
-        GDK_BUTTON_PRESS_MASK |
-        GDK_BUTTON_RELEASE_MASK |
-        GDK_KEY_PRESS_MASK |
-        GDK_KEY_RELEASE_MASK
-    );
-    auto sigh_motion_notify_event =
-        static_cast<gboolean (*)(GtkWidget *,GdkEvent *, gpointer user_data)>(
-            [](GtkWidget *wdg, GdkEvent *event, gpointer user_data) -> gboolean {
-                static_cast<widget_gl *>(user_data)->mousemove(
-                    event->motion.x,
-                    event->motion.y
-                );
-                return false;
-            });
-    g_signal_connect(
-        m_handle,
-        "motion-notify-event",
-        G_CALLBACK(sigh_motion_notify_event),
-        this
-    );
-    auto sigh_scroll_event =
-        static_cast<gboolean (*)(GtkWidget *,GdkEvent *, gpointer user_data)>(
-            [](GtkWidget *wdg, GdkEvent *event, gpointer user_data) -> gboolean {
-                if (event->scroll.direction != GDK_SCROLL_SMOOTH) {
-                    return false;
-                }
-
-                static_cast<widget_gl *>(user_data)->mousewheel(
-                    -event->scroll.delta_y
-                );
-                return false;
-            });
-    g_signal_connect(
-        m_handle,
-        "scroll-event",
-        G_CALLBACK(sigh_scroll_event),
-        this
-    );
-    auto sigh_button_event =
-        static_cast<gboolean (*)(GtkWidget *,GdkEvent *, gpointer user_data)>(
-            [](GtkWidget *wdg, GdkEvent *event, gpointer user_data) -> gboolean {
-                static_cast<widget_gl *>(user_data)->mousebutton(
-                    event->button.button,
-                    event->button.type == GDK_BUTTON_PRESS
-                );
-                return false;
-            });
-    g_signal_connect(
-        m_handle,
-        "button-press-event",
-        G_CALLBACK(sigh_button_event),
-        this
-    );
-    g_signal_connect(
-        m_handle,
-        "button-release-event",
-        G_CALLBACK(sigh_button_event),
-        this
-    );
-    auto sigh_key_event =
-        static_cast<gboolean (*)(GtkWidget *,GdkEvent *, gpointer user_data)>(
-            [](GtkWidget *wdg, GdkEvent *event, gpointer user_data) -> gboolean {
-                auto self = static_cast<widget_gl *>(user_data);
-                self->key(
-                    event->key.keyval,
-                    event->key.type == GDK_KEY_PRESS
-                );
-                if (event->key.type == GDK_KEY_PRESS) {
-                    // FIXME deprecated garbage
-                    self->text(event->key.string);
-                }
-                return false;
-            });
-    g_signal_connect(
-        m_handle,
-        "key-press-event",
-        G_CALLBACK(sigh_key_event),
-        this
-    );
-    g_signal_connect(
-        m_handle,
-        "key-release-event",
-        G_CALLBACK(sigh_key_event),
-        this
-    );
-    auto sigh_size_allocate =
-        static_cast<void (*)(GtkWidget *,GdkRectangle *, gpointer user_data)>(
-            [](GtkWidget *wdg, GdkRectangle *allocation, gpointer user_data) {
-                static_cast<widget_gl *>(user_data)->on_resize(
-                    allocation->width,
-                    allocation->height
-                );
-            });
-    g_signal_connect(
-        m_handle,
-        "size-allocate",
-        G_CALLBACK(sigh_size_allocate),
-        this
+#if USE_X11
+    Colormap cmap = XCreateColormap(
+        g_display,
+        DefaultRootWindow(g_display),
+        gl::g_vi->visual,
+        AllocNone
     );
 
-    auto sigh_draw =
-        static_cast<gboolean (*)(GtkWidget *, cairo_t *, gpointer)>(
-            [](GtkWidget *widget, cairo_t *cr, gpointer user_data) -> gboolean {
-                auto self = static_cast<widget_gl *>(user_data);
+    XSetWindowAttributes attr{};
+    attr.event_mask =
+        ButtonPressMask |
+        ButtonReleaseMask |
+        KeyPressMask |
+        KeyReleaseMask |
+        PointerMotionMask |
+        ExposureMask |
+        StructureNotifyMask;
+    attr.colormap = cmap;
+    m_handle = XCreateWindow(
+        g_display,
+        parent.get_container_handle(),
+        0, 0,
+        1, 1,
+        0,
+        gl::g_vi->depth,
+        InputOutput,
+        gl::g_vi->visual,
+        CWEventMask | CWColormap,
+        &attr
+    );
+    if (!m_handle) {
+        throw 0;//FIXME
+    }
+    // m_handle is released by the base class destructor on exception.
 
-                auto width = gtk_widget_get_allocated_width(widget);
-                auto height = gtk_widget_get_allocated_height(widget);
-
-                gl::renderbuffer rbo;
-
-                glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-                glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB8, width, height);
-                glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-                glViewport(0, 0, width, height);
-                glScissor(0, 0, width, height);
-
-                self->draw_gl(width, height, rbo);
-
-                gdk_cairo_draw_from_gl(cr,
-                    gl::g_wnd,
-                    rbo,
-                    GL_RENDERBUFFER,
-                    1,
-                    0,
-                    0,
-                    width,
-                    height
-                );
-
-                gdk_gl_context_make_current(gl::g_glctx);
-
-                return true;
-            });
-    g_signal_connect(m_handle, "draw", G_CALLBACK(sigh_draw), this);
+    XSaveContext(g_display, m_handle, g_ctx_ptr, XPointer(this));
+#else
+#error Unimplemented UI frontend code.
+#endif
 
     set_layout(layout);
 }
@@ -193,13 +140,11 @@ widget_gl::widget_gl(container &parent, layout layout) :
 // declared in gui.hh
 void widget_gl::invalidate()
 {
-    gtk_widget_queue_draw_area(
-        GTK_WIDGET(m_handle),
-        0,
-        0,
-        gtk_widget_get_allocated_width(GTK_WIDGET(m_handle)),
-        gtk_widget_get_allocated_height(GTK_WIDGET(m_handle))
-    );
+#if USE_X11
+    m_dirty = true;
+#else
+#error Unimplemented UI frontend code.
+#endif
 }
 
 }

@@ -120,18 +120,18 @@ set_target_properties (drnsf PROPERTIES
 if (WIN32)
     set (DEFAULT_FRONTEND WINAPI)
 else ()
-    set (DEFAULT_FRONTEND GTK3)
+    set (DEFAULT_FRONTEND X11)
 endif ()
 set (FRONTEND "${DEFAULT_FRONTEND}" CACHE STRING
     "User interface frontend"
 )
 set_property (CACHE FRONTEND PROPERTY STRINGS
-    GTK3
+    X11
     WINAPI
 )
-if (FRONTEND STREQUAL GTK3)
+if (FRONTEND STREQUAL X11)
     set (USE_GUI ON)
-    set (USE_GTK3 ON)
+    set (USE_X11 ON)
 elseif (FRONTEND STREQUAL WINAPI)
     set (USE_GUI ON)
     set (USE_WINAPI ON)
@@ -146,12 +146,11 @@ target_include_directories (drnsf PRIVATE ${CAIRO_INCLUDE_DIRS})
 target_link_libraries (drnsf PRIVATE ${CAIRO_LIBRARIES})
 target_compile_options (drnsf PRIVATE ${CAIRO_CFLAGS_OTHER})
 
-# Dependency: GTK+ 3.0
-if (USE_GTK3)
-    pkg_search_module (GTK3 REQUIRED gtk+-3.0)
-    target_include_directories (drnsf PRIVATE ${GTK3_INCLUDE_DIRS})
-    target_link_libraries (drnsf PRIVATE ${GTK3_LIBRARIES})
-    target_compile_options (drnsf PRIVATE ${GTK3_CFLAGS_OTHER})
+# Dependency: X11
+if (USE_X11)
+    find_package (X11 REQUIRED)
+    target_include_directories (drnsf PRIVATE ${X11_INCLUDE_DIRS})
+    target_link_libraries (drnsf PRIVATE ${X11_LIBRARIES})
 endif ()
 
 # Dependency: OpenGL

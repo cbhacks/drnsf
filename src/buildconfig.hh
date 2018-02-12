@@ -48,5 +48,5 @@
 #endif
 
 #cmakedefine USE_GUI 1
-#cmakedefine USE_GTK3 1
+#cmakedefine USE_X11 1
 #cmakedefine USE_WINAPI 1

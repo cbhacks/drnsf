@@ -46,9 +46,18 @@ void init(int &argc, char **&argv);
 /*
  * gui::run
  *
- * Runs the main window event loop for the GUI used.
+ * Runs the main UI event loop. This function returns after gui::end is called.
  */
 void run();
+
+/*
+ * gui::end
+ *
+ * Terminates the current gui::run iteration. This function will return, but
+ * the run() call will finish its current loop. On some systems, the loop will
+ * continue running until all pending events are handled.
+ */
+void end();
 
 /*
  * gui::sys_handle
@@ -56,7 +65,56 @@ void run();
  * This type is used in place of a particular frontend's object handle types,
  * such as Window (XLIB), GtkWidget (GTK3), HWND (WINAPI), etc.
  */
+#if USE_X11
+using sys_handle = unsigned long;
+#else
 using sys_handle = void *;
+#endif
+
+/*
+ * gui::keycode
+ *
+ * FIXME explain
+ */
+enum class keycode : int {
+#if USE_X11
+    backspace = 0xFF08,
+    tab       = 0xFF09,
+    enter     = 0xFF0D,
+    escape    = 0xFF1B,
+
+    left_arrow  = 0xFF51,
+    right_arrow = 0xFF53,
+    up_arrow    = 0xFF52,
+    down_arrow  = 0xFF54,
+
+    home      = 0xFF50,
+    end       = 0xFF57,
+    page_up   = 0xFF55,
+    page_down = 0xFF56,
+    insert    = 0xFF63,
+    del       = 0xFFFF,
+
+    l_shift = 0xFFE1,
+    r_shift = 0xFFE2,
+    l_ctrl  = 0xFFE3,
+    r_ctrl  = 0xFFE4,
+    l_meta  = 0xFFE7,
+    r_meta  = 0xFFE8,
+    l_alt   = 0xFFE9,
+    r_alt   = 0xFFEA,
+    l_super = 0xFFEB,
+    r_super = 0xFFEC,
+
+    // Only adding letters needed by ImGui for now.
+    A = 'A',
+    C = 'C',
+    V = 'V',
+    X = 'X',
+    Y = 'Y',
+    Z = 'Z'
+#endif
+};
 
 /*
  * gui::layout
@@ -216,7 +274,7 @@ protected:
     // Called when a key is pressed or released while this widget has focus.
     //
     // The default implementation performs no operation.
-    virtual void key(int code, bool down) {}
+    virtual void key(keycode code, bool down) {}
 
     // (func) text
     // Called when text is entered into the widget. This is different from key
@@ -235,6 +293,24 @@ protected:
     //
     // The default implementation performs no operation.
     virtual void on_resize(int width, int height) {}
+
+#if USE_X11
+    // (var) m_dirty
+    // True if the widget needs to be redrawn. See on_draw below for more
+    // details. Generally, you should not set this variable false; this is
+    // handled for you by gui::run.
+    bool m_dirty = true;
+
+    // (func) on_draw
+    // Called when the widget's contents should be redrawn. This function is
+    // specific to X11. When this function returns, the widget is assumed to
+    // have been redrawn successfully. Do not set m_dirty to true during the
+    // execution of on_draw; this will have no effect.
+    //
+    // A widget can flag itself as needing redrawing by setting m_dirty. This
+    // flag may also be set externally, for example in response to ExposeEvent.
+    virtual void on_draw() = 0;
+#endif
 
     // (func) update
     // FIXME explain
@@ -339,13 +415,27 @@ public:
  */
 class composite : private widget, public container {
 private:
+    // input events not available for this type of widget
+    void mousemove(int x, int y) final override {}
+    void mousewheel(int delta_y) final override {}
+    void mousebutton(int number, bool down) final override {}
+    void key(keycode code, bool down) final override {}
+    void text(const char *str) final override {}
+
     // (func) on_resize
     // Implements on_resize to apply the change in container size to the child
     // widgets.
     //
     // Derived types which override this function MUST call up to this base
     // implementation to ensure child widgets are moved resized appropriately.
-    void on_resize(int width, int height) final override;
+    void on_resize(int width, int height) override;
+
+#if USE_X11
+    // (func) on_draw
+    // Implements on_draw to do nothing. Derived types may not override this
+    // to perform any drawing of their own.
+    void on_draw() final override {}
+#endif
 
 public:
     // (ctor)
@@ -378,6 +468,7 @@ class menubar;
  */
 class window : public container {
     friend class menubar;
+    friend void run();
 
 private:
     // (s-var) s_all_windows
@@ -388,13 +479,6 @@ private:
     // Internal handle to the underlying system window.
     sys_handle m_handle;
 
-    // (var) m_content
-    // A handle to a GtkFixed object contained inside the actual window. This
-    // is the true container for the window's widgets, as a GtkWindow cannot
-    // contain more than one widget. gui::widget is designed for use within
-    // GtkFixed containers only.
-    sys_handle m_content;
-
     // (var) m_menubar
     // A pointer to the menubar associated with this window, or null if there
     // is none.
@@ -404,11 +488,6 @@ private:
     // The size of the popup window, in pixels.
     int m_width;
     int m_height;
-
-protected:
-    // (func) exit_dialog
-    // FIXME explain
-    void exit_dialog();
 
 public:
     // (explicit ctor)
@@ -451,6 +530,8 @@ public:
  * etc.
  */
 class popup : public container {
+    friend void run();
+
 private:
     // (s-var) s_all_popups
     // The set of all existing popup objects, whether visible or not.
@@ -459,15 +540,6 @@ private:
     // (var) m_handle
     // A handle to the underlying system window.
     sys_handle m_handle;
-
-    // (var) m_content
-    // A handle to a GtkFixed object contained inside the actual popup window.
-    // This is the true container for the popup's widgets, as a GtkWindow cannot
-    // contain more than one widget. gui::widget is designed for use within
-    // GtkFixed containers only.
-    //
-    // The same strategy is used in gui::window.
-    sys_handle m_content;
 
     // (var) m_width, m_height
     // The size of the popup window, in pixels.
@@ -525,6 +597,16 @@ public:
  * FIXME explain
  */
 class widget_gl : private widget {
+private:
+#if USE_X11
+    // (func) on_draw
+    // Implements on_draw to call draw_gl.
+    //
+    // Derived types may not override on_draw, but should instead override
+    // draw_gl.
+    void on_draw() final override;
+#endif
+
 protected:
     // (pure func) draw_gl
     // Draws the contents of this widget to the specified renderbuffer. Derived
@@ -562,6 +644,16 @@ public:
  */
 class widget_2d : private widget {
     friend class window;
+
+private:
+#if USE_X11
+    // (func) on_draw
+    // Implements on_draw to call draw_2d.
+    //
+    // Derived types may not override on_draw, but should instead override
+    // draw_2d.
+    void on_draw() final override;
+#endif
 
 protected:
     // (pure func) draw_2d
@@ -629,7 +721,7 @@ private:
 
     // (func) key
     // FIXME explain
-    void key(int code, bool down) final override;
+    void key(keycode code, bool down) final override;
 
     // (func) text
     // FIXME explain
@@ -981,7 +1073,7 @@ private:
     void mousemove(int x, int y) final override;
     void mousewheel(int delta_y) final override;
     void mousebutton(int number, bool down) final override;
-    void key(int code, bool down) final override;
+    void key(keycode code, bool down) final override;
     void text(const char *str) final override;
 
     int update(int) final override

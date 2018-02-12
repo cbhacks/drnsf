@@ -21,86 +21,98 @@
 #include "common.hh"
 #include "gui.hh"
 
-#if USE_GTK3
-#include <gtk/gtk.h>
+#if USE_X11
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xresource.h>
 #endif
 
 namespace drnsf {
 namespace gui {
 
-// declared in gui.hh
-std::unordered_set<window *> window::s_all_windows;
+#if USE_X11
+// defined in gui.cc
+extern Display *g_display;
+
+// defined in gui.cc
+extern XContext g_ctx_ptr;
+#endif
 
 // declared in gui.hh
-void window::exit_dialog()
-{
-    gtk_main_quit();
-}
+std::unordered_set<window *> window::s_all_windows;
 
 // declared in gui.hh
 window::window(const std::string &title, int width, int height) :
     m_width(width),
     m_height(height)
 {
-    m_handle = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_window_set_title(GTK_WINDOW(m_handle), title.c_str());
-    gtk_window_set_default_size(GTK_WINDOW(m_handle), width, height);
-    g_signal_connect(m_handle, "delete-event", G_CALLBACK(gtk_true), nullptr);
-
-    m_content = gtk_fixed_new();
-    auto sigh_size_allocate =
-        static_cast<void (*)(GtkWidget *, GdkRectangle *, gpointer)>(
-            [](GtkWidget *, GdkRectangle *allocation, gpointer user_data) {
-                auto self = static_cast<window *>(user_data);
-                auto alloc = *allocation;
-                self->m_width = alloc.width;
-                self->m_height = alloc.height;
-                self->apply_layouts();
-            });
-    g_signal_connect(
-        m_content,
-        "size-allocate",
-        G_CALLBACK(sigh_size_allocate),
-        this
+#if USE_X11
+    XSetWindowAttributes attr{};
+    attr.background_pixel = WhitePixel(g_display, DefaultScreen(g_display));
+    attr.event_mask = StructureNotifyMask;
+    m_handle = XCreateWindow(
+        g_display,
+        DefaultRootWindow(g_display),
+        0, 0,
+        width, height,
+        0,
+        CopyFromParent,
+        InputOutput,
+        CopyFromParent,
+        CWBackPixel | CWEventMask,
+        &attr
     );
-    gtk_container_add(GTK_CONTAINER(m_handle), GTK_WIDGET(m_content));
-    gtk_widget_show(GTK_WIDGET(m_content));
-
-    try {
-        s_all_windows.insert(this);
-    } catch (...) {
-        gtk_widget_destroy(GTK_WIDGET(m_handle));
-        throw;
+    if (!m_handle) {
+        throw 0;//FIXME
     }
+    // FIXME on error free window
+
+    XStoreName(g_display, m_handle, title.c_str());
+    XSaveContext(g_display, m_handle, g_ctx_ptr, XPointer(this));
+#else
+#error Unimplemented UI frontend code.
+#endif
+
+    s_all_windows.insert(this);
 }
 
 // declared in gui.hh
 window::~window()
 {
     s_all_windows.erase(this);
-    gtk_widget_destroy(GTK_WIDGET(m_handle));
+
+#if USE_X11
+    XDestroyWindow(g_display, m_handle);
+#else
+#error Unimplemented UI frontend code.
+#endif
 }
 
 // declared in gui.hh
 void window::show()
 {
-    gtk_widget_show(GTK_WIDGET(m_handle));
+#if USE_X11
+    XMapWindow(g_display, m_handle);
+#else
+#error Unimplemented UI frontend code.
+#endif
 }
 
 // declared in gui.hh
 void window::show_dialog()
 {
-    gtk_window_set_modal(GTK_WINDOW(m_handle), true);
-    gtk_widget_show(GTK_WIDGET(m_handle));
-    gtk_main();
-    gtk_widget_hide(GTK_WIDGET(m_handle));
-    gtk_window_set_modal(GTK_WINDOW(m_handle), false);
+#if USE_X11
+    XMapWindow(g_display, m_handle);
+    // FIXME modal window
+    run();
+    XUnmapWindow(g_display, m_handle);
+#endif
 }
 
 // declared in gui.hh
 sys_handle window::get_container_handle()
 {
-    return m_content;
+    return m_handle;
 }
 
 // declared in gui.hh

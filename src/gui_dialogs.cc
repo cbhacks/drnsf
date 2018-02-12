@@ -57,7 +57,7 @@ private:
             m_filename = "";
             if (!fs::exists(m_cdir) || !fs::is_directory(m_cdir)) {
                 m_ok = true;
-                exit_dialog();
+                end();
                 return;
             }
         }
@@ -66,7 +66,7 @@ private:
         // the caller, such as `show_open' or `show_save'.
         ImGui::SameLine();
         if (ImGui::Button("Cancel")) {
-            exit_dialog();
+            end();
         }
 
         // Reset the current directory if it isn't actually a directory.

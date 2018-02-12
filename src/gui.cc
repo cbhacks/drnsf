@@ -21,39 +21,247 @@
 #include "common.hh"
 #include "gui.hh"
 
-#if USE_GTK3
-#include <gtk/gtk.h>
+#if USE_X11
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xresource.h>
 #endif
 
 namespace drnsf {
 namespace gui {
 
+#if USE_X11
+// (s-var) s_ending
+// This flag is set by gui::end and informs gui::run to exit its loop.
+static bool s_ending;
+
+// (var) g_display
+// The connection to the X server returned by XOpenDisplay.
+Display *g_display = nullptr;
+
+// (var) g_ctx_ptr
+// Used with XSaveContext/XFindContext to associate an object pointer (widget *,
+// window *, etc) with an X window.
+XContext g_ctx_ptr;
+#endif
+
 // declared in gui.hh
 void init(int &argc, char **&argv)
 {
-    gtk_init(&argc, &argv);
+#if USE_X11
+    g_display = XOpenDisplay(nullptr);
+    if (!g_display) {
+        // TODO report error
+        std::exit(EXIT_FAILURE);
+    }
+
+#if !NDEBUG
+    // Enable auto-sync in debug builds. This ensures any X errors which occur
+    // will be raised at the location they were triggered by. Without this,
+    // errors may be deferred all the way until the next XPending call in run().
+    XSynchronize(g_display, true);
+#endif
+
+    g_ctx_ptr = XUniqueContext();
+#endif
 }
 
 // declared in gui.hh
 void run()
 {
-    g_idle_add([](gpointer) -> gboolean {
+#if USE_X11
+    // Save the previous gui::end status. This way, if gui::end is called but a
+    // new gui::run is called before the previous gui::run exits, the previous
+    // one will exit after this one.
+    bool previous_ending = s_ending;
+    s_ending = false;
+    DRNSF_ON_EXIT { s_ending = previous_ending; };
+
+    // Prepare values for a non-blocking or timeout-blocking `select' call.
+    // XPending or XNextEvent will block if there are no events ready, but we
+    // want to add a timeout to allow UI elements to execute their periodic
+    // updates (such as ImGui widgets).
+    int connfd = ConnectionNumber(g_display);
+    fd_set readfds;
+    timeval timeout{};
+
+    while (!s_ending) {
+        FD_ZERO(&readfds);
+        FD_SET(connfd, &readfds);
+        if (!XQLength(g_display)) {
+            // XQLength checks Xlib's internal buffer for events, similar to
+            // XPending below, but does not attempt to read more from the X fd
+            // if there are none (a possibly blocking operation).
+            //
+            // Normally XQLength should return zero here, as all of the pending
+            // events, aside from ones still waiting in the fd's buffer, were
+            // already processed by the loop during the previous iteration.
+            // However, this is NOT the case if another function has since then
+            // pumped the fd for more messages and queued them up, which does
+            // apparently occur if XSynchronize is enabled, which we do for
+            // debug builds.
+            //
+            // In such a case, if there are pending events, we leave the fd set
+            // in the fd_set above without calling select. This results in the
+            // event handling section running again.
+            int err = select(connfd + 1, &readfds, nullptr, nullptr, &timeout);
+            timeout = timeval{};
+            if (err == -1) {
+                // EINTR is a possible error if a signal interrupts the select()
+                // call. In this case, select can simply be called again.
+                if (errno == EINTR) {
+                    continue;
+                }
+                throw 0; // FIXME
+            }
+        }
+
+        if (FD_ISSET(connfd, &readfds)) {
+            int evcount = XPending(g_display);
+            while (evcount--) {
+                XEvent ev;
+                XNextEvent(g_display, &ev);
+
+                XPointer ptr;
+                if (XFindContext(g_display, ev.xany.window, g_ctx_ptr, &ptr)) {
+                    // Not an X window we know or care about.
+                    continue;
+                }
+
+                // Handle this event if it's a widget.
+                auto wdg = reinterpret_cast<widget *>(ptr);
+                if (widget::s_all_widgets.find(wdg)
+                    != widget::s_all_widgets.end()) {
+                    switch (ev.type) {
+                    case ButtonPress:
+                    case ButtonRelease:
+                        wdg->mousebutton(
+                            ev.xbutton.button,
+                            ev.type == ButtonPress
+                        );
+                        break;
+                    case KeyPress:
+                    case KeyRelease: {
+                        char buf[30] = {};
+                        KeySym sym;
+                        int len = XLookupString(
+                            &ev.xkey,
+                            buf,
+                            sizeof(buf),
+                            &sym,
+                            nullptr
+                        );
+                        printf("%04X\n", int(sym));
+                        if (sym != NoSymbol) {
+                            wdg->key(keycode(sym), ev.type == KeyPress);
+                        }
+                        if (len > 0 && ev.type == KeyPress) {
+                            wdg->text(buf);
+                        }
+                        break; }
+                    case MotionNotify:
+                        wdg->mousemove(ev.xmotion.x, ev.xmotion.y);
+                        break;
+                    case Expose:
+                        wdg->m_dirty = true;
+                        break;
+                    case ConfigureNotify:
+                        wdg->m_dirty = true;
+                        wdg->m_real_width = ev.xconfigure.width;
+                        wdg->m_real_height = ev.xconfigure.height;
+                        wdg->on_resize(wdg->m_real_width, wdg->m_real_height);
+                        break;
+                    }
+                }
+
+                // Handle this event if it's a window.
+                auto wnd = reinterpret_cast<window *>(ptr);
+                if (window::s_all_windows.find(wnd)
+                    != window::s_all_windows.end()) {
+                    switch (ev.type) {
+                    case ConfigureNotify:
+                        wnd->m_width = ev.xconfigure.width;
+                        wnd->m_height = ev.xconfigure.height;
+                        wnd->apply_layouts();
+                        break;
+                    }
+                    continue;
+                }
+
+                // Handle this event if it's a popup.
+                auto pp = reinterpret_cast<popup *>(ptr);
+                if (popup::s_all_popups.find(pp)
+                    != popup::s_all_popups.end()) {
+                    switch (ev.type) {
+                    case ConfigureNotify:
+                        pp->m_width = ev.xconfigure.width;
+                        pp->m_height = ev.xconfigure.height;
+                        pp->apply_layouts();
+                        break;
+                    }
+                    continue;
+                }
+
+                // Couldn't find a matching widget, window, or popup for this
+                // event. Maybe the object was destroyed before this event was
+                // finally delivered?
+            }
+
+            // Skip calling update on any widgets. select() will be called with
+            // a zero timeout, so if there are no more X events, widgets will be
+            // updated on that iteration.
+            continue;
+        }
+
+        // Get the current time.
+        timespec tp;
+        if (clock_gettime(CLOCK_MONOTONIC, &tp) == -1) {
+            throw 0;
+        }
+
+        // Update all of the widgets. This also produces the timeout for the
+        // next loop iteration, based on the shortest time received from all
+        // of the widgets. Widgets will return INT_MAX if they have no interest
+        // in receiving periodic updates.
         static long last_update = LONG_MAX;
-        long current_time = g_get_monotonic_time() / 1000;
+        long current_time = tp.tv_nsec / 1000000;
         if (current_time > last_update) {
             int delta_time = current_time - last_update;
-            int min_delay = INT_MAX;
+            long min_delay = INT_MAX;
             for (auto &&w : widget::s_all_widgets) {
                 int delay = w->update(delta_time);
                 if (delay < min_delay) {
                     min_delay = delay;
                 }
             }
+            if (min_delay < LONG_MAX / 1000) {
+                timeout.tv_usec = min_delay * 1000L;
+            } else {
+                // If the shortest delay is extremely large (INT_MAX most
+                // likely), set an arbitrarily long delay.
+                timeout.tv_sec = 4;
+            }
         }
         last_update = current_time;
-        return G_SOURCE_CONTINUE;
-    }, nullptr);
-    gtk_main();
+
+        // Draw all of the widgets which need to be redrawn.
+        for (auto &&w : widget::s_all_widgets) {
+            if (w->m_dirty) {
+                XClearWindow(g_display, w->m_handle);
+                w->on_draw();
+                w->m_dirty = false;
+            }
+        }
+    }
+#else
+#error Unimplemented UI frontend code.
+#endif
+}
+
+// declared in gui.hh
+void end()
+{
+    s_ending = true;
 }
 
 }

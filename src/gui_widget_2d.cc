@@ -21,143 +21,89 @@
 #include "common.hh"
 #include "gui.hh"
 
-#if USE_GTK3
-#include <gtk/gtk.h>
+#if USE_X11
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xresource.h>
+#include <cairo-xlib.h>
 #endif
 
 namespace drnsf {
-
 namespace gui {
+
+#if USE_X11
+// defined in gui.cc
+extern Display *g_display;
+
+// defined in gui.cc
+extern XContext g_ctx_ptr;
+
+// declared in gui.hh
+void widget_2d::on_draw()
+{
+    int width, height;
+    get_real_size(width, height);
+
+    auto surface = cairo_xlib_surface_create(
+        g_display,
+        m_handle,
+        DefaultVisual(g_display, DefaultScreen(g_display)),
+        width,
+        height
+    );
+    DRNSF_ON_EXIT { cairo_surface_destroy(surface); };
+
+    auto cr = cairo_create(surface);
+    DRNSF_ON_EXIT { cairo_destroy(cr); };
+
+    // Clear the background. We do this here instead of using a white pixel
+    // background to avoid flickering issues when resizing (especially in
+    // debug builds, due to XSynchronize).
+    cairo_save(cr);
+    cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
+    cairo_rectangle(cr, 0, 0, width, height);
+    cairo_fill(cr);
+    cairo_restore(cr);
+
+    draw_2d(width, height, cr);
+}
+#endif
 
 // declared in gui.hh
 widget_2d::widget_2d(container &parent, layout layout) :
     widget(parent)
 {
-    m_handle = gtk_drawing_area_new();
-    gtk_container_add(
-        GTK_CONTAINER(parent.get_container_handle()),
-        GTK_WIDGET(m_handle)
+#if USE_X11
+    XSetWindowAttributes attr{};
+    attr.event_mask =
+        ButtonPressMask |
+        ButtonReleaseMask |
+        KeyPressMask |
+        KeyReleaseMask |
+        PointerMotionMask |
+        ExposureMask |
+        StructureNotifyMask;
+    m_handle = XCreateWindow(
+        g_display,
+        parent.get_container_handle(),
+        0, 0,
+        1, 1,
+        0,
+        CopyFromParent,
+        InputOutput,
+        CopyFromParent,
+        CWEventMask,
+        &attr
     );
-    gtk_widget_set_can_focus(GTK_WIDGET(m_handle), true);
+    if (!m_handle) {
+        throw 0;//FIXME
+    }
+    // m_handle is released by the base class destructor on exception.
 
-    // Register event handlers.
-    gtk_widget_add_events(
-        GTK_WIDGET(m_handle),
-        GDK_POINTER_MOTION_MASK |
-        GDK_SMOOTH_SCROLL_MASK |
-        GDK_BUTTON_PRESS_MASK |
-        GDK_BUTTON_RELEASE_MASK |
-        GDK_KEY_PRESS_MASK |
-        GDK_KEY_RELEASE_MASK
-    );
-    auto sigh_motion_notify_event =
-        static_cast<gboolean (*)(GtkWidget *,GdkEvent *, gpointer user_data)>(
-            [](GtkWidget *wdg, GdkEvent *event, gpointer user_data) -> gboolean {
-                static_cast<widget_2d *>(user_data)->mousemove(
-                    event->motion.x,
-                    event->motion.y
-                );
-                return false;
-            });
-    g_signal_connect(
-        m_handle,
-        "motion-notify-event",
-        G_CALLBACK(sigh_motion_notify_event),
-        this
-    );
-    auto sigh_scroll_event =
-        static_cast<gboolean (*)(GtkWidget *,GdkEvent *, gpointer user_data)>(
-            [](GtkWidget *wdg, GdkEvent *event, gpointer user_data) -> gboolean {
-                if (event->scroll.direction != GDK_SCROLL_SMOOTH) {
-                    return false;
-                }
-
-                static_cast<widget_2d *>(user_data)->mousewheel(
-                    -event->scroll.delta_y
-                );
-                return false;
-            });
-    g_signal_connect(
-        m_handle,
-        "scroll-event",
-        G_CALLBACK(sigh_scroll_event),
-        this
-    );
-    auto sigh_button_event =
-        static_cast<gboolean (*)(GtkWidget *,GdkEvent *, gpointer user_data)>(
-            [](GtkWidget *wdg, GdkEvent *event, gpointer user_data) -> gboolean {
-                static_cast<widget_2d *>(user_data)->mousebutton(
-                    event->button.button,
-                    event->button.type == GDK_BUTTON_PRESS
-                );
-                return false;
-            });
-    g_signal_connect(
-        m_handle,
-        "button-press-event",
-        G_CALLBACK(sigh_button_event),
-        this
-    );
-    g_signal_connect(
-        m_handle,
-        "button-release-event",
-        G_CALLBACK(sigh_button_event),
-        this
-    );
-    auto sigh_key_event =
-        static_cast<gboolean (*)(GtkWidget *,GdkEvent *, gpointer user_data)>(
-            [](GtkWidget *wdg, GdkEvent *event, gpointer user_data) -> gboolean {
-                auto self = static_cast<widget_2d *>(user_data);
-                self->key(
-                    event->key.keyval,
-                    event->key.type == GDK_KEY_PRESS
-                );
-                if (event->key.type == GDK_KEY_PRESS) {
-                    // FIXME deprecated garbage
-                    self->text(event->key.string);
-                }
-                return false;
-            });
-    g_signal_connect(
-        m_handle,
-        "key-press-event",
-        G_CALLBACK(sigh_key_event),
-        this
-    );
-    g_signal_connect(
-        m_handle,
-        "key-release-event",
-        G_CALLBACK(sigh_key_event),
-        this
-    );
-    auto sigh_size_allocate =
-        static_cast<void (*)(GtkWidget *,GdkRectangle *, gpointer user_data)>(
-            [](GtkWidget *wdg, GdkRectangle *allocation, gpointer user_data) {
-                static_cast<widget_2d *>(user_data)->on_resize(
-                    allocation->width,
-                    allocation->height
-                );
-            });
-    g_signal_connect(
-        m_handle,
-        "size-allocate",
-        G_CALLBACK(sigh_size_allocate),
-        this
-    );
-
-    auto sigh_draw =
-        static_cast<gboolean (*)(GtkWidget *, cairo_t *, gpointer)>(
-            [](GtkWidget *widget, cairo_t *cr, gpointer user_data) -> gboolean {
-                auto self = static_cast<widget_2d *>(user_data);
-
-                auto width = gtk_widget_get_allocated_width(widget);
-                auto height = gtk_widget_get_allocated_height(widget);
-
-                self->draw_2d(width, height, cr);
-
-                return true;
-            });
-    g_signal_connect(m_handle, "draw", G_CALLBACK(sigh_draw), this);
+    XSaveContext(g_display, m_handle, g_ctx_ptr, XPointer(this));
+#else
+#error Unimplemented UI frontend code.
+#endif
 
     set_layout(layout);
 }
@@ -165,13 +111,11 @@ widget_2d::widget_2d(container &parent, layout layout) :
 // declared in gui.hh
 void widget_2d::invalidate()
 {
-    gtk_widget_queue_draw_area(
-        GTK_WIDGET(m_handle),
-        0,
-        0,
-        gtk_widget_get_allocated_width(GTK_WIDGET(m_handle)),
-        gtk_widget_get_allocated_height(GTK_WIDGET(m_handle))
-    );
+#if USE_X11
+    m_dirty = true;
+#else
+#error Unimplemented UI frontend code.
+#endif
 }
 
 }

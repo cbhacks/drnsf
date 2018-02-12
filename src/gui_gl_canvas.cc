@@ -22,18 +22,7 @@
 #include <iostream>
 #include "gui.hh"
 
-#if USE_GTK3
-#include <gtk/gtk.h>
-#endif
-
 namespace drnsf {
-
-// defined in gl.cc
-namespace gl {
-    extern GdkWindow *g_wnd;
-    extern GdkGLContext *g_glctx;
-}
-
 namespace gui {
 
 // declared in gui.hh
@@ -89,9 +78,9 @@ void gl_canvas::mousebutton(int number, bool down)
 }
 
 // declared in gui.hh
-void gl_canvas::key(int code, bool down)
+void gl_canvas::key(keycode code, bool down)
 {
-    on_key(code, down);
+    on_key(int(code), down);
 }
 
 // declared in gui.hh

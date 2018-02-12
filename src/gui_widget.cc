@@ -21,12 +21,17 @@
 #include "common.hh"
 #include "gui.hh"
 
-#if USE_GTK3
-#include <gtk/gtk.h>
+#if USE_X11
+#include <X11/Xlib.h>
 #endif
 
 namespace drnsf {
 namespace gui {
+
+#if USE_X11
+// defined in gui.cc
+extern Display *g_display;
+#endif
 
 // declared in gui.hh
 std::unordered_set<widget *> widget::s_all_widgets;
@@ -45,17 +50,6 @@ void container::apply_layouts()
 // declared in gui.hh
 void widget::apply_layout(int ctn_x, int ctn_y, int ctn_w, int ctn_h)
 {
-    // Offset the specified region according to the parent container's own
-    // allocation. Our input values ctn_x and ctn_y are relative to the parent,
-    // but gtk_widget_size_allocate expects top-level window-relative units.
-    GtkAllocation parent_rect;
-    gtk_widget_get_allocation(
-        GTK_WIDGET(m_parent.get_container_handle()),
-        &parent_rect
-    );
-    ctn_x += parent_rect.x;
-    ctn_y += parent_rect.y;
-
     // Calculate the real positions according to the widget layout.
     int x1 =
         ctn_x +
@@ -81,8 +75,12 @@ void widget::apply_layout(int ctn_x, int ctn_y, int ctn_w, int ctn_h)
     // Submit the new size and position.
     m_real_width = x2 - x1;
     m_real_height = y2 - y1;
-    GtkAllocation rect = { x1, y1, x2 - x1, y2 - y1 };
-    gtk_widget_size_allocate(GTK_WIDGET(m_handle), &rect);
+
+#if USE_X11
+    XMoveResizeWindow(g_display, m_handle, x1, y1, x2 - x1, y2 - y1);
+#else
+#error Unimplemented UI frontend code.
+#endif
 }
 
 // declared in gui.hh
@@ -108,20 +106,32 @@ widget::~widget()
     // destructor. A derived type could release it manually and set m_handle
     // null if necessary.
     if (m_handle) {
-        gtk_widget_destroy(GTK_WIDGET(m_handle));
+#if USE_X11
+        XDestroyWindow(g_display, m_handle);
+#else
+#error Unimplemented UI frontend code.
+#endif
     }
 }
 
 // declared in gui.hh
 void widget::show()
 {
-    gtk_widget_show(GTK_WIDGET(m_handle));
+#if USE_X11
+    XMapWindow(g_display, m_handle);
+#else
+#error Unimplemented UI frontend code.
+#endif
 }
 
 // declared in gui.hh
 void widget::hide()
 {
-    gtk_widget_hide(GTK_WIDGET(m_handle));
+#if USE_X11
+    XUnmapWindow(g_display, m_handle);
+#else
+#error Unimplemented UI frontend code.
+#endif
 }
 
 // declared in gui.hh

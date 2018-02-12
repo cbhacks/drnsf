@@ -21,12 +21,22 @@
 #include "common.hh"
 #include "gui.hh"
 
-#if USE_GTK3
-#include <gtk/gtk.h>
+#if USE_X11
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xresource.h>
 #endif
 
 namespace drnsf {
 namespace gui {
+
+#if USE_X11
+// defined in gui.cc
+extern Display *g_display;
+
+// defined in gui.cc
+extern XContext g_ctx_ptr;
+#endif
 
 // declared in gui.hh
 void composite::on_resize(int width, int height)
@@ -38,27 +48,31 @@ void composite::on_resize(int width, int height)
 composite::composite(container &parent, layout layout) :
     widget(parent)
 {
-    m_handle = gtk_fixed_new();
-    gtk_container_add(
-        GTK_CONTAINER(parent.get_container_handle()),
-        GTK_WIDGET(m_handle)
+#if USE_X11
+    XSetWindowAttributes attr{};
+    attr.background_pixel = WhitePixel(g_display, DefaultScreen(g_display));
+    attr.event_mask = StructureNotifyMask;
+    m_handle = XCreateWindow(
+        g_display,
+        parent.get_container_handle(),
+        0, 0,
+        1, 1,
+        0,
+        CopyFromParent,
+        InputOutput,
+        CopyFromParent,
+        CWBackPixel | CWEventMask,
+        &attr
     );
+    if (!m_handle) {
+        throw 0;//FIXME
+    }
+    // m_handle is released by the base class destructor on exception.
 
-    // Register event handlers.
-    auto sigh_size_allocate =
-        static_cast<void (*)(GtkWidget *,GdkRectangle *, gpointer user_data)>(
-            [](GtkWidget *wdg, GdkRectangle *allocation, gpointer user_data) {
-                static_cast<composite *>(user_data)->on_resize(
-                    allocation->width,
-                    allocation->height
-                );
-            });
-    g_signal_connect(
-        m_handle,
-        "size-allocate",
-        G_CALLBACK(sigh_size_allocate),
-        this
-    );
+    XSaveContext(g_display, m_handle, g_ctx_ptr, XPointer(this));
+#else
+#error Unimplemented UI frontend code.
+#endif
 
     set_layout(layout);
 }

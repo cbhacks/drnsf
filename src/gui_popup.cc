@@ -21,12 +21,22 @@
 #include "common.hh"
 #include "gui.hh"
 
-#if USE_GTK3
-#include <gtk/gtk.h>
+#if USE_X11
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xresource.h>
 #endif
 
 namespace drnsf {
 namespace gui {
+
+#if USE_X11
+// defined in gui.cc
+extern Display *g_display;
+
+// defined in gui.cc
+extern XContext g_ctx_ptr;
+#endif
 
 // declared in gui.hh
 std::unordered_set<popup *> popup::s_all_popups;
@@ -36,76 +46,92 @@ popup::popup(int width, int height) :
     m_width(width),
     m_height(height)
 {
-    m_handle = gtk_window_new(GTK_WINDOW_POPUP);
-    gtk_window_set_default_size(GTK_WINDOW(m_handle), width, height);
-    g_signal_connect(m_handle, "delete-event", G_CALLBACK(gtk_true), nullptr);
-
-    m_content = gtk_fixed_new();
-    auto sigh_size_allocate =
-        static_cast<void (*)(GtkWidget *, GdkRectangle *, gpointer)>(
-            [](GtkWidget *, GdkRectangle *allocation, gpointer user_data) {
-                auto self = static_cast<popup *>(user_data);
-                auto alloc = *allocation;
-                self->m_width = alloc.width;
-                self->m_height = alloc.height;
-                self->apply_layouts();
-            });
-    g_signal_connect(
-        m_content,
-        "size-allocate",
-        G_CALLBACK(sigh_size_allocate),
-        this
+#if USE_X11
+    XSetWindowAttributes attr{};
+    attr.background_pixel = WhitePixel(g_display, DefaultScreen(g_display));
+    attr.event_mask = StructureNotifyMask;
+    attr.override_redirect = true;
+    m_handle = XCreateWindow(
+        g_display,
+        DefaultRootWindow(g_display),
+        0, 0,
+        width, height,
+        0,
+        CopyFromParent,
+        InputOutput,
+        CopyFromParent,
+        CWBackPixel | CWOverrideRedirect | CWEventMask,
+        &attr
     );
-    gtk_container_add(GTK_CONTAINER(m_handle), GTK_WIDGET(m_content));
-    gtk_widget_show(GTK_WIDGET(m_content));
+    // FIXME on error free window
+    // FIXME make exempt from usual WM top-level window usage
 
-    try {
-        s_all_popups.insert(this);
-    } catch (...) {
-        gtk_widget_destroy(GTK_WIDGET(m_handle));
-    }
+    XSaveContext(g_display, m_handle, g_ctx_ptr, XPointer(this));
+#else
+#error Unimplemented UI frontend code.
+#endif
+
+    s_all_popups.insert(this);
 }
 
 // declared in gui.hh
 popup::~popup()
 {
     s_all_popups.erase(this);
-    gtk_widget_destroy(GTK_WIDGET(m_handle));
+
+#if USE_X11
+    XDestroyWindow(g_display, m_handle);
+#else
+#error Unimplemented UI frontend code.
+#endif
 }
 
 // declared in gui.hh
 void popup::show_at(int x, int y)
 {
-    gtk_window_move(GTK_WINDOW(m_handle), x, y);
-    gtk_widget_show(GTK_WIDGET(m_handle));
+#if USE_X11
+    XMoveWindow(g_display, m_handle, x, y);
+    XMapWindow(g_display, m_handle);
+#else
+#error Unimplemented UI frontend code.
+#endif
 }
 
 // declared in gui.hh
 void popup::show_at_mouse()
 {
-    GdkScreen *screen = gdk_screen_get_default();
-    GdkDisplay *display = gdk_screen_get_display(screen);
-    int x, y;
-    gdk_display_get_pointer(display, NULL, &x, &y, NULL);
-    show_at(x, y);
+#if USE_X11
+    // TODO mouse position
+    show_at(0, 0);
+#else
+#error Unimplemented UI frontend code.
+#endif
 }
 
 // declared in gui.hh
 void popup::hide()
 {
-    gtk_widget_hide(GTK_WIDGET(m_handle));
+#if USE_X11
+    XUnmapWindow(g_display, m_handle);
+#else
+#error Unimplemented UI frontend code.
+#endif
 }
 
 // declared in gui.hh
 void popup::set_size(int width, int height)
 {
-    gtk_window_resize(GTK_WINDOW(m_handle), width, height);
+#if USE_X11
+    XResizeWindow(g_display, m_handle, width, height);
+#else
+#error Unimplemented UI frontend code.
+#endif
 }
 
 // declared in gui.hh
 sys_handle popup::get_container_handle()
 {
-    return m_content;
+    return m_handle;
 }
 
 // declared in gui.hh
