@@ -138,17 +138,19 @@ void meshframe_fig::draw(const env &e)
 
     if (!s_prog.ok()) {
         gl::vert_shader vs;
-        compile_shader(vs, {
-            reinterpret_cast<const char *>(embed::meshframe_vert::data),
+        compile_shader(
+            vs,
+            embed::meshframe_vert::data,
             embed::meshframe_vert::size
-        });
+        );
         glAttachShader(s_prog, vs);
 
         gl::frag_shader fs;
-        compile_shader(fs, {
-            reinterpret_cast<const char *>(embed::meshframe_frag::data),
+        compile_shader(
+            fs,
+            embed::meshframe_frag::data,
             embed::meshframe_frag::size
-        });
+        );
         glAttachShader(s_prog, fs);
 
         glLinkProgram(s_prog);

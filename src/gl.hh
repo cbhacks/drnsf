@@ -349,6 +349,14 @@ inline void compile_shader(shader<ShaderType> &sh, const std::string &code)
         throw 0;//FIXME
     }
 }
+template <int ShaderType>
+inline void compile_shader(
+    shader<ShaderType> &sh,
+    const void *code,
+    std::size_t size)
+{
+    compile_shader(sh, {reinterpret_cast<const char *>(code), size});
+}
 
 }
 }
