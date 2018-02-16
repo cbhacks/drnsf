@@ -135,10 +135,16 @@ void run()
                     switch (ev.type) {
                     case ButtonPress:
                     case ButtonRelease:
-                        wdg->mousebutton(
-                            ev.xbutton.button,
-                            ev.type == ButtonPress
-                        );
+                        if (ev.xbutton.button == 4) {
+                            wdg->mousewheel(1);
+                        } else if (ev.xbutton.button == 5) {
+                            wdg->mousewheel(-1);
+                        } else {
+                            wdg->mousebutton(
+                                ev.xbutton.button,
+                                ev.type == ButtonPress
+                            );
+                        }
                         break;
                     case KeyPress:
                     case KeyRelease: {
