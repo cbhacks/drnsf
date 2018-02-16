@@ -18,14 +18,16 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#version 150 core
+#version 130
 
 uniform sampler2D u_Font;
 
-in vec2 v_TexCoord;
-in vec4 v_Color;
+smooth in vec2 v_TexCoord;
+smooth in vec4 v_Color;
+
+out vec4 f_Color;
 
 void main()
 {
-    gl_FragColor = v_Color * texture2D(u_Font, v_TexCoord);
+    f_Color = v_Color * texture2D(u_Font, v_TexCoord);
 }

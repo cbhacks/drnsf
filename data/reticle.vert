@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#version 150
+#version 130
 
 const vec4 SCALE = vec4(200.0,200.0,200.0,1.0);
 
@@ -28,7 +28,7 @@ in vec4 a_Position;
 in int a_Axis;
 
 flat out int v_Axis;
-out float v_Value;
+smooth out float v_Value;
 
 void main()
 {

@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#version 150 core
+#version 130
 
 uniform mat4 u_ScreenOrtho;
 
@@ -26,8 +26,8 @@ in vec4 a_Position;
 in vec2 a_TexCoord;
 in vec4 a_Color;
 
-out vec2 v_TexCoord;
-out vec4 v_Color;
+smooth out vec2 v_TexCoord;
+smooth out vec4 v_Color;
 
 void main()
 {

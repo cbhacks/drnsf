@@ -148,7 +148,6 @@ void reticle_fig::draw(const env &e)
             embed::reticle_vert::data,
             embed::reticle_vert::size
         );
-        glAttachShader(s_prog, vs);
 
         gl::frag_shader fs;
         compile_shader(
@@ -156,13 +155,13 @@ void reticle_fig::draw(const env &e)
             embed::reticle_frag::data,
             embed::reticle_frag::size
         );
-        glAttachShader(s_prog, fs);
 
+        glAttachShader(s_prog, vs);
+        glAttachShader(s_prog, fs);
         glBindAttribLocation(s_prog, 0, "a_Position");
         glBindAttribLocation(s_prog, 1, "a_Axis");
-
+        glBindFragDataLocation(s_prog, 0, "f_Color");
         glLinkProgram(s_prog);
-
         s_matrix_uni = glGetUniformLocation(s_prog, "u_Matrix");
 
         s_prog.set_ok();

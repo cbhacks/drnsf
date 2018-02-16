@@ -136,6 +136,7 @@ void widget_im::draw_gl(int width, int height, gl::renderbuffer &rbo)
         glBindAttribLocation(s_prog, 0, "a_Position");
         glBindAttribLocation(s_prog, 1, "a_TexCoord");
         glBindAttribLocation(s_prog, 2, "a_Color");
+        glBindFragDataLocation(s_prog, 0, "f_Color");
         glLinkProgram(s_prog);
 
         s_prog.set_ok();

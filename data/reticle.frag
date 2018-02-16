@@ -18,28 +18,28 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#version 150
-
-flat in int v_Axis;
-in float v_Value;
+#version 130
 
 const vec4 AXIS_POS_COLORS[] = vec4[](
     vec4(1.0,0.0,0.0,1.0),
     vec4(0.0,1.0,0.0,1.0),
     vec4(0.0,0.0,1.0,1.0)
 );
-
 const vec4 AXIS_NEG_COLOR = vec4(0.5,0.5,0.5,1.0);
-
 const vec4 CUBE_COLOR = vec4(0.1,0.1,0.1,1.0);
+
+flat in int v_Axis;
+smooth in float v_Value;
+
+out vec4 f_Color;
 
 void main()
 {
     if (v_Axis == -1) {
-        gl_FragColor = CUBE_COLOR;
+        f_Color = CUBE_COLOR;
     } else if (v_Value >= 0.0) {
-        gl_FragColor = AXIS_POS_COLORS[v_Axis];
+        f_Color = AXIS_POS_COLORS[v_Axis];
     } else {
-        gl_FragColor = AXIS_NEG_COLOR;
+        f_Color = AXIS_NEG_COLOR;
     }
 }

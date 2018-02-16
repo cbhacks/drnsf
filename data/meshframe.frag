@@ -18,9 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#version 110
+#version 130
+
+out vec4 f_Color;
 
 void main()
 {
-    gl_FragColor = vec4(1.0,1.0,1.0,1.0);
+    f_Color = vec4(1.0,1.0,1.0,1.0);
 }

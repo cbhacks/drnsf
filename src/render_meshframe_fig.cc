@@ -105,8 +105,8 @@ void meshframe_fig::draw(const env &e)
         glBindVertexArray(s_vao);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_ibo);
         glBindBuffer(GL_ARRAY_BUFFER, s_vbo);
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glVertexPointer(3, GL_FLOAT, 0, 0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
         s_vao.set_ok();
@@ -143,7 +143,6 @@ void meshframe_fig::draw(const env &e)
             embed::meshframe_vert::data,
             embed::meshframe_vert::size
         );
-        glAttachShader(s_prog, vs);
 
         gl::frag_shader fs;
         compile_shader(
@@ -151,10 +150,14 @@ void meshframe_fig::draw(const env &e)
             embed::meshframe_frag::data,
             embed::meshframe_frag::size
         );
-        glAttachShader(s_prog, fs);
 
+        glAttachShader(s_prog, vs);
+        glAttachShader(s_prog, fs);
+        glBindAttribLocation(s_prog, 0, "a_Position");
+        glBindFragDataLocation(s_prog, 0, "f_Color");
         glLinkProgram(s_prog);
         s_matrix_uni = glGetUniformLocation(s_prog, "u_Matrix");
+
         s_prog.set_ok();
     }
 
