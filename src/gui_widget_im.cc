@@ -293,6 +293,7 @@ void widget_im::mousemove(int x, int y)
 {
     m_io->MousePos.x = x;
     m_io->MousePos.y = y;
+    m_remaining_time = 0;
 }
 
 // declared in gui.hh
