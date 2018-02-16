@@ -37,10 +37,15 @@ private:
     // A reference to the outer viewport.
     viewport &m_outer;
 
-    // (var) m_mouse_down
+    // (var) m_mouse1_down
     // True if the mouse button (primary/"left") is currently down on this
     // widget; false if not.
-    bool m_mouse_down = false;
+    bool m_mouse1_down = false;
+
+    // (var) m_mouse2_down
+    // True if the alternate mouse button (secondary/"right") is currently down
+    // on this widget; false if not.
+    bool m_mouse2_down = false;
 
     // (var) m_mouse_x_prev, m_mouse_y_prev
     // The location of the mouse at the last on_mousemove or on_mousebutton
@@ -161,7 +166,17 @@ void viewport::impl::draw_gl(int width, int height, gl::renderbuffer &rbo)
 // declared above FIXME
 void viewport::impl::mousemove(int x, int y)
 {
-    if (m_mouse_down) {
+    if (m_mouse1_down && m_mouse2_down) {
+        // Zoom if both buttons are held.
+        int delta_y = y - m_mouse_y_prev;
+
+        edit::g_camera_zoom -= edit::g_camera_zoom * 0.01 * delta_y;
+        if (edit::g_camera_zoom < 500.0f) {
+            edit::g_camera_zoom = 500.0f;
+        }
+        invalidate();//FIXME remove
+    } else if (m_mouse1_down) {
+        // Rotate if only "left" button is held.
         int delta_x = x - m_mouse_x_prev;
         int delta_y = y - m_mouse_y_prev;
 
@@ -193,8 +208,13 @@ void viewport::impl::mousewheel(int delta_y)
 // declared above FIXME
 void viewport::impl::mousebutton(int number, bool down)
 {
-    if (number == 1) {
-        m_mouse_down = down;
+    switch (number) {
+    case 1:
+        m_mouse1_down = down;
+        break;
+    case 3:
+        m_mouse2_down = down;
+        break;
     }
 }
 
