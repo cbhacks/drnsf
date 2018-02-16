@@ -33,6 +33,18 @@
 #include "edit.hh"
 
 namespace drnsf {
+
+namespace embed {
+    namespace widget_im_vert {
+        extern const unsigned char data[];
+        extern const std::size_t size;
+    }
+    namespace widget_im_frag {
+        extern const unsigned char data[];
+        extern const std::size_t size;
+    }
+}
+
 namespace gui {
 
 static gl::texture s_font_tex;
@@ -105,45 +117,19 @@ void widget_im::draw_gl(int width, int height, gl::renderbuffer &rbo)
     }
 
     if (!s_prog.ok()) {
-        const char vert_code[] = R"(
-#version 150 core
-
-uniform mat4 u_ScreenOrtho;
-
-in vec4 a_Position;
-in vec2 a_TexCoord;
-in vec4 a_Color;
-
-out vec2 v_TexCoord;
-out vec4 v_Color;
-
-void main()
-{
-    gl_Position = u_ScreenOrtho * a_Position;
-    v_TexCoord = a_TexCoord;
-    v_Color = a_Color;
-}
-)";
-
         gl::vert_shader vert_shader;
-        compile_shader(vert_shader, vert_code);
-
-        const char frag_code[] = R"(
-#version 150 core
-
-uniform sampler2D u_Font;
-
-in vec2 v_TexCoord;
-in vec4 v_Color;
-
-void main()
-{
-    gl_FragColor = v_Color * texture2D(u_Font, v_TexCoord);
-}
-)";
+        compile_shader(
+            vert_shader,
+            embed::widget_im_vert::data,
+            embed::widget_im_vert::size
+        );
 
         gl::frag_shader frag_shader;
-        compile_shader(frag_shader, frag_code);
+        compile_shader(
+            frag_shader,
+            embed::widget_im_frag::data,
+            embed::widget_im_frag::size
+        );
 
         glAttachShader(s_prog, vert_shader);
         glAttachShader(s_prog, frag_shader);
