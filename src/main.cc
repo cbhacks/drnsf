@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
     // Initialize GTK+.
     gui::init(argc, argv);
     gl::init();
+    DRNSF_ON_EXIT { gl::shutdown(); };
 
     // Create the editor.
     auto proj = std::make_shared<res::project>();

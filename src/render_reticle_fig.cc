@@ -101,70 +101,70 @@ static gl::program s_prog;
 // The location of the "u_Matrix" shader uniform variable.
 static int s_matrix_uni;
 
-// (s-func) init
-// Initializes the GL resources for this file if not already initialized.
-// Otherwise, no operation occurs.
-static void init()
-{
-    // Exit now if this function has been run previously.
-    static bool s_is_init = false;
-    if (s_is_init) return;
-    s_is_init = true;
-
-    glBindVertexArray(s_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, s_vbo);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        sizeof(reticle_model),
-        reticle_model,
-        GL_STATIC_DRAW
-    );
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(
-        0,
-        3,
-        GL_FLOAT,
-        false,
-        sizeof(reticle_vert),
-        reinterpret_cast<void *>(offsetof(reticle_vert, pos))
-    );
-    glEnableVertexAttribArray(1);
-    glVertexAttribIPointer(
-        1,
-        1,
-        GL_BYTE,
-        sizeof(reticle_vert),
-        reinterpret_cast<void *>(offsetof(reticle_vert, axis))
-    );
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-    gl::vert_shader vs;
-    vs.compile({
-        reinterpret_cast<const char *>(embed::reticle_vert::data),
-        embed::reticle_vert::size
-    });
-    glAttachShader(s_prog, vs);
-
-    gl::frag_shader fs;
-    fs.compile({
-        reinterpret_cast<const char *>(embed::reticle_frag::data),
-        embed::reticle_frag::size
-    });
-    glAttachShader(s_prog, fs);
-
-    glBindAttribLocation(s_prog, 0, "a_Position");
-    glBindAttribLocation(s_prog, 1, "a_Axis");
-
-    glLinkProgram(s_prog);
-
-    s_matrix_uni = glGetUniformLocation(s_prog, "u_Matrix");
-}
-
 // declared in render.hh
 void reticle_fig::draw(const env &e)
 {
-    init();
+    if (!s_vao.ok()) {
+        glBindVertexArray(s_vao);
+        glBindBuffer(GL_ARRAY_BUFFER, s_vbo);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(
+            0,
+            3,
+            GL_FLOAT,
+            false,
+            sizeof(reticle_vert),
+            reinterpret_cast<void *>(offsetof(reticle_vert, pos))
+        );
+        glEnableVertexAttribArray(1);
+        glVertexAttribIPointer(
+            1,
+            1,
+            GL_BYTE,
+            sizeof(reticle_vert),
+            reinterpret_cast<void *>(offsetof(reticle_vert, axis))
+        );
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+        s_vao.set_ok();
+    }
+
+    if (!s_vbo.ok()) {
+        glBindBuffer(GL_COPY_WRITE_BUFFER, s_vbo);
+        glBufferData(
+            GL_COPY_WRITE_BUFFER,
+            sizeof(reticle_model),
+            reticle_model,
+            GL_STATIC_DRAW
+        );
+        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+        s_vbo.set_ok();
+    }
+
+    if (!s_prog.ok()) {
+        gl::vert_shader vs;
+        compile_shader(vs, {
+            reinterpret_cast<const char *>(embed::reticle_vert::data),
+            embed::reticle_vert::size
+        });
+        glAttachShader(s_prog, vs);
+
+        gl::frag_shader fs;
+        compile_shader(fs, {
+            reinterpret_cast<const char *>(embed::reticle_frag::data),
+            embed::reticle_frag::size
+        });
+        glAttachShader(s_prog, fs);
+
+        glBindAttribLocation(s_prog, 0, "a_Position");
+        glBindAttribLocation(s_prog, 1, "a_Axis");
+
+        glLinkProgram(s_prog);
+
+        s_matrix_uni = glGetUniformLocation(s_prog, "u_Matrix");
+
+        s_prog.set_ok();
+    }
 
     glUseProgram(s_prog);
     glUniformMatrix4fv(s_matrix_uni, 1, false, &e.matrix[0][0]);

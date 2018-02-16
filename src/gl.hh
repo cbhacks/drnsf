@@ -28,6 +28,7 @@
 
 #include <epoxy/gl.h>
 #include <glm/glm.hpp>
+#include <unordered_set>
 
 namespace drnsf {
 namespace gl {
@@ -40,393 +41,314 @@ namespace gl {
 void init();
 
 /*
- * gl::texture
+ * gl::shutdown
+ *
+ * Resets all of the gl::object handles (see below), releases the GL context,
+ * and closes any background windows or other resources which were in use by
+ * gl::init.
+ *
+ * This function must not be called unless gl::init has been called previously
+ * with no error (no exceptions thrown).
+ */
+void shutdown();
+
+/*
+ * gl::any_object
  *
  * FIXME explain
  */
-class texture : private util::nocopy {
+class any_object : private util::nocopy {
 private:
-    // (var) m_id
+    // (s-func) get_all_objects
     // FIXME explain
-    unsigned int m_id = 0;
+    static std::unordered_set<any_object *> &get_all_objects();
 
 public:
+    // (s-func) reset_all
+    // FIXME explain
+    static void reset_all();
+
     // (default ctor)
     // FIXME explain
-    texture() = default;
-
-    // (move ctor)
-    // FIXME explain
-    texture(texture &&src)
+    any_object()
     {
-        std::swap(m_id, src.m_id);
+        get_all_objects().insert(this);
     }
 
     // (dtor)
     // FIXME explain
-    ~texture()
+    virtual ~any_object()
     {
-        glDeleteTextures(1, &m_id);
+        get_all_objects().erase(this);
     }
 
-    // (move-assignment operator)
+    // (pure func) reset
     // FIXME explain
-    texture &operator =(texture &&rhs)
+    virtual void reset() = 0;
+};
+
+/*
+ * gl::object
+ *
+ * FIXME explain
+ */
+template <typename traits>
+class object : any_object {
+private:
+    // (var) m_id
+    // FIXME explain
+    typename traits::type m_id = traits::null_value;
+
+    // (var) m_dirty
+    // This flag is intended to be set when the object needs to be updated, for
+    // instance (for buffers and textures) if the object's contents are out of
+    // date. An object also starts out as dirty, which can be used for objects
+    // such as shaders to indicate that they need to be uploaded and compiled.
+    //
+    // This flag has no internally meaningful status, and is only intended for
+    // use by code which uses these objects. This flag can be read by ok() and
+    // set using set_ok(). Any call to reset() will also set this flag, such as
+    // in the case of GL context invalidation or context loss (however rare).
+    bool m_dirty = true;
+
+public:
+    // (default ctor)
+    // FIXME explain
+    object() = default;
+
+    // (move ctor)
+    // FIXME explain
+    object(object &&src)
     {
-        std::swap(m_id, rhs.m_id);
-        return *this;
+        using std::swap;
+        swap(m_id, src.m_id);
+        swap(m_dirty, src.m_dirty);
+    }
+
+    // (dtor)
+    // FIXME explain
+    ~object()
+    {
+        if (m_id != traits::null_value) {
+            traits::destroy(m_id);
+        }
+    }
+
+    // (func) reset
+    // FIXME explain
+    void reset() final override
+    {
+        if (m_id != traits::null_value) {
+            traits::destroy(m_id);
+            m_id = traits::null_value;
+        }
+        m_dirty = true;
     }
 
     // (conversion operator)
     // FIXME explain
-    operator decltype(m_id)() &
+    operator typename traits::type() &
     {
-        if (!m_id) {
-            glGenTextures(1, &m_id);
+        if (m_id == traits::null_value) {
+            traits::create(m_id);
         }
         return m_id;
     }
+
+    // (func) ok
+    // Returns true if the object is not marked as dirty. See m_dirty for more
+    // details.
+    bool ok() const
+    {
+        return !m_dirty;
+    }
+
+    // (func) set_ok
+    // Sets the dirty status. True will clear the flag, marking the object as
+    // ready for use, false will set the flag marking it as dirty. See m_dirty
+    // for more details.
+    void set_ok(bool ok = true)
+    {
+        m_dirty = !ok;
+    }
 };
+
+/*
+ * gl::base_traits
+ *
+ * FIXME explain
+ */
+struct base_traits {
+    using type = GLuint;
+    constexpr static type null_value = 0;
+};
+
+/*
+ * gl::texture
+ * gl::texture_traits
+ *
+ * FIXME explain
+ */
+struct texture_traits : base_traits {
+    static void create(type &v)
+    {
+        glGenTextures(1, &v);
+    }
+    static void destroy(type v)
+    {
+        glDeleteTextures(1, &v);
+    }
+};
+using texture = object<texture_traits>;
 
 /*
  * gl::buffer
+ * gl::buffer_traits
  *
  * FIXME explain
  */
-class buffer : private util::nocopy {
-private:
-    // (var) m_id
-    // FIXME explain
-    unsigned int m_id = 0;
-
-public:
-    // (default ctor)
-    // FIXME explain
-    buffer() = default;
-
-    // (move ctor)
-    // FIXME explain
-    buffer(buffer &&src)
+struct buffer_traits : base_traits {
+    static void create(type &v)
     {
-        std::swap(m_id, src.m_id);
+        glGenBuffers(1, &v);
     }
-
-    // (dtor)
-    // FIXME explain
-    ~buffer()
+    static void destroy(type v)
     {
-        glDeleteBuffers(1, &m_id);
-    }
-
-    // (move-assignment operator)
-    // FIXME explain
-    buffer &operator =(buffer &&rhs)
-    {
-        std::swap(m_id, rhs.m_id);
-        return *this;
-    }
-
-    // (conversion operator)
-    // FIXME explain
-    operator decltype(m_id)() &
-    {
-        if (!m_id) {
-            glGenBuffers(1, &m_id);
-        }
-        return m_id;
+        glDeleteBuffers(1, &v);
     }
 };
+using buffer = object<buffer_traits>;
 
 /*
  * gl::vert_array
+ * gl::vert_array_traits
  *
  * FIXME explain
  */
-class vert_array : private util::nocopy {
-private:
-    // (var) m_id
-    // FIXME explain
-    unsigned int m_id = 0;
-
-public:
-    // (default ctor)
-    // FIXME explain
-    vert_array() = default;
-
-    // (move ctor)
-    // FIXME explain
-    vert_array(vert_array &&src)
+struct vert_array_traits : base_traits {
+    static void create(type &v)
     {
-        std::swap(m_id, src.m_id);
+        glGenVertexArrays(1, &v);
     }
-
-    // (dtor)
-    // FIXME explain
-    ~vert_array()
+    static void destroy(type v)
     {
-        glDeleteVertexArrays(1, &m_id);
-    }
-
-    // (move-assignment operator)
-    // FIXME explain
-    vert_array &operator =(vert_array &&rhs)
-    {
-        std::swap(m_id, rhs.m_id);
-        return *this;
-    }
-
-    // (conversion operator)
-    // FIXME explain
-    operator decltype(m_id)() &
-    {
-        if (!m_id) {
-            glGenVertexArrays(1, &m_id);
-        }
-        return m_id;
+        glDeleteVertexArrays(1, &v);
     }
 };
+using vert_array = object<vert_array_traits>;
 
 /*
  * gl::renderbuffer
+ * gl::renderbuffer_traits
  *
  * FIXME explain
  */
-class renderbuffer : private util::nocopy {
-private:
-    // (var) m_id
-    // FIXME explain
-    unsigned int m_id = 0;
-
-public:
-    // (default ctor)
-    // FIXME explain
-    renderbuffer() = default;
-
-    // (move ctor)
-    // FIXME explain
-    renderbuffer(renderbuffer &&src)
+struct renderbuffer_traits : base_traits {
+    static void create(type &v)
     {
-        std::swap(m_id, src.m_id);
+        glGenRenderbuffers(1, &v);
     }
-
-    // (dtor)
-    // FIXME explain
-    ~renderbuffer()
+    static void destroy(type v)
     {
-        glDeleteRenderbuffers(1, &m_id);
-    }
-
-    // (move-assignment operator)
-    // FIXME explain
-    renderbuffer &operator =(renderbuffer &&rhs)
-    {
-        std::swap(m_id, rhs.m_id);
-        return *this;
-    }
-
-    // (conversion operator)
-    // FIXME explain
-    operator decltype(m_id)() &
-    {
-        if (!m_id) {
-            glGenRenderbuffers(1, &m_id);
-        }
-        return m_id;
+        glDeleteRenderbuffers(1, &v);
     }
 };
+using renderbuffer = object<renderbuffer_traits>;
 
 /*
  * gl::framebuffer
+ * gl::framebuffer_traits
  *
  * FIXME explain
  */
-class framebuffer : private util::nocopy {
-private:
-    // (var) m_id
-    // FIXME explain
-    unsigned int m_id = 0;
-
-public:
-    // (default ctor)
-    // FIXME explain
-    framebuffer() = default;
-
-    // (move ctor)
-    // FIXME explain
-    framebuffer(framebuffer &&src)
+struct framebuffer_traits : base_traits {
+    static void create(type &v)
     {
-        std::swap(m_id, src.m_id);
+        glGenFramebuffers(1, &v);
     }
-
-    // (dtor)
-    // FIXME explain
-    ~framebuffer()
+    static void destroy(type v)
     {
-        glDeleteFramebuffers(1, &m_id);
-    }
-
-    // (move-assignment operator)
-    // FIXME explain
-    framebuffer &operator =(framebuffer &&rhs)
-    {
-        std::swap(m_id, rhs.m_id);
-        return *this;
-    }
-
-    // (conversion operation)
-    // FIXME explain
-    operator decltype(m_id)() &
-    {
-        if (!m_id) {
-            glGenFramebuffers(1, &m_id);
-        }
-        return m_id;
+        glDeleteFramebuffers(1, &v);
     }
 };
+using framebuffer = object<framebuffer_traits>;
 
 /*
  * gl::program
+ * gl::program_traits
  *
  * FIXME explain
  */
-class program : private util::nocopy {
-private:
-    // (var) m_id
-    // FIXME explain
-    unsigned int m_id = 0;
-
-public:
-    // (default ctor)
-    // FIXME explain
-    program() = default;
-
-    // (move ctor)
-    // FIXME explain
-    program(program &&src)
+struct program_traits : base_traits {
+    static void create(type &v)
     {
-        std::swap(m_id, src.m_id);
+        v = glCreateProgram();
     }
-
-    // (dtor)
-    // FIXME explain
-    ~program()
+    static void destroy(type v)
     {
-        glDeleteProgram(m_id);
-    }
-
-    // (move-assignment operator)
-    // FIXME explain
-    program &operator =(program &&rhs)
-    {
-        std::swap(m_id, rhs.m_id);
-        return *this;
-    }
-
-    // (conversion operator)
-    // FIXME explain
-    operator decltype(m_id)() &
-    {
-        if (!m_id) {
-            m_id = glCreateProgram();
-        }
-        return m_id;
+        glDeleteProgram(v);
     }
 };
+using program = object<program_traits>;
 
 /*
  * gl::shader
- *
- * FIXME explain
- */
-template <int Type>
-class shader : private util::nocopy {
-private:
-    // (var) m_id
-    // FIXME explain
-    unsigned int m_id = 0;
-
-public:
-    // (default ctor)
-    // FIXME explain
-    shader() = default;
-
-    // (move ctor)
-    // FIXME explain
-    shader(shader &&src)
-    {
-        std::swap(m_id, src.m_id);
-    }
-
-    // (dtor)
-    // FIXME explain
-    ~shader()
-    {
-        glDeleteShader(m_id);
-    }
-
-    // (move-assignment operator)
-    // FIXME explain
-    shader &operator =(shader &&rhs)
-    {
-        std::swap(m_id, rhs.m_id);
-        return *this;
-    }
-
-    // (conversion operator)
-    // FIXME explain
-    operator decltype(m_id)() &
-    {
-        if (!m_id) {
-            m_id = glCreateShader(Type);
-        }
-        return m_id;
-    }
-
-    // (func) compile
-    // FIXME explain
-    void compile(const std::string &code)
-    {
-        const char *code_cstr = code.c_str();
-        glShaderSource(*this, 1, &code_cstr, nullptr);
-        glCompileShader(*this);
-
-        int status;
-        glGetShaderiv(*this, GL_COMPILE_STATUS, &status);
-
-        if (!status) {
-            int log_size;
-            glGetShaderiv(*this, GL_INFO_LOG_LENGTH, &log_size);
-
-            std::vector<char> log_buffer(log_size);
-            glGetShaderInfoLog(
-                *this,
-                log_size,
-                nullptr,
-                log_buffer.data()
-            );
-
-            fprintf(stderr, " == BEGIN SHADER COMPILE LOG ==\n");
-            fprintf(stderr, "%s\n", log_buffer.data());
-            fprintf(stderr, " === END SHADER COMPILE LOG ===\n");
-
-            throw 0;//FIXME
-        }
-    }
-};
-
-/*
+ * gl::shader_traits
  * gl::vert_shader
- *
- * FIXME explain
- */
-using vert_shader = shader<GL_VERTEX_SHADER>;
-
-/*
  * gl::frag_shader
  *
  * FIXME explain
  */
+template <int ShaderType>
+struct shader_traits : base_traits {
+    static void create(type &v)
+    {
+        v = glCreateShader(ShaderType);
+    }
+    static void destroy(type v)
+    {
+        glDeleteShader(v);
+    }
+};
+template <int ShaderType>
+using shader = object<shader_traits<ShaderType>>;
+using vert_shader = shader<GL_VERTEX_SHADER>;
 using frag_shader = shader<GL_FRAGMENT_SHADER>;
+
+/*
+ * gl::compile_shader
+ *
+ * FIXME explain
+ */
+template <int ShaderType>
+inline void compile_shader(shader<ShaderType> &sh, const std::string &code)
+{
+    const char *code_cstr = code.c_str();
+    glShaderSource(sh, 1, &code_cstr, nullptr);
+    glCompileShader(sh);
+
+    int status;
+    glGetShaderiv(sh, GL_COMPILE_STATUS, &status);
+
+    if (!status) {
+        int log_size;
+        glGetShaderiv(sh, GL_INFO_LOG_LENGTH, &log_size);
+
+        std::vector<char> log_buffer(log_size);
+        glGetShaderInfoLog(
+            sh,
+            log_size,
+            nullptr,
+            log_buffer.data()
+        );
+
+        fprintf(stderr, " == BEGIN SHADER COMPILE LOG ==\n");
+        fprintf(stderr, "%s\n", log_buffer.data());
+        fprintf(stderr, " === END SHADER COMPILE LOG ===\n");
+
+        throw 0;//FIXME
+    }
+}
 
 }
 }

@@ -98,59 +98,63 @@ static gl::program s_prog;
 // The location of the "u_Matrix" shader uniform variable.
 static int s_matrix_uni;
 
-// (s-func) init
-// Initializes the GL resources for this file if not already initialized.
-// Otherwise, no operation occurs.
-static void init()
-{
-    // Exit now if this function has been run previously.
-    static bool s_is_init = false;
-    if (s_is_init) return;
-    s_is_init = true;
-
-    glBindVertexArray(s_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, s_vbo);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        sizeof(cube_vb_data),
-        cube_vb_data,
-        GL_STATIC_DRAW
-    );
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_ibo);
-    glBufferData(
-        GL_ELEMENT_ARRAY_BUFFER,
-        sizeof(cube_ib_data),
-        cube_ib_data,
-        GL_STATIC_DRAW
-    );
-    glBindVertexArray(0);
-
-    gl::vert_shader vs;
-    vs.compile({
-        reinterpret_cast<const char *>(embed::meshframe_vert::data),
-        embed::meshframe_vert::size
-    });
-    glAttachShader(s_prog, vs);
-
-    gl::frag_shader fs;
-    fs.compile({
-        reinterpret_cast<const char *>(embed::meshframe_frag::data),
-        embed::meshframe_frag::size
-    });
-    glAttachShader(s_prog, fs);
-
-    glLinkProgram(s_prog);
-
-    s_matrix_uni = glGetUniformLocation(s_prog, "u_Matrix");
-}
-
 // declared in render.hh
 void meshframe_fig::draw(const env &e)
 {
-    init();
+    if (!s_vao.ok()) {
+        glBindVertexArray(s_vao);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_ibo);
+        glBindBuffer(GL_ARRAY_BUFFER, s_vbo);
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glVertexPointer(3, GL_FLOAT, 0, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+        s_vao.set_ok();
+    }
+
+    if (!s_vbo.ok()) {
+        glBindBuffer(GL_COPY_WRITE_BUFFER, s_vbo);
+        glBufferData(
+            GL_COPY_WRITE_BUFFER,
+            sizeof(cube_vb_data),
+            cube_vb_data,
+            GL_STATIC_DRAW
+        );
+        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+        s_vbo.set_ok();
+    }
+
+    if (!s_ibo.ok()) {
+        glBindBuffer(GL_COPY_WRITE_BUFFER, s_ibo);
+        glBufferData(
+            GL_COPY_WRITE_BUFFER,
+            sizeof(cube_ib_data),
+            cube_ib_data,
+            GL_STATIC_DRAW
+        );
+        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+        s_ibo.set_ok();
+    }
+
+    if (!s_prog.ok()) {
+        gl::vert_shader vs;
+        compile_shader(vs, {
+            reinterpret_cast<const char *>(embed::meshframe_vert::data),
+            embed::meshframe_vert::size
+        });
+        glAttachShader(s_prog, vs);
+
+        gl::frag_shader fs;
+        compile_shader(fs, {
+            reinterpret_cast<const char *>(embed::meshframe_frag::data),
+            embed::meshframe_frag::size
+        });
+        glAttachShader(s_prog, fs);
+
+        glLinkProgram(s_prog);
+        s_matrix_uni = glGetUniformLocation(s_prog, "u_Matrix");
+        s_prog.set_ok();
+    }
 
     glUseProgram(s_prog);
     glUniformMatrix4fv(s_matrix_uni, 1, false, &e.matrix[0][0]);

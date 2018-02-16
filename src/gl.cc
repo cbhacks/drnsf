@@ -106,5 +106,35 @@ void init()
 #endif
 }
 
+// declared in gl.hh
+void shutdown()
+{
+#if USE_X11
+    any_object::reset_all();
+
+    using gui::g_display;
+    glXMakeCurrent(g_display, None, nullptr);
+    glXDestroyContext(g_display, g_ctx);
+    XDestroyWindow(g_display, g_wnd);
+#else
+#error Unimplemented UI frontend code.
+#endif
+}
+
+// declared in gl.hh
+std::unordered_set<any_object *> &any_object::get_all_objects()
+{
+    static std::unordered_set<any_object *> s_all_objects;
+    return s_all_objects;
+}
+
+// declared in gl.hh
+void any_object::reset_all()
+{
+    for (auto &&p : get_all_objects()) {
+        p->reset();
+    }
+}
+
 }
 }

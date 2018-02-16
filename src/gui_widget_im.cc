@@ -35,47 +35,77 @@
 namespace drnsf {
 namespace gui {
 
-static gl::program s_prog;
 static gl::texture s_font_tex;
+static unsigned char *s_font_pixels = nullptr;
+static int s_font_width;
+static int s_font_height;
 static gl::vert_array s_vao;
 static gl::buffer s_ibo;
 static gl::buffer s_vbo;
+static gl::program s_prog;
 
-static void init()
+// declared in gui.hh
+void widget_im::draw_gl(int width, int height, gl::renderbuffer &rbo)
 {
-    static bool s_is_init = false;
-    if (s_is_init) return;
-    s_is_init = true;
+    if (!s_font_tex.ok()) {
+        glBindTexture(GL_TEXTURE_2D, s_font_tex);
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RGBA,
+            s_font_width,
+            s_font_height,
+            0,
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+            s_font_pixels
+        );
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glBindTexture(GL_TEXTURE_2D, 0);
 
-    // Get the ImGui font.
-    unsigned char *font_pixels;
-    int font_width;
-    int font_height;
-    ImGui::GetIO().Fonts->GetTexDataAsRGBA32(
-        &font_pixels,
-        &font_width,
-        &font_height
-    );
+        s_font_tex.set_ok();
+    }
 
-    // Upload the font as a texture to OpenGL.
-    glBindTexture(GL_TEXTURE_2D, s_font_tex);
-    glTexImage2D(
-        GL_TEXTURE_2D,
-        0,
-        GL_RGBA,
-        font_width,
-        font_height,
-        0,
-        GL_RGBA,
-        GL_UNSIGNED_BYTE,
-        font_pixels
-    );
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    if (!s_vao.ok()) {
+        glBindVertexArray(s_vao);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_ibo);
+        glBindBuffer(GL_ARRAY_BUFFER, s_vbo);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(
+            0,
+            2,
+            GL_FLOAT,
+            false,
+            sizeof(ImDrawVert),
+            reinterpret_cast<void *>(offsetof(ImDrawVert, pos))
+        );
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(
+            1,
+            2,
+            GL_FLOAT,
+            false,
+            sizeof(ImDrawVert),
+            reinterpret_cast<void *>(offsetof(ImDrawVert, uv))
+        );
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(
+            2,
+            4,
+            GL_UNSIGNED_BYTE,
+            true,
+            sizeof(ImDrawVert),
+            reinterpret_cast<void *>(offsetof(ImDrawVert, col))
+        );
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
 
-    const char vert_code[] = R"(
+        s_vao.set_ok();
+    }
 
+    if (!s_prog.ok()) {
+        const char vert_code[] = R"(
 #version 150 core
 
 uniform mat4 u_ScreenOrtho;
@@ -93,14 +123,12 @@ void main()
     v_TexCoord = a_TexCoord;
     v_Color = a_Color;
 }
-
 )";
 
-    gl::vert_shader vert_shader;
-    vert_shader.compile(vert_code);
+        gl::vert_shader vert_shader;
+        compile_shader(vert_shader, vert_code);
 
-    const char frag_code[] = R"(
-
+        const char frag_code[] = R"(
 #version 150 core
 
 uniform sampler2D u_Font;
@@ -112,56 +140,21 @@ void main()
 {
     gl_FragColor = v_Color * texture2D(u_Font, v_TexCoord);
 }
-
 )";
 
-    gl::frag_shader frag_shader;
-    frag_shader.compile(frag_code);
+        gl::frag_shader frag_shader;
+        compile_shader(frag_shader, frag_code);
 
-    glAttachShader(s_prog, vert_shader);
-    glAttachShader(s_prog, frag_shader);
-    glBindAttribLocation(s_prog, 0, "a_Position");
-    glBindAttribLocation(s_prog, 1, "a_TexCoord");
-    glBindAttribLocation(s_prog, 2, "a_Color");
-    glLinkProgram(s_prog);
+        glAttachShader(s_prog, vert_shader);
+        glAttachShader(s_prog, frag_shader);
+        glBindAttribLocation(s_prog, 0, "a_Position");
+        glBindAttribLocation(s_prog, 1, "a_TexCoord");
+        glBindAttribLocation(s_prog, 2, "a_Color");
+        glLinkProgram(s_prog);
 
-    glBindVertexArray(s_vao);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_ibo);
-    glBindBuffer(GL_ARRAY_BUFFER, s_vbo);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(
-        0,
-        2,
-        GL_FLOAT,
-        false,
-        sizeof(ImDrawVert),
-        reinterpret_cast<void *>(offsetof(ImDrawVert, pos))
-    );
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(
-        1,
-        2,
-        GL_FLOAT,
-        false,
-        sizeof(ImDrawVert),
-        reinterpret_cast<void *>(offsetof(ImDrawVert, uv))
-    );
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(
-        2,
-        4,
-        GL_UNSIGNED_BYTE,
-        true,
-        sizeof(ImDrawVert),
-        reinterpret_cast<void *>(offsetof(ImDrawVert, col))
-    );
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-}
+        s_prog.set_ok();
+    }
 
-// declared in gui.hh
-void widget_im::draw_gl(int width, int height, gl::renderbuffer &rbo)
-{
     gl::framebuffer fbo;
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
     glFramebufferRenderbuffer(
@@ -474,7 +467,19 @@ int widget_im::update(int delta_ms)
 widget_im::widget_im(container &parent, layout layout) :
     widget_gl(parent, layout)
 {
-    init();
+    // Grab the font if this is the first widget_im to be created. It is
+    // important that this not be done while inside the frame() handler for a
+    // widget_im, as that would get the font for an ImGui context which only has
+    // the lifetime of that one widget_im. For the first construction, there is
+    // no chance of this happening, so the font will be from the global context
+    // provided by default.
+    if (!s_font_pixels) {
+        ImGui::GetIO().Fonts->GetTexDataAsRGBA32(
+            &s_font_pixels,
+            &s_font_width,
+            &s_font_height
+        );
+    }
 
     m_im = ImGui::CreateContext();
     auto previous_im = ImGui::GetCurrentContext();
