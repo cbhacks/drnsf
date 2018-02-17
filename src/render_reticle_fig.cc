@@ -168,11 +168,25 @@ void reticle_fig::draw(const env &e)
     }
 
     glUseProgram(s_prog);
-    glUniformMatrix4fv(s_matrix_uni, 1, false, &e.matrix[0][0]);
+    auto matrix = e.projection * e.view * m_matrix;
+    glUniformMatrix4fv(s_matrix_uni, 1, false, &matrix[0][0]);
     glBindVertexArray(s_vao);
     glDrawArrays(GL_LINES, 0, sizeof(reticle_model) / sizeof(reticle_vert));
     glBindVertexArray(0);
     glUseProgram(0);
+}
+
+const glm::mat4 &reticle_fig::get_matrix() const
+{
+    return m_matrix;
+}
+
+void reticle_fig::set_matrix(glm::mat4 matrix)
+{
+    if (m_matrix != matrix) {
+        m_matrix = matrix;
+        invalidate();
+    }
 }
 
 }

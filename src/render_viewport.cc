@@ -130,13 +130,13 @@ void viewport::impl::draw_gl(int width, int height, gl::renderbuffer &rbo)
         projection,
         glm::vec3(0.0f, 0.0f, -800.0f)
     );
-    projection = glm::translate(
-        projection,
-        glm::vec3(0.0f, 0.0f, -edit::g_camera_zoom)
-    );
 
     // Build the view matrix.
     glm::mat4 view(1.0f);
+    view = glm::translate(
+        view,
+        glm::vec3(0.0f, 0.0f, -edit::g_camera_zoom)
+    );
     view = glm::rotate(
         view,
         glm::radians(edit::g_camera_pitch),
@@ -150,11 +150,10 @@ void viewport::impl::draw_gl(int width, int height, gl::renderbuffer &rbo)
 
     // Render the viewport's visible figures.
     figure::env e;
-    e.projection_matrix = projection;
+    e.view = view;
+    e.projection = projection;
     for (auto &&fig : m_outer.m_figs) {
         if (!fig->m_visible) continue;
-        e.modelview_matrix = view * fig->m_matrix;
-        e.matrix = projection * e.modelview_matrix;
         fig->draw(e);
     }
 

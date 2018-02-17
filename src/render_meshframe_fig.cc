@@ -162,11 +162,52 @@ void meshframe_fig::draw(const env &e)
     }
 
     glUseProgram(s_prog);
-    glUniformMatrix4fv(s_matrix_uni, 1, false, &e.matrix[0][0]);
+    auto matrix = e.projection * e.view * m_matrix;
+    glUniformMatrix4fv(s_matrix_uni, 1, false, &matrix[0][0]);
     glBindVertexArray(s_vao);
     glDrawElements(GL_LINES, 56, GL_UNSIGNED_BYTE, 0);
     glBindVertexArray(0);
     glUseProgram(0);
+}
+
+const gfx::mesh::ref &meshframe_fig::get_mesh() const
+{
+    return m_mesh;
+}
+
+void meshframe_fig::set_mesh(gfx::mesh::ref mesh)
+{
+    if (m_mesh != mesh) {
+        m_mesh = std::move(mesh);
+        invalidate();
+    }
+}
+
+const gfx::frame::ref &meshframe_fig::get_frame() const
+{
+    return m_frame;
+}
+
+void meshframe_fig::set_frame(gfx::frame::ref frame)
+{
+    if (m_frame != frame)
+    {
+        m_frame = std::move(frame);
+        invalidate();
+    }
+}
+
+const glm::mat4 &meshframe_fig::get_matrix() const
+{
+    return m_matrix;
+}
+
+void meshframe_fig::set_matrix(glm::mat4 matrix)
+{
+    if (m_matrix != matrix) {
+        m_matrix = matrix;
+        invalidate();
+    }
 }
 
 }

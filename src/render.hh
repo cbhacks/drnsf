@@ -111,9 +111,8 @@ protected:
     // without the need to change the function signature every time new
     // information needs to be passed through.
     struct env {
-        glm::mat4 projection_matrix;
-        glm::mat4 modelview_matrix;
-        glm::mat4 matrix;
+        glm::mat4 projection;
+        glm::mat4 view;
     };
 
 private:
@@ -128,12 +127,6 @@ private:
     // not affect the scene). The viewport must also be invalidated when
     // the visibility of a figure changes.
     bool m_visible = false;
-
-    // (var) m_matrix
-    // The "model" matrix for this figure Together with the viewport's view
-    // matrix, this forms the typical "model-view" matrix. Read about 3D
-    // graphics and OpenGL for more details.
-    glm::mat4 m_matrix = glm::mat4(1.0f);
 
     // (pure func) draw
     // Derived classes must implement this method to draw themselves in
@@ -180,6 +173,11 @@ public:
  */
 class reticle_fig : public figure {
 private:
+    // (var) m_matrix
+    // The model matrix for this figure. The view and projection matrix come
+    // from the viewport during a `draw' call.
+    glm::mat4 m_matrix{1.0f};
+
     // (func) draw
     // Implements `figure::draw'.
     void draw(const env &e) override;
@@ -189,6 +187,11 @@ public:
     // Constructs the reticle figure.
     explicit reticle_fig(viewport &vp) :
         figure(vp) {}
+
+    // (func) get_matrix, set_matrix
+    // Gets or sets the model matrix (m_matrix above).
+    const glm::mat4 &get_matrix() const;
+    void set_matrix(glm::mat4 matrix);
 };
 
 /*
@@ -208,6 +211,11 @@ private:
     // The reference to the frame used by this figure.
     gfx::frame::ref m_frame;
 
+    // (var) m_matrix
+    // The model matrix for this figure. The view and projection matrix come
+    // from the viewport during a `draw' call.
+    glm::mat4 m_matrix{1.0f};
+
     // (func) draw
     // Implements `figure::draw'.
     void draw(const env &e) override;
@@ -218,6 +226,23 @@ public:
     // or frame.
     explicit meshframe_fig(viewport &vp) :
         figure(vp) {}
+
+    // (func) get_mesh, set_mesh
+    // Gets or sets the gfx::mesh reference used by this figure. This may be a
+    // null reference.
+    const gfx::mesh::ref &get_mesh() const;
+    void set_mesh(gfx::mesh::ref mesh);
+
+    // (func) get_frame, set_frame
+    // Gets or sets the gfx::frame reference used by this figure. This may be a
+    // null reference.
+    const gfx::frame::ref &get_frame() const;
+    void set_frame(gfx::frame::ref frame);
+
+    // (func) get_matrix, set_matrix
+    // Gets or sets the model matrix (m_matrix above).
+    const glm::mat4 &get_matrix() const;
+    void set_matrix(glm::mat4 matrix);
 };
 
 }
