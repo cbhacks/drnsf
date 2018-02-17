@@ -161,7 +161,7 @@ void nexus::redo()
 }
 
 // declared in transact.hh
-nexus &nexus::operator <<(std::function<void(TRANSACT)> job)
+void nexus::run(std::function<void(TRANSACT)> fn)
 {
     if (m_status != status::ready) {
         throw 0;//FIXME
@@ -176,7 +176,7 @@ nexus &nexus::operator <<(std::function<void(TRANSACT)> job)
     transact::teller ts;
 
     // Run the functor given to the nexus.
-    job(ts);
+    fn(ts);
 
     // Commit the transaction.
     auto t = ts.commit();
@@ -198,8 +198,6 @@ nexus &nexus::operator <<(std::function<void(TRANSACT)> job)
 
     m_status = status::ready;
     on_status_change();
-
-    return *this;
 }
 
 }

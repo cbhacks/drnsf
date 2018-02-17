@@ -386,9 +386,9 @@ public:
     // FIXME explain
     void redo();
 
-    // (feed operator)
+    // (func) run
     // FIXME explain
-    nexus &operator <<(std::function<void(TRANSACT)> job);
+    void run(std::function<void(TRANSACT)> fn);
 
     // (event) on_status_change
     // FIXME explain

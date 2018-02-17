@@ -44,7 +44,7 @@ void mni_open::on_activate()
     auto proj_p = m_ed.get_proj(); //FIXME
     auto &proj = *proj_p;
 
-    proj.get_transact() << [&](TRANSACT) {
+    proj.get_transact().run([&](TRANSACT) {
         TS.describe("Import NSF");
 
         // Open the NSF file and read the data into memory.
@@ -92,7 +92,7 @@ void mni_open::on_activate()
                 entry->process_by_type(TS, nsf::game_ver::crash2);
             }
         }
-    };
+    });
 
     // Set the editor to use the newly opened project.
     // TODO

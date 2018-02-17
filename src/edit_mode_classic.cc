@@ -168,10 +168,10 @@ public:
         auto value = prop.get();
         bool changed = field(value, label);
         if (changed) {
-            m_ed.get_project().get_transact() << [&](TRANSACT) {
+            m_ed.get_project().get_transact().run([&](TRANSACT) {
                 TS.describe("Edit '$'"_fmt(label));
                 prop.set(TS, std::move(value));
-            };
+            });
         }
     }
 };
