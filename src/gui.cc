@@ -157,7 +157,6 @@ void run()
                             &sym,
                             nullptr
                         );
-                        printf("%04X\n", int(sym));
                         if (sym != NoSymbol) {
                             wdg->key(keycode(sym), ev.type == KeyPress);
                         }
