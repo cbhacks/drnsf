@@ -30,5 +30,20 @@ editor::editor(std::shared_ptr<res::project> proj) :
 {
 }
 
+// declared in edit.hh
+const std::shared_ptr<res::project> &editor::get_proj() const
+{
+    return m_proj;
+}
+
+// declared in edit.hh
+void editor::set_proj(std::shared_ptr<res::project> proj)
+{
+    if (m_proj != proj) {
+        std::swap(m_proj, proj);
+        on_project_change(m_proj);
+    }
+}
+
 }
 }

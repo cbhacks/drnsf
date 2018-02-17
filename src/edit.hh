@@ -55,12 +55,25 @@ public:
     // copy of the shared pointer.
     explicit editor(std::shared_ptr<res::project> proj);
 
-    // (func) get_proj
-    // Read-only get method for m_proj member.
-    const std::shared_ptr<res::project> &get_proj()
-    {
-        return m_proj;
-    }
+    // (func) get_proj, set_proj
+    // Gets or sets the project associated with this editor.
+    //
+    // When setting the project, a copy of the shared pointer to the previous
+    // editor is kept while delivering the on_project_change event. This ensures
+    // that, if the editor held the final shared_ptr, the project is kept alive
+    // until the event handlers have all been run.
+    //
+    // It is important that set_proj never be called from inside a transaction,
+    // as the project running the transaction could cease to exist during this
+    // call if there are no other shared_ptr's to the project remaining.
+    const std::shared_ptr<res::project> &get_proj() const;
+    void set_proj(std::shared_ptr<res::project> proj);
+
+    // (event) on_project_change
+    // Raised whenever the project is changed by `set_proj'. The previous
+    // project, if any, will be kept alive during the execution of this event's
+    // handlers, but may be released once the event has finished.
+    util::event<const std::shared_ptr<res::project> &> on_project_change;
 };
 
 namespace menus {
