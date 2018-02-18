@@ -210,6 +210,7 @@ public:
     using composite::get_layout;
     using composite::set_layout;
     using composite::get_real_size;
+    using composite::get_screen_pos;
 };
 
 /*
@@ -240,6 +241,7 @@ public:
     using composite::get_layout;
     using composite::set_layout;
     using composite::get_real_size;
+    using composite::get_screen_pos;
 
     // (event) on_select
     // Raised when the selected asset has changed. Note that this can be
@@ -276,6 +278,7 @@ public:
     using composite::get_layout;
     using composite::set_layout;
     using composite::get_real_size;
+    using composite::get_screen_pos;
 
     // (func) set_selected_asset
     // Sets the asset name which this widget should show information for.
@@ -310,6 +313,7 @@ public:
     using composite::get_layout;
     using composite::set_layout;
     using composite::get_real_size;
+    using composite::get_screen_pos;
 };
 
 /*
@@ -340,6 +344,7 @@ public:
     using composite::get_layout;
     using composite::set_layout;
     using composite::get_real_size;
+    using composite::get_screen_pos;
 };
 
 // FIXME - temporary global for compatibility

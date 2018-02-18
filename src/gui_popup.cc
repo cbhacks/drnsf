@@ -98,17 +98,6 @@ void popup::show_at(int x, int y)
 }
 
 // declared in gui.hh
-void popup::show_at_mouse()
-{
-#if USE_X11
-    // TODO mouse position
-    show_at(0, 0);
-#else
-#error Unimplemented UI frontend code.
-#endif
-}
-
-// declared in gui.hh
 void popup::hide()
 {
 #if USE_X11

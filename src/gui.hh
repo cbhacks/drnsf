@@ -362,6 +362,11 @@ public:
     // Gets the real size of the widget in pixels, as determined by its layout
     // and its parent container's real size.
     void get_real_size(int &width, int &height);
+
+    // (func) get_screen_pos
+    // Gets the coordinates of this widget relative to the entire screen. These
+    // coordinates could be used for `popup::show_at(x, y)', for example.
+    void get_screen_pos(int &x, int &y);
 };
 
 /*
@@ -459,6 +464,7 @@ public:
     using widget::get_layout;
     using widget::set_layout;
     using widget::get_real_size;
+    using widget::get_screen_pos;
 };
 
 // defined later in this file
@@ -565,13 +571,6 @@ public:
     // The location specified matches the top-left of the popup.
     void show_at(int x, int y);
 
-    // (func) show_at_mouse
-    // Makes the popup visible at the current location of the mouse cursor. If
-    // the popup is already visible, it is moved to that location.
-    //
-    // The location matches the top-left corner of the popup.
-    void show_at_mouse();
-
     // (func) hide
     // Makes the popup invisible. If it is already invisible, no change occurs.
     void hide();
@@ -641,6 +640,7 @@ public:
     using widget::get_layout;
     using widget::set_layout;
     using widget::get_real_size;
+    using widget::get_screen_pos;
 };
 
 /*
@@ -687,6 +687,7 @@ public:
     using widget::get_layout;
     using widget::set_layout;
     using widget::get_real_size;
+    using widget::get_screen_pos;
 };
 
 /*
@@ -780,6 +781,7 @@ public:
     using widget_gl::get_layout;
     using widget_gl::set_layout;
     using widget_gl::get_real_size;
+    using widget_gl::get_screen_pos;
 };
 
 /*
@@ -811,6 +813,7 @@ public:
     using widget_2d::get_layout;
     using widget_2d::set_layout;
     using widget_2d::get_real_size;
+    using widget_2d::get_screen_pos;
 };
 
 /*
@@ -846,6 +849,7 @@ public:
     using widget_im::get_layout;
     using widget_im::set_layout;
     using widget_im::get_real_size;
+    using widget_im::get_screen_pos;
 };
 
 /*

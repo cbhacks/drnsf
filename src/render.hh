@@ -95,6 +95,7 @@ public:
     using composite::get_layout;
     using composite::set_layout;
     using composite::get_real_size;
+    using composite::get_screen_pos;
 };
 
 /*

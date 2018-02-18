@@ -161,5 +161,23 @@ void widget::get_real_size(int &width, int &height)
     height = m_real_height;
 }
 
+// declared in gui.hh
+void widget::get_screen_pos(int &x, int &y)
+{
+#if USE_X11
+    Window child; //unused, needed for translate function
+    XTranslateCoordinates(
+        g_display,
+        m_handle,
+        DefaultRootWindow(g_display),
+        0, 0,
+        &x, &y,
+        &child
+    );
+#else
+#error Unimplemented UI frontend code.
+#endif
+}
+
 }
 }
