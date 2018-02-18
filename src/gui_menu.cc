@@ -109,6 +109,7 @@ void menu::mousebutton(int button, bool down)
 {
     if (button != 1 || !down) return;
     if (m_active_item) {
+        close();
         m_active_item->on_activate();
     }
 }

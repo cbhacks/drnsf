@@ -983,6 +983,12 @@ private:
     // Implements mousebutton for clicking to activate menu items.
     void mousebutton(int button, bool down) final override;
 
+protected:
+    // (pure func) close
+    // This function is called from a menu item when that item requests that
+    // the menu be closed, for example if a menu item was clicked.
+    virtual void close() = 0;
+
     // Solve ambiguity of popup::hide vs widget_2d::hide. The widget base
     // should never be hidden.
     using popup::hide;
@@ -1116,6 +1122,10 @@ private:
     // (var) m_text
     // The text displayed on this menubar item.
     std::string m_text;
+
+    // (func) close
+    // Implements `menu::close' to close the menu.
+    void close() override;
 
 public:
     // (explicit ctor)

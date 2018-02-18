@@ -139,6 +139,16 @@ menubar::~menubar()
     m_wnd.m_menubar = nullptr;
 }
 
+// declared in gui.h
+void menubar::item::close()
+{
+    if (m_menubar.m_open_item == this) {
+        m_menubar.m_open_item = nullptr;
+        m_menubar.invalidate();
+        hide();
+    }
+}
+
 // declared in gui.hh
 menubar::item::item(menubar &menubar, std::string text) :
     m_menubar(menubar),
