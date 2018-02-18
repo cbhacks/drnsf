@@ -58,7 +58,7 @@ void menu::draw_2d(int width, int height, cairo_t *cr)
         cairo_text_extents(cr, item->m_text.c_str(), &area);
         cairo_move_to(
             cr,
-            x + item_width / 2 - area.width / 2,
+            x + 8,
             y + item_height - area.height / 2
         );
         cairo_show_text(cr, item->m_text.c_str());
