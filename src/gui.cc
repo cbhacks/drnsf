@@ -164,6 +164,21 @@ void run()
                             wdg->text(buf);
                         }
                         break; }
+                    case EnterNotify:
+                        if (wdg != widget::s_hover_widget) {
+                            if (widget::s_hover_widget) {
+                                widget::s_hover_widget->mouseleave();
+                            }
+                            widget::s_hover_widget = wdg;
+                        }
+                        wdg->mousemove(ev.xcrossing.x, ev.xcrossing.y);
+                        break;
+                    case LeaveNotify:
+                        if (wdg == widget::s_hover_widget) {
+                            wdg->mouseleave();
+                            widget::s_hover_widget = nullptr;
+                        }
+                        break;
                     case MotionNotify:
                         wdg->mousemove(ev.xmotion.x, ev.xmotion.y);
                         break;

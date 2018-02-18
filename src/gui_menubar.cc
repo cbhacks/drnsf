@@ -90,6 +90,15 @@ void menubar::mousemove(int x, int y)
 }
 
 // declared in gui.hh
+void menubar::mouseleave()
+{
+    if (m_hover_item) {
+        m_hover_item = nullptr;
+        invalidate();
+    }
+}
+
+// declared in gui.hh
 void menubar::mousebutton(int button, bool down)
 {
     if (button != 1 || !down) return;

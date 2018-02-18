@@ -108,6 +108,8 @@ widget_gl::widget_gl(container &parent, layout layout) :
         ButtonReleaseMask |
         KeyPressMask |
         KeyReleaseMask |
+        EnterWindowMask |
+        LeaveWindowMask |
         PointerMotionMask |
         ExposureMask |
         StructureNotifyMask;

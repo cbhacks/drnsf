@@ -80,6 +80,8 @@ widget_2d::widget_2d(container &parent, layout layout) :
         ButtonReleaseMask |
         KeyPressMask |
         KeyReleaseMask |
+        EnterWindowMask |
+        LeaveWindowMask |
         PointerMotionMask |
         ExposureMask |
         StructureNotifyMask;

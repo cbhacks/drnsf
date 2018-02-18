@@ -37,6 +37,9 @@ extern Display *g_display;
 std::unordered_set<widget *> widget::s_all_widgets;
 
 // declared in gui.hh
+widget *widget::s_hover_widget = nullptr;
+
+// declared in gui.hh
 // FIXME move to gui_container.cc ?
 void container::apply_layouts()
 {
@@ -99,6 +102,10 @@ widget::widget(container &parent) :
 // declared in gui.hh
 widget::~widget()
 {
+    if (s_hover_widget == this) {
+        s_hover_widget = nullptr;
+    }
+
     m_parent.m_widgets.erase(this);
     s_all_widgets.erase(this);
 

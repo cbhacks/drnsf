@@ -222,6 +222,11 @@ private:
     // The set of all existing widget objects, whether visible or not.
     static std::unordered_set<widget *> s_all_widgets;
 
+    // (s-var) s_hover_widget
+    // The widget currently under the mouse cursor. This is null if there is no
+    // such widget.
+    static widget *s_hover_widget;
+
     // (var) m_real_width, m_real_height
     // The actual height of the widget, in pixels.
     int m_real_width;
@@ -254,6 +259,14 @@ protected:
     // The default implementation performs no operation.
     virtual void mousemove(int x, int y) {}
 
+    // (func) mouseleave
+    // Called whenever the mouse moves out of the widget. This function is not
+    // called if the reason for the mouse leaving the widget is because the
+    // widget is being destroyed.
+    //
+    // The default implementation performs no operation.
+    virtual void mouseleave() {}
+
     // (func) mousewheel
     // Called when the mouse wheel is scrolled vertically. Whether this happens
     // to the focused widget or to the widget currently under the mouse could
@@ -268,6 +281,13 @@ protected:
     // to gain focus.
     //
     // The default implementation performs no operation.
+    //
+    // X11: When a mouse button is pressed on a widget, that widget gains mouse
+    // grab status. As part of this happening, the widget will first receive a
+    // `mouseleave' call, followed by a `mousemove' call, then finally a call to
+    // this function. When the final mouse button is released, the widget loses
+    // mouse grab status. If the mouse is still over the widget at this time,
+    // it will receive both a `mouseleave' call followed by a `mousemove' call.
     virtual void mousebutton(int number, bool down) {}
 
     // (func) key
@@ -422,6 +442,7 @@ class composite : private widget, public container {
 private:
     // input events not available for this type of widget
     void mousemove(int x, int y) final override {}
+    void mouseleave() final override {}
     void mousewheel(int delta_y) final override {}
     void mousebutton(int number, bool down) final override {}
     void key(keycode code, bool down) final override {}
@@ -734,6 +755,10 @@ private:
     // FIXME explain
     void mousemove(int x, int y) final override;
 
+    // (func) mouseleave
+    // FIXME explain
+    void mouseleave() final override;
+
     // (func) mousewheel
     // FIXME explain
     void mousewheel(int delta_y) final override;
@@ -950,6 +975,10 @@ private:
     // Implements mousemove for hovering over menu items.
     void mousemove(int x, int y) final override;
 
+    // (func) mouseleave
+    // Implements mouseleave for when the mouse leaves the menu entirely.
+    void mouseleave() final override;
+
     // (func) mousebutton
     // Implements mousebutton for clicking to activate menu items.
     void mousebutton(int button, bool down) final override;
@@ -1051,6 +1080,10 @@ private:
     // (func) mousemove
     // Implements mousemove for hovering over menubar items.
     void mousemove(int x, int y) final override;
+
+    // (func) mouseleave
+    // Implements mouseleave for when the mouse leaves the menubar entirely.
+    void mouseleave() final override;
 
     // (func) mousebutton
     // Implements mouse click for clicking on menubar items.

@@ -277,6 +277,14 @@ void widget_im::mousemove(int x, int y)
 }
 
 // declared in gui.hh
+void widget_im::mouseleave()
+{
+    m_io->MousePos.x = -FLT_MAX;
+    m_io->MousePos.y = -FLT_MAX;
+    m_remaining_time = 0;
+}
+
+// declared in gui.hh
 void widget_im::mousewheel(int delta_y)
 {
     m_io->MouseWheel += delta_y;

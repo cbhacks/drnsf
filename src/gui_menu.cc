@@ -96,6 +96,15 @@ void menu::mousemove(int x, int y)
 }
 
 // declared in gui.hh
+void menu::mouseleave()
+{
+    if (m_active_item) {
+        m_active_item = nullptr;
+        invalidate();
+    }
+}
+
+// declared in gui.hh
 void menu::mousebutton(int button, bool down)
 {
     if (button != 1 || !down) return;
