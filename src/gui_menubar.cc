@@ -47,6 +47,11 @@ void menubar::draw_2d(int width, int height, cairo_t *cr)
             cairo_rectangle(cr, x, 0, item_width, height);
             cairo_fill(cr);
             cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
+        } else if (item == m_open_item) {
+            cairo_set_source_rgb(cr, 0.4, 0.4, 0.4);
+            cairo_rectangle(cr, x, 0, item_width, height);
+            cairo_fill(cr);
+            cairo_set_source_rgb(cr, 1.0, 1.0, 1.0);
         } else {
             cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
         }
