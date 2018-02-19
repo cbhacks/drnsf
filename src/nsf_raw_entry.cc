@@ -53,17 +53,17 @@ void raw_entry::import_file(TRANSACT, const util::blob &data)
 
         // Ensure the item data doesn't overlap the entry header.
         if (item_start_offset < 20 + item_count * 4)
-            throw 0; // FIXME
+            throw res::import_error("nsf::raw_entry: item out of bounds");
 
         // Ensure the item data doesn't extend past the end of the
         // entry (overflow).
         if (item_end_offset > data.size())
-            throw 0; // FIXME
+            throw res::import_error("nsf::raw_entry: item too long");
 
         // Ensure the item doesn't end before it begins (negative
         // item size).
         if (item_end_offset < item_start_offset)
-            throw 0; // FIXME
+            throw res::import_error("nsf::raw_entry: negative item size");
 
         // Extract the item's data.
         items[i] = {&data[item_start_offset], &data[item_end_offset]};

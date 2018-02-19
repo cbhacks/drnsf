@@ -433,5 +433,15 @@ public:
 // FIXME obsolete
 using anyref = ref<asset>;
 
+/*
+ * res::import_error
+ *
+ * FIXME explain
+ */
+class import_error : public std::runtime_error {
+public:
+    using runtime_error::runtime_error;
+};
+
 }
 }

@@ -35,7 +35,7 @@ void spage::import_file(TRANSACT, const util::blob &data)
 
     // Ensure the page data is the correct size (64K).
     if (data.size() != page_size)
-        throw 0; // FIXME
+        throw res::import_error("nsf::spage: not 64K");
 
     // Read the page header.
     r.expect_u16(0x1234);
@@ -62,17 +62,17 @@ void spage::import_file(TRANSACT, const util::blob &data)
 
         // Ensure the pagelet data doesn't overlap the page header.
         if (pagelet_start_offset < 20 + pagelet_count * 4)
-            throw 0; // FIXME
+            throw res::import_error("nsf::spage: pagelet out of bounds");
 
         // Ensure the pagelet data doesn't extend past the end of the
         // page (overrun).
         if (pagelet_end_offset > page_size)
-            throw 0; // FIXME
+            throw res::import_error("nsf::spage: pagelet too long");
 
         // Ensure the pagelet doesn't end before it begins (negative
         // pagelet size).
         if (pagelet_end_offset < pagelet_start_offset)
-            throw 0; // FIXME
+            throw res::import_error("nsf::spage: negative pagelet size");
 
         // Create the pagelet asset.
         pagelet = get_name() / "pagelet-$"_fmt(i);

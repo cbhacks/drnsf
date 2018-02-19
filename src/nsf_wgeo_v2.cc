@@ -33,7 +33,7 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
 
     // Ensure we have the correct number of items (7).
     if (items.size() != 7)
-        throw 0; // FIXME
+        throw res::import_error("nsf::wgeo_v2: wrong item count");
 
     auto &item_info      = items[0];
     auto &item_vertices  = items[1];
@@ -68,7 +68,7 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
 
     // Ensure the vertex count is correct.
     if (vertex_count != item_vertices.size() / 6)
-        throw 0; // FIXME
+        throw res::import_error("nsf::wgeo_v2: bad vertex item size");
 
     // Parse the vertices.
     std::vector<gfx::vertex> vertices(vertex_count);
@@ -102,7 +102,7 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
 
     // Ensure the triangle count is correct.
     if (triangle_count != item_triangles.size() / 6)
-        throw 0; // FIXME
+        throw res::import_error("nsf::wgeo_v2: bad triangle item size");
 
     // Parse the triangles.
     std::vector<gfx::triangle> triangles(triangle_count);
@@ -139,7 +139,7 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
 
     // Ensure the quad count is correct.
     if (quad_count != item_quads.size() / 8)
-        throw 0; // FIXME
+        throw res::import_error("nsf::wgeo_v2: bad quad item size");
 
     // Parse the quads.
     std::vector<gfx::quad> quads(quad_count);
@@ -173,14 +173,14 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
 
     // Ensure the item4 count is correct.
     if (item4_count != item_4.size() / 12)
-        throw 0; // FIXME
+        throw res::import_error("nsf::wgeo_v2: bad item4 size");
 
     // Parse item4.
     // TODO - what is this? likely texture info
 
     // Ensure the color count is correct.
     if (color_count != item_colors.size() / 4)
-        throw 0; // FIXME
+        throw res::import_error("nsf::wgeo_v2: bad color item size");
 
     // Parse the colors.
     std::vector<gfx::color> colors(color_count);
@@ -197,14 +197,14 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
 
     // Ensure the item6 count is correct.
     if (item6_count != item_6.size() / 4)
-        throw 0; // FIXME
+        throw res::import_error("nsf::wgeo_v2: bad item6 size");
 
     // Parse item6.
     // TODO - what is this? likely animated texture info
 
     // Ensure the tpag ref count is viable.
     if (tpag_ref_count > 8)
-        throw 0; // FIXME
+        throw res::import_error("nsf::wgeo_v2: bad tpag ref count");
 
     // Parse the tpag references.
     // TODO

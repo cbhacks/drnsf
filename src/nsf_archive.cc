@@ -31,9 +31,8 @@ void archive::import_file(TRANSACT, const util::blob &data)
     assert_alive();
 
     // Ensure the NSF size is a multiple of the page size (64K).
-    if (data.size() % page_size != 0) {
-        throw 0;//FIXME
-    }
+    if (data.size() % page_size != 0)
+        throw res::import_error("nsf::archive: size not multiple of 64K");
 
     int page_count = data.size() / page_size;
 
