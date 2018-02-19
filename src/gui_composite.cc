@@ -64,9 +64,6 @@ composite::composite(container &parent, layout layout) :
         CWBackPixel | CWEventMask,
         &attr
     );
-    if (!m_handle) {
-        throw 0;//FIXME
-    }
     // m_handle is released by the base class destructor on exception.
 
     XSaveContext(g_display, m_handle, g_ctx_ptr, XPointer(this));

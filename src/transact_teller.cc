@@ -49,7 +49,7 @@ std::unique_ptr<transaction> teller::commit()
 {
     // Ensure this teller hasn't already committed its transaction.
     if (m_done) {
-        throw 0; // FIXME
+        throw std::logic_error("transact::teller::commit: already committed");
     }
 
     // Mark this teller as complete.
@@ -75,7 +75,7 @@ void teller::push_op(std::unique_ptr<operation> op)
 {
     // Ensure this teller hasn't already committed its transaction.
     if (m_done) {
-        throw 0; // FIXME
+        throw std::logic_error("transact::teller::push_op: already committed");
     }
 
     // Add the operation at the front of the list. When a transaction (or

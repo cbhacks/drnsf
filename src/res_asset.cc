@@ -83,7 +83,7 @@ void asset::create_impl(TRANSACT, atom name)
 void asset::assert_alive() const
 {
     if (!m_name) {
-        throw 0; // FIXME
+        throw std::logic_error("res::asset: dead asset");
     }
 }
 
@@ -93,11 +93,11 @@ void asset::rename(TRANSACT, atom name)
     assert_alive();
 
     if (!name) {
-        throw 0; // FIXME
+        throw std::logic_error("res::asset::rename: name is null");
     }
 
     if (name.get()) {
-        throw 0;//FIXME
+        throw std::logic_error("res::asset::rename: name in use");
     }
 
     TS.push_op(std::make_unique<asset_appear_event_op>(

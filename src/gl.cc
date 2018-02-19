@@ -63,7 +63,7 @@ void init()
     int glx_attrs[] = { GLX_RGBA, GLX_DOUBLEBUFFER, None };
     g_vi = glXChooseVisual(g_display, DefaultScreen(g_display), glx_attrs);
     if (!g_vi) {
-        throw 0;//FIXME
+        throw std::runtime_error("gl::init: failed to choose X visual");
     }
     // FIXME on error release g_glx_vi
 
@@ -94,12 +94,12 @@ void init()
         // NOTE: glXCreateContext may also fail on the X server side, which may
         // not return NULL.
 
-        throw 0;//FIXME
+        throw std::runtime_error("gl::init: failed to create context");
     }
     // FIXME release context on error
 
     if (!glXMakeCurrent(g_display, g_wnd, g_ctx)) {
-        throw 0;//FIXME
+        throw std::runtime_error("gl::init: failed to activate context");
     }
 #else
 #error Unimplemented UI frontend code.

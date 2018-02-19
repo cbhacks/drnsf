@@ -46,7 +46,7 @@ status nexus::get_status() const
 bool nexus::has_undo() const
 {
     if (m_status != status::ready) {
-        throw 0;//FIXME
+        throw std::logic_error("transact::nexus::has_undo: busy");
     }
     return m_undo != nullptr;
 }
@@ -55,7 +55,7 @@ bool nexus::has_undo() const
 bool nexus::has_redo() const
 {
     if (m_status != status::ready) {
-        throw 0;//FIXME
+        throw std::logic_error("transact::nexus::has_redo: busy");
     }
     return m_redo != nullptr;
 }
@@ -64,7 +64,7 @@ bool nexus::has_redo() const
 const transaction &nexus::get_undo() const
 {
     if (m_status != status::ready) {
-        throw 0;//FIXME
+        throw std::logic_error("transact::nexus::get_undo: busy");
     }
     return *m_undo;
 }
@@ -73,7 +73,7 @@ const transaction &nexus::get_undo() const
 const transaction &nexus::get_redo() const
 {
     if (m_status != status::ready) {
-        throw 0;//FIXME
+        throw std::logic_error("transact::nexus::get_redo: busy");
     }
     return *m_redo;
 }
@@ -82,7 +82,7 @@ const transaction &nexus::get_redo() const
 void nexus::undo()
 {
     if (m_status != status::ready) {
-        throw 0;//FIXME
+        throw std::logic_error("transact::nexus::undo: busy");
     }
 
     // Ensure that there is actually a transaction to undo.
@@ -123,7 +123,7 @@ void nexus::undo()
 void nexus::redo()
 {
     if (m_status != status::ready) {
-        throw 0;//FIXME
+        throw std::logic_error("transact::nexus::redo: busy");
     }
 
     // Ensure that there is actually a transaction to redo.
@@ -164,7 +164,7 @@ void nexus::redo()
 void nexus::run(std::function<void(TRANSACT)> fn)
 {
     if (m_status != status::ready) {
-        throw 0;//FIXME
+        throw std::logic_error("transact::nexus::run: busy");
     }
 
     m_status = status::busy;

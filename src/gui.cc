@@ -112,7 +112,7 @@ void run()
                 if (errno == EINTR) {
                     continue;
                 }
-                throw 0; // FIXME
+                throw std::runtime_error("gui::run: select failed");
             }
         }
 
@@ -236,7 +236,7 @@ void run()
         // Get the current time.
         timespec tp;
         if (clock_gettime(CLOCK_MONOTONIC, &tp) == -1) {
-            throw 0;
+            throw std::runtime_error("gui::run: failed to get time");
         }
 
         // Update all of the widgets. This also produces the timeout for the

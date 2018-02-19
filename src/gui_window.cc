@@ -62,9 +62,6 @@ window::window(const std::string &title, int width, int height) :
         CWBackPixel | CWEventMask,
         &attr
     );
-    if (!m_handle) {
-        throw 0;//FIXME
-    }
     // FIXME on error free window
 
     XStoreName(g_display, m_handle, title.c_str());

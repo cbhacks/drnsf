@@ -139,7 +139,7 @@ public:
         void operator <<=(std::function<void(Args...)> func)
         {
             if (m_func) {
-                throw 0;//FIXME
+                throw std::logic_error("util::watch::(shift op): bad func");
             }
 
             m_func = func;
@@ -152,11 +152,11 @@ public:
         void bind(event &ev)
         {
             if (!m_func) {
-                throw 0;//FIXME
+                throw std::logic_error("util::watch::bind: no function yet");
             }
 
             if (m_event) {
-                throw 0;//FIXME
+                throw std::logic_error("util::watch::bind: already bound");
             }
 
             m_event = &ev;
@@ -173,7 +173,7 @@ public:
         void unbind()
         {
             if (!m_event) {
-                throw 0;//FIXME
+                throw std::logic_error("util::watch::unbind: not bound");
             }
 
             m_hold.splice(
@@ -256,7 +256,7 @@ public:
     {
         auto delim_pos = m_format.find('$');
         if (delim_pos == std::string::npos)
-            throw 0; // FIXME
+            throw std::logic_error("util::fmt::(call op): too many params");
 
         return m_format.substr(0, delim_pos)
             + to_string(t)
@@ -270,7 +270,7 @@ public:
     {
         auto delim_pos = m_format.find('$');
         if (delim_pos != std::string::npos)
-            throw 0; // FIXME
+            throw std::logic_error("util::fmt::(call op): not enough params");
 
         return m_format;
     }

@@ -346,7 +346,7 @@ inline void compile_shader(shader<ShaderType> &sh, const std::string &code)
         fprintf(stderr, "%s\n", log_buffer.data());
         fprintf(stderr, " === END SHADER COMPILE LOG ===\n");
 
-        throw 0;//FIXME
+        throw std::runtime_error("gl::compile_shader: compile failed");
     }
 }
 template <int ShaderType>

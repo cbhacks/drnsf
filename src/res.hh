@@ -297,10 +297,10 @@ public:
     static void create(TRANSACT, atom name, project &proj)
     {
         if (!name)
-            throw 0; // FIXME
+            throw std::logic_error("res::asset::create: name is null");
 
         if (name.get())
-            throw 0; // FIXME
+            throw std::logic_error("res::asset::create: name in use");
 
         (new T(proj))->create_impl(TS, name);
     }
@@ -424,7 +424,7 @@ public:
     {
         auto result = get_as<T>();
         if (!result) {
-            throw 0;//FIXME
+            throw std::logic_error("res::ref::(deref op): bad ref");
         }
         return *result;
     }

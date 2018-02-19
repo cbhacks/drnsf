@@ -71,7 +71,7 @@ atom::atom(nucleus *nuc) noexcept :
 asset *&atom::get_internal_asset_ptr() const
 {
     if (!m_nuc) {
-        throw 0;//FIXME
+        throw std::logic_error("res::atom::<internal>: atom is null");
     }
     return m_nuc->m_asset;
 }
@@ -79,16 +79,13 @@ asset *&atom::get_internal_asset_ptr() const
 // declared in res.hh
 atom atom::make_root()
 {
-    auto nuc_space = std::malloc(sizeof(nucleus));
-    if (!nuc_space) {
-        throw 0;//FIXME
-    }
+    auto nuc_space = operator new(sizeof(nucleus));
 
     nucleus *nuc;
     try {
         nuc = new(nuc_space) nucleus;
     } catch (...) {
-        std::free(nuc_space);
+        operator delete(nuc_space);
         throw;
     }
     nuc->m_refcount = 0;
@@ -136,7 +133,7 @@ atom::~atom() noexcept
             parent->m_children.erase(nuc->m_name);
         }
         nuc->~nucleus();
-        std::free(nuc);
+        operator delete(nuc);
         nuc = parent;
     }
 }
@@ -194,12 +191,12 @@ bool atom::operator <(const atom &rhs) const
 atom atom::operator /(const char *s) const
 {
     if (!m_nuc) {
-        throw 0;//FIXME
+        throw std::logic_error("res::atom::(slash op): atom is null");
     }
 
     auto name_len = std::strlen(s);
     if (name_len == 0) {
-        throw 0;//FIXME
+        throw std::logic_error("res::atom::(slash op): string is empty");
     }
 
     auto iter = m_nuc->m_children.find(s);
@@ -207,16 +204,13 @@ atom atom::operator /(const char *s) const
         return atom(iter->second);
     }
 
-    auto newnuc_space = std::malloc(sizeof(nucleus) + name_len + 1);
-    if (!newnuc_space) {
-        throw 0;//FIXME
-    }
+    auto newnuc_space = operator new(sizeof(nucleus) + name_len + 1);
 
     nucleus *newnuc;
     try {
         newnuc = new(newnuc_space) nucleus;
     } catch (...) {
-        std::free(newnuc_space);
+        operator delete(newnuc_space);
         throw;
     }
 
@@ -231,7 +225,7 @@ atom atom::operator /(const char *s) const
         m_nuc->m_children.insert({name, newnuc});
     } catch (...) {
         newnuc->~nucleus();
-        std::free(newnuc_space);
+        operator delete(newnuc_space);
         throw;
     }
 
@@ -264,7 +258,7 @@ atom &atom::operator /=(const std::string &s)
 asset *atom::get() const
 {
     if (!m_nuc) {
-        throw 0;//FIXME
+        throw std::logic_error("res::atom::get: atom is null");
     }
     return m_nuc->m_asset;
 }
@@ -295,11 +289,11 @@ std::string atom::full_path() const
 atom atom::get_parent() const
 {
     if (!m_nuc) {
-        throw 0;//FIXME
+        throw std::logic_error("res::atom::get_parent: atom is null");
     }
 
     if (!m_nuc->m_parent) {
-        throw 0;//FIXME
+        throw std::logic_error("res::atom::get_parent: atom is root");
     }
 
     return atom(m_nuc->m_parent);
@@ -309,7 +303,7 @@ atom atom::get_parent() const
 std::vector<atom> atom::get_children() const
 {
     if (!m_nuc) {
-        throw 0;//FIXME
+        throw std::logic_error("res::atom::get_children: atom is null");
     }
 
     std::vector<atom> result;
@@ -325,7 +319,9 @@ std::vector<atom> atom::get_children() const
 std::vector<atom> atom::get_children_recursive() const
 {
     if (!m_nuc) {
-        throw 0;//FIXME
+        throw std::logic_error(
+            "res::atom::get_children_recursive: atom is null"
+        );
     }
 
     std::vector<atom> result;

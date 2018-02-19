@@ -127,7 +127,7 @@ menubar::menubar(window &wnd) :
     m_wnd(wnd)
 {
     if (m_wnd.m_menubar) {
-        throw 0; //FIXME
+        throw std::logic_error("gui::menubar: window already has menubar");
     }
     m_wnd.m_menubar = this;
     widget_2d::show();
