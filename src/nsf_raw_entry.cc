@@ -33,10 +33,14 @@ void raw_entry::import_file(TRANSACT, const util::blob &data)
     r.begin(data);
 
     // Read the entry header.
-    r.expect_u32(0x100FFFF);
+    auto magic      = r.read_u32();
     auto eid        = r.read_u32();
     auto type       = r.read_u32();
     auto item_count = r.read_u32();
+
+    // Ensure magic number is correct.
+    if (magic != 0x100FFFF)
+        throw res::import_error("nsf::raw_entry: bad magic number");
 
     // Read the item offsets.
     std::vector<std::uint32_t> item_offsets(item_count + 1);

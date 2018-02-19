@@ -38,9 +38,9 @@ binreader::binreader() :
 void binreader::begin(const unsigned char *data, std::size_t size)
 {
     if (m_data)
-        throw 0; // FIXME
+        throw std::logic_error("util::binreader::begin: already started");
     if (!data)
-        throw 0; // FIXME
+        throw std::logic_error("util::binreader::begin: null data arg");
 
     m_data = data;
     m_size = size;
@@ -50,7 +50,7 @@ void binreader::begin(const unsigned char *data, std::size_t size)
 void binreader::begin(const util::blob &data)
 {
     if (m_data)
-        throw 0; // FIXME
+        throw std::logic_error("util::binreader::begin: already started");
 
     if (data.size() == 0) {
         static unsigned char garbage[1];
@@ -66,13 +66,13 @@ void binreader::begin(const util::blob &data)
 void binreader::end()
 {
     if (!m_data)
-        throw 0; // FIXME
+        throw std::logic_error("util::binreader::end: not started");
 
     if (m_size > 0)
-        throw 0; // FIXME
+        throw std::logic_error("util::binreader::end: data remaining");
 
     if (m_bitbuf_len > 0)
-        throw 0; // FIXME
+        throw std::logic_error("util::binreader::end: bit data remaining");
 
     m_data = nullptr;
     m_size = 0;
@@ -82,7 +82,7 @@ void binreader::end()
 void binreader::end_early()
 {
     if (!m_data)
-        throw 0; // FIXME
+        throw std::logic_error("util::binreader::end_early: not started");
 
     m_data = nullptr;
     m_size = 0;
@@ -94,10 +94,10 @@ void binreader::end_early()
 std::uint8_t binreader::read_u8()
 {
     if (m_size == 0)
-        throw 0; // FIXME
+        throw std::logic_error("util::binreader::read_u8: out of data");
 
     if (m_bitbuf_len > 0)
-        throw 0; // FIXME
+        throw std::logic_error("util::binreader::read_u8: bit data remaining");
 
     std::uint8_t value = *m_data;
     m_data++;
@@ -127,7 +127,7 @@ std::uint32_t binreader::read_u32()
 std::int64_t binreader::read_ubits(int bits)
 {
     if (bits < 0 || bits > 63)
-        throw 0; // FIXME
+        throw std::logic_error("util::binreader::read_ubits: bad bit count");
 
     if (bits == 0)
         return 0;
@@ -181,72 +181,16 @@ std::int64_t binreader::read_sbits(int bits)
 }
 
 // declared in util.hh
-void binreader::expect_u8(std::uint8_t value)
-{
-    if (read_u8() != value)
-        throw 0; // FIXME
-}
-
-// declared in util.hh
-void binreader::expect_u16(std::uint16_t value)
-{
-    if (read_u16() != value)
-        throw 0; // FIXME
-}
-
-// declared in util.hh
-void binreader::expect_u32(std::uint32_t value)
-{
-    if (read_u32() != value)
-        throw 0; // FIXME
-}
-
-// declared in util.hh
-void binreader::expect_ubits(int bits, std::int64_t value)
-{
-    if (read_ubits(bits) != value)
-        throw 0; // FIXME
-}
-
-// declared in util.hh
-void binreader::expect_s8(std::int8_t value)
-{
-    if (read_s8() != value)
-        throw 0; // FIXME
-}
-
-// declared in util.hh
-void binreader::expect_s16(std::int16_t value)
-{
-    if (read_s16() != value)
-        throw 0; // FIXME
-}
-
-// declared in util.hh
-void binreader::expect_s32(std::int32_t value)
-{
-    if (read_s32() != value)
-        throw 0; // FIXME
-}
-
-// declared in util.hh
-void binreader::expect_sbits(int bits, std::int64_t value)
-{
-    if (read_sbits(bits) != value)
-        throw 0; // FIXME
-}
-
-// declared in util.hh
 void binreader::discard(int bytes)
 {
     if (bytes < 0)
-        throw 0; // FIXME
+        throw std::logic_error("util::binreader::discard: bad byte count");
 
     if (!m_data)
-        throw 0; // FIXME
+        throw std::logic_error("util::binreader::discard: not started");
 
     if (m_size < static_cast<unsigned int>(bytes))
-        throw 0; // FIXME
+        throw std::logic_error("util::binreader::discard: not enough data");
 
     m_data += bytes;
     m_size -= bytes;

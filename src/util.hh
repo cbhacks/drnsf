@@ -505,38 +505,6 @@ public:
     // FIXME explain
     std::int64_t read_sbits(int bits);
 
-    // (func) expect_u8
-    // FIXME explain
-    void expect_u8(std::uint8_t value);
-
-    // (func) expect_u16
-    // FIXME explain
-    void expect_u16(std::uint16_t value);
-
-    // (func) expect_u32
-    // FIXME explain
-    void expect_u32(std::uint32_t value);
-
-    // (func) expect_ubits
-    // FIXME explain
-    void expect_ubits(int bits, std::int64_t value);
-
-    // (func) expect_u8
-    // FIXME explain
-    void expect_s8(std::int8_t value);
-
-    // (func) expect_s16
-    // FIXME explain
-    void expect_s16(std::int16_t value);
-
-    // (func) expect_s32
-    // FIXME explain
-    void expect_s32(std::int32_t value);
-
-    // (func) expect_sbits
-    // FIXME explain
-    void expect_sbits(int bits, std::int64_t value);
-
     // (func) discard
     // FIXME explain
     void discard(int bytes);

@@ -38,11 +38,15 @@ void spage::import_file(TRANSACT, const util::blob &data)
         throw res::import_error("nsf::spage: not 64K");
 
     // Read the page header.
-    r.expect_u16(0x1234);
+    auto magic         = r.read_u16();
     auto type          = r.read_u16();
     auto cid           = r.read_u32();
     auto pagelet_count = r.read_u32();
     auto checksum      = r.read_u32();
+
+    // Ensure the magic number is correct.
+    if (magic != 0x1234)
+        throw res::import_error("nsf::spage: bad magic number");
 
     // Read the pagelet offsets. Pagelets should be entries, but we treat
     // them as blobs instead so they can be totally unprocessed, etc.

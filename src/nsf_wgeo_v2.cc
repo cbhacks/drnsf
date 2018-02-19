@@ -191,7 +191,10 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
         color.r = r.read_u8();
         color.g = r.read_u8();
         color.b = r.read_u8();
-        r.expect_u8(0);
+        auto ex = r.read_u8();
+
+        if (ex != 0)
+            throw res::import_error("nsf::wgeo_v2: bad extra color byte");
     }
     r.end();
 
