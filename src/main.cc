@@ -27,8 +27,8 @@ int main(int argc, char *argv[])
 {
     using namespace drnsf;
 
-    // Initialize GTK+.
     gui::init(argc, argv);
+
     gl::init();
     DRNSF_ON_EXIT { gl::shutdown(); };
 
