@@ -88,7 +88,11 @@ void menubar::mousemove(int x, int y)
             m_open_item = selection;
             int scr_x, scr_y;
             get_screen_pos(scr_x, scr_y);
-            m_open_item->show_at(scr_x, scr_y + 20);
+            auto it = find(m_items.begin(), m_items.end(), m_open_item);
+            m_open_item->show_at(
+                scr_x + item_width * (it - m_items.begin()),
+                scr_y + 20
+            );
         }
         invalidate();
     }
@@ -111,7 +115,11 @@ void menubar::mousebutton(int button, bool down)
         m_open_item = m_hover_item;
         int scr_x, scr_y;
         get_screen_pos(scr_x, scr_y);
-        m_open_item->show_at(scr_x, scr_y + 20);
+        auto it = find(m_items.begin(), m_items.end(), m_open_item);
+        m_open_item->show_at(
+            scr_x + item_width * (it - m_items.begin()),
+            scr_y + 20
+        );
     } else if (m_open_item) {
         m_open_item->hide();
         m_open_item = nullptr;
