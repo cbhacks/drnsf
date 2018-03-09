@@ -130,11 +130,11 @@ public:
 };
 
 /*
- * gfx::poly_vert
+ * gfx::corner
  *
  * FIXME explain
  */
-struct poly_vert {
+struct corner {
     int vertex_index;
     int color_index;
 };
@@ -145,7 +145,7 @@ struct poly_vert {
  * FIXME explain
  */
 struct triangle {
-    poly_vert v[3];
+    corner v[3];
     unsigned int unk0;
     unsigned int unk1;
 };
@@ -156,7 +156,7 @@ struct triangle {
  * FIXME explain
  */
 struct quad {
-    poly_vert v[4];
+    corner v[4];
     unsigned int unk0;
     unsigned int unk1;
 };
