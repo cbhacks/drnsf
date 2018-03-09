@@ -43,7 +43,7 @@ void raw_entry::import_file(TRANSACT, const util::blob &data)
         throw res::import_error("nsf::raw_entry: bad magic number");
 
     // Read the item offsets.
-    std::vector<std::uint32_t> item_offsets(item_count + 1);
+    std::vector<uint32_t> item_offsets(item_count + 1);
     for (auto &&item_offset : item_offsets) {
         item_offset = r.read_u32();
     }

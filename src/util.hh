@@ -442,7 +442,7 @@ private:
 
     // (var) m_size
     // FIXME explain
-    std::size_t m_size;
+    size_t m_size;
 
     // (var) m_bitbuf
     // FIXME explain
@@ -459,7 +459,7 @@ public:
 
     // (func) begin
     // FIXME explain
-    void begin(const unsigned char *data, std::size_t size);
+    void begin(const unsigned char *data, size_t size);
 
     // (func) begin
     // FIXME explain
@@ -475,35 +475,35 @@ public:
 
     // (func) read_u8
     // FIXME explain
-    std::uint8_t read_u8();
+    uint8_t read_u8();
 
     // (func) read_u16
     // FIXME explain
-    std::uint16_t read_u16();
+    uint16_t read_u16();
 
     // (func) read_u32
     // FIXME explain
-    std::uint32_t read_u32();
+    uint32_t read_u32();
 
     // (func) read_ubits
     // FIXME explain
-    std::int64_t read_ubits(int bits);
+    int64_t read_ubits(int bits);
 
     // (func) read_s8
     // FIXME explain
-    std::int8_t read_s8();
+    int8_t read_s8();
 
     // (func) read_s16
     // FIXME explain
-    std::int16_t read_s16();
+    int16_t read_s16();
 
     // (func) read_s32
     // FIXME explain
-    std::int32_t read_s32();
+    int32_t read_s32();
 
     // (func) read_sbits
     // FIXME explain
-    std::int64_t read_sbits(int bits);
+    int64_t read_sbits(int bits);
 
     // (func) discard
     // FIXME explain

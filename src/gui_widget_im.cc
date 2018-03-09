@@ -37,11 +37,11 @@ namespace drnsf {
 namespace embed {
     namespace widget_im_vert {
         extern const unsigned char data[];
-        extern const std::size_t size;
+        extern const size_t size;
     }
     namespace widget_im_frag {
         extern const unsigned char data[];
-        extern const std::size_t size;
+        extern const size_t size;
     }
 }
 

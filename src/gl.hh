@@ -353,7 +353,7 @@ template <int ShaderType>
 inline void compile_shader(
     shader<ShaderType> &sh,
     const void *code,
-    std::size_t size)
+    size_t size)
 {
     compile_shader(sh, {reinterpret_cast<const char *>(code), size});
 }

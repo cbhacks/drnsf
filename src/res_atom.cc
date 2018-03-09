@@ -102,7 +102,7 @@ atom::atom() noexcept :
 }
 
 // declared in res.hh
-atom::atom(std::nullptr_t) noexcept :
+atom::atom(nullptr_t) noexcept :
     m_nuc(nullptr)
 {
 }
@@ -152,7 +152,7 @@ bool atom::operator ==(const atom &rhs) const noexcept
 }
 
 // declared in res.hh
-bool atom::operator ==(std::nullptr_t) const noexcept
+bool atom::operator ==(nullptr_t) const noexcept
 {
     return (m_nuc == nullptr);
 }
@@ -164,7 +164,7 @@ bool atom::operator !=(const atom &rhs) const noexcept
 }
 
 // declared in res.hh
-bool atom::operator !=(std::nullptr_t) const noexcept
+bool atom::operator !=(nullptr_t) const noexcept
 {
     return (m_nuc != nullptr);
 }

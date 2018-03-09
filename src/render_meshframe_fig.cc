@@ -26,11 +26,11 @@ namespace drnsf {
 namespace embed {
     namespace meshframe_vert {
         extern const unsigned char data[];
-        extern const std::size_t size;
+        extern const size_t size;
     }
     namespace meshframe_frag {
         extern const unsigned char data[];
-        extern const std::size_t size;
+        extern const size_t size;
     }
 }
 

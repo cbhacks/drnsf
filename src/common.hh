@@ -32,6 +32,7 @@
 
 #include <cstddef>
 #include <cstdlib>
+#include <cstdint>
 #include <memory>
 #include <utility>
 #include <string>
@@ -137,6 +138,39 @@
 namespace drnsf {
 
 /*
+ * (various type aliases)
+ *
+ * The following types are imported from the std namespace for the entire
+ * program:
+ *
+ * size_t:    The type resulting from a sizeof operator.
+ *
+ * ptrdiff_t: The type resulting from subtracting two pointers.
+ *
+ * nullptr_t: The type of nullptr. This is used for function overloading with
+ *            nullptr.
+ *
+ * intN_t:    An N-bit signed integer. N can be 8, 16, 32, or 64.
+ *
+ * uintN_t:   An N-bit unsigned integer, with the same possible values for N.
+ *
+ * Some or all of these types often end up in the global namespace when using
+ * many compilers or libraries, but they are imported here in case they are
+ * not.
+ */
+using std::size_t;
+using std::ptrdiff_t;
+using std::nullptr_t;
+using std::int8_t;
+using std::int16_t;
+using std::int32_t;
+using std::int64_t;
+using std::uint8_t;
+using std::uint16_t;
+using std::uint32_t;
+using std::uint64_t;
+
+/*
  * (user-defined literal)
  *
  * This allows one to use a construct such as the following:
@@ -149,7 +183,7 @@ namespace drnsf {
  *
  * but is shorter and perhaps easier to read.
  */
-inline auto operator "" _fmt(const char *s, std::size_t sz)
+inline auto operator "" _fmt(const char *s, size_t sz)
 {
     return util::fmt(s);
 }

@@ -53,7 +53,7 @@ class eid {
 private:
     // (var) m_value
     // FIXME explain
-    std::uint32_t m_value;
+    uint32_t m_value;
 
 public:
     // (default ctor)
@@ -62,12 +62,12 @@ public:
 
     // (conversion ctor)
     // FIXME explain
-    eid(std::uint32_t value) :
+    eid(uint32_t value) :
         m_value(value) {}
 
     // (conversion operator)
     // FIXME explain
-    operator std::uint32_t() const
+    operator uint32_t() const
     {
         return m_value;
     }
@@ -99,7 +99,7 @@ public:
  *
  * FIXME explain
  */
-constexpr std::size_t page_size = 65536;
+constexpr size_t page_size = 65536;
 
 /*
  * nsf::archive
@@ -303,18 +303,18 @@ public:
 
     // (prop) info_unk0
     // FIXME explain
-    DEFINE_APROP(info_unk0, std::uint32_t);
+    DEFINE_APROP(info_unk0, uint32_t);
 
     // (prop) tpag_ref_count, tpag_ref*
-    DEFINE_APROP(tpag_ref_count, std::uint32_t);
-    DEFINE_APROP(tpag_ref0, std::uint32_t);
-    DEFINE_APROP(tpag_ref1, std::uint32_t);
-    DEFINE_APROP(tpag_ref2, std::uint32_t);
-    DEFINE_APROP(tpag_ref3, std::uint32_t);
-    DEFINE_APROP(tpag_ref4, std::uint32_t);
-    DEFINE_APROP(tpag_ref5, std::uint32_t);
-    DEFINE_APROP(tpag_ref6, std::uint32_t);
-    DEFINE_APROP(tpag_ref7, std::uint32_t);
+    DEFINE_APROP(tpag_ref_count, uint32_t);
+    DEFINE_APROP(tpag_ref0, uint32_t);
+    DEFINE_APROP(tpag_ref1, uint32_t);
+    DEFINE_APROP(tpag_ref2, uint32_t);
+    DEFINE_APROP(tpag_ref3, uint32_t);
+    DEFINE_APROP(tpag_ref4, uint32_t);
+    DEFINE_APROP(tpag_ref5, uint32_t);
+    DEFINE_APROP(tpag_ref6, uint32_t);
+    DEFINE_APROP(tpag_ref7, uint32_t);
 
     // (prop) item4
     // FIXME explain

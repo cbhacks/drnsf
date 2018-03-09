@@ -35,7 +35,7 @@ binreader::binreader() :
 }
 
 // declared in util.hh
-void binreader::begin(const unsigned char *data, std::size_t size)
+void binreader::begin(const unsigned char *data, size_t size)
 {
     if (m_data)
         throw std::logic_error("util::binreader::begin: already started");
@@ -91,7 +91,7 @@ void binreader::end_early()
 }
 
 // declared in util.hh
-std::uint8_t binreader::read_u8()
+uint8_t binreader::read_u8()
 {
     if (m_size == 0)
         throw std::logic_error("util::binreader::read_u8: out of data");
@@ -99,32 +99,32 @@ std::uint8_t binreader::read_u8()
     if (m_bitbuf_len > 0)
         throw std::logic_error("util::binreader::read_u8: bit data remaining");
 
-    std::uint8_t value = *m_data;
+    uint8_t value = *m_data;
     m_data++;
     m_size--;
     return value;
 }
 
 // declared in util.hh
-std::uint16_t binreader::read_u16()
+uint16_t binreader::read_u16()
 {
-    std::uint16_t value;
+    uint16_t value;
     value  = read_u8();
     value |= read_u8() << 8;
     return value;
 }
 
 // declared in util.hh
-std::uint32_t binreader::read_u32()
+uint32_t binreader::read_u32()
 {
-    std::uint32_t value;
+    uint32_t value;
     value  = read_u16();
     value |= read_u16() << 16;
     return value;
 }
 
 // declared in util.hh
-std::int64_t binreader::read_ubits(int bits)
+int64_t binreader::read_ubits(int bits)
 {
     if (bits < 0 || bits > 63)
         throw std::logic_error("util::binreader::read_ubits: bad bit count");
@@ -152,27 +152,27 @@ std::int64_t binreader::read_ubits(int bits)
 }
 
 // declared in util.hh
-std::int8_t binreader::read_s8()
+int8_t binreader::read_s8()
 {
     return read_u8();
 }
 
 // declared in util.hh
-std::int16_t binreader::read_s16()
+int16_t binreader::read_s16()
 {
     return read_u16();
 }
 
 // declared in util.hh
-std::int32_t binreader::read_s32()
+int32_t binreader::read_s32()
 {
     return read_u32();
 }
 
 // declared in util.hh
-std::int64_t binreader::read_sbits(int bits)
+int64_t binreader::read_sbits(int bits)
 {
-    std::int64_t value = read_ubits(bits);
+    int64_t value = read_ubits(bits);
 
     value <<= 64 - bits;
     value >>= 64 - bits;

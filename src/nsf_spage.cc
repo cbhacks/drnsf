@@ -50,7 +50,7 @@ void spage::import_file(TRANSACT, const util::blob &data)
 
     // Read the pagelet offsets. Pagelets should be entries, but we treat
     // them as blobs instead so they can be totally unprocessed, etc.
-    std::vector<std::uint32_t> pagelet_offsets(pagelet_count + 1);
+    std::vector<uint32_t> pagelet_offsets(pagelet_count + 1);
     for (auto &&pagelet_offset : pagelet_offsets) {
         pagelet_offset = r.read_u32();
     }

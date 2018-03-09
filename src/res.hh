@@ -88,7 +88,7 @@ public:
 
     // (conversion ctor)
     // FIXME explain
-    atom(std::nullptr_t) noexcept;
+    atom(nullptr_t) noexcept;
 
     // (copy ctor)
     // FIXME explain
@@ -109,12 +109,12 @@ public:
     // (equal operator)
     // FIXME explain
     bool operator ==(const atom &rhs) const noexcept;
-    bool operator ==(std::nullptr_t) const noexcept;
+    bool operator ==(nullptr_t) const noexcept;
 
     // (not-equal operator)
     // FIXME explain
     bool operator !=(const atom &rhs) const noexcept;
-    bool operator !=(std::nullptr_t) const noexcept;
+    bool operator !=(nullptr_t) const noexcept;
 
     // (explicit conversion operator)
     // FIXME explain
