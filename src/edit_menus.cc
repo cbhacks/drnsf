@@ -41,7 +41,7 @@ void mni_open::on_activate()
     if (!gui::show_open_dialog(path)) return;
 
     // Create the new project to import into.
-    auto proj_p = m_ed.get_proj(); //FIXME
+    auto proj_p = m_ctx.get_proj(); //FIXME
     auto &proj = *proj_p;
 
     proj.get_transact().run([&](TRANSACT) {
@@ -94,7 +94,7 @@ void mni_open::on_activate()
         }
     });
 
-    // Set the editor to use the newly opened project.
+    // Point the context to the newly opened project.
     // TODO
 }
 
@@ -105,12 +105,12 @@ void mni_exit::on_activate()
 }
 
 // (s-func) get_undo_str
-// Gets the description of the specified editor's undo transaction if it can be
+// Gets the description of the specified context's undo transaction if it can be
 // undone, or null if there is some reason this cannot be done. Used by
 // mni_undo::update.
-static const char *get_undo_str(editor &ed)
+static const char *get_undo_str(context &ctx)
 {
-    auto proj = ed.get_proj();
+    auto proj = ctx.get_proj();
     if (!proj) return nullptr;
 
     auto &tsn = proj->get_transact();
@@ -123,7 +123,7 @@ static const char *get_undo_str(editor &ed)
 // declared in edit.hh
 void mni_undo::update()
 {
-    auto str = get_undo_str(m_ed);
+    auto str = get_undo_str(m_ctx);
     if (str) {
         set_text("Undo: $"_fmt(str));
         set_enabled(true);
@@ -136,7 +136,7 @@ void mni_undo::update()
 // declared in edit.hh
 void mni_undo::on_activate()
 {
-    auto proj = m_ed.get_proj();
+    auto proj = m_ctx.get_proj();
     if (!proj) return;
 
     auto &tsn = proj->get_transact();
@@ -147,25 +147,25 @@ void mni_undo::on_activate()
 }
 
 // declared in edit.hh
-mni_undo::mni_undo(gui::menu &menu, editor &ed) :
+mni_undo::mni_undo(gui::menu &menu, context &ctx) :
     item(menu, "<undo>"),
-    m_ed(ed)
+    m_ctx(ctx)
 {
     h_status_change <<= [this]{
         update();
     };
-    h_status_change.bind(ed.get_proj()->get_transact().on_status_change);
-    // FIXME handle editor project change
+    h_status_change.bind(ctx.get_proj()->get_transact().on_status_change);
+    // FIXME handle context project change
     update();
 }
 
 // (s-func) get_redo_str
-// Gets the description of the specified editor's redo transaction if it can be
+// Gets the description of the specified context's redo transaction if it can be
 // redone, or null if there is some reason this cannot be done. Used by
 // mni_redo::update.
-static const char *get_redo_str(editor &ed)
+static const char *get_redo_str(context &ctx)
 {
-    auto proj = ed.get_proj();
+    auto proj = ctx.get_proj();
     if (!proj) return nullptr;
 
     auto &tsn = proj->get_transact();
@@ -178,7 +178,7 @@ static const char *get_redo_str(editor &ed)
 // declared in edit.hh
 void mni_redo::update()
 {
-    auto str = get_redo_str(m_ed);
+    auto str = get_redo_str(m_ctx);
     if (str) {
         set_text("Redo: $"_fmt(str));
         set_enabled(true);
@@ -191,7 +191,7 @@ void mni_redo::update()
 // declared in edit.hh
 void mni_redo::on_activate()
 {
-    auto proj = m_ed.get_proj();
+    auto proj = m_ctx.get_proj();
     if (!proj) return;
 
     auto &tsn = proj->get_transact();
@@ -202,15 +202,15 @@ void mni_redo::on_activate()
 }
 
 // declared in edit.hh
-mni_redo::mni_redo(gui::menu &menu, editor &ed) :
+mni_redo::mni_redo(gui::menu &menu, context &ctx) :
     item(menu, "<redo>"),
-    m_ed(ed)
+    m_ctx(ctx)
 {
     h_status_change <<= [this]{
         update();
     };
-    h_status_change.bind(ed.get_proj()->get_transact().on_status_change);
-    // FIXME handle editor project change
+    h_status_change.bind(ctx.get_proj()->get_transact().on_status_change);
+    // FIXME handle context project change
     update();
 }
 

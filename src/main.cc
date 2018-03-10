@@ -34,10 +34,10 @@ int main(int argc, char *argv[])
 
     // Create the editor.
     auto proj = std::make_shared<res::project>();
-    edit::editor editor(proj);
+    edit::context ctx(proj);
     edit::core edcore(*proj);
 
-    edit::main_window wnd(editor);
+    edit::main_window wnd(ctx);
     wnd.show();
     wnd.set_project(*proj);
 

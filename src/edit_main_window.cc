@@ -27,8 +27,8 @@
 namespace drnsf {
 namespace edit {
 
-main_window::main_window(editor &ed) :
-    m_ed(ed),
+main_window::main_window(context &ctx) :
+    m_ctx(ctx),
     m_wnd(APP_TITLE, 1024, 768),
     m_newmenubar(m_wnd)
 {

@@ -38,29 +38,29 @@ namespace drnsf {
 namespace edit {
 
 /*
- * edit::editor
+ * edit::context
  *
  * FIXME explain
  */
-class editor : private util::nocopy {
+class context : private util::nocopy {
 private:
     // (var) m_proj
-    // The project currently open under this editor, or null if there is no
+    // The project currently open under this context, or null if there is no
     // project currently open.
     std::shared_ptr<res::project> m_proj;
 
 public:
     // (explicit ctor)
-    // Creates an editor with the specified project open. The editor takes a
+    // Creates a context with the specified project open. The context takes a
     // copy of the shared pointer.
-    explicit editor(std::shared_ptr<res::project> proj);
+    explicit context(std::shared_ptr<res::project> proj);
 
     // (func) get_proj, set_proj
-    // Gets or sets the project associated with this editor.
+    // Gets or sets the project associated with this context.
     //
     // When setting the project, a copy of the shared pointer to the previous
-    // editor is kept while delivering the on_project_change event. This ensures
-    // that, if the editor held the final shared_ptr, the project is kept alive
+    // project is kept while delivering the on_project_change event. This ensures
+    // that, if this context held the final shared_ptr, the project is kept alive
     // until the event handlers have all been run.
     //
     // It is important that set_proj never be called from inside a transaction,
@@ -86,13 +86,13 @@ namespace menus {
  */
 class mni_open : private gui::menu::item {
 private:
-    editor &m_ed;
+    context &m_ctx;
     void on_activate() final override;
 
 public:
-    explicit mni_open(gui::menu &menu, editor &ed) :
+    explicit mni_open(gui::menu &menu, context &ctx) :
         item(menu, "Open"),
-        m_ed(ed) {}
+        m_ctx(ctx) {}
 };
 
 /*
@@ -117,14 +117,14 @@ public:
  */
 class mnu_file : private gui::menubar::item {
 private:
-    editor &m_ed;
-    mni_open m_open{*this, m_ed};
+    context &m_ctx;
+    mni_open m_open{*this, m_ctx};
     mni_exit m_exit{*this};
 
 public:
-    explicit mnu_file(gui::menubar &menubar, editor &ed) :
+    explicit mnu_file(gui::menubar &menubar, context &ctx) :
         item(menubar, "File"),
-        m_ed(ed) {}
+        m_ctx(ctx) {}
 };
 
 /*
@@ -135,14 +135,14 @@ public:
  */
 class mni_undo : private gui::menu::item {
 private:
-    editor &m_ed;
+    context &m_ctx;
     void update();
     void on_activate() final override;
 
     decltype(transact::nexus::on_status_change)::watch h_status_change;
 
 public:
-    explicit mni_undo(gui::menu &menu, editor &ed);
+    explicit mni_undo(gui::menu &menu, context &ctx);
 };
 
 /*
@@ -153,14 +153,14 @@ public:
  */
 class mni_redo : private gui::menu::item {
 private:
-    editor &m_ed;
+    context &m_ctx;
     void update();
     void on_activate() final override;
 
     decltype(transact::nexus::on_status_change)::watch h_status_change;
 
 public:
-    explicit mni_redo(gui::menu &menu, editor &ed);
+    explicit mni_redo(gui::menu &menu, context &ctx);
 };
 
 /*
@@ -170,14 +170,14 @@ public:
  */
 class mnu_edit : private gui::menubar::item {
 private:
-    editor &m_ed;
-    mni_undo m_undo{*this, m_ed};
-    mni_redo m_redo{*this, m_ed};
+    context &m_ctx;
+    mni_undo m_undo{*this, m_ctx};
+    mni_redo m_redo{*this, m_ctx};
 
 public:
-    explicit mnu_edit(gui::menubar &menubar, editor &ed) :
+    explicit mnu_edit(gui::menubar &menubar, context &ctx) :
         item(menubar, "Edit"),
-        m_ed(ed) {}
+        m_ctx(ctx) {}
 };
 
 }
@@ -359,16 +359,16 @@ static float &g_camera_zoom = g_camera.zoom;
 
 class main_window : private util::nocopy {
 private:
-    editor &m_ed;
+    context &m_ctx;
     gui::window m_wnd;
     gui::menubar m_newmenubar;
-    menus::mnu_file m_mnu_file{m_newmenubar, m_ed};
-    menus::mnu_edit m_mnu_edit{m_newmenubar, m_ed};
+    menus::mnu_file m_mnu_file{m_newmenubar, m_ctx};
+    menus::mnu_edit m_mnu_edit{m_newmenubar, m_ctx};
     res::project *m_proj_p;
     std::unique_ptr<asset_editor> m_assets_view;
 
 public:
-    explicit main_window(editor &ed);
+    explicit main_window(context &ctx);
 
     void show();
 
