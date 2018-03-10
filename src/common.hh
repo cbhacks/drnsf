@@ -135,6 +135,21 @@
 #define DRNSF_ON_EXIT \
     auto DRNSF_ANON_VAR(DRNSF_ON_EXIT__) = ::drnsf::util::on_exit_helper % [&]
 
+/*
+ * DRNSF_DECLARE_EMBED
+ *
+ * FIXME explain
+ */
+#define DRNSF_DECLARE_EMBED(name) \
+    namespace drnsf { \
+    namespace embed { \
+    namespace name { \
+        extern const unsigned char data[]; \
+        extern const size_t size; \
+    } \
+    } \
+    }
+
 namespace drnsf {
 
 /*

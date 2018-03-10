@@ -21,19 +21,10 @@
 #include "common.hh"
 #include "render.hh"
 
+DRNSF_DECLARE_EMBED(reticle_vert);
+DRNSF_DECLARE_EMBED(reticle_frag);
+
 namespace drnsf {
-
-namespace embed {
-    namespace reticle_vert {
-        extern const unsigned char data[];
-        extern const size_t size;
-    }
-    namespace reticle_frag {
-        extern const unsigned char data[];
-        extern const size_t size;
-    }
-}
-
 namespace render {
 
 // (internal struct) reticle_vert

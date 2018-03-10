@@ -32,19 +32,10 @@
 // FIXME temporary hack for edit::im_canvas
 #include "edit.hh"
 
+DRNSF_DECLARE_EMBED(widget_im_vert);
+DRNSF_DECLARE_EMBED(widget_im_frag);
+
 namespace drnsf {
-
-namespace embed {
-    namespace widget_im_vert {
-        extern const unsigned char data[];
-        extern const size_t size;
-    }
-    namespace widget_im_frag {
-        extern const unsigned char data[];
-        extern const size_t size;
-    }
-}
-
 namespace gui {
 
 static gl::texture s_font_tex;

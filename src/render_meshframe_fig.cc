@@ -21,19 +21,10 @@
 #include "common.hh"
 #include "render.hh"
 
+DRNSF_DECLARE_EMBED(meshframe_vert);
+DRNSF_DECLARE_EMBED(meshframe_frag);
+
 namespace drnsf {
-
-namespace embed {
-    namespace meshframe_vert {
-        extern const unsigned char data[];
-        extern const size_t size;
-    }
-    namespace meshframe_frag {
-        extern const unsigned char data[];
-        extern const size_t size;
-    }
-}
-
 namespace render {
 
 const float cube_vb_data[] = {
