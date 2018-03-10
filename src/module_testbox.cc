@@ -27,6 +27,39 @@
 
 namespace drnsf {
 
+static void dovert(
+    const gfx::corner &cn,
+    const std::vector<gfx::color> &colors,
+    const std::vector<gfx::vertex> &vertices)
+{
+    float r = 1.0;
+    float g = 1.0;
+    float b = 1.0;
+    if (cn.color_index >= 0 && cn.color_index < colors.size()) {
+        r *= colors[cn.color_index].r;
+        g *= colors[cn.color_index].g;
+        b *= colors[cn.color_index].b;
+        r /= 255.0;
+        g /= 255.0;
+        b /= 255.0;
+    }
+    if (cn.vertex_index >= 0 && cn.vertex_index < vertices.size()) {
+        auto &&vertex = vertices[cn.vertex_index];
+        if (vertex.color_index >= 0 && vertex.color_index < colors.size()) {
+            r *= colors[vertex.color_index].r;
+            g *= colors[vertex.color_index].g;
+            b *= colors[vertex.color_index].b;
+            r /= 255.0;
+            g /= 255.0;
+            b /= 255.0;
+        }
+        glColor3f(r, g, b);
+        glVertex3fv(vertex.v);
+    } else {
+        glVertex3i(0, 0, 0);
+    }
+}
+
 static void frame(edit::core &m_core, int delta)
 {
     auto &&ns = m_core.m_proj.get_asset_root();
@@ -68,29 +101,20 @@ static void frame(edit::core &m_core, int delta)
 
         glBegin(GL_TRIANGLES);
         for (auto &&p : mesh->get_triangles()) {
-            glColor3ubv(colors[p.v[0].color_index].v);
-            glVertex3fv(vertices[p.v[0].vertex_index].v);
-            glColor3ubv(colors[p.v[1].color_index].v);
-            glVertex3fv(vertices[p.v[1].vertex_index].v);
-            glColor3ubv(colors[p.v[2].color_index].v);
-            glVertex3fv(vertices[p.v[2].vertex_index].v);
+            dovert(p.v[0], colors, vertices);
+            dovert(p.v[1], colors, vertices);
+            dovert(p.v[2], colors, vertices);
         }
         glEnd();
 
         glBegin(GL_TRIANGLES);
         for (auto &&p : mesh->get_quads()) {
-            glColor3ubv(colors[p.v[0].color_index].v);
-            glVertex3fv(vertices[p.v[0].vertex_index].v);
-            glColor3ubv(colors[p.v[1].color_index].v);
-            glVertex3fv(vertices[p.v[1].vertex_index].v);
-            glColor3ubv(colors[p.v[2].color_index].v);
-            glVertex3fv(vertices[p.v[2].vertex_index].v);
-            glColor3ubv(colors[p.v[2].color_index].v);
-            glVertex3fv(vertices[p.v[2].vertex_index].v);
-            glColor3ubv(colors[p.v[1].color_index].v);
-            glVertex3fv(vertices[p.v[1].vertex_index].v);
-            glColor3ubv(colors[p.v[3].color_index].v);
-            glVertex3fv(vertices[p.v[3].vertex_index].v);
+            dovert(p.v[0], colors, vertices);
+            dovert(p.v[1], colors, vertices);
+            dovert(p.v[2], colors, vertices);
+            dovert(p.v[2], colors, vertices);
+            dovert(p.v[1], colors, vertices);
+            dovert(p.v[3], colors, vertices);
         }
         glEnd();
 

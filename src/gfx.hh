@@ -47,6 +47,7 @@ struct vertex {
         float v[3];
     };
     unsigned int fx;
+    int color_index;
 };
 
 /*
