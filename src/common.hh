@@ -40,12 +40,12 @@
 #include <type_traits>
 
 /*
- * STRINGIFY
+ * DRNSF_STRINGIFY
  *
  * FIXME explain
  */
-#define STRINGIFY(x) STRINGIFY_(x)
-#define STRINGIFY_(x) #x
+#define DRNSF_STRINGIFY_(x) #x
+#define DRNSF_STRINGIFY(x) DRNSF_STRINGIFY_(x)
 
 /*
  * DRNSF_CONCAT
