@@ -443,5 +443,15 @@ public:
     using runtime_error::runtime_error;
 };
 
+/*
+ * res::export_error
+ *
+ * FIXME explain
+ */
+class export_error : public std::runtime_error {
+public:
+    using runtime_error::runtime_error;
+};
+
 }
 }

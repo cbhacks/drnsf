@@ -253,5 +253,135 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
     set_model(TS, model);
 }
 
+// declared in nsf.hh
+std::vector<util::blob> wgeo_v2::export_entry(std::uint32_t &out_type) const
+{
+    assert_alive();
+
+    util::binwriter w;
+
+    out_type = 3;
+    std::vector<util::blob> items(7);
+
+    auto &item_info      = items[0];
+    auto &item_vertices  = items[1];
+    auto &item_triangles = items[2];
+    auto &item_quads     = items[3];
+    auto &item_4         = items[4];
+    auto &item_colors    = items[5];
+    auto &item_6         = items[6];
+
+    auto &&model = get_model();
+    if (!model.ok())
+        throw res::export_error("nsf::wgeo_v2: bad model ref");
+
+    auto &&mesh = model->get_mesh();
+    if (!mesh.ok())
+        throw res::export_error("nsf::wgeo_v2: bad mesh ref");
+
+    auto &&anim = model->get_anim();
+    if (!anim.ok())
+        throw res::export_error("nsf::wgeo_v2: bad anim ref");
+
+    auto &&frames = anim->get_frames();
+    if (frames.size() != 1)
+        throw res::export_error("nsf::wgeo_v2: invalid frame count");
+
+    auto &&frame = frames[0];
+    if (!frame.ok())
+        throw res::export_error("nsf::wgeo_v2: bad frame ref");
+
+    // Export the info item (0).
+    w.begin();
+    w.write_s32(model->get_scene_x());
+    w.write_s32(model->get_scene_y());
+    w.write_s32(model->get_scene_z());
+    w.write_u32(get_info_unk0());
+    w.write_u32(frame->get_vertices().size());
+    w.write_u32(mesh->get_triangles().size());
+    w.write_u32(mesh->get_quads().size());
+    w.write_u32(get_item4().size() / 12);
+    w.write_u32(mesh->get_colors().size());
+    w.write_u32(get_item6().size() / 4);
+    w.write_u32(get_tpag_ref_count());
+    w.write_u32(get_tpag_ref0());
+    w.write_u32(get_tpag_ref1());
+    w.write_u32(get_tpag_ref2());
+    w.write_u32(get_tpag_ref3());
+    w.write_u32(get_tpag_ref4());
+    w.write_u32(get_tpag_ref5());
+    w.write_u32(get_tpag_ref6());
+    w.write_u32(get_tpag_ref7());
+    item_info = w.end();
+
+    // Export the vertices.
+    w.begin();
+    for (auto &&vertex : util::reverse_of(frame->get_vertices())) {
+        // TODO
+    }
+    for (auto &&vertex : frame->get_vertices()) {
+        // TODO
+    }
+    item_vertices = w.end();
+
+    // Export the triangles.
+    w.begin();
+    for (auto &&triangle : util::reverse_of(mesh->get_triangles())) {
+        w.write_ubits(8, triangle.unk0);
+        w.write_ubits(12, triangle.v[0].vertex_index);
+        w.write_ubits(12, triangle.v[1].vertex_index);
+    }
+    for (auto &&triangle : mesh->get_triangles()) {
+        w.write_ubits(4, triangle.unk1);
+        w.write_ubits(12, triangle.v[2].vertex_index);
+
+        if (triangle.v[0].color_index != -1 ||
+            triangle.v[1].color_index != -1 ||
+            triangle.v[2].color_index != -1) {
+            throw res::export_error(
+                "nsf::wgeo_v2: corner colors not supported"
+            );
+        }
+    }
+    item_triangles = w.end();
+
+    // Export the quads.
+    w.begin();
+    for (auto &&quad : mesh->get_quads()) {
+        w.write_ubits(8, quad.unk0);
+        w.write_ubits(12, quad.v[0].vertex_index);
+        w.write_ubits(12, quad.v[1].vertex_index);
+        w.write_ubits(8, quad.unk1);
+        w.write_ubits(12, quad.v[2].vertex_index);
+        w.write_ubits(12, quad.v[3].vertex_index);
+
+        if (quad.v[0].color_index != -1 || quad.v[1].color_index != -1 ||
+            quad.v[2].color_index != -1 || quad.v[3].color_index != -1) {
+            throw res::export_error(
+                "nsf::wgeo_v2: corner colors not supported"
+            );
+        }
+    }
+    item_quads = w.end();
+
+    // Export item4.
+    item_4 = get_item4();
+
+    // Export the colors.
+    w.begin();
+    for (auto &&color : mesh->get_colors()) {
+        w.write_u8(color.r);
+        w.write_u8(color.g);
+        w.write_u8(color.b);
+        w.write_u8(0);
+    }
+    item_colors = w.end();
+
+    // Export item6.
+    item_6 = get_item6();
+
+    return items;
+}
+
 }
 }

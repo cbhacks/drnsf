@@ -95,5 +95,74 @@ void spage::import_file(TRANSACT, const util::blob &data)
     set_pagelets(TS, {pagelets.begin(), pagelets.end()});
 }
 
+// declared in nsf.hh
+util::blob spage::export_file() const
+{
+    assert_alive();
+
+    util::binwriter w;
+    w.begin();
+
+    auto &&pagelets = get_pagelets();
+
+    // Write the page header.
+    w.write_u16(0x1234);
+    w.write_u16(get_type());
+    w.write_u32(get_cid());
+    w.write_u32(pagelets.size());
+    w.write_u32(get_checksum());
+
+    // Export the pagelets if they are processed entries.
+    std::vector<util::blob> pagelets_raw(pagelets.size());
+    for (auto &&i : util::range_of(get_pagelets())) {
+        auto ref = get_pagelets()[i];
+
+        if (!ref)
+            throw res::export_error("nsf::spage: null pagelet ref");
+
+        misc::raw_data::ref raw_ref = ref;
+        if (raw_ref.ok()) {
+            pagelets_raw[i] = raw_ref->get_data();
+            continue;
+        }
+
+        entry::ref entry_ref = ref;
+        if (entry_ref.ok()) {
+            pagelets_raw[i] = entry_ref->export_file();
+            continue;
+        }
+
+        throw res::export_error("nsf::spage: pagelet has incompatible type");
+    }
+
+    // Calculate and write the pagelet offsets.
+    std::uint32_t pagelet_offset = 20 + pagelets.size() * 4;
+    for (auto &&pagelet : pagelets_raw) {
+        w.write_u32(pagelet_offset);
+        pagelet_offset += pagelet.size();
+    }
+    w.write_u32(pagelet_offset);
+
+    auto data = w.end();
+
+    // Write the pagelets themselves.
+    for (auto &&pagelet : pagelets_raw) {
+        data.insert(data.end(), pagelet.begin(), pagelet.end());
+    }
+
+    // Ensure a 64K page size.
+    if (data.size() > page_size)
+        throw res::export_error("nsf::spage: over 64K page size");
+
+    if (data.size() < page_size) {
+        data.resize(page_size);
+    }
+
+    // Calculate checksum, if necessary.
+    // TODO
+
+    return data;
+}
+
 }
 }

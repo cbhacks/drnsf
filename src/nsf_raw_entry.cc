@@ -79,6 +79,15 @@ void raw_entry::import_file(TRANSACT, const util::blob &data)
     set_items(TS, std::move(items));
 }
 
+// declared in nsf.hh
+std::vector<util::blob> raw_entry::export_entry(std::uint32_t &out_type) const
+{
+    assert_alive();
+
+    out_type = get_type();
+    return get_items();
+}
+
 // declared in res.hh
 bool raw_entry::process_by_type(TRANSACT, game_ver ver)
 {

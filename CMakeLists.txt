@@ -38,6 +38,7 @@ add_executable (drnsf
     src/util.hh
     src/util.cc
     src/util_binreader.cc
+    src/util_binwriter.cc
 
     src/fs.hh
 
@@ -100,6 +101,7 @@ add_executable (drnsf
     src/nsf.hh
     src/nsf_archive.cc
     src/nsf_spage.cc
+    src/nsf_entry.cc
     src/nsf_raw_entry.cc
     src/nsf_wgeo_v2.cc
 

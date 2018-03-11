@@ -128,6 +128,10 @@ public:
     // FIXME explain
     void import_file(TRANSACT, const util::blob &data);
 
+    // (func) export_file
+    // FIXME explain
+    util::blob export_file() const;
+
     // FIXME obsolete
     template <typename Reflector>
     void reflect(Reflector &rfl)
@@ -176,6 +180,10 @@ public:
     // FIXME explain
     void import_file(TRANSACT, const util::blob &data);
 
+    // (func) export_file
+    // FIXME explain
+    util::blob export_file() const;
+
     // FIXME obsolete
     template <typename Reflector>
     void reflect(Reflector &rfl)
@@ -207,6 +215,15 @@ public:
     // (prop) eid
     // FIXME explain
     DEFINE_APROP(eid, eid);
+
+    // (func) export_file
+    // FIXME explain
+    util::blob export_file() const;
+
+    // (pure func) export_entry
+    // FIXME explain
+    virtual std::vector<util::blob> export_entry(
+        std::uint32_t &out_type) const = 0;
 
     // FIXME obsolete
     template <typename Reflector>
@@ -247,6 +264,11 @@ public:
     // (func) import_file
     // FIXME explain
     void import_file(TRANSACT, const util::blob &data);
+
+    // (func) export_entry
+    // FIXME explain
+    std::vector<util::blob> export_entry(
+        std::uint32_t &out_type) const final override;
 
     // (func) process_as<T>
     // FIXME explain
@@ -331,6 +353,11 @@ public:
     // (func) import_entry
     // FIXME explain
     void import_entry(TRANSACT, const std::vector<util::blob> &items);
+
+    // (func) export_entry
+    // FIXME explain
+    std::vector<util::blob> export_entry(
+        std::uint32_t &out_type) const final override;
 
     // FIXME obsolete
     template <typename Reflector>

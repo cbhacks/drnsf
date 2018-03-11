@@ -406,6 +406,44 @@ inline auto range_of(T &container)
 }
 
 /*
+ * util::reverse_of
+ *
+ * FIXME explain
+ */
+template <typename T>
+inline auto reverse_of(T &container)
+{
+    // (inner class) reverse_type
+    // FIXME explain
+    class reverse_type {
+    private:
+        // (var) m_container
+        // FIXME explain
+        T &m_container;
+
+    public:
+        // (ctor)
+        // FIXME explain
+        reverse_type(T &container) :
+            m_container(container) {}
+
+        // (func) begin
+        // FIXME explain
+        auto begin() {
+            return m_container.rbegin();
+        }
+
+        // (func) end
+        // FIXME explain
+        auto end() {
+            return m_container.rend();
+        }
+    };
+
+    return reverse_type(container);
+}
+
+/*
  * util::binreader
  *
  * This class provides a mechanism for reading and parsing binary data.
@@ -512,6 +550,77 @@ public:
     // (func) discard_bits
     // FIXME explain
     void discard_bits(int bits);
+};
+
+/*
+ * util::binwriter
+ *
+ * This class provides a mechanism for writing binary data.
+ *
+ * FIXME explain
+ */
+class binwriter : private nocopy {
+private:
+    // (var) m_active
+    // FIXME explain
+    bool m_active;
+
+    // (var) m_data
+    // FIXME explain
+    util::blob m_data;
+
+    // (var) m_bitbuf
+    // FIXME explain
+    unsigned char m_bitbuf;
+
+    // (var) m_bitbuf_len
+    // FIXME explain
+    int m_bitbuf_len;
+
+public:
+    // (default ctor)
+    // FIXME explain
+    binwriter();
+
+    // (func) begin
+    // FIXME explain
+    void begin();
+
+    // (func) end
+    // FIXME explain
+    util::blob end();
+
+    // (func) write_u8
+    // fixme explain
+    void write_u8(std::uint8_t value);
+
+    // (func) write_u16
+    // fixme explain
+    void write_u16(std::uint16_t value);
+
+    // (func) write_u32
+    // fixme explain
+    void write_u32(std::uint32_t value);
+
+    // (func) write_ubits
+    // fixme explain
+    void write_ubits(int bits, std::int64_t value);
+
+    // (func) write_s8
+    // fixme explain
+    void write_s8(std::int8_t value);
+
+    // (func) write_s16
+    // fixme explain
+    void write_s16(std::int16_t value);
+
+    // (func) write_s32
+    // fixme explain
+    void write_s32(std::int32_t value);
+
+    // (func) write_sbits
+    // fixme explain
+    void write_sbits(int bits, std::int64_t value);
 };
 
 /*

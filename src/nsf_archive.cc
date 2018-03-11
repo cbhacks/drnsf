@@ -56,5 +56,36 @@ void archive::import_file(TRANSACT, const util::blob &data)
     set_pages(TS, {pages.begin(), pages.end()});
 }
 
+// declared in nsf.hh
+util::blob archive::export_file() const
+{
+    util::blob data;
+
+    for (auto &&i : util::range_of(get_pages())) {
+        auto ref = get_pages()[i];
+
+        if (!ref)
+            throw res::export_error("nsf::archive: null page ref");
+
+        misc::raw_data::ref raw_ref = ref;
+        if (raw_ref.ok()) {
+            auto raw_data = raw_ref->get_data();
+            data.insert(data.end(), raw_data.begin(), raw_data.end());
+            continue;
+        }
+
+        spage::ref spage_ref = ref;
+        if (spage_ref.ok()) {
+            auto spage_data = spage_ref->export_file();
+            data.insert(data.end(), spage_data.begin(), spage_data.end());
+            continue;
+        }
+
+        throw res::export_error("nsf::archive: page has incompatible type");
+    }
+
+    return data;
+}
+
 }
 }
