@@ -45,9 +45,9 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
 
     // Parse the info item (0).
     r.begin(item_info);
-    auto scene_x        = r.read_s32();
-    auto scene_y        = r.read_s32();
-    auto scene_z        = r.read_s32();
+    auto world_x        = r.read_s32();
+    auto world_y        = r.read_s32();
+    auto world_z        = r.read_s32();
     auto info_unk0      = r.read_u32();
     auto vertex_count   = r.read_u32();
     auto triangle_count = r.read_u32();
@@ -229,13 +229,18 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
     mesh->set_colors(TS, std::move(colors));
 
     // Create the model for this scene.
-    gfx::model::ref model = atom;
+    gfx::model::ref model = atom / "model";
     model.create(TS, get_proj());
     model->set_anim(TS, anim);
     model->set_mesh(TS, mesh);
-    model->set_scene_x(TS, scene_x);
-    model->set_scene_y(TS, scene_y);
-    model->set_scene_z(TS, scene_z);
+
+    // Create the world for this scene.
+    gfx::world::ref world = atom;
+    world.create(TS, get_proj());
+    world->set_model(TS, model);
+    world->set_x(TS, world_x);
+    world->set_y(TS, world_y);
+    world->set_z(TS, world_z);
 
     // Finish importing.
     set_info_unk0(TS, info_unk0);
@@ -250,7 +255,7 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
     set_tpag_ref7(TS, tpag_ref7);
     set_item4(TS, items[4]);
     set_item6(TS, items[6]);
-    set_model(TS, model);
+    set_world(TS, world);
 }
 
 // declared in nsf.hh
@@ -271,7 +276,11 @@ std::vector<util::blob> wgeo_v2::export_entry(std::uint32_t &out_type) const
     auto &item_colors    = items[5];
     auto &item_6         = items[6];
 
-    auto &&model = get_model();
+    auto &&world = get_world();
+    if (!world.ok())
+        throw res::export_error("nsf::wgeo_v2: bad world ref");
+
+    auto &&model = world->get_model();
     if (!model.ok())
         throw res::export_error("nsf::wgeo_v2: bad model ref");
 
@@ -293,9 +302,9 @@ std::vector<util::blob> wgeo_v2::export_entry(std::uint32_t &out_type) const
 
     // Export the info item (0).
     w.begin();
-    w.write_s32(model->get_scene_x());
-    w.write_s32(model->get_scene_y());
-    w.write_s32(model->get_scene_z());
+    w.write_s32(world->get_x());
+    w.write_s32(world->get_y());
+    w.write_s32(world->get_z());
     w.write_u32(get_info_unk0());
     w.write_u32(frame->get_vertices().size());
     w.write_u32(mesh->get_triangles().size());

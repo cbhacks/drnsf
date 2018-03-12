@@ -346,9 +346,9 @@ public:
     // FIXME explain
     DEFINE_APROP(item6, util::blob);
 
-    // (prop) model
+    // (prop) world
     // FIXME explain
-    DEFINE_APROP(model, gfx::model::ref);
+    DEFINE_APROP(world, gfx::world::ref);
 
     // (func) import_entry
     // FIXME explain
@@ -364,7 +364,6 @@ public:
     void reflect(Reflector &rfl)
     {
         entry::reflect(rfl);
-        rfl.field(p_model, "Model");
         rfl.field(p_item4, "Item 4");
         rfl.field(p_item6, "Item 6");
     }

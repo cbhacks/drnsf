@@ -231,12 +231,6 @@ public:
     // FIXME explain
     DEFINE_APROP(mesh, mesh::ref);
 
-    // (prop) scene_x, scene_y, scene_z
-    // FIXME explain
-    DEFINE_APROP(scene_x, double, 0.0);
-    DEFINE_APROP(scene_y, double, 0.0);
-    DEFINE_APROP(scene_z, double, 0.0);
-
     // FIXME obsolete
     template <typename Reflector>
     void reflect(Reflector &rfl)
@@ -244,10 +238,37 @@ public:
         asset::reflect(rfl);
         rfl.field(p_anim, "Animation");
         rfl.field(p_mesh, "Mesh");
-        rfl.field(p_scene_x, "Scene X");
-        rfl.field(p_scene_y, "Scene Y");
-        rfl.field(p_scene_z, "Scene Z");
     }
+};
+
+/*
+ * gfx::world
+ *
+ * FIXME explain
+ */
+class world : public res::asset {
+    friend class res::asset;
+
+private:
+    // (explicit ctor)
+    // FIXME explain
+    explicit world(res::project &proj) :
+        asset(proj) {}
+
+public:
+    // (typedef) ref
+    // FIXME explain
+    using ref = res::ref<world>;
+
+    // (prop) model
+    // FIXME explain
+    DEFINE_APROP(model, model::ref);
+
+    // (prop) x, y, z
+    // FIXME explain
+    DEFINE_APROP(x, double, 0.0);
+    DEFINE_APROP(y, double, 0.0);
+    DEFINE_APROP(z, double, 0.0);
 };
 
 }

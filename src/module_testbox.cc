@@ -64,13 +64,17 @@ static void frame(edit::core &m_core, int delta)
 {
     auto &&ns = m_core.m_proj.get_asset_root();
 
-    gfx::model::ref smodel = edit::g_selected_asset;
+    gfx::world::ref sworld = edit::g_selected_asset;
 
     glPushMatrix();
     glRotatef(edit::g_camera_pitch, 1, 0, 0);
     glRotatef(edit::g_camera_yaw, 0, 1, 0);
 
-    for (gfx::model::ref model : ns.get_asset_names()) {
+    for (gfx::world::ref world : ns.get_asset_names()) {
+        if (!world.ok())
+            continue;
+
+        auto model = world->get_model();
         if (!model.ok())
             continue;
 
@@ -91,10 +95,10 @@ static void frame(edit::core &m_core, int delta)
             continue;
 
         glPushMatrix();
-        if (smodel.ok()) {
-            glTranslatef(-smodel->get_scene_x(), -smodel->get_scene_y(), -smodel->get_scene_z());
+        if (sworld.ok()) {
+            glTranslatef(-sworld->get_x(), -sworld->get_y(), -sworld->get_z());
         }
-        glTranslatef(model->get_scene_x(), model->get_scene_y(), model->get_scene_z());
+        glTranslatef(world->get_x(), world->get_y(), world->get_z());
 
         auto &&colors = mesh->get_colors();
         auto &&vertices = frame->get_vertices();
