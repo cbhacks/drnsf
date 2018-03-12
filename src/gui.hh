@@ -1,6 +1,6 @@
 //
 // DRNSF - An unofficial Crash Bandicoot level editor
-// Copyright (C) 2017  DRNSF contributors
+// Copyright (C) 2017-2018  DRNSF contributors
 //
 // See the AUTHORS.md file for more details.
 //
