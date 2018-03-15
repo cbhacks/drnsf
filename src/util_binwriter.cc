@@ -69,14 +69,14 @@ void binwriter::write_u8(uint8_t value)
 void binwriter::write_u16(uint16_t value)
 {
     write_u8(value);
-    write_u8(value << 8);
+    write_u8(value >> 8);
 }
 
 // declared in util.hh
 void binwriter::write_u32(uint32_t value)
 {
     write_u16(value);
-    write_u16(value << 16);
+    write_u16(value >> 16);
 }
 
 // declared in util.hh
