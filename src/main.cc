@@ -46,9 +46,10 @@ static int cmd_help(argv_t argv)
 
 Available subcommands:
 
-  gui      Run the application in graphical mode (default)
-  help     Display this message
-  version  Display version and license information
+  gui            Run the application in graphical mode (default)
+  help           Display this message
+  version        Display version and license information
+  internal-test  Runs internal unit tests
 
 The default subcommand is `gui', which will be used if no subcommand was
 specified.
@@ -117,10 +118,37 @@ static int cmd_default(argv_t argv)
     return cmd_gui(argv);
 }
 
+static int cmd_internal_test(argv_t argv)
+{
+#if FEATURE_INTERNAL_TEST
+    // Initialize google test with the given options.
+    int C_argc = int(argv.size() + 1);
+    auto C_argv = std::make_unique<const char *[]>(C_argc);
+    C_argv[0] = "drnsf";
+    for (int i = 1; i < C_argc; i++) {
+        C_argv[i] = argv[i - 1].c_str();
+    }
+    ::testing::InitGoogleTest(&C_argc, const_cast<char **>(C_argv.get()));
+    argv = argv_t(&C_argv[1], &C_argv[C_argc]);
+
+    // Check for any arguments which weren't consumed by gtest.
+    // TODO
+
+    return RUN_ALL_TESTS();
+#else
+    std::cerr
+        << "This feature was disabled in the build configuration."
+        << std::endl;
+
+    return EXIT_FAILURE;
+#endif
+}
+
 const static std::map<std::string, int (*)(argv_t)> s_cmds = {
     { "help", cmd_help },
     { "version", cmd_version },
-    { "gui", cmd_gui }
+    { "gui", cmd_gui },
+    { "internal-test", cmd_internal_test }
 };
 
 int main(argv_t argv)
@@ -244,6 +272,15 @@ int main(argv_t argv)
 
     return cmd(argv);
 }
+
+#if FEATURE_INTERNAL_TEST
+// (test) AlwaysPass
+// This test should always pass. This is a simple test to see if the testing
+// system is building and running, even if it is the only test defined.
+TEST(main, AlwaysPass)
+{
+}
+#endif
 
 }
 }

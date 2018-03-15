@@ -72,6 +72,11 @@
 #include "drnsf_buildconfig_out.hh"
 #undef DRNSF_BUILDCONFIG_INCLUDED_PROPERLY
 
+// Include googletest headers if internal testing was enabled for this build.
+#if FEATURE_INTERNAL_TEST
+#include "gtest/gtest.h"
+#endif
+
 #include "util.hh"
 
 /*

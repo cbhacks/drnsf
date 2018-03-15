@@ -141,6 +141,11 @@ else ()
     message (FATAL_ERROR "Unrecognized FRONTEND value: ${FRONTEND}")
 endif ()
 
+# Option: FEATURE_INTERNAL_TEST
+set (FEATURE_INTERNAL_TEST ON CACHE BOOL
+    "Enable the internal-test command. (requires googletest)"
+)
+
 # Dependency: pkg-config
 find_package (PkgConfig REQUIRED)
 
@@ -168,6 +173,27 @@ target_link_libraries (drnsf PRIVATE PkgConfig::EPOXY)
 # Dependency: GLM
 # (header-only, included as a git submodule)
 target_include_directories (drnsf PRIVATE ${CMAKE_SOURCE_DIR}/glm)
+
+# Dependency: Google Test
+# (included as a git submodule)
+if (FEATURE_INTERNAL_TEST)
+    set (BUILD_GTEST ON CACHE INTERNAL
+        "Use googletest."
+        FORCE)
+    set (BUILD_GMOCK OFF CACHE INTERNAL
+        "Use googlemock."
+        FORCE)
+    set (INSTALL_GTEST OFF CACHE INTERNAL
+        "Install googletest when installing drnsf."
+        FORCE
+    )
+    set (INSTALL_GMOCK OFF CACHE INTERNAL
+        "Install googlemock when installing drnsf."
+        FORCE
+    )
+    add_subdirectory (googletest)
+    target_link_libraries (drnsf PRIVATE gtest)
+endif()
 
 # Dependency: C++17 Filesystem
 if (CMAKE_COMPILER_IS_GNUCXX)
