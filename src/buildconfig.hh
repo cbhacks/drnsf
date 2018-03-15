@@ -40,9 +40,11 @@
 #define APP_FULLNAME "Dr. N. Essef"
 
 #if ${DRNSF_VERSION_MAJOR} == 0
+#define APP_VERSION "DEV Version"
 #define APP_IS_DEV_VERSION 1
 #define APP_TITLE APP_FULLNAME " DEV"
 #else
+#define APP_VERSION "Version ${DRNSF_VERSION}"
 #define APP_VERSION_MAJOR ${DRNSF_VERSION_MAJOR}
 #define APP_TITLE APP_FULLNAME " v${DRNSF_VERSION}"
 #endif
