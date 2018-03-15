@@ -202,5 +202,184 @@ void binreader::discard_bits(int bits)
     read_ubits(bits);
 }
 
+#if FEATURE_INTERNAL_TEST
+namespace {
+
+TEST(util_binreader, U8Read)
+{
+    blob data = { 0, 1, 0x7F, 0x80, 0xFF };
+    binreader r;
+    r.begin(data);
+    EXPECT_EQ(r.read_u8(), 0);
+    EXPECT_EQ(r.read_u8(), 1);
+    EXPECT_EQ(r.read_u8(), 0x7F);
+    EXPECT_EQ(r.read_u8(), 0x80);
+    EXPECT_EQ(r.read_u8(), 0xFF);
+    EXPECT_THROW(r.read_u8(), std::logic_error);
+}
+
+TEST(util_binreader, U16Read)
+{
+    blob data = {
+        0, 0,
+        1, 0,
+        0xFF, 0x7F,
+        0x00, 0x80,
+        0xFF, 0xFF,
+        0
+    };
+    binreader r;
+    r.begin(data);
+    EXPECT_EQ(r.read_u16(), 0);
+    EXPECT_EQ(r.read_u16(), 1);
+    EXPECT_EQ(r.read_u16(), 0x7FFF);
+    EXPECT_EQ(r.read_u16(), 0x8000);
+    EXPECT_EQ(r.read_u16(), 0xFFFF);
+    EXPECT_THROW(r.read_u16(), std::logic_error);
+}
+
+TEST(util_binreader, U32Read)
+{
+    blob data = {
+        0, 0, 0, 0,
+        1, 0, 0, 0,
+        0xFF, 0xFF, 0xFF, 0x7F,
+        0x00, 0x00, 0x00, 0x80,
+        0xFF, 0xFF, 0xFF, 0xFF,
+        0, 0, 0
+    };
+    binreader r;
+    r.begin(data);
+    EXPECT_EQ(r.read_u32(), 0);
+    EXPECT_EQ(r.read_u32(), 1);
+    EXPECT_EQ(r.read_u32(), 0x7FFFFFFFLL);
+    EXPECT_EQ(r.read_u32(), 0x80000000LL);
+    EXPECT_EQ(r.read_u32(), 0xFFFFFFFFLL);
+    EXPECT_THROW(r.read_u32(), std::logic_error);
+}
+
+TEST(util_binreader, UBitsRead)
+{
+    blob data = { 0b01000010, 0b10111010, 0b10101010, 0b10101010, 0b11101010 };
+    binreader r;
+    r.begin(data);
+    EXPECT_EQ(r.read_ubits( 0), 0);
+    EXPECT_EQ(r.read_ubits( 1), 0);
+    EXPECT_EQ(r.read_ubits( 1), 1);
+    EXPECT_EQ(r.read_ubits( 4), 0);
+    EXPECT_EQ(r.read_ubits( 4), 0b1001); // crosses a byte boundary
+    EXPECT_EQ(r.read_ubits( 5), 0b01110);
+    EXPECT_EQ(r.read_ubits(23), 0b10101010101010101010101);
+    EXPECT_EQ(r.read_ubits( 2), 0b11);
+    EXPECT_THROW(r.read_ubits(1), std::logic_error);
+}
+
+TEST(util_binreader, S8Read)
+{
+    blob data = { 0, 1, 0x7F, 0x80, 0xFF };
+    binreader r;
+    r.begin(data);
+    EXPECT_EQ(r.read_s8(), 0);
+    EXPECT_EQ(r.read_s8(), 1);
+    EXPECT_EQ(r.read_s8(), 0x7F);
+    EXPECT_EQ(r.read_s8(), -0x80);
+    EXPECT_EQ(r.read_s8(), -1);
+    EXPECT_THROW(r.read_s8(), std::logic_error);
+}
+
+TEST(util_binreader, S16Read)
+{
+    blob data = {
+        0, 0,
+        1, 0,
+        0xFF, 0x7F,
+        0x00, 0x80,
+        0xFF, 0xFF,
+        0
+    };
+    binreader r;
+    r.begin(data);
+    EXPECT_EQ(r.read_s16(), 0);
+    EXPECT_EQ(r.read_s16(), 1);
+    EXPECT_EQ(r.read_s16(), 0x7FFF);
+    EXPECT_EQ(r.read_s16(), -0x8000);
+    EXPECT_EQ(r.read_s16(), -1);
+    EXPECT_THROW(r.read_s16(), std::logic_error);
+}
+
+TEST(util_binreader, S32Read)
+{
+    blob data = {
+        0, 0, 0, 0,
+        1, 0, 0, 0,
+        0xFF, 0xFF, 0xFF, 0x7F,
+        0x00, 0x00, 0x00, 0x80,
+        0xFF, 0xFF, 0xFF, 0xFF,
+        0, 0, 0
+    };
+    binreader r;
+    r.begin(data);
+    EXPECT_EQ(r.read_s32(), 0);
+    EXPECT_EQ(r.read_s32(), 1);
+    EXPECT_EQ(r.read_s32(), 0x7FFFFFFFLL);
+    EXPECT_EQ(r.read_s32(), -0x80000000LL);
+    EXPECT_EQ(r.read_s32(), -1LL);
+    EXPECT_THROW(r.read_s32(), std::logic_error);
+}
+
+TEST(util_binreader, SBitsRead)
+{
+    blob data = { 0b01000010, 0b10111010, 0b10101010, 0b10101010, 0b11101010 };
+    binreader r;
+    r.begin(data);
+    EXPECT_EQ(r.read_sbits( 0), 0);
+    EXPECT_EQ(r.read_sbits( 1), 0);
+    EXPECT_EQ(r.read_sbits( 1), -1);
+    EXPECT_EQ(r.read_sbits( 4), 0);
+    EXPECT_EQ(r.read_sbits( 4), -0b0111); // crosses a byte boundary
+    EXPECT_EQ(r.read_sbits( 5), 0b01110);
+    EXPECT_EQ(r.read_sbits(23), -0b01010101010101010101011);
+    EXPECT_EQ(r.read_sbits( 2), -0b01);
+    EXPECT_THROW(r.read_sbits(1), std::logic_error);
+}
+
+TEST(util_binreader, PartialBitError)
+{
+    blob data = { 0, 0 };
+    binreader r;
+    r.begin(data);
+    r.read_ubits(1);
+    EXPECT_THROW(r.read_u8(), std::logic_error);
+}
+
+TEST(util_binreader, DoubleBeginError)
+{
+    blob data = { 0 };
+    binreader r;
+    r.begin(data);
+    EXPECT_THROW(r.begin(data), std::logic_error);
+}
+
+TEST(util_binreader, EarlyEndError)
+{
+    blob data = { 0 };
+    binreader r;
+    r.begin(data);
+    EXPECT_THROW(r.end(), std::logic_error);
+}
+
+TEST(util_binreader, DoubleEndError)
+{
+    blob data = { 0 };
+    binreader r;
+    r.begin(data);
+    r.read_u8();
+    r.end();
+    EXPECT_THROW(r.end(), std::logic_error);
+}
+
+}
+#endif
+
 }
 }
