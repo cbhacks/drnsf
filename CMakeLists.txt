@@ -137,6 +137,8 @@ if (FRONTEND STREQUAL X11)
 elseif (FRONTEND STREQUAL WINAPI)
     set (USE_GUI ON)
     set (USE_WINAPI ON)
+else ()
+    message (FATAL_ERROR "Unrecognized FRONTEND value: ${FRONTEND}")
 endif ()
 
 # Dependency: pkg-config
