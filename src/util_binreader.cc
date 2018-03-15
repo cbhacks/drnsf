@@ -215,7 +215,7 @@ TEST(util_binreader, U8Read)
     EXPECT_EQ(r.read_u8(), 0x7F);
     EXPECT_EQ(r.read_u8(), 0x80);
     EXPECT_EQ(r.read_u8(), 0xFF);
-    EXPECT_THROW(r.read_u8(), std::logic_error);
+    r.end();
 }
 
 TEST(util_binreader, U16Read)
@@ -225,8 +225,7 @@ TEST(util_binreader, U16Read)
         1, 0,
         0xFF, 0x7F,
         0x00, 0x80,
-        0xFF, 0xFF,
-        0
+        0xFF, 0xFF
     };
     binreader r;
     r.begin(data);
@@ -235,7 +234,7 @@ TEST(util_binreader, U16Read)
     EXPECT_EQ(r.read_u16(), 0x7FFF);
     EXPECT_EQ(r.read_u16(), 0x8000);
     EXPECT_EQ(r.read_u16(), 0xFFFF);
-    EXPECT_THROW(r.read_u16(), std::logic_error);
+    r.end();
 }
 
 TEST(util_binreader, U32Read)
@@ -245,8 +244,7 @@ TEST(util_binreader, U32Read)
         1, 0, 0, 0,
         0xFF, 0xFF, 0xFF, 0x7F,
         0x00, 0x00, 0x00, 0x80,
-        0xFF, 0xFF, 0xFF, 0xFF,
-        0, 0, 0
+        0xFF, 0xFF, 0xFF, 0xFF
     };
     binreader r;
     r.begin(data);
@@ -255,7 +253,7 @@ TEST(util_binreader, U32Read)
     EXPECT_EQ(r.read_u32(), 0x7FFFFFFFLL);
     EXPECT_EQ(r.read_u32(), 0x80000000LL);
     EXPECT_EQ(r.read_u32(), 0xFFFFFFFFLL);
-    EXPECT_THROW(r.read_u32(), std::logic_error);
+    r.end();
 }
 
 TEST(util_binreader, UBitsRead)
@@ -271,7 +269,7 @@ TEST(util_binreader, UBitsRead)
     EXPECT_EQ(r.read_ubits( 5), 0b01110);
     EXPECT_EQ(r.read_ubits(23), 0b10101010101010101010101);
     EXPECT_EQ(r.read_ubits( 2), 0b11);
-    EXPECT_THROW(r.read_ubits(1), std::logic_error);
+    r.end();
 }
 
 TEST(util_binreader, S8Read)
@@ -284,7 +282,7 @@ TEST(util_binreader, S8Read)
     EXPECT_EQ(r.read_s8(), 0x7F);
     EXPECT_EQ(r.read_s8(), -0x80);
     EXPECT_EQ(r.read_s8(), -1);
-    EXPECT_THROW(r.read_s8(), std::logic_error);
+    r.end();
 }
 
 TEST(util_binreader, S16Read)
@@ -294,8 +292,7 @@ TEST(util_binreader, S16Read)
         1, 0,
         0xFF, 0x7F,
         0x00, 0x80,
-        0xFF, 0xFF,
-        0
+        0xFF, 0xFF
     };
     binreader r;
     r.begin(data);
@@ -304,7 +301,7 @@ TEST(util_binreader, S16Read)
     EXPECT_EQ(r.read_s16(), 0x7FFF);
     EXPECT_EQ(r.read_s16(), -0x8000);
     EXPECT_EQ(r.read_s16(), -1);
-    EXPECT_THROW(r.read_s16(), std::logic_error);
+    r.end();
 }
 
 TEST(util_binreader, S32Read)
@@ -314,8 +311,7 @@ TEST(util_binreader, S32Read)
         1, 0, 0, 0,
         0xFF, 0xFF, 0xFF, 0x7F,
         0x00, 0x00, 0x00, 0x80,
-        0xFF, 0xFF, 0xFF, 0xFF,
-        0, 0, 0
+        0xFF, 0xFF, 0xFF, 0xFF
     };
     binreader r;
     r.begin(data);
@@ -324,7 +320,7 @@ TEST(util_binreader, S32Read)
     EXPECT_EQ(r.read_s32(), 0x7FFFFFFFLL);
     EXPECT_EQ(r.read_s32(), -0x80000000LL);
     EXPECT_EQ(r.read_s32(), -1LL);
-    EXPECT_THROW(r.read_s32(), std::logic_error);
+    r.end();
 }
 
 TEST(util_binreader, SBitsRead)
@@ -340,7 +336,7 @@ TEST(util_binreader, SBitsRead)
     EXPECT_EQ(r.read_sbits( 5), 0b01110);
     EXPECT_EQ(r.read_sbits(23), -0b01010101010101010101011);
     EXPECT_EQ(r.read_sbits( 2), -0b01);
-    EXPECT_THROW(r.read_sbits(1), std::logic_error);
+    r.end();
 }
 
 TEST(util_binreader, PartialBitError)
@@ -376,6 +372,27 @@ TEST(util_binreader, DoubleEndError)
     r.read_u8();
     r.end();
     EXPECT_THROW(r.end(), std::logic_error);
+}
+
+TEST(util_binreader, OverrunError)
+{
+    blob data_32(7);
+    binreader r_32;
+    r_32.begin(data_32);
+    r_32.read_u32();
+    EXPECT_THROW(r_32.read_u32(), std::logic_error);
+
+    blob data_16(3);
+    binreader r_16;
+    r_16.begin(data_16);
+    r_16.read_u16();
+    EXPECT_THROW(r_16.read_u16(), std::logic_error);
+
+    blob data_8(1);
+    binreader r_8;
+    r_8.begin(data_8);
+    r_8.read_u8();
+    EXPECT_THROW(r_8.read_u8(), std::logic_error);
 }
 
 }
