@@ -25,6 +25,9 @@
 #include "gui.hh"
 #include "gl.hh"
 
+namespace drnsf {
+namespace {
+
 using argv_t = std::deque<std::string>;
 
 static int cmd_help(argv_t argv)
@@ -86,8 +89,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>."
 
 static int cmd_gui(argv_t argv)
 {
-    using namespace drnsf;
-
     int dummy_argc = 0;
     char *dummy_args[] = { nullptr };
     char **dummy_argv = dummy_args;
@@ -122,17 +123,8 @@ const static std::map<std::string, int (*)(argv_t)> s_cmds = {
     { "gui", cmd_gui }
 };
 
-int main(int C_argc, char *C_argv[])
+int main(argv_t argv)
 {
-    // Convert the C-style argument list into a string vector.
-    argv_t argv(C_argv, C_argv + C_argc);
-
-    // Discard the first argument, if present. This argument is typically the
-    // name of the executable itself.
-    if (!argv.empty()) {
-        argv.pop_front();
-    }
-
     bool ok = true;
     int (*cmd)(argv_t) = cmd_default;
 
@@ -251,4 +243,28 @@ int main(int C_argc, char *C_argv[])
     }
 
     return cmd(argv);
+}
+
+}
+}
+
+/*
+ * main
+ *
+ * This is the actual entry point of the program. Because C++ forbids calling
+ * this function or taking its address, most of the functionality is moved into
+ * the `drnsf::main' function above.
+ */
+int main(int C_argc, char *C_argv[])
+{
+    // Convert the C-style argument list into a string vector.
+    drnsf::argv_t argv(C_argv, C_argv + C_argc);
+
+    // Discard the first argument, if present. This argument is typically the
+    // name of the executable itself.
+    if (!argv.empty()) {
+        argv.pop_front();
+    }
+
+    return drnsf::main(argv);
 }
