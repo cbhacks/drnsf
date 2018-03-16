@@ -77,9 +77,9 @@ asset *&atom::get_internal_asset_ptr() const
 }
 
 // declared in res.hh
-atom atom::make_root()
+atom atom::make_root(project *proj)
 {
-    auto nuc_space = operator new(sizeof(nucleus));
+    auto nuc_space = operator new(sizeof(nucleus) + sizeof(project *));
 
     nucleus *nuc;
     try {
@@ -92,6 +92,7 @@ atom atom::make_root()
     nuc->m_name = "_ROOT";
     nuc->m_parent = nullptr;
     nuc->m_asset = nullptr;
+    std::memcpy(nuc + 1, &proj, sizeof(project *));
     return atom(nuc);
 }
 
@@ -337,6 +338,27 @@ std::vector<atom> atom::get_children_recursive() const
         );
     }
     return result;
+}
+
+// declared in res.hh
+project *atom::get_proj() const
+{
+    if (!m_nuc) {
+        throw std::logic_error("res::atom::get_proj: atom is null");
+    }
+
+    // Find the root atom.
+    auto top = m_nuc;
+    while (top->m_parent) {
+        top = top->m_parent;
+    }
+
+    // Retrieve the project pointer stashed after the nucleus structure in
+    // memory.
+    project *proj;
+    std::memcpy(&proj, top + 1, sizeof(project *));
+
+    return proj;
 }
 
 }

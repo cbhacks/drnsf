@@ -51,6 +51,7 @@ namespace res {
 
 // Forward declaration for use in res::atom.
 class asset;
+class project;
 
 /*
  * res::atom
@@ -80,7 +81,7 @@ private:
 public:
     // (s-func) make_root
     // FIXME explain
-    static atom make_root();
+    static atom make_root(project *proj);
 
     // (default ctor)
     // FIXME explain
@@ -178,6 +179,10 @@ public:
     // FIXME explain
     std::vector<atom> get_children_recursive() const;
 
+    // (func) get_proj
+    // Gets the project pointer the root node was created with (see make_root).
+    project *get_proj() const;
+
     // (func) get_asset_names
     // FIXME explain
     std::vector<atom> get_asset_names() const
@@ -221,7 +226,7 @@ public:
     // (default ctor)
     // FIXME explain
     project() :
-        m_root(atom::make_root()) {}
+        m_root(atom::make_root(this)) {}
 
     // (func) get_asset_root
     // FIXME explain
