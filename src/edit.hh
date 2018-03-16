@@ -183,6 +183,48 @@ public:
 }
 
 /*
+ * edit::asset_propctl
+ *
+ * This widget displays the properties of an asset and allows the user to
+ * modify their values.
+ */
+class asset_propctl : private gui::widget_im {
+private:
+    // (var) m_name
+    // FIXME explain
+    res::atom m_name;
+
+    // (handler) h_asset_appear, h_asset_disappear
+    // Hooks the project's on_asset_appear and on_asset_disappear events so
+    // that, if the selected asset comes into or out of existence, the widget
+    // can be updated.
+    decltype(res::project::on_asset_appear)::watch h_asset_appear;
+    decltype(res::project::on_asset_disappear)::watch h_asset_disappear;
+
+    // (func) frame
+    // Implements `gui::widget_im::frame' to enact the widget's contents using
+    // ImGui.
+    void frame() override;
+
+public:
+    // (explicit ctor)
+    // Constructs the propctl widget in the given container with the given
+    // layout. By default, it is not set to use any asset name.
+    explicit asset_propctl(gui::container &parent, gui::layout layout);
+
+    // (func) set_name
+    // FIXME explain
+    void set_name(res::atom name);
+
+    using widget_im::show;
+    using widget_im::hide;
+    using widget_im::get_layout;
+    using widget_im::set_layout;
+    using widget_im::get_real_size;
+    using widget_im::get_screen_pos;
+};
+
+/*
  * edit::asset_editor
  *
  * FIXME explain
@@ -283,37 +325,6 @@ public:
     // (func) set_selected_asset
     // Sets the asset name which this widget should show information for.
     void set_selected_asset(res::atom atom);
-};
-
-/*
- * edit::asset_propview
- *
- * FIXME explain
- */
-class asset_propview : private gui::composite {
-private:
-    // inner class defined in edit_asset_propview.cc
-    class impl;
-
-    // (var) M
-    // The pointer to the internal implementation object (PIMPL).
-    impl *M;
-
-public:
-    // (ctor)
-    // Constructs the widget and places it in the given parent container.
-    asset_propview(gui::container &parent, gui::layout layout, res::project &proj);
-
-    // (dtor)
-    // Destroys the widget, removing it from the parent container.
-    ~asset_propview();
-
-    using composite::show;
-    using composite::hide;
-    using composite::get_layout;
-    using composite::set_layout;
-    using composite::get_real_size;
-    using composite::get_screen_pos;
 };
 
 /*
