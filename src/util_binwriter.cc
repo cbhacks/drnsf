@@ -82,7 +82,7 @@ void binwriter::write_u32(uint32_t value)
 // declared in util.hh
 void binwriter::write_ubits(int bits, int64_t value)
 {
-    if (bits < 0 || bits > 63)
+    if (bits < 0 || bits > 32)
         throw std::logic_error("util::binwriter::write_ubits: bad bit count");
 
     if (value < 0)
@@ -96,7 +96,18 @@ void binwriter::write_ubits(int bits, int64_t value)
     if (bits == 0)
         return;
 
-    // TODO
+    // Add the bits to a larger temporary bit buffer. The default bit buffer is
+    // only 8 bits in size, which is not enough to store the already buffered
+    // bits (up to 7) along with the new bits (up to 32).
+    std::uint_fast64_t long_bitbuf = m_bitbuf | (value << m_bitbuf_len);
+    m_bitbuf_len += bits;
+
+    while (m_bitbuf_len >= 8) {
+        m_data.push_back(long_bitbuf);
+        long_bitbuf >>= 8;
+        m_bitbuf_len -= 8;
+    }
+    m_bitbuf = long_bitbuf;
 }
 
 // declared in util.hh
