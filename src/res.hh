@@ -198,9 +198,6 @@ public:
     }
 };
 
-// FIXME this is a duplicate forward declaration
-class asset;
-
 /*
  * res::project
  *
