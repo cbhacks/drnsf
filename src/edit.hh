@@ -183,6 +183,53 @@ public:
 }
 
 /*
+ * edit::asset_metactl
+ *
+ * This widget displays basic information about an asset, such as its name and
+ * type, and provides inputs for some basic operations which can be applied to
+ * it, such as deletion, renaming, etc.
+ *
+ * The asset is selected by name, and the control watches the name's associated
+ * project to update itself when the named asset appears or disappears from the
+ * project.
+ */
+class asset_metactl : private gui::widget_im {
+private:
+    // (var) m_name
+    // FIXME explain
+    res::atom m_name;
+
+    // (handler) h_asset_appear, h_asset_disappear
+    // Hooks the project's on_asset_appear and on_asset_disappear events so
+    // that, if the selected asset comes into or out of existence, the widget
+    // can be updated.
+    decltype(res::project::on_asset_appear)::watch h_asset_appear;
+    decltype(res::project::on_asset_disappear)::watch h_asset_disappear;
+
+    // (func) frame
+    // Implements `gui::widget_im::frame' to enact the widget's contents using
+    // ImGui.
+    void frame() override;
+
+public:
+    // (explicit ctor)
+    // Constructs the metactl widget in the given container with the given
+    // layout. By default, it is not set to use any asset name.
+    explicit asset_metactl(gui::container &parent, gui::layout layout);
+
+    // (func) set_name
+    // FIXME explain
+    void set_name(res::atom name);
+
+    using widget_im::show;
+    using widget_im::hide;
+    using widget_im::get_layout;
+    using widget_im::set_layout;
+    using widget_im::get_real_size;
+    using widget_im::get_screen_pos;
+};
+
+/*
  * edit::asset_propctl
  *
  * This widget displays the properties of an asset and allows the user to
@@ -222,6 +269,54 @@ public:
     using widget_im::set_layout;
     using widget_im::get_real_size;
     using widget_im::get_screen_pos;
+};
+
+/*
+ * edit::asset_mainctl
+ *
+ * This widget displays an asset to the user and provides the ability to change
+ * or manipulate the asset in some way
+ *
+ * This is a composite of several different asset widgets defined above.
+ */
+class asset_mainctl : private gui::composite {
+private:
+    // (var) m_metactl
+    // An instance of the asset_metactl placed roughly in the top-left quarter
+    // of the widget.
+    asset_metactl m_metactl{*this, gui::layout::grid(0, 3, 8, 0, 1, 2)};
+
+    // (var) m_propctl
+    // An instance of the asset_propctl placed roughly in the bottom half of
+    // the widget.
+    asset_propctl m_propctl{*this, gui::layout::grid(0, 1, 1, 1, 1, 2)};
+
+public:
+    // (explicit ctor)
+    // Constructs the widget in the given container with the given layout. The
+    // initial asset name is null, so the widget will merely show generic "no
+    // asset selected" messages.
+    explicit asset_mainctl(gui::container &parent, gui::layout layout) :
+        composite(parent, layout)
+    {
+        m_metactl.show();
+        m_propctl.show();
+    }
+
+    // (func) set_name
+    // Sets the asset name used by all of the contained widgets.
+    void set_name(res::atom name)
+    {
+        m_metactl.set_name(name);
+        m_propctl.set_name(name);
+    }
+
+    using composite::show;
+    using composite::hide;
+    using composite::get_layout;
+    using composite::set_layout;
+    using composite::get_real_size;
+    using composite::get_screen_pos;
 };
 
 /*

@@ -46,9 +46,9 @@ private:
     // General informational widget for the currently selected asset.
     asset_infoview m_infoview;
 
-    // (var) m_propview
-    // A property editor for the currently selected asset.
-    asset_propctl m_propview;
+    // (var) m_mainview
+    // FIXME explain
+    asset_mainctl m_mainview;
 
     // (var) m_viewport
     // A GL viewport used to display the currently selected asset to the
@@ -70,19 +70,19 @@ public:
         m_proj(proj),
         m_tree(*this, gui::layout::grid(0, 1, 3, 0, 2, 2), proj),
         m_infoview(*this, gui::layout::grid(1, 1, 3, 0, 1, 2), proj),
-        m_propview(*this, gui::layout::grid(1, 2, 3, 1, 1, 2)),
+        m_mainview(*this, gui::layout::grid(1, 2, 3, 1, 1, 2)),
         m_viewport(*this, gui::layout::grid(2, 1, 3, 0, 1, 2), proj)
     {
         h_tree_select <<= [this](res::atom atom) {
             g_selected_asset = atom;
             m_infoview.set_selected_asset(atom);
-            m_propview.set_name(atom);
+            m_mainview.set_name(atom);
         };
         h_tree_select.bind(m_tree.on_select);
 
         m_tree.show();
         m_infoview.show();
-        m_propview.show();
+        m_mainview.show();
         m_viewport.show();
     }
 };
