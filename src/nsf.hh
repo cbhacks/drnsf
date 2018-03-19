@@ -223,7 +223,7 @@ public:
     // (pure func) export_entry
     // FIXME explain
     virtual std::vector<util::blob> export_entry(
-        std::uint32_t &out_type) const = 0;
+        uint32_t &out_type) const = 0;
 
     // FIXME obsolete
     template <typename Reflector>
@@ -268,7 +268,7 @@ public:
     // (func) export_entry
     // FIXME explain
     std::vector<util::blob> export_entry(
-        std::uint32_t &out_type) const final override;
+        uint32_t &out_type) const final override;
 
     // (func) process_as<T>
     // FIXME explain
@@ -357,7 +357,7 @@ public:
     // (func) export_entry
     // FIXME explain
     std::vector<util::blob> export_entry(
-        std::uint32_t &out_type) const final override;
+        uint32_t &out_type) const final override;
 
     // FIXME obsolete
     template <typename Reflector>

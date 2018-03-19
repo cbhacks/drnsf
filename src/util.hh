@@ -592,35 +592,35 @@ public:
 
     // (func) write_u8
     // fixme explain
-    void write_u8(std::uint8_t value);
+    void write_u8(uint8_t value);
 
     // (func) write_u16
     // fixme explain
-    void write_u16(std::uint16_t value);
+    void write_u16(uint16_t value);
 
     // (func) write_u32
     // fixme explain
-    void write_u32(std::uint32_t value);
+    void write_u32(uint32_t value);
 
     // (func) write_ubits
     // fixme explain
-    void write_ubits(int bits, std::int64_t value);
+    void write_ubits(int bits, int64_t value);
 
     // (func) write_s8
     // fixme explain
-    void write_s8(std::int8_t value);
+    void write_s8(int8_t value);
 
     // (func) write_s16
     // fixme explain
-    void write_s16(std::int16_t value);
+    void write_s16(int16_t value);
 
     // (func) write_s32
     // fixme explain
-    void write_s32(std::int32_t value);
+    void write_s32(int32_t value);
 
     // (func) write_sbits
     // fixme explain
-    void write_sbits(int bits, std::int64_t value);
+    void write_sbits(int bits, int64_t value);
 
     // (func) pad
     // Writes zero-value bytes to the output buffer until the size of the buffer

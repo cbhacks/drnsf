@@ -136,7 +136,7 @@ util::blob spage::export_file() const
     }
 
     // Calculate and write the pagelet offsets.
-    std::uint32_t pagelet_offset = 20 + pagelets.size() * 4;
+    uint32_t pagelet_offset = 20 + pagelets.size() * 4;
     for (auto &&pagelet : pagelets_raw) {
         w.write_u32(pagelet_offset);
         pagelet_offset += pagelet.size();

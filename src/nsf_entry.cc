@@ -32,7 +32,7 @@ util::blob entry::export_file() const
     util::binwriter w;
     w.begin();
 
-    std::uint32_t type;
+    uint32_t type;
     auto items = export_entry(type);
 
     // Write the entry header.
@@ -42,7 +42,7 @@ util::blob entry::export_file() const
     w.write_u32(items.size());
 
     // Calculate and write the item offsets.
-    std::uint32_t item_offset = 20 + items.size() * 4;
+    uint32_t item_offset = 20 + items.size() * 4;
     for (auto &&item : items) {
         w.write_u32(item_offset);
         item_offset += item.size();

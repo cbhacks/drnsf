@@ -259,7 +259,7 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
 }
 
 // declared in nsf.hh
-std::vector<util::blob> wgeo_v2::export_entry(std::uint32_t &out_type) const
+std::vector<util::blob> wgeo_v2::export_entry(uint32_t &out_type) const
 {
     assert_alive();
 

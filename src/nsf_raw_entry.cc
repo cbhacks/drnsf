@@ -80,7 +80,7 @@ void raw_entry::import_file(TRANSACT, const util::blob &data)
 }
 
 // declared in nsf.hh
-std::vector<util::blob> raw_entry::export_entry(std::uint32_t &out_type) const
+std::vector<util::blob> raw_entry::export_entry(uint32_t &out_type) const
 {
     assert_alive();
 
