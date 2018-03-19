@@ -621,6 +621,12 @@ public:
     // (func) write_sbits
     // fixme explain
     void write_sbits(int bits, std::int64_t value);
+
+    // (func) pad
+    // Writes zero-value bytes to the output buffer until the size of the buffer
+    // is a multiple of the specified alignment. If the buffer size already
+    // meets the given alignment requirements, no change occurs.
+    void pad(int alignment);
 };
 
 /*

@@ -367,6 +367,7 @@ std::vector<util::blob> wgeo_v2::export_entry(std::uint32_t &out_type) const
         w.write_ubits( 4, color_low);
         w.write_sbits(12, z);
     }
+    w.pad(4);
     item_vertices = w.end();
 
     // Export the triangles.
@@ -388,6 +389,7 @@ std::vector<util::blob> wgeo_v2::export_entry(std::uint32_t &out_type) const
             );
         }
     }
+    w.pad(4);
     item_triangles = w.end();
 
     // Export the quads.

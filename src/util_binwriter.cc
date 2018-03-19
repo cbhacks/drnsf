@@ -145,6 +145,21 @@ void binwriter::write_sbits(int bits, int64_t value)
     write_ubits(bits, u_value);
 }
 
+// declared in util.hh
+void binwriter::pad(int alignment)
+{
+    if (alignment <= 0) {
+        throw std::logic_error("util::binwriter::pad: invalid alignment");
+    }
+
+    int padding = alignment - (m_data.size() % alignment);
+    if (padding != alignment) {
+        while (padding--) {
+            write_u8(0);
+        }
+    }
+}
+
 #if FEATURE_INTERNAL_TEST
 namespace {
 
@@ -303,6 +318,39 @@ TEST(util_binwriter, DoubleEndError)
     w.begin();
     w.end();
     EXPECT_THROW(w.end(), std::logic_error);
+}
+
+TEST(util_binwriter, Padding)
+{
+    binwriter w;
+    w.begin();
+    w.pad(4);
+    EXPECT_EQ(w.end().size(), 0);
+
+    w.begin();
+    w.write_u8(0);
+    w.pad(4);
+    EXPECT_EQ(w.end().size(), 4);
+
+    w.begin();
+    w.write_u8(0);
+    w.pad(1);
+    EXPECT_EQ(w.end().size(), 1);
+
+    w.begin();
+    w.write_u32(0);
+    w.write_u32(0);
+    w.write_u32(0);
+    w.pad(8);
+    EXPECT_EQ(w.end().size(), 16);
+
+    w.begin();
+    w.write_u32(0);
+    w.write_u32(0);
+    w.write_u32(0);
+    w.write_u32(0);
+    w.pad(8);
+    EXPECT_EQ(w.end().size(), 16);
 }
 
 }
