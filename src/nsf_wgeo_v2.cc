@@ -324,12 +324,48 @@ std::vector<util::blob> wgeo_v2::export_entry(std::uint32_t &out_type) const
     item_info = w.end();
 
     // Export the vertices.
+    const int COORD_MIN = -(1 << 11);
+    const int COORD_MAX = (1 << 11) - 1;
     w.begin();
     for (auto &&vertex : util::reverse_of(frame->get_vertices())) {
-        // TODO
+        int x = vertex.x / 16.0f;
+        int y = vertex.y / 16.0f;
+
+        if (x < COORD_MIN || x >= COORD_MAX ||
+            y < COORD_MIN || y >= COORD_MAX) {
+            throw res::export_error("nsf::wgeo_v2: vertex x/y out of range");
+        }
+
+        if (vertex.color_index == -1) {
+            throw res::export_error("nsf::wgeo_v2: vertex colors required");
+        }
+        if (vertex.color_index < 0 || vertex.color_index >= (1L << 10)) {
+            throw res::export_error("nsf::wgeo_v2: vertex color out of range");
+        }
+
+        unsigned int color_high = (vertex.color_index >> 8) & 0x3;
+        unsigned int color_mid  = (vertex.color_index >> 4) & 0xF;
+
+        w.write_ubits( 4, color_mid);
+        w.write_sbits(12, x);
+        w.write_ubits( 2, color_high);
+        w.write_ubits( 2, vertex.fx);
+        w.write_sbits(12, y);
     }
     for (auto &&vertex : frame->get_vertices()) {
-        // TODO
+        int z = vertex.z / 16.0f;
+
+        if (z < COORD_MIN || z >= COORD_MAX) {
+            throw res::export_error("nsf::wgeo_v2: vertex z out of range");
+        }
+
+        // The vertex color index has already been range checked in the loop
+        // above.
+
+        unsigned int color_low = vertex.color_index & 0xF;
+
+        w.write_ubits( 4, color_low);
+        w.write_sbits(12, z);
     }
     item_vertices = w.end();
 
