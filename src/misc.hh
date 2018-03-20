@@ -78,4 +78,16 @@ public:
 };
 
 }
+
+namespace reflect {
+
+// reflection info for misc::raw_data
+template <>
+struct asset_type_info<misc::raw_data> {
+    using base_type = res::asset;
+
+    static constexpr const char *name = "misc::raw_data";
+};
+
+}
 }

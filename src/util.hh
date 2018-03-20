@@ -277,6 +277,32 @@ public:
 };
 
 /*
+ * util::dynamic_call
+ *
+ * FIXME explain
+ */
+template <
+    template <typename> typename F,
+    typename Arg,
+    typename HeadType,
+    typename... TailTypes>
+bool dynamic_call(Arg *arg)
+{
+    auto *ptr = dynamic_cast<HeadType *>(arg);
+    if (ptr) {
+        F<HeadType>{}(ptr);
+        return true;
+    } else {
+        return dynamic_call<F, Arg, TailTypes...>(arg);
+    }
+}
+template <template <typename> typename F, typename Arg>
+bool dynamic_call(Arg *arg)
+{
+    return false;
+}
+
+/*
  * util::range
  *
  * This function returns an instance of an object which represents an iterable

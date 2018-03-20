@@ -456,4 +456,38 @@ public:
 };
 
 }
+
+namespace reflect {
+
+/*
+ * reflect::asset_type_info
+ *
+ * FIXME explain
+ */
+template <typename AssetType>
+struct asset_type_info {
+    // (typedef) base_type
+    // FIXME explain
+    using base_type = res::asset;
+
+    // (const) name
+    // FIXME explain
+    static constexpr const char *name = "(unknown type)";
+
+    static_assert (
+        std::is_base_of<res::asset, AssetType>::value,
+        "reflect::asset_type_info may only be used with types derived from "
+        "res::asset"
+    );
+};
+
+// reflection info for res::asset
+template <>
+struct asset_type_info<res::asset> {
+    using base_type = void;
+
+    static constexpr const char *name = "res::asset";
+};
+
+}
 }

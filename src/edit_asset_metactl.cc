@@ -22,8 +22,69 @@
 #include <typeinfo>
 #include "edit.hh"
 
+#include "gfx.hh"
+#include "misc.hh"
+#include "nsf.hh"
+
 namespace drnsf {
 namespace edit {
+
+namespace {
+
+// (s-func) do_options
+// FIXME explain
+template <typename T>
+void do_options(T *asset)
+{
+    ImGui::Text("No options available.");
+}
+template <>
+void do_options<res::asset>(res::asset *asset)
+{
+    if (ImGui::Button("Delete asset")) {
+        asset->get_proj().get_transact().run([&](TRANSACT) {
+            TS.describe("Delete '$'"_fmt(asset->get_name().full_path()));
+            asset->destroy(TS);
+        });
+
+        // Exit now since the asset no longer exists. We must prevent the other
+        // buttons from running.
+        // TODO - somehow prevent this from occurring with the later option
+        // sections
+        return;
+    }
+}
+
+// (internal type) asset_handler
+// FIXME explain
+template <typename AssetType>
+struct asset_handler {
+    void operator ()(AssetType *asset)
+    {
+        using type_info = reflect::asset_type_info<AssetType>;
+
+        // TODO - disallow actions while transaction system is busy
+
+        auto title = "Options for $"_fmt(type_info::name);
+        if (ImGui::CollapsingHeader(
+            title.c_str(), ImGuiTreeNodeFlags_DefaultOpen
+        )) {
+            ImGui::Indent();
+            do_options<AssetType>(asset);
+            ImGui::Unindent();
+        }
+
+        asset_handler<typename type_info::base_type>{}(
+            static_cast<typename type_info::base_type *>(asset)
+        );
+    }
+};
+template <>
+struct asset_handler<void> {
+    void operator ()(void *) {}
+};
+
+}
 
 // declared in edit.hh
 void asset_metactl::frame()
@@ -33,19 +94,32 @@ void asset_metactl::frame()
         return;
     }
 
+    ImGui::Text("Name:     %s", m_name.full_path().c_str());
+    ImGui::Separator();
+
     res::asset *asset = m_name.get();
     if (!asset) {
-        ImGui::Text("Name:     %s", m_name.full_path().c_str());
-        ImGui::Text("Type:     (does not exist)");
+        ImGui::Text("(does not exist)");
 
         // TODO actions for non-existing atoms
         return;
     }
 
-    ImGui::Text("Name:     %s", m_name.full_path().c_str());
-    ImGui::Text("Type:     %s", typeid(asset).name());
-
-    // TODO actions for existing assets
+    util::dynamic_call<
+        asset_handler,
+        res::asset,
+        gfx::frame,
+        gfx::anim,
+        gfx::mesh,
+        gfx::model,
+        gfx::world,
+        misc::raw_data,
+        nsf::archive,
+        nsf::spage,
+        nsf::raw_entry,
+        nsf::wgeo_v2,
+        nsf::entry,
+        res::asset>(asset);
 }
 
 // declared in edit.hh

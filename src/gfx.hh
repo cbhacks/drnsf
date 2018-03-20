@@ -272,4 +272,48 @@ public:
 };
 
 }
+
+namespace reflect {
+
+// reflection info for gfx::frame
+template <>
+struct asset_type_info<gfx::frame> {
+    using base_type = res::asset;
+
+    static constexpr const char *name = "gfx::frame";
+};
+
+// reflection info for gfx::anim
+template <>
+struct asset_type_info<gfx::anim> {
+    using base_type = res::asset;
+
+    static constexpr const char *name = "gfx::anim";
+};
+
+// reflection info for gfx::mesh
+template <>
+struct asset_type_info<gfx::mesh> {
+    using base_type = res::asset;
+
+    static constexpr const char *name = "gfx::mesh";
+};
+
+// reflection info for gfx::model
+template <>
+struct asset_type_info<gfx::model> {
+    using base_type = res::asset;
+
+    static constexpr const char *name = "gfx::model";
+};
+
+// reflection info for gfx::world
+template <>
+struct asset_type_info<gfx::world> {
+    using base_type = res::asset;
+
+    static constexpr const char *name = "gfx::world";
+};
+
+}
 }
