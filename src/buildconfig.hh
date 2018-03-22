@@ -53,4 +53,6 @@
 #cmakedefine USE_X11 1
 #cmakedefine USE_WINAPI 1
 
+#cmakedefine USE_GL 1
+
 #cmakedefine FEATURE_INTERNAL_TEST 1
