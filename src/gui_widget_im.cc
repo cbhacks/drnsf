@@ -50,7 +50,7 @@ static gl::program s_prog;
 // declared in gui.hh
 void widget_im::draw_gl(int width, int height, gl::renderbuffer &rbo)
 {
-    if (!s_font_tex.ok()) {
+    if (!s_font_tex.ok) {
         glBindTexture(GL_TEXTURE_2D, s_font_tex);
         glTexImage2D(
             GL_TEXTURE_2D,
@@ -67,10 +67,10 @@ void widget_im::draw_gl(int width, int height, gl::renderbuffer &rbo)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glBindTexture(GL_TEXTURE_2D, 0);
 
-        s_font_tex.set_ok();
+        s_font_tex.ok = true;
     }
 
-    if (!s_vao.ok()) {
+    if (!s_vao.ok) {
         glBindVertexArray(s_vao);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_ibo);
         glBindBuffer(GL_ARRAY_BUFFER, s_vbo);
@@ -104,10 +104,10 @@ void widget_im::draw_gl(int width, int height, gl::renderbuffer &rbo)
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
 
-        s_vao.set_ok();
+        s_vao.ok = true;
     }
 
-    if (!s_prog.ok()) {
+    if (!s_prog.ok) {
         gl::vert_shader vert_shader;
         compile_shader(
             vert_shader,
@@ -130,7 +130,7 @@ void widget_im::draw_gl(int width, int height, gl::renderbuffer &rbo)
         glBindFragDataLocation(s_prog, 0, "f_Color");
         glLinkProgram(s_prog);
 
-        s_prog.set_ok();
+        s_prog.ok = true;
     }
 
     gl::framebuffer fbo;

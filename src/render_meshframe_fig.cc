@@ -92,7 +92,7 @@ static int s_matrix_uni;
 // declared in render.hh
 void meshframe_fig::draw(const env &e)
 {
-    if (!s_vao.ok()) {
+    if (!s_vao.ok) {
         glBindVertexArray(s_vao);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_ibo);
         glBindBuffer(GL_ARRAY_BUFFER, s_vbo);
@@ -100,10 +100,10 @@ void meshframe_fig::draw(const env &e)
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
-        s_vao.set_ok();
+        s_vao.ok = true;
     }
 
-    if (!s_vbo.ok()) {
+    if (!s_vbo.ok) {
         glBindBuffer(GL_COPY_WRITE_BUFFER, s_vbo);
         glBufferData(
             GL_COPY_WRITE_BUFFER,
@@ -112,10 +112,10 @@ void meshframe_fig::draw(const env &e)
             GL_STATIC_DRAW
         );
         glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
-        s_vbo.set_ok();
+        s_vbo.ok = true;
     }
 
-    if (!s_ibo.ok()) {
+    if (!s_ibo.ok) {
         glBindBuffer(GL_COPY_WRITE_BUFFER, s_ibo);
         glBufferData(
             GL_COPY_WRITE_BUFFER,
@@ -124,10 +124,10 @@ void meshframe_fig::draw(const env &e)
             GL_STATIC_DRAW
         );
         glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
-        s_ibo.set_ok();
+        s_ibo.ok = true;
     }
 
-    if (!s_prog.ok()) {
+    if (!s_prog.ok) {
         gl::vert_shader vs;
         compile_shader(
             vs,
@@ -149,7 +149,7 @@ void meshframe_fig::draw(const env &e)
         glLinkProgram(s_prog);
         s_matrix_uni = glGetUniformLocation(s_prog, "u_Matrix");
 
-        s_prog.set_ok();
+        s_prog.ok = true;
     }
 
     glUseProgram(s_prog);

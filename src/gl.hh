@@ -99,19 +99,18 @@ private:
     // FIXME explain
     typename traits::type m_id = traits::null_value;
 
-    // (var) m_dirty
-    // This flag is intended to be set when the object needs to be updated, for
-    // instance (for buffers and textures) if the object's contents are out of
-    // date. An object also starts out as dirty, which can be used for objects
-    // such as shaders to indicate that they need to be uploaded and compiled.
-    //
-    // This flag has no internally meaningful status, and is only intended for
-    // use by code which uses these objects. This flag can be read by ok() and
-    // set using set_ok(). Any call to reset() will also set this flag, such as
-    // in the case of GL context invalidation or context loss (however rare).
-    bool m_dirty = true;
-
 public:
+    // (var) ok
+    // This flag and its value are intended for the users of the class to use
+    // in whatever way they wish. The initial value is false, and it is set to
+    // false again whenever the `reset' method is called, such as when the GL
+    // context is closed.
+    //
+    // This class does not access or use this flag in any way except to set it
+    // false when a reset occurs. Users of this class may choose to ignore the
+    // flag entirely.
+    bool ok = false;
+
     // (default ctor)
     // FIXME explain
     object() = default;
@@ -122,7 +121,7 @@ public:
     {
         using std::swap;
         swap(m_id, src.m_id);
-        swap(m_dirty, src.m_dirty);
+        swap(ok, src.ok);
     }
 
     // (dtor)
@@ -142,7 +141,7 @@ public:
             traits::destroy(m_id);
             m_id = traits::null_value;
         }
-        m_dirty = true;
+        ok = false;
     }
 
     // (conversion operator)
@@ -153,23 +152,6 @@ public:
             traits::create(m_id);
         }
         return m_id;
-    }
-
-    // (func) ok
-    // Returns true if the object is not marked as dirty. See m_dirty for more
-    // details.
-    bool ok() const
-    {
-        return !m_dirty;
-    }
-
-    // (func) set_ok
-    // Sets the dirty status. True will clear the flag, marking the object as
-    // ready for use, false will set the flag marking it as dirty. See m_dirty
-    // for more details.
-    void set_ok(bool ok = true)
-    {
-        m_dirty = !ok;
     }
 };
 
