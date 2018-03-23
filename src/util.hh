@@ -279,25 +279,28 @@ public:
 /*
  * util::dynamic_call
  *
- * FIXME explain
+ * This function takes a functor `f', a pointer `arg', and a list of types. For
+ * the first type in the list which `arg' can successfully be dynamic_cast to,
+ * `f' is called with a pointer to that type, and dynamic_call returns true. If
+ * no matching type is found, dynamic_call returns false.
  */
 template <
-    template <typename> typename F,
+    typename F,
     typename Arg,
     typename HeadType,
     typename... TailTypes>
-bool dynamic_call(Arg *arg)
+bool dynamic_call(F &&f, Arg *arg)
 {
     auto *ptr = dynamic_cast<HeadType *>(arg);
     if (ptr) {
-        F<HeadType>{}(ptr);
+        f(ptr);
         return true;
     } else {
-        return dynamic_call<F, Arg, TailTypes...>(arg);
+        return dynamic_call<F, Arg, TailTypes...>(std::forward<F>(f), arg);
     }
 }
-template <template <typename> typename F, typename Arg>
-bool dynamic_call(Arg *arg)
+template <typename F, typename Arg>
+bool dynamic_call(F &&f, Arg *arg)
 {
     return false;
 }

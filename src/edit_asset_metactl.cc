@@ -105,8 +105,14 @@ void asset_metactl::frame()
         return;
     }
 
+    auto handler = [](auto asset) {
+        asset_handler<
+            std::remove_pointer_t<decltype(asset)>
+        >{}(asset);
+    };
+
     util::dynamic_call<
-        asset_handler,
+        const decltype(handler) &,
         res::asset,
         gfx::frame,
         gfx::anim,
@@ -119,7 +125,7 @@ void asset_metactl::frame()
         nsf::raw_entry,
         nsf::wgeo_v2,
         nsf::entry,
-        res::asset>(asset);
+        res::asset>(handler, asset);
 }
 
 // declared in edit.hh
