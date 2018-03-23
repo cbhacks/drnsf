@@ -261,6 +261,9 @@ public:
  * FIXME explain
  */
 class asset : private util::nocopy {
+    template <typename T>
+    friend class prop;
+
 private:
     // (var) m_name
     // FIXME explain
@@ -283,6 +286,15 @@ protected:
     // FIXME explain
     explicit asset(project &proj) :
         m_proj(proj) {}
+
+    // (func) on_prop_change
+    // This function is called after the value of a property on the asset is
+    // changed. This includes if the change was due to a transaction undo, redo,
+    // or rollback.
+    //
+    // The default implementation performs no action, but it can be overridden
+    // by other asset types.
+    virtual void on_prop_change(void *prop) noexcept {}
 
 public:
     // (dtor)
@@ -338,6 +350,38 @@ public:
 template <typename T>
 class prop : private util::nocopy {
 private:
+    // (internal class) change_op
+    // FIXME explain
+    class change_op : public transact::operation {
+    private:
+        // (var) m_prop
+        // The property this change operation is running on.
+        prop &m_prop;
+
+        // (var) m_after
+        // FIXME explain
+        bool m_after;
+
+    public:
+        // (explicit ctor)
+        // Constructs the change operation against the given property with the
+        // specified `after' state.
+        explicit change_op(prop &prop, bool after) :
+            m_prop(prop),
+            m_after(after) {}
+
+        // (func) execute
+        // FIXME explain
+        void execute() noexcept override
+        {
+            if (m_after) {
+                m_prop.m_owner.on_prop_change(this);
+                m_prop.on_change();
+            }
+            m_after = !m_after;
+        }
+    };
+
     // (var) m_owner
     // FIXME explain
     asset &m_owner;
@@ -366,8 +410,15 @@ public:
     void set(TRANSACT, T value)
     {
         m_owner.assert_alive();
+        TS.push_op(std::make_unique<change_op>(*this, false));
         TS.set(m_value, std::move(value));
+        TS.push_op(std::make_unique<change_op>(*this, true));
     }
+
+    // (event) on_change
+    // This event is raised after the value of the property is changed. This
+    // includes changes which occur due to undo or redo.
+    util::event<> on_change;
 };
 
 /*
