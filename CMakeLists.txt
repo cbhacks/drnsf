@@ -75,7 +75,6 @@ add_executable (drnsf
     src/edit_asset_propctl.cc
     src/edit_asset_editor.cc
     src/edit_asset_tree.cc
-    src/edit_asset_infoview.cc
     src/edit_asset_viewport.cc
     src/edit_main_window.cc
     src/edit_im_canvas.cc

@@ -388,41 +388,6 @@ public:
 };
 
 /*
- * edit::asset_infoview
- *
- * FIXME explain
- */
-class asset_infoview : private gui::composite {
-private:
-    // inner class defined in edit_asset_infoview.cc
-    class impl;
-
-    // (var) M
-    // The pointer to the internal implementation object (PIMPL).
-    impl *M;
-
-public:
-    // (ctor)
-    // Constructs the widget and places it in the given parent container.
-    asset_infoview(gui::container &parent, gui::layout layout, res::project &proj);
-
-    // (dtor)
-    // Destroys the widget, removing it from the parent container.
-    ~asset_infoview();
-
-    using composite::show;
-    using composite::hide;
-    using composite::get_layout;
-    using composite::set_layout;
-    using composite::get_real_size;
-    using composite::get_screen_pos;
-
-    // (func) set_selected_asset
-    // Sets the asset name which this widget should show information for.
-    void set_selected_asset(res::atom atom);
-};
-
-/*
  * edit::asset_viewport
  *
  * FIXME explain
