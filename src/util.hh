@@ -77,6 +77,16 @@ protected:
 };
 
 /*
+ * util::polymorphic
+ *
+ * FIXME explain
+ */
+class polymorphic {
+public:
+    virtual ~polymorphic() = default;
+};
+
+/*
  * util::event
  *
  * FIXME: explain
@@ -143,6 +153,18 @@ public:
             }
 
             m_func = func;
+        }
+
+        // (call operator)
+        // Calls the function associated with this watch. There must already be
+        // a function set on the watch.
+        void operator ()(Args... args)
+        {
+            if (!m_func) {
+                throw std::logic_error("util::watch::(call op): no func");
+            }
+
+            m_func(std::forward<Args...>(args...));
         }
 
         // (func) bind
