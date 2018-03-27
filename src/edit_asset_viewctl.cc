@@ -90,7 +90,7 @@ public:
         m_fig(*this),
         m_reticle(*this)
     {
-        m_fig.set_frame(asset->get_name());
+        m_fig.set_frame(asset);
         m_fig.show();
         m_reticle.show();
     }

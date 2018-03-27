@@ -200,12 +200,15 @@ public:
  *
  * This figure draws a bunch of points corresponding to the vertex positions in
  * a given gfx::frame.
+ *
+ * The frame is given directly by pointer. Any code using this class must ensure
+ * the current frame is valid at all times.
  */
 class frameonly_fig : public figure {
 private:
     // (var) m_frame
-    // The reference to the frame used by this figure.
-    gfx::frame::ref m_frame;
+    // A non-ref pointer to the frame used by this figure.
+    gfx::frame *m_frame = nullptr;
 
     // (var) m_matrix
     // The model matrix for this figure. The view and projection matrix come
@@ -215,13 +218,6 @@ private:
     // (func) draw
     // Implements `figure::draw'.
     void draw(const env &e) override;
-
-    // (handler) h_asset_appear, h_asset_disappear
-    // Hooks the project's on_asset_appear and on_asset_disappear events so
-    // that, if the frame asset comes into or out of existence, the figure can
-    // be updated.
-    decltype(res::project::on_asset_appear)::watch h_asset_appear;
-    decltype(res::project::on_asset_disappear)::watch h_asset_disappear;
 
     // (handler) h_frame_vertices_change
     // Hooks the frame's vertices property change event so that the figure can
@@ -237,8 +233,8 @@ public:
     // (func) get_frame, set_frame
     // Gets or sets the gfx::frame reference used by this figure. This may be a
     // null reference.
-    const gfx::frame::ref &get_frame() const;
-    void set_frame(gfx::frame::ref frame);
+    gfx::frame * const &get_frame() const;
+    void set_frame(gfx::frame *frame);
 
     // (func) get_matrix, set_matrix
     // Gets or sets the model matrix (m_matrix above).

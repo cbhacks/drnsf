@@ -38,20 +38,19 @@ static int s_matrix_uni;
 // declared in render.hh
 void frameonly_fig::draw(const env &e)
 {
-    auto frame = m_frame.get();
-    if (!frame)
+    if (!m_frame)
         return;
 
-    if (!frame->m_vertices_buffer.ok) {
-        glBindBuffer(GL_COPY_WRITE_BUFFER, frame->m_vertices_buffer);
+    if (!m_frame->m_vertices_buffer.ok) {
+        glBindBuffer(GL_COPY_WRITE_BUFFER, m_frame->m_vertices_buffer);
         glBufferData(
             GL_COPY_WRITE_BUFFER,
-            frame->get_vertices().size() * sizeof(gfx::vertex),
-            frame->get_vertices().data(),
+            m_frame->get_vertices().size() * sizeof(gfx::vertex),
+            m_frame->get_vertices().data(),
             GL_STATIC_DRAW
         );
         glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
-        frame->m_vertices_buffer.ok = true;
+        m_frame->m_vertices_buffer.ok = true;
     }
 
     if (!s_prog.ok) {
@@ -86,7 +85,7 @@ void frameonly_fig::draw(const env &e)
     glBindVertexArray(vao);
     DRNSF_ON_EXIT { glBindVertexArray(0); };
 
-    glBindBuffer(GL_ARRAY_BUFFER, frame->m_vertices_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, m_frame->m_vertices_buffer);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(gfx::vertex), 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -94,7 +93,7 @@ void frameonly_fig::draw(const env &e)
     glUseProgram(s_prog);
     auto matrix = e.projection * e.view * m_matrix;
     glUniformMatrix4fv(s_matrix_uni, 1, false, &matrix[0][0]);
-    glDrawArrays(GL_POINTS, 0, frame->get_vertices().size());
+    glDrawArrays(GL_POINTS, 0, m_frame->get_vertices().size());
     glUseProgram(0);
 }
 
@@ -102,49 +101,26 @@ void frameonly_fig::draw(const env &e)
 frameonly_fig::frameonly_fig(viewport &vp) :
     figure(vp)
 {
-    h_asset_appear <<= [this](res::asset &asset) {
-        if (asset.get_name() != m_frame)
-            return;
-        auto frame = m_frame.get();
-        if (!frame)
-            return;
-        h_frame_vertices_change.bind(frame->p_vertices.on_change);
-    };
-    h_asset_disappear <<= [this](res::asset &asset) {
-        if (asset.get_name() != m_frame)
-            return;
-        if (!m_frame.ok())
-            return;
-        h_frame_vertices_change.unbind();
-    };
     h_frame_vertices_change <<= [this] {
         invalidate();
     };
 }
 
-const gfx::frame::ref &frameonly_fig::get_frame() const
+gfx::frame * const &frameonly_fig::get_frame() const
 {
     return m_frame;
 }
 
-void frameonly_fig::set_frame(gfx::frame::ref frame)
+void frameonly_fig::set_frame(gfx::frame *frame)
 {
     if (m_frame != frame)
     {
         if (m_frame) {
-            h_asset_appear.unbind();
-            h_asset_disappear.unbind();
-            if (m_frame.ok()) {
-                h_frame_vertices_change.unbind();
-            }
+            h_frame_vertices_change.unbind();
         }
-        m_frame = std::move(frame);
+        m_frame = frame;
         if (m_frame) {
-            h_asset_appear.bind(m_frame.get_proj()->on_asset_appear);
-            h_asset_disappear.bind(m_frame.get_proj()->on_asset_disappear);
-            if (m_frame.ok()) {
-                h_frame_vertices_change.bind(m_frame->p_vertices.on_change);
-            }
+            h_frame_vertices_change.bind(m_frame->p_vertices.on_change);
         }
         invalidate();
     }
