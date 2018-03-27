@@ -375,7 +375,7 @@ private:
         void execute() noexcept override
         {
             if (m_after) {
-                m_prop.m_owner.on_prop_change(this);
+                m_prop.m_owner.on_prop_change(&m_prop);
                 m_prop.on_change();
             }
             m_after = !m_after;
