@@ -29,6 +29,10 @@
 #include <vector>
 #include "res.hh"
 
+#if USE_GL
+#include "gl.hh"
+#endif
+
 namespace drnsf {
 namespace gfx {
 
@@ -88,6 +92,27 @@ public:
     // (prop) vertices
     // FIXME explain
     DEFINE_APROP(vertices, std::vector<vertex>);
+
+#if USE_GL
+    // (var) m_vertices_buffer
+    // A GL buffer object containing the data for p_vertices. The gfx::frame
+    // object will clear the `ok' flag on the buffer when the property is
+    // changed, however it is up to users of this data to reupload to the
+    // buffer object themselves when necessary.
+    gl::buffer m_vertices_buffer;
+
+protected:
+    // (func) on_prop_change
+    // Reacts to property changes to invalidate any necessary GL objects.
+    void on_prop_change(void *prop) noexcept override
+    {
+        if (prop == &p_vertices) {
+            m_vertices_buffer.ok = false;
+        }
+    }
+
+public: // FIXME remove old reflect
+#endif
 
     // FIXME obsolete
     template <typename Reflector>

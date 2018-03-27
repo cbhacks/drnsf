@@ -27,25 +27,6 @@ DRNSF_DECLARE_EMBED(frameonly_frag);
 namespace drnsf {
 namespace render {
 
-const float cube_vb_data[] = {
-    -1, -1, -1,
-    +1, -1, -1,
-    +1, +1, -1,
-    -1, +1, -1,
-    -1, -1, +1,
-    +1, -1, +1,
-    +1, +1, +1,
-    -1, +1, +1
-};
-
-// (s-var) s_vao
-// The VAO for the reticle model.
-static gl::vert_array s_vao;
-
-// (s-var) s_vbo
-// The VBO for the reticle model.
-static gl::buffer s_vbo;
-
 // (s-var) s_prog
 // The GL shader program to use for the reticle model.
 static gl::program s_prog;
@@ -57,26 +38,20 @@ static int s_matrix_uni;
 // declared in render.hh
 void frameonly_fig::draw(const env &e)
 {
-    if (!s_vao.ok) {
-        glBindVertexArray(s_vao);
-        glBindBuffer(GL_ARRAY_BUFFER, s_vbo);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-        s_vao.ok = true;
-    }
+    auto frame = m_frame.get();
+    if (!frame)
+        return;
 
-    if (!s_vbo.ok) {
-        glBindBuffer(GL_COPY_WRITE_BUFFER, s_vbo);
+    if (!frame->m_vertices_buffer.ok) {
+        glBindBuffer(GL_COPY_WRITE_BUFFER, frame->m_vertices_buffer);
         glBufferData(
             GL_COPY_WRITE_BUFFER,
-            sizeof(cube_vb_data),
-            cube_vb_data,
+            frame->get_vertices().size() * sizeof(gfx::vertex),
+            frame->get_vertices().data(),
             GL_STATIC_DRAW
         );
         glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
-        s_vbo.ok = true;
+        frame->m_vertices_buffer.ok = true;
     }
 
     if (!s_prog.ok) {
@@ -107,13 +82,44 @@ void frameonly_fig::draw(const env &e)
     glPointSize(4);
     DRNSF_ON_EXIT { glPointSize(1); };
 
+    gl::vert_array vao;
+    glBindVertexArray(vao);
+    DRNSF_ON_EXIT { glBindVertexArray(0); };
+
+    glBindBuffer(GL_ARRAY_BUFFER, frame->m_vertices_buffer);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(gfx::vertex), 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
     glUseProgram(s_prog);
     auto matrix = e.projection * e.view * m_matrix;
     glUniformMatrix4fv(s_matrix_uni, 1, false, &matrix[0][0]);
-    glBindVertexArray(s_vao);
-    glDrawArrays(GL_POINTS, 0, 8);
-    glBindVertexArray(0);
+    glDrawArrays(GL_POINTS, 0, frame->get_vertices().size());
     glUseProgram(0);
+}
+
+// declared in render.hh
+frameonly_fig::frameonly_fig(viewport &vp) :
+    figure(vp)
+{
+    h_asset_appear <<= [this](res::asset &asset) {
+        if (asset.get_name() != m_frame)
+            return;
+        auto frame = m_frame.get();
+        if (!frame)
+            return;
+        h_frame_vertices_change.bind(frame->p_vertices.on_change);
+    };
+    h_asset_disappear <<= [this](res::asset &asset) {
+        if (asset.get_name() != m_frame)
+            return;
+        if (!m_frame.ok())
+            return;
+        h_frame_vertices_change.unbind();
+    };
+    h_frame_vertices_change <<= [this] {
+        invalidate();
+    };
 }
 
 const gfx::frame::ref &frameonly_fig::get_frame() const
@@ -125,7 +131,21 @@ void frameonly_fig::set_frame(gfx::frame::ref frame)
 {
     if (m_frame != frame)
     {
+        if (m_frame) {
+            h_asset_appear.unbind();
+            h_asset_disappear.unbind();
+            if (m_frame.ok()) {
+                h_frame_vertices_change.unbind();
+            }
+        }
         m_frame = std::move(frame);
+        if (m_frame) {
+            h_asset_appear.bind(m_frame.get_proj()->on_asset_appear);
+            h_asset_disappear.bind(m_frame.get_proj()->on_asset_disappear);
+            if (m_frame.ok()) {
+                h_frame_vertices_change.bind(m_frame->p_vertices.on_change);
+            }
+        }
         invalidate();
     }
 }

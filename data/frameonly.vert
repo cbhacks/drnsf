@@ -20,13 +20,11 @@
 
 #version 130
 
-const vec4 SCALE = vec4(200.0,200.0,200.0,1.0);
-
 uniform mat4 u_Matrix;
 
 in vec4 a_Position;
 
 void main()
 {
-    gl_Position = u_Matrix * (a_Position * SCALE);
+    gl_Position = u_Matrix * a_Position;
 }

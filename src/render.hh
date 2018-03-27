@@ -216,11 +216,23 @@ private:
     // Implements `figure::draw'.
     void draw(const env &e) override;
 
+    // (handler) h_asset_appear, h_asset_disappear
+    // Hooks the project's on_asset_appear and on_asset_disappear events so
+    // that, if the frame asset comes into or out of existence, the figure can
+    // be updated.
+    decltype(res::project::on_asset_appear)::watch h_asset_appear;
+    decltype(res::project::on_asset_disappear)::watch h_asset_disappear;
+
+    // (handler) h_frame_vertices_change
+    // Hooks the frame's vertices property change event so that the figure can
+    // be updated when the frame's vertices are changed.
+    decltype(decltype(gfx::frame::p_vertices)::on_change)::watch
+        h_frame_vertices_change;
+
 public:
     // (explicit ctor)
     // Constructs the figure. Initially, it does not reference any frame.
-    explicit frameonly_fig(viewport &vp) :
-        figure(vp) {}
+    explicit frameonly_fig(viewport &vp);
 
     // (func) get_frame, set_frame
     // Gets or sets the gfx::frame reference used by this figure. This may be a
