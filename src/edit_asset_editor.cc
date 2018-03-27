@@ -46,11 +46,6 @@ private:
     // FIXME explain
     asset_mainctl m_mainview;
 
-    // (var) m_viewport
-    // A GL viewport used to display the currently selected asset to the
-    // user.
-    asset_viewport m_viewport;
-
     // (handler) h_tree_select
     // Handler for the asset tree's on_select event.
     decltype(m_tree.on_select)::watch h_tree_select;
@@ -64,9 +59,8 @@ public:
         composite(outer, gui::layout::fill()),
         m_outer(outer),
         m_proj(proj),
-        m_tree(*this, gui::layout::grid(0, 1, 3, 0, 2, 2), proj),
-        m_mainview(*this, gui::layout::grid(1, 2, 3, 1, 1, 2)),
-        m_viewport(*this, gui::layout::grid(2, 1, 3, 0, 1, 2), proj)
+        m_tree(*this, gui::layout::grid(0, 1, 3, 0, 1, 1), proj),
+        m_mainview(*this, gui::layout::grid(1, 2, 3, 0, 1, 1))
     {
         h_tree_select <<= [this](res::atom atom) {
             g_selected_asset = atom;
@@ -76,7 +70,6 @@ public:
 
         m_tree.show();
         m_mainview.show();
-        m_viewport.show();
     }
 };
 

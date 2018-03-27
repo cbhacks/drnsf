@@ -441,37 +441,6 @@ public:
     util::event<res::atom> on_select;
 };
 
-/*
- * edit::asset_viewport
- *
- * FIXME explain
- */
-class asset_viewport : private gui::composite {
-private:
-    // inner class defined in edit_asset_viewport.cc
-    class impl;
-
-    // (var) M
-    // The pointer to the internal implementation object (PIMPL).
-    impl *M;
-
-public:
-    // (ctor)
-    // Constructs the widget and places it in the given parent container.
-    asset_viewport(gui::container &parent, gui::layout layout, res::project &proj);
-
-    // (dtor)
-    // Destroys the widget, removing it from the parent container.
-    ~asset_viewport();
-
-    using composite::show;
-    using composite::hide;
-    using composite::get_layout;
-    using composite::set_layout;
-    using composite::get_real_size;
-    using composite::get_screen_pos;
-};
-
 // FIXME - temporary global for compatibility
 extern res::atom g_selected_asset;
 extern render::camera g_camera;
