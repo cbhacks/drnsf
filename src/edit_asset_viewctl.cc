@@ -68,27 +68,39 @@ public:
 // FIXME explain
 template <>
 class asset_viewctl_of<gfx::frame> :
-    private gui::label,
+    private render::viewport,
     public util::polymorphic {
+private:
+    // (var) m_fig
+    // The figure which renders the frame's vertices in the viewport.
+    render::frameonly_fig m_fig;
+
+    // (var) m_reticle
+    // A simple X/Y/Z axis display in the center of the frame to display the
+    // viewport's orientation to the user.
+    render::reticle_fig m_reticle;
 public:
     // (explicit ctor)
     // FIXME explain
     explicit asset_viewctl_of(
         gui::container &parent,
         gui::layout layout,
-        void *asset) :
-        label(parent, layout)
+        gfx::frame *asset) :
+        viewport(parent, layout),
+        m_fig(*this),
+        m_reticle(*this)
     {
-        // TODO - actual frame viewer
-        set_text("[ FRAME VIEW HERE ]");
+        m_fig.set_frame(asset->get_name());
+        m_fig.show();
+        m_reticle.show();
     }
 
-    using label::show;
-    using label::hide;
-    using label::get_layout;
-    using label::set_layout;
-    using label::get_real_size;
-    using label::get_screen_pos;
+    using viewport::show;
+    using viewport::hide;
+    using viewport::get_layout;
+    using viewport::set_layout;
+    using viewport::get_real_size;
+    using viewport::get_screen_pos;
 };
 
 }

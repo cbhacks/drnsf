@@ -196,6 +196,45 @@ public:
 };
 
 /*
+ * render::frameonly_fig
+ *
+ * This figure draws a bunch of points corresponding to the vertex positions in
+ * a given gfx::frame.
+ */
+class frameonly_fig : public figure {
+private:
+    // (var) m_frame
+    // The reference to the frame used by this figure.
+    gfx::frame::ref m_frame;
+
+    // (var) m_matrix
+    // The model matrix for this figure. The view and projection matrix come
+    // from the viewport during a `draw' call.
+    glm::mat4 m_matrix{1.0f};
+
+    // (func) draw
+    // Implements `figure::draw'.
+    void draw(const env &e) override;
+
+public:
+    // (explicit ctor)
+    // Constructs the figure. Initially, it does not reference any frame.
+    explicit frameonly_fig(viewport &vp) :
+        figure(vp) {}
+
+    // (func) get_frame, set_frame
+    // Gets or sets the gfx::frame reference used by this figure. This may be a
+    // null reference.
+    const gfx::frame::ref &get_frame() const;
+    void set_frame(gfx::frame::ref frame);
+
+    // (func) get_matrix, set_matrix
+    // Gets or sets the model matrix (m_matrix above).
+    const glm::mat4 &get_matrix() const;
+    void set_matrix(glm::mat4 matrix);
+};
+
+/*
  * render::meshframe_fig
  *
  * This figure draws a gfx::mesh / gfx::frame pairing. The mesh and frame are
