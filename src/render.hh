@@ -365,5 +365,156 @@ public:
     void set_matrix(glm::mat4 matrix);
 };
 
+/*
+ * render::meshanim_fig
+ *
+ * This figure draws a gfx::mesh / gfx::anim pairing. Only the first frame of
+ * animation is used at this time.
+ *
+ * The anim and mesh are given directly by pointer. Any code which uses this
+ * class must ensure that any non-null anim or mesh pointers are valid at all
+ * times. The frames of the anim need not be valid, however; meshframe_fig will
+ * track their validity itself and handle any changes in their values or
+ * lifetime.
+ *
+ * This class is only a pseudo-figure. Rather than implementing the `figure'
+ * class itself, this class drives an underlying meshframe_fig figure which
+ * renders one frame of the given animation.
+ */
+class meshanim_fig : private util::nocopy {
+private:
+    // (var) m_anim
+    // A pointer to the anim used by this figure. This may be null, in which
+    // case rendering will not occur.
+    gfx::anim *m_anim = nullptr;
+
+    // (var) m_meshframefig
+    // The underlying figure which performs the actual rendering for this class.
+    // The meshanim_fig drives the meshframe_fig by providing the frame pointers
+    // specified in the animation.
+    meshframe_fig m_meshframefig;
+
+    // (var) m_frame_tracker
+    // A helper object which tracks the frame ref and provides the actual frame
+    // pointers needed by `m_meshframefig'.
+    res::tracker<gfx::frame> m_frame_tracker;
+
+    // (handler) h_frame_acquire, h_frame_lose
+    // Responds to changes from `m_frame_tracker' to update `m_meshframefig' as
+    // the animation's frames come into and out of existence, and as the frame
+    // list itself changes.
+    decltype(res::tracker<gfx::frame>::on_acquire)::watch h_frame_acquire;
+    decltype(res::tracker<gfx::frame>::on_lose)::watch h_frame_lose;
+
+    // (handler) h_anim_frames_change
+    // Hooks the anim's frames property change event to keep track of the anim's
+    // frames so that the figure can update itself when they change.
+    decltype(decltype(gfx::anim::p_frames)::on_change)::watch
+        h_anim_frames_change;
+
+public:
+    // (explicit ctor)
+    // Constructs the figure. Initially, it does not reference any mesh
+    // or frame.
+    explicit meshanim_fig(viewport &vp);
+
+    // (func) show, hide
+    // Changes the visibility of the figure. Since this is not a real figure,
+    // the show/hide calls are passed on to the actual underlying figure.
+    void show();
+    void hide();
+
+    // (func) get_mesh, set_mesh
+    // Gets or sets the gfx::mesh reference used by this figure. This may be a
+    // null pointer.
+    gfx::mesh * const &get_mesh() const;
+    void set_mesh(gfx::mesh *mesh);
+
+    // (func) get_anim, set_anim
+    // Gets or sets the gfx::anim reference used by this figure. This may be a
+    // null pointer.
+    gfx::anim * const &get_anim() const;
+    void set_anim(gfx::anim *anim);
+
+    // (func) get_matrix, set_matrix
+    // Gets or sets the model matrix (held inside of the meshframe_fig).
+    const glm::mat4 &get_matrix() const;
+    void set_matrix(glm::mat4 matrix);
+};
+
+/*
+ * render::model_fig
+ *
+ * This figure draws a gfx::model. Only the first frame of animation is used at
+ * this time.
+ *
+ * The model is given directly by pointer. Any code which uses this class must
+ * ensure that the model pointer is valid or null at all times. The mesh and
+ * anim referenced by the model need not be valid, however; model_fig will track
+ * their validity itself and handle any changes in their values or lifetime.
+ *
+ * This class is onyl a pseudo-figure. Rather than implementing the `figure'
+ * class itself, this class drives an underlying `meshanim_fig' object.
+ */
+class model_fig : private util::nocopy {
+private:
+    // (var) m_model
+    // A pointer to the model used by this figure. This may be null, in which
+    // case rendering will not occur.
+    gfx::model *m_model = nullptr;
+
+    // (var) m_meshanimfig
+    // The underlying figure which handles rendering the selected model's mesh
+    // and animation. The model_fig drives the meshanim_fig by providing the
+    // mesh and animation pointers specified in the model.
+    meshanim_fig m_meshanimfig;
+
+    // (var) m_mesh_tracker, m_anim_tracker
+    // Helper objects which track the mesh and anim refs in the model and
+    // provide the actual pointers needed by `m_meshanimfig'.
+    res::tracker<gfx::mesh> m_mesh_tracker;
+    res::tracker<gfx::anim> m_anim_tracker;
+
+    // (handler) h_mesh_acquire, h_mesh_lose, h_anim_acquire, h_mesh_lose
+    // Responds to changes from `m_mesh_tracker' and `m_anim_tracker' to update
+    // `m_meshanimfig' as the model's mesh and animation come into and out of
+    // existences, and as the references themselves change.
+    decltype(res::tracker<gfx::mesh>::on_acquire)::watch h_mesh_acquire;
+    decltype(res::tracker<gfx::mesh>::on_lose)::watch h_mesh_lose;
+    decltype(res::tracker<gfx::anim>::on_acquire)::watch h_anim_acquire;
+    decltype(res::tracker<gfx::anim>::on_lose)::watch h_anim_lose;
+
+    // (handler) h_model_mesh_change, h_model_anim_change
+    // Hooks the model's mesh and anim property change events to keep track of
+    // the model's mesh and anim so that the figure can update itself when they
+    // change.
+    decltype(decltype(gfx::model::p_mesh)::on_change)::watch
+        h_model_mesh_change;
+    decltype(decltype(gfx::model::p_anim)::on_change)::watch
+        h_model_anim_change;
+
+public:
+    // (explicit ctor)
+    // Constructs the figure. Initially, it does not reference any model.
+    explicit model_fig(viewport &vp);
+
+    // (func) show, hide
+    // Changes the visibility of the figure. Since this is not a real figure,
+    // the show/hide calls are passed on to the actual underlying figure.
+    void show();
+    void hide();
+
+    // (func) get_model, set_model
+    // Gets or sets the gfx::model reference used by this figure. This may be a
+    // null pointer.
+    gfx::model * const &get_model() const;
+    void set_model(gfx::model *model);
+
+    // (func) get_matrix, set_matrix
+    // Gets or sets the model matrix.
+    const glm::mat4 &get_matrix() const;
+    void set_matrix(glm::mat4 matrix);
+};
+
 }
 }

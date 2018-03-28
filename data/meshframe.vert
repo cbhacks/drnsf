@@ -24,7 +24,7 @@ const vec4 SCALE = vec4(200.0,200.0,200.0,1.0);
 
 uniform mat4 u_Matrix;
 
-in vec3 a_Position;
+in vec4 a_Position;
 
 void main()
 {
