@@ -245,19 +245,23 @@ public:
 /*
  * render::meshframe_fig
  *
- * This figure draws a gfx::mesh / gfx::frame pairing. The mesh and frame are
- * specified by res::ref-style references. The figure automatically handles
- * the appearance and disappearance of assets under those names.
+ * This figure draws a gfx::mesh / gfx::frame pairing.
+ *
+ * The frame and mesh are given directly by pointer. Any code which uses this
+ * class must ensure that any non-null frame or mesh pointers are valid at all
+ * times.
  */
 class meshframe_fig : public figure {
 private:
     // (var) m_mesh
-    // The reference to the mesh used by this figure.
-    gfx::mesh::ref m_mesh;
+    // A pointer to the mesh used by this figure. This may be null, in which
+    // case rendering will not occur.
+    gfx::mesh *m_mesh;
 
     // (var) m_frame
-    // The reference to the frame used by this figure.
-    gfx::frame::ref m_frame;
+    // A pointer to the frame used by this figure. This may be null, in which
+    // case rendering will not occur.
+    gfx::frame *m_frame;
 
     // (var) m_matrix
     // The model matrix for this figure. The view and projection matrix come
@@ -278,14 +282,14 @@ public:
     // (func) get_mesh, set_mesh
     // Gets or sets the gfx::mesh reference used by this figure. This may be a
     // null reference.
-    const gfx::mesh::ref &get_mesh() const;
-    void set_mesh(gfx::mesh::ref mesh);
+    gfx::mesh * const &get_mesh() const;
+    void set_mesh(gfx::mesh *mesh);
 
     // (func) get_frame, set_frame
     // Gets or sets the gfx::frame reference used by this figure. This may be a
     // null reference.
-    const gfx::frame::ref &get_frame() const;
-    void set_frame(gfx::frame::ref frame);
+    gfx::frame * const &get_frame() const;
+    void set_frame(gfx::frame *frame);
 
     // (func) get_matrix, set_matrix
     // Gets or sets the model matrix (m_matrix above).

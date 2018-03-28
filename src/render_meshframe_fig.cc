@@ -161,29 +161,29 @@ void meshframe_fig::draw(const env &e)
     glUseProgram(0);
 }
 
-const gfx::mesh::ref &meshframe_fig::get_mesh() const
+gfx::mesh * const &meshframe_fig::get_mesh() const
 {
     return m_mesh;
 }
 
-void meshframe_fig::set_mesh(gfx::mesh::ref mesh)
+void meshframe_fig::set_mesh(gfx::mesh *mesh)
 {
     if (m_mesh != mesh) {
-        m_mesh = std::move(mesh);
+        m_mesh = mesh;
         invalidate();
     }
 }
 
-const gfx::frame::ref &meshframe_fig::get_frame() const
+gfx::frame * const &meshframe_fig::get_frame() const
 {
     return m_frame;
 }
 
-void meshframe_fig::set_frame(gfx::frame::ref frame)
+void meshframe_fig::set_frame(gfx::frame *frame)
 {
     if (m_frame != frame)
     {
-        m_frame = std::move(frame);
+        m_frame = frame;
         invalidate();
     }
 }
