@@ -79,6 +79,7 @@ private:
     // A simple X/Y/Z axis display in the center of the frame to display the
     // viewport's orientation to the user.
     render::reticle_fig m_reticle;
+
 public:
     // (explicit ctor)
     // FIXME explain

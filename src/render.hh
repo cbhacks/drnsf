@@ -232,7 +232,7 @@ public:
 
     // (func) get_frame, set_frame
     // Gets or sets the gfx::frame reference used by this figure. This may be a
-    // null reference.
+    // null pointer, in which case nothing will be drawn.
     gfx::frame * const &get_frame() const;
     void set_frame(gfx::frame *frame);
 
