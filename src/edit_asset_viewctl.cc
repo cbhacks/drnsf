@@ -104,6 +104,45 @@ public:
     using viewport::get_screen_pos;
 };
 
+// FIXME explain
+template <>
+class asset_viewctl_of<gfx::anim> :
+    private render::viewport,
+    public util::polymorphic {
+private:
+    // (var) m_fig
+    // The figure which renders the anim's vertices in the viewport.
+    render::animonly_fig m_fig;
+
+    // (var) m_reticle
+    // A simple X/Y/Z axis display in the center of the frame to display the
+    // viewport's orientation to the user.
+    render::reticle_fig m_reticle;
+
+public:
+    // (explicit ctor)
+    // FIXME explain
+    explicit asset_viewctl_of(
+        gui::container &parent,
+        gui::layout layout,
+        gfx::anim *asset) :
+        viewport(parent, layout),
+        m_fig(*this),
+        m_reticle(*this)
+    {
+        m_fig.set_anim(asset);
+        m_fig.show();
+        m_reticle.show();
+    }
+
+    using viewport::show;
+    using viewport::hide;
+    using viewport::get_layout;
+    using viewport::set_layout;
+    using viewport::get_real_size;
+    using viewport::get_screen_pos;
+};
+
 }
 
 // declared in edit.hh

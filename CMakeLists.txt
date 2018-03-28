@@ -67,6 +67,7 @@ add_executable (drnsf
     src/render_figure.cc
     src/render_reticle_fig.cc
     src/render_frameonly_fig.cc
+    src/render_animonly_fig.cc
     src/render_meshframe_fig.cc
 
     src/edit.hh

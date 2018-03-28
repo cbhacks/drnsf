@@ -243,6 +243,70 @@ public:
 };
 
 /*
+ * render::animonly_fig
+ *
+ * This figure draws a bunch of points corresponding to the vertex positions in
+ * a given gfx::anim. Only the first frame of animation is drawn at this time.
+ *
+ * The anim is given directly by pointer. Any code using this class must ensure
+ * the anim pointer is valid or null at all times. The frames in the anim need
+ * not be valid, however; animonly_fig will track their validity itself and
+ * handle any changes in their values or lifetime.
+ *
+ * This class is only a pseudo-figure. Rather than implementing the `figure'
+ * class itself, this class drives an underlying frameonly_fig figure which
+ * renders one frame of the given animation.
+ */
+class animonly_fig : private util::nocopy {
+private:
+    // (var) m_anim
+    // A non-ref pointer to the anim used by this figure.
+    gfx::anim *m_anim = nullptr;
+
+    // (var) m_framefig
+    // The underlying figure which performs the actual rendering for this class.
+    // The animonly_fig drives the frameonly_fig by providing the frame pointers
+    // specified in the animation.
+    frameonly_fig m_framefig;
+
+    // (handler) h_asset_appear, h_asset_disappear
+    // Hooks the anim's project to watch for when the frames referenced by the
+    // animation come into and out of existence. This does not, however, track
+    // the lifetime of the anim itself. Users of this class must ensure m_anim
+    // is either null or pointing to a valid anim at all times.
+    decltype(res::project::on_asset_appear)::watch h_asset_appear;
+    decltype(res::project::on_asset_disappear)::watch h_asset_disappear;
+
+    // (handler) h_anim_frames_change
+    // Hooks the anim's frames property change event to keep track of the anim's
+    // frames so that the figure can update itself when they change.
+    decltype(decltype(gfx::anim::p_frames)::on_change)::watch
+        h_anim_frames_change;
+
+public:
+    // (explicit ctor)
+    // Constructs the figure. Initially, it does not reference any animation.
+    explicit animonly_fig(viewport &vp);
+
+    // (func) show, hide
+    // Changes the visibility of the figure. Since this is not a real figure,
+    // the show/hide calls are passed on to the actual underlying figure.
+    void show();
+    void hide();
+
+    // (func) get_anim, set_anim
+    // Gets or sets the gfx::anim reference used by this figure. This may be a
+    // null pointer, in which case nothing will be drawn.
+    gfx::anim * const &get_anim() const;
+    void set_anim(gfx::anim *anim);
+
+    // (func) get_matrix, set_matrix
+    // Gets or sets the model matrix (held inside of the frameonly_fig).
+    const glm::mat4 &get_matrix() const;
+    void set_matrix(glm::mat4 matrix);
+};
+
+/*
  * render::meshframe_fig
  *
  * This figure draws a gfx::mesh / gfx::frame pairing.
