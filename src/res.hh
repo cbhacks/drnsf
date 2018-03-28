@@ -491,6 +491,99 @@ public:
 using anyref = ref<asset>;
 
 /*
+ * res::tracker
+ *
+ * FIXME explain
+ */
+template <typename T>
+class tracker : private util::nocopy {
+private:
+    // (var) m_name
+    // The asset name this object is tracking.
+    ref<T> m_name;
+
+    // (handler) h_asset_appear, h_asset_disappear
+    // Hooks the on_asset_appear and on_asset_disappear events of m_name's
+    // associated project to track whenever an asset appears or disappears on
+    // that name.
+    decltype(project::on_asset_appear)::watch h_asset_appear;
+    decltype(project::on_asset_disappear)::watch h_asset_disappear;
+
+public:
+    // (ctor)
+    // Constructs a tracker with no name set on it.
+    tracker()
+    {
+        h_asset_appear <<= [this](asset &asset) {
+            if (asset.get_name() != m_name)
+                return;
+            if (!m_name.ok())
+                return;
+            on_acquire(&static_cast<T &>(asset));
+        };
+        h_asset_disappear <<= [this](asset &asset) {
+            if (asset.get_name() != m_name)
+                return;
+            if (!m_name.ok())
+                return;
+            on_lose();
+        };
+    }
+
+    // (func) get_name, set_name
+    // Gets or sets the name this object is tracking.
+    const ref<T> &get_name() const
+    {
+        return m_name;
+    }
+    void set_name(ref<T> name)
+    {
+        if (m_name == name)
+            return;
+        if (m_name) {
+            h_asset_appear.unbind();
+            h_asset_disappear.unbind();
+            if (m_name.ok()) {
+                on_lose();
+            }
+        }
+        m_name = std::move(name);
+        if (m_name) {
+            h_asset_appear.bind(m_name.get_proj()->on_asset_appear);
+            h_asset_disappear.bind(m_name.get_proj()->on_asset_disappear);
+            auto asset = m_name.get();
+            if (asset) {
+                on_acquire(asset);
+            }
+        }
+    }
+
+    // (event) on_acquire, on_lose
+    // The acquire event is raised in two scenarios:
+    //
+    //  - The name for the tracker is set using `set_name' and the new name is
+    //  currently associated with an asset with an appropriate type (`T' or a
+    //  type derived from `T').
+    //
+    //  - An asset of an appropriate type appears under the current name. This
+    //  could happen because the asset was created on that name, or because it
+    //  was renamed from another name.
+    //
+    // In either case, when that asset disappears from the name, or when the
+    // name is changed away before that, the lose event will be raised. In the
+    // case of using `set_name' to change from one appropriately bound asset
+    // name to another, the lose event will be raised before the acquire event.
+    //
+    // The acquire event is raised with a pointer to the asset. The lose event
+    // is not raised with any parameters.
+    //
+    // (*) An asset of the appropriate type has a type of `T' or is derived from
+    // `T', directly or indirectly.
+    util::event<T *> on_acquire;
+    util::event<> on_lose;
+};
+
+/*
  * res::import_error
  *
  * FIXME explain

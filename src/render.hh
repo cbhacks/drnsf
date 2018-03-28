@@ -269,13 +269,17 @@ private:
     // specified in the animation.
     frameonly_fig m_framefig;
 
-    // (handler) h_asset_appear, h_asset_disappear
-    // Hooks the anim's project to watch for when the frames referenced by the
-    // animation come into and out of existence. This does not, however, track
-    // the lifetime of the anim itself. Users of this class must ensure m_anim
-    // is either null or pointing to a valid anim at all times.
-    decltype(res::project::on_asset_appear)::watch h_asset_appear;
-    decltype(res::project::on_asset_disappear)::watch h_asset_disappear;
+    // (var) m_frame_tracker
+    // A helper object which tracks the frame ref and provides the actual frame
+    // pointers needed by `m_framefig'.
+    res::tracker<gfx::frame> m_frame_tracker;
+
+    // (handler) h_frame_acquire, h_frame_lose
+    // Responds to changes from `m_frame_tracker' to update `m_framefig' as the
+    // animation's frames come into and out of existence, and as the frame list
+    // itself changes.
+    decltype(res::tracker<gfx::frame>::on_acquire)::watch h_frame_acquire;
+    decltype(res::tracker<gfx::frame>::on_lose)::watch h_frame_lose;
 
     // (handler) h_anim_frames_change
     // Hooks the anim's frames property change event to keep track of the anim's
