@@ -433,6 +433,10 @@ public:
     // FIXME explain
     ref() = default;
 
+    // (conversion ctor)
+    // Constructs a null asset ref.
+    ref(nullptr_t) {}
+
     // (copy ctor)
     // FIXME explain
     ref(const atom &src) :
