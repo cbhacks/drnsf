@@ -18,7 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#version 130
+#version 140
 
 out vec4 f_Color;
 
