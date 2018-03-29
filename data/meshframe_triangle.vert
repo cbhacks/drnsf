@@ -20,11 +20,26 @@
 
 #version 140
 
-smooth in vec3 v_Color;
+in int ai_VertexIndex0;
+in int ai_ColorIndex0;
+in int ai_VertexIndex1;
+in int ai_ColorIndex1;
+in int ai_VertexIndex2;
+in int ai_ColorIndex2;
 
-out vec3 f_Color;
+flat out int ao_VertexIndex0;
+flat out int ao_ColorIndex0;
+flat out int ao_VertexIndex1;
+flat out int ao_ColorIndex1;
+flat out int ao_VertexIndex2;
+flat out int ao_ColorIndex2;
 
 void main()
 {
-    f_Color = v_Color;
+    ao_VertexIndex0 = ai_VertexIndex0;
+    ao_ColorIndex0 = ai_ColorIndex0;
+    ao_VertexIndex1 = ai_VertexIndex1;
+    ao_ColorIndex1 = ai_ColorIndex1;
+    ao_VertexIndex2 = ai_VertexIndex2;
+    ao_ColorIndex2 = ai_ColorIndex2;
 }

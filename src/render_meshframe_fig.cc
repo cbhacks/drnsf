@@ -21,113 +21,145 @@
 #include "common.hh"
 #include "render.hh"
 
+DRNSF_DECLARE_EMBED(meshframe_triangle_vert);
+DRNSF_DECLARE_EMBED(meshframe_quad_vert);
 DRNSF_DECLARE_EMBED(meshframe_vert);
 DRNSF_DECLARE_EMBED(meshframe_frag);
 
 namespace drnsf {
 namespace render {
 
-const float cube_vb_data[] = {
-    -1, -1, -1,
-    +1, -1, -1,
-    +1, +1, -1,
-    -1, +1, -1,
-    -1, -1, +1,
-    +1, -1, +1,
-    +1, +1, +1,
-    -1, +1, +1
-};
+namespace {
 
-const unsigned char cube_ib_data[] = {
-    0, 1,
-    0, 2,
-    0, 3,
-    0, 4,
-    0, 5,
-    0, 6,
-    0, 7,
-    1, 2,
-    1, 3,
-    1, 4,
-    1, 5,
-    1, 6,
-    1, 7,
-    2, 3,
-    2, 4,
-    2, 5,
-    2, 6,
-    2, 7,
-    3, 4,
-    3, 5,
-    3, 6,
-    3, 7,
-    4, 5,
-    4, 6,
-    4, 7,
-    5, 6,
-    5, 7,
-    6, 7
-};
+// (s-var) s_triangle_prog, s_quad_prog
+// These are the "poly shaders" used when rendering the models. Whole polygons
+// are fed into the appropriate type of poly shader, which produces the vertex
+// attributes used by the main shader program below (`s_main_prog'). This is not
+// to be confused with a "geometry shader" which is not used here.
+//
+// The poly shader is actually a vertex-only shader program. Each polygon is
+// intended to be fed as a single GL_POINTS vertex into the poly shader. Using
+// transform feedback, the "varying" outputs are dumped into an interrim buffer
+// object (`s_interrim_vb' below) which is used by the main program afterwards.
+gl::program s_triangle_prog;
+gl::program s_quad_prog;
 
-// (s-var) s_vao
-// The VAO for the reticle model.
-static gl::vert_array s_vao;
-
-// (s-var) s_vbo
-// The VBO for the reticle model.
-static gl::buffer s_vbo;
-
-// (s-var) s_ibo
-// The IBO for the reticle model.
-static gl::buffer s_ibo;
-
-// (s-var) s_prog
-// The GL shader program to use for the reticle model.
-static gl::program s_prog;
+// (s-var) s_main_prog
+// The GL shader program used to render the model. This includes a vertex and
+// fragment shader. The inputs do not come from any existing asset data, but are
+// instead computed by another shader using transform feedback (see above).
+gl::program s_main_prog;
 
 // (s-var) s_matrix_uni
 // The location of the "u_Matrix" shader uniform variable.
-static int s_matrix_uni;
+int s_matrix_uni;
+
+// (s-var) s_interrim_vb, s_interrim_va
+// This is the interrim VBO which is filled by the "poly shader" (see above)
+// and then given to the main shader program as a source of vertex attributes.
+// attributes. The buffer should be empty except during execution of the `draw'
+// function (below).
+//
+// FIXME - explain VAO
+gl::buffer s_interrim_vb;
+gl::vert_array s_interrim_va;
+
+// (internal type) interrim_vertex
+// This is the type of each vertex which is produced by the poly shader and
+// consumed as a set of vertex attributes by the vertex shader.
+struct interrim_vertex {
+    int vertex_index;
+    int color_index;
+};
+
+}
 
 // declared in render.hh
 void meshframe_fig::draw(const env &e)
 {
-    if (!s_vao.ok) {
-        glBindVertexArray(s_vao);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_ibo);
-        glBindBuffer(GL_ARRAY_BUFFER, s_vbo);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-        s_vao.ok = true;
-    }
+    if (!m_mesh)
+        return;
 
-    if (!s_vbo.ok) {
-        glBindBuffer(GL_COPY_WRITE_BUFFER, s_vbo);
-        glBufferData(
-            GL_COPY_WRITE_BUFFER,
-            sizeof(cube_vb_data),
-            cube_vb_data,
-            GL_STATIC_DRAW
+    if (!m_frame)
+        return;
+
+    if (!s_triangle_prog.ok) {
+        gl::vert_shader vs;
+        compile_shader(
+            vs,
+            embed::meshframe_triangle_vert::data,
+            embed::meshframe_triangle_vert::size
         );
-        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
-        s_vbo.ok = true;
-    }
 
-    if (!s_ibo.ok) {
-        glBindBuffer(GL_COPY_WRITE_BUFFER, s_ibo);
-        glBufferData(
-            GL_COPY_WRITE_BUFFER,
-            sizeof(cube_ib_data),
-            cube_ib_data,
-            GL_STATIC_DRAW
+        glAttachShader(s_triangle_prog, vs);
+        glBindAttribLocation(s_triangle_prog, 0, "ai_VertexIndex0");
+        glBindAttribLocation(s_triangle_prog, 1, "ai_ColorIndex0");
+        glBindAttribLocation(s_triangle_prog, 2, "ai_VertexIndex1");
+        glBindAttribLocation(s_triangle_prog, 3, "ai_ColorIndex1");
+        glBindAttribLocation(s_triangle_prog, 4, "ai_VertexIndex2");
+        glBindAttribLocation(s_triangle_prog, 5, "ai_ColorIndex2");
+        const char *varyings[] = {
+            "ao_VertexIndex0",
+            "ao_ColorIndex0",
+            "ao_VertexIndex1",
+            "ao_ColorIndex1",
+            "ao_VertexIndex2",
+            "ao_ColorIndex2"
+        };
+        glTransformFeedbackVaryings(
+            s_triangle_prog,
+            sizeof(varyings) / sizeof(*varyings),
+            varyings,
+            GL_INTERLEAVED_ATTRIBS
         );
-        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
-        s_ibo.ok = true;
+        glLinkProgram(s_triangle_prog);
+
+        s_triangle_prog.ok = true;
     }
 
-    if (!s_prog.ok) {
+    if (!s_quad_prog.ok) {
+        gl::vert_shader vs;
+        compile_shader(
+            vs,
+            embed::meshframe_quad_vert::data,
+            embed::meshframe_quad_vert::size
+        );
+
+        glAttachShader(s_quad_prog, vs);
+        glBindAttribLocation(s_quad_prog, 0, "ai_VertexIndex0");
+        glBindAttribLocation(s_quad_prog, 1, "ai_ColorIndex0");
+        glBindAttribLocation(s_quad_prog, 2, "ai_VertexIndex1");
+        glBindAttribLocation(s_quad_prog, 3, "ai_ColorIndex1");
+        glBindAttribLocation(s_quad_prog, 4, "ai_VertexIndex2");
+        glBindAttribLocation(s_quad_prog, 5, "ai_ColorIndex2");
+        glBindAttribLocation(s_quad_prog, 6, "ai_VertexIndex3");
+        glBindAttribLocation(s_quad_prog, 7, "ai_ColorIndex3");
+        const char *varyings[] = {
+            "ao_VertexIndexA0",
+            "ao_ColorIndexA0",
+            "ao_VertexIndexA1",
+            "ao_ColorIndexA1",
+            "ao_VertexIndexA2",
+            "ao_ColorIndexA2",
+            "ao_VertexIndexB0",
+            "ao_ColorIndexB0",
+            "ao_VertexIndexB1",
+            "ao_ColorIndexB1",
+            "ao_VertexIndexB2",
+            "ao_ColorIndexB2"
+        };
+        glTransformFeedbackVaryings(
+            s_quad_prog,
+            sizeof(varyings) / sizeof(*varyings),
+            varyings,
+            GL_INTERLEAVED_ATTRIBS
+        );
+        glLinkProgram(s_quad_prog);
+
+        s_quad_prog.ok = true;
+    }
+
+    if (!s_main_prog.ok) {
         gl::vert_shader vs;
         compile_shader(
             vs,
@@ -142,23 +174,271 @@ void meshframe_fig::draw(const env &e)
             embed::meshframe_frag::size
         );
 
-        glAttachShader(s_prog, vs);
-        glAttachShader(s_prog, fs);
-        glBindAttribLocation(s_prog, 0, "a_Position");
-        glBindFragDataLocation(s_prog, 0, "f_Color");
-        glLinkProgram(s_prog);
-        s_matrix_uni = glGetUniformLocation(s_prog, "u_Matrix");
+        glAttachShader(s_main_prog, vs);
+        glAttachShader(s_main_prog, fs);
+        glBindAttribLocation(s_main_prog, 0, "a_VertexIndex");
+        glBindAttribLocation(s_main_prog, 1, "a_ColorIndex");
+        glBindFragDataLocation(s_main_prog, 0, "f_Color");
+        glLinkProgram(s_main_prog);
+        s_matrix_uni = glGetUniformLocation(s_main_prog, "u_Matrix");
+        glUseProgram(s_main_prog);
+        glUniform1i(glGetUniformLocation(s_main_prog, "u_VertexList"), 0);
+        glUniform1i(glGetUniformLocation(s_main_prog, "u_ColorList"), 1);
+        glUseProgram(0);
 
-        s_prog.ok = true;
+        s_main_prog.ok = true;
     }
 
-    glUseProgram(s_prog);
+    if (!s_interrim_vb.ok) {
+        glBindBuffer(GL_COPY_WRITE_BUFFER, s_interrim_vb);
+        glBufferData(GL_COPY_WRITE_BUFFER, 0, nullptr, GL_STREAM_COPY);
+        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+        s_interrim_vb.ok = true;
+    }
+
+    if (!s_interrim_va.ok) {
+        glBindVertexArray(s_interrim_va);
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, s_interrim_vb);
+        glVertexAttribIPointer(
+            0,
+            1,
+            GL_INT,
+            sizeof(interrim_vertex),
+            reinterpret_cast<void *>(offsetof(interrim_vertex, vertex_index))
+        );
+        glEnableVertexAttribArray(1);
+        glVertexAttribIPointer(
+            1,
+            1,
+            GL_INT,
+            sizeof(interrim_vertex),
+            reinterpret_cast<void *>(offsetof(interrim_vertex, color_index))
+        );
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+        s_interrim_va.ok = true;
+    }
+
+    if (!m_frame->m_vertices_buffer.ok) {
+        glBindBuffer(GL_COPY_WRITE_BUFFER, m_frame->m_vertices_buffer);
+        glBufferData(
+            GL_COPY_WRITE_BUFFER,
+            m_frame->get_vertices().size() * sizeof(gfx::vertex),
+            m_frame->get_vertices().data(),
+            GL_STATIC_DRAW
+        );
+        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+        m_frame->m_vertices_buffer.ok = true;
+    }
+
+    if (!m_frame->m_vertices_texture.ok) {
+        glBindTexture(GL_TEXTURE_BUFFER, m_frame->m_vertices_texture);
+        glTexBuffer(GL_TEXTURE_BUFFER, GL_R32I, m_frame->m_vertices_buffer);
+        glBindTexture(GL_TEXTURE_BUFFER, 0);
+        m_frame->m_vertices_texture.ok = true;
+    }
+
+    if (!m_mesh->m_triangles_buffer.ok) {
+        glBindBuffer(GL_COPY_WRITE_BUFFER, m_mesh->m_triangles_buffer);
+        glBufferData(
+            GL_COPY_WRITE_BUFFER,
+            m_mesh->get_triangles().size() * sizeof(gfx::triangle),
+            m_mesh->get_triangles().data(),
+            GL_STATIC_DRAW
+        );
+        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+        m_mesh->m_triangles_buffer.ok = true;
+    }
+
+    if (!m_mesh->m_triangles_va.ok) {
+        glBindVertexArray(m_mesh->m_triangles_va);
+        glBindBuffer(GL_ARRAY_BUFFER, m_mesh->m_triangles_buffer);
+        for (int i = 0; i < 3; i++) {
+            glEnableVertexAttribArray(i * 2 + 0);
+            glVertexAttribIPointer(
+                i * 2 + 0,
+                1,
+                GL_INT,
+                sizeof(gfx::triangle),
+                reinterpret_cast<void *>(
+                    offsetof(gfx::triangle, v) +
+                    sizeof(gfx::corner) * i +
+                    offsetof(gfx::corner, vertex_index)
+                )
+            );
+            glEnableVertexAttribArray(i * 2 + 1);
+            glVertexAttribIPointer(
+                i * 2 + 1,
+                1,
+                GL_INT,
+                sizeof(gfx::triangle),
+                reinterpret_cast<void *>(
+                    offsetof(gfx::triangle, v) +
+                    sizeof(gfx::corner) * i +
+                    offsetof(gfx::corner, color_index)
+                )
+            );
+        }
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+        m_mesh->m_triangles_va.ok = true;
+    }
+
+    if (!m_mesh->m_quads_buffer.ok) {
+        glBindBuffer(GL_COPY_WRITE_BUFFER, m_mesh->m_quads_buffer);
+        glBufferData(
+            GL_COPY_WRITE_BUFFER,
+            m_mesh->get_quads().size() * sizeof(gfx::quad),
+            m_mesh->get_quads().data(),
+            GL_STATIC_DRAW
+        );
+        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+        m_mesh->m_quads_buffer.ok = true;
+    }
+
+    if (!m_mesh->m_quads_va.ok) {
+        glBindVertexArray(m_mesh->m_quads_va);
+        glBindBuffer(GL_ARRAY_BUFFER, m_mesh->m_quads_buffer);
+        for (int i = 0; i < 4; i++) {
+            glEnableVertexAttribArray(i * 2 + 0);
+            glVertexAttribIPointer(
+                i * 2 + 0,
+                1,
+                GL_INT,
+                sizeof(gfx::quad),
+                reinterpret_cast<void *>(
+                    offsetof(gfx::quad, v) +
+                    sizeof(gfx::corner) * i +
+                    offsetof(gfx::corner, vertex_index)
+                )
+            );
+            glEnableVertexAttribArray(i * 2 + 1);
+            glVertexAttribIPointer(
+                i * 2 + 1,
+                1,
+                GL_INT,
+                sizeof(gfx::quad),
+                reinterpret_cast<void *>(
+                    offsetof(gfx::quad, v) +
+                    sizeof(gfx::corner) * i +
+                    offsetof(gfx::corner, color_index)
+                )
+            );
+        }
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+        m_mesh->m_quads_va.ok = true;
+    }
+
+    if (!m_mesh->m_colors_buffer.ok) {
+        glBindBuffer(GL_COPY_WRITE_BUFFER, m_mesh->m_colors_buffer);
+        glBufferData(
+            GL_COPY_WRITE_BUFFER,
+            m_mesh->get_colors().size() * sizeof(gfx::quad),
+            m_mesh->get_colors().data(),
+            GL_STATIC_DRAW
+        );
+        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+        m_mesh->m_colors_buffer.ok = true;
+    }
+
+    if (!m_mesh->m_colors_texture.ok) {
+        glBindTexture(GL_TEXTURE_BUFFER, m_mesh->m_colors_texture);
+        glTexBuffer(GL_TEXTURE_BUFFER, GL_R8, m_mesh->m_colors_buffer);
+        glBindTexture(GL_TEXTURE_BUFFER, 0);
+        m_mesh->m_colors_texture.ok = true;
+    }
+
+    glUseProgram(s_main_prog);
     auto matrix = e.projection * e.view * m_matrix;
     glUniformMatrix4fv(s_matrix_uni, 1, false, &matrix[0][0]);
-    glBindVertexArray(s_vao);
-    glDrawElements(GL_LINES, 56, GL_UNSIGNED_BYTE, 0);
-    glBindVertexArray(0);
+    glUniform1i(
+        glGetUniformLocation(s_main_prog, "u_ColorCount"),
+        m_mesh->get_colors().size()
+    );
     glUseProgram(0);
+
+    /* for (auto &&material : ? ? ?) not implemented yet */ {
+        // Allocate space for the triangle vertices in the interrim VBO.
+        glBindBuffer(GL_COPY_WRITE_BUFFER, s_interrim_vb);
+        glBufferData(
+            GL_COPY_WRITE_BUFFER,
+            sizeof(interrim_vertex) * 3 * m_mesh->get_triangles().size(),
+            nullptr,
+            GL_STREAM_COPY
+        );
+        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+
+        // Run the poly shader to produce vertex attributes for the triangles
+        // in the VBO.
+        glUseProgram(s_triangle_prog);
+        glBindVertexArray(m_mesh->m_triangles_va);
+        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, s_interrim_vb);
+        glEnable(GL_RASTERIZER_DISCARD);
+        glBeginTransformFeedback(GL_POINTS);
+        glDrawArrays(GL_POINTS, 0, m_mesh->get_triangles().size());
+        glEndTransformFeedback();
+        glDisable(GL_RASTERIZER_DISCARD);
+        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0);
+        // FIXME - polygons with bad vertex indices should be excluded
+
+        // Run the main shader program to render the triangles.
+        glUseProgram(s_main_prog);
+        glBindVertexArray(s_interrim_va);
+        glBindTexture(GL_TEXTURE_BUFFER, m_frame->m_vertices_texture);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_BUFFER, m_mesh->m_colors_texture);
+        glActiveTexture(GL_TEXTURE0);
+        glDrawArrays(GL_TRIANGLES, 0, m_mesh->get_triangles().size() * 3);
+        glBindTexture(GL_TEXTURE_BUFFER, 0);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_BUFFER, 0);
+        glActiveTexture(GL_TEXTURE0);
+
+        // Allocate space for the quad vertices in the interrim VBO.
+        glBindBuffer(GL_COPY_WRITE_BUFFER, s_interrim_vb);
+        glBufferData(
+            GL_COPY_WRITE_BUFFER,
+            sizeof(interrim_vertex) * 6 * m_mesh->get_quads().size(),
+            nullptr,
+            GL_STREAM_COPY
+        );
+        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+
+        // Run the poly shader again, this time to produce vertex attributes for
+        // the quads.
+        glUseProgram(s_quad_prog);
+        glBindVertexArray(m_mesh->m_quads_va);
+        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, s_interrim_vb);
+        glEnable(GL_RASTERIZER_DISCARD);
+        glBeginTransformFeedback(GL_POINTS);
+        glDrawArrays(GL_POINTS, 0, m_mesh->get_quads().size());
+        glEndTransformFeedback();
+        glDisable(GL_RASTERIZER_DISCARD);
+        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0);
+
+        // Run the main shader program again to render the quads.
+        glUseProgram(s_main_prog);
+        glBindVertexArray(s_interrim_va);
+        glBindTexture(GL_TEXTURE_BUFFER, m_frame->m_vertices_texture);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_BUFFER, m_mesh->m_colors_texture);
+        glActiveTexture(GL_TEXTURE0);
+        glDrawArrays(GL_TRIANGLES, 0, m_mesh->get_quads().size() * 6);
+        glBindTexture(GL_TEXTURE_BUFFER, 0);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_BUFFER, 0);
+        glActiveTexture(GL_TEXTURE0);
+
+        glUseProgram(0);
+        glBindVertexArray(0);
+
+        // Release the allocated space in the interrim VBO.
+        glBindBuffer(GL_COPY_WRITE_BUFFER, s_interrim_vb);
+        glBufferData(GL_COPY_WRITE_BUFFER, 0, nullptr, GL_STREAM_COPY);
+        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+    }
 }
 
 gfx::mesh * const &meshframe_fig::get_mesh() const

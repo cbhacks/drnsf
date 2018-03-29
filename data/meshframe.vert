@@ -18,15 +18,51 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#version 130
-
-const vec4 SCALE = vec4(200.0,200.0,200.0,1.0);
+#version 140
+#extension GL_ARB_shader_bit_encoding: require
 
 uniform mat4 u_Matrix;
 
-in vec4 a_Position;
+// TODO - uniform block
+uniform isamplerBuffer u_VertexList;
+uniform samplerBuffer u_ColorList;
+uniform int u_ColorCount;
+
+in int a_VertexIndex;
+in int a_ColorIndex;
+
+smooth out vec3 v_Color;
+
+vec3 colorFetch(int i)
+{
+    float r = texelFetch(u_ColorList, i * 3 + 0).r;
+    float g = texelFetch(u_ColorList, i * 3 + 1).r;
+    float b = texelFetch(u_ColorList, i * 3 + 2).r;
+    return vec3(r, g, b);
+}
 
 void main()
 {
-    gl_Position = u_Matrix * (a_Position * SCALE);
+    int x_i         = texelFetch(u_VertexList, a_VertexIndex * 5 + 0).r;
+    int y_i         = texelFetch(u_VertexList, a_VertexIndex * 5 + 1).r;
+    int z_i         = texelFetch(u_VertexList, a_VertexIndex * 5 + 2).r;
+    // FIXME - fx is unsigned in gfx.hh
+    int fx          = texelFetch(u_VertexList, a_VertexIndex * 5 + 3).r;
+    int color_index = texelFetch(u_VertexList, a_VertexIndex * 5 + 4).r;
+
+    float x = intBitsToFloat(x_i);
+    float y = intBitsToFloat(y_i);
+    float z = intBitsToFloat(z_i);
+
+    gl_Position = u_Matrix * vec4(x, y, z, 1.0);
+
+    v_Color = vec3(1.0, 1.0, 1.0);
+
+    if (a_ColorIndex >= 0 && a_ColorIndex < u_ColorCount) {
+        v_Color *= colorFetch(a_ColorIndex);
+    }
+
+    if (color_index >= 0 && color_index < u_ColorCount) {
+        v_Color *= colorFetch(color_index);
+    }
 }
