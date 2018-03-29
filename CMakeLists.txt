@@ -56,7 +56,6 @@ add_executable (drnsf
     src/gui_menu.cc
     src/gui_menubar.cc
     src/gui_dialogs.cc
-    src/gui_gl_canvas.cc
     src/gui_im.cc
 
     src/gl.hh
@@ -108,8 +107,6 @@ add_executable (drnsf
     src/nsf_entry.cc
     src/nsf_raw_entry.cc
     src/nsf_wgeo_v2.cc
-
-    src/module_testbox.cc
 
     $<TARGET_OBJECTS:imgui>
 

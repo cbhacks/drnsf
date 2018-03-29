@@ -28,9 +28,7 @@ namespace edit {
 main_view::main_view(old_editor &ed) :
     m_ed(ed),
     m_canvas_wnd("Old UI", 800, 600),
-    m_cryptos_wnd("Ancient UI", 800, 600),
-    m_canvas(m_canvas_wnd, gui::layout::fill()),
-    m_cryptos(m_cryptos_wnd, gui::layout::fill())
+    m_canvas(m_canvas_wnd, gui::layout::fill())
 {
     h_frame <<= [this](int width, int height, int delta_time) {
         frame(delta_time);
@@ -38,7 +36,6 @@ main_view::main_view(old_editor &ed) :
     h_frame.bind(m_canvas.on_frame);
 
     m_canvas.show();
-    m_cryptos.show();
 }
 
 void main_view::frame(int delta_time)
@@ -78,7 +75,6 @@ void main_view::frame(int delta_time)
 void main_view::show()
 {
     m_canvas_wnd.show();
-    m_cryptos_wnd.show();
 }
 
 }

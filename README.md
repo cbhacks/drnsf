@@ -22,15 +22,10 @@ based on prototype code seen in `src/edit_mode_classic.cc`.
    * Class `edit::modedef`
    * Class `edit::modedef_of<T>`
    * File `src/edit_mode_classic.cc`
- * Implement model/mesh/anim/frame rendering in the new "render" system,
-in the class `render::meshframe_fig`. The older rendering code, seen in
-`src/module_testbox.cc` uses immediate mode rendering (as CrashEdit did). The
-new rendering code should be at or near OpenGL "core" level functionality.
  * Add project-control menu options to new UI:
    * Close Project
  * Remove the following:
    * Class `edit::core`
-   * File `module_testbox.cc`
    * File `gui_im.cc`
    * Namespace `gui::im`
    * Class `edit::im_canvas`

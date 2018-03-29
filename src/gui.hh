@@ -1145,63 +1145,6 @@ public:
  */
 bool show_open_dialog(std::string &path);
 
-/*
- * gui::gl_canvas
- *
- * FIXME explain
- */
-class gl_canvas : private widget_gl {
-private:
-    void draw_gl(int width, int height, gl::renderbuffer &rbo) final override;
-    void mousemove(int x, int y) final override;
-    void mousewheel(int delta_y) final override;
-    void mousebutton(int number, bool down) final override;
-    void key(keycode code, bool down) final override;
-    void text(const char *str) final override;
-
-    int update(int) final override
-    {
-        invalidate();
-        return INT_MAX;
-    }
-
-public:
-    // (explicit ctor)
-    // FIXME explain
-    explicit gl_canvas(container &parent, layout layout);
-
-    // (func) invalidate
-    // FIXME explain
-    using widget_gl::invalidate;
-
-    // (event) on_render
-    // FIXME explain
-    util::event<int, int> on_render;
-
-    // (event) on_mousemove
-    // FIXME explain
-    util::event<int, int> on_mousemove;
-
-    // (event) on_mousewheel
-    // FIXME explain
-    util::event<int> on_mousewheel;
-
-    // (event) on_mousebutton
-    // FIXME explain
-    util::event<int, bool> on_mousebutton;
-
-    // (event) on_key
-    // FIXME explain
-    util::event<int, bool> on_key;
-
-    // (event) on_text
-    // FIXME explain
-    util::event<const char *> on_text;
-
-    using widget_gl::show;
-    using widget_gl::hide;
-};
-
 // FIXME obsolete
 namespace im {
 

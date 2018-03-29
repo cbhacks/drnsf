@@ -27,9 +27,6 @@
 #include "gfx.hh"
 
 namespace drnsf {
-
-std::function<void()> create_mod_testbox(edit::core &);
-
 namespace edit {
 
 core::core(project &proj) :
@@ -37,50 +34,7 @@ core::core(project &proj) :
     m_ed(m_proj),
     m_wnd(m_ed)
 {
-    h_render <<= [this](int width, int height) {
-        frame(width, height);
-    };
-    h_render.bind(m_wnd.m_cryptos.on_render);
-
-    // Create all of the editor modules.
-    m_modules.push_back(create_mod_testbox(*this));
-
     m_wnd.show();
-}
-
-void core::frame(int width, int height)
-{
-    // Clear the screen.
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // Set up the 3D perspective.
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadMatrixf(&glm::perspective(
-        70.0f,
-        (float)width / height,
-        500.0f,
-        200000.0f
-    )[0][0]);
-    glTranslatef(0, 0, -800.0f);
-    glTranslatef(0, 0, -g_camera_zoom);
-    glMatrixMode(GL_MODELVIEW);
-
-    // Enable z-buffering.
-    glEnable(GL_DEPTH_TEST);
-
-    // Run all of the enabled editor modules.
-    for (auto &&mod : m_modules) {
-        mod();
-    }
-
-    // Disable the previously-enabled z-buffering.
-    glDisable(GL_DEPTH_TEST);
-
-    // Restore the default projection matrix.
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
 }
 
 }
