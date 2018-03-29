@@ -153,6 +153,19 @@ void init()
                 "gl::init: failed to activate core context"
             );
         }
+
+        if (epoxy_gl_version() < 32) {
+            throw std::runtime_error(
+                "gl::init: core context version less than 3.2"
+            );
+        }
+
+        if (!epoxy_has_gl_extension("GL_ARB_shader_bit_encoding")) {
+            throw std::runtime_error(
+                "gl::init: missing feature ARB_shader_bit_encoding"
+            );
+        }
+
         return;
     }
 
@@ -170,9 +183,22 @@ void init()
 
         if (!glXMakeCurrent(g_display, g_wnd, g_ctx)) {
             throw std::runtime_error(
-                "gl::init: failed to activate core context"
+                "gl::init: failed to activate forward context"
             );
         }
+
+        if (epoxy_gl_version() < 31) {
+            throw std::runtime_error(
+                "gl::init: forward context version less than 3.1"
+            );
+        }
+
+        if (!epoxy_has_gl_extension("GL_ARB_shader_bit_encoding")) {
+            throw std::runtime_error(
+                "gl::init: missing feature ARB_shader_bit_encoding"
+            );
+        }
+
         return;
     }
     throw std::runtime_error(
