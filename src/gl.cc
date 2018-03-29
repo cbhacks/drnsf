@@ -60,8 +60,28 @@ void init()
 #if USE_X11
     using gui::g_display;
 
-    int glx_attrs[] = { GLX_RGBA, GLX_DOUBLEBUFFER, None };
-    g_vi = glXChooseVisual(g_display, DefaultScreen(g_display), glx_attrs);
+    int glx_attrs[] = {
+        GLX_DRAWABLE_TYPE, GLX_WINDOW_BIT,
+        GLX_RENDER_TYPE,   GLX_RGBA_BIT,
+        GLX_DOUBLEBUFFER,  True,
+        None
+    };
+    int fbc_count;
+    GLXFBConfig *fbcs = glXChooseFBConfig(
+        g_display,
+        DefaultScreen(g_display),
+        glx_attrs,
+        &fbc_count
+    );
+    DRNSF_ON_EXIT { XFree(fbcs); };
+
+    if (fbc_count <= 0) {
+        throw std::runtime_error("gl::init: failed to choose GLX FB config");
+    }
+
+    auto fbc = fbcs[0];
+
+    g_vi = glXGetVisualFromFBConfig(g_display, fbc);
     if (!g_vi) {
         throw std::runtime_error("gl::init: failed to choose X visual");
     }
@@ -94,13 +114,70 @@ void init()
         // NOTE: glXCreateContext may also fail on the X server side, which may
         // not return NULL.
 
-        throw std::runtime_error("gl::init: failed to create context");
+        throw std::runtime_error("gl::init: failed to create basic context");
     }
     // FIXME release context on error
 
     if (!glXMakeCurrent(g_display, g_wnd, g_ctx)) {
-        throw std::runtime_error("gl::init: failed to activate context");
+        throw std::runtime_error("gl::init: failed to activate basic context");
     }
+
+    auto glXCreateContextAttribs =
+        reinterpret_cast<PFNGLXCREATECONTEXTATTRIBSARBPROC>(glXGetProcAddress(
+            reinterpret_cast<const unsigned char *>(
+                &"glXCreateContextAttribsARB"[0]
+            )
+        ));
+
+    if (!glXCreateContextAttribs) {
+        throw std::runtime_error(
+            "gl::init: failed to find glXCreateContextAttribsARB"
+        );
+    }
+
+    int core_attribs[] = {
+        GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+        GLX_CONTEXT_MINOR_VERSION_ARB, 2,
+        GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
+        GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+        0
+    };
+    auto core_ctx = glXCreateContextAttribs(g_display, fbc, 0, true /* ??? */, core_attribs); //FIXME
+    if (core_ctx) {
+        glXMakeCurrent(g_display, None, nullptr);
+        glXDestroyContext(g_display, g_ctx);
+        g_ctx = core_ctx;
+
+        if (!glXMakeCurrent(g_display, g_wnd, g_ctx)) {
+            throw std::runtime_error(
+                "gl::init: failed to activate core context"
+            );
+        }
+        return;
+    }
+
+    int fwd_attribs[] = {
+        GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+        GLX_CONTEXT_MINOR_VERSION_ARB, 1,
+        GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
+        0
+    };
+    auto fwd_ctx = glXCreateContextAttribs(g_display, fbc, 0, true /* ??? */, fwd_attribs); //FIXME
+    if (fwd_ctx) {
+        glXMakeCurrent(g_display, None, nullptr);
+        glXDestroyContext(g_display, g_ctx);
+        g_ctx = fwd_ctx;
+
+        if (!glXMakeCurrent(g_display, g_wnd, g_ctx)) {
+            throw std::runtime_error(
+                "gl::init: failed to activate core context"
+            );
+        }
+        return;
+    }
+    throw std::runtime_error(
+        "gl::init failed to create a 3.1 forward or 3.2 core context"
+    );
 #else
 #error Unimplemented UI frontend code.
 #endif
