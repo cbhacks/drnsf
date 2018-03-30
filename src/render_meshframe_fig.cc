@@ -441,6 +441,24 @@ void meshframe_fig::draw(const env &e)
     }
 }
 
+// declared in render.hh
+meshframe_fig::meshframe_fig(viewport &vp) :
+    figure(vp)
+{
+    h_mesh_triangles_change <<= [this] {
+        invalidate();
+    };
+    h_mesh_quads_change <<= [this] {
+        invalidate();
+    };
+    h_mesh_colors_change <<= [this] {
+        invalidate();
+    };
+    h_frame_vertices_change <<= [this] {
+        invalidate();
+    };
+}
+
 gfx::mesh * const &meshframe_fig::get_mesh() const
 {
     return m_mesh;
@@ -449,7 +467,17 @@ gfx::mesh * const &meshframe_fig::get_mesh() const
 void meshframe_fig::set_mesh(gfx::mesh *mesh)
 {
     if (m_mesh != mesh) {
+        if (m_mesh) {
+            h_mesh_triangles_change.unbind();
+            h_mesh_quads_change.unbind();
+            h_mesh_colors_change.unbind();
+        }
         m_mesh = mesh;
+        if (m_mesh) {
+            h_mesh_triangles_change.bind(m_mesh->p_triangles.on_change);
+            h_mesh_quads_change.bind(m_mesh->p_quads.on_change);
+            h_mesh_colors_change.bind(m_mesh->p_colors.on_change);
+        }
         invalidate();
     }
 }
@@ -463,7 +491,13 @@ void meshframe_fig::set_frame(gfx::frame *frame)
 {
     if (m_frame != frame)
     {
+        if (m_frame) {
+            h_frame_vertices_change.unbind();
+        }
         m_frame = frame;
+        if (m_frame) {
+            h_frame_vertices_change.bind(m_frame->p_vertices.on_change);
+        }
         invalidate();
     }
 }

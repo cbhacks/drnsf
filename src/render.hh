@@ -317,12 +317,12 @@ private:
     // (var) m_mesh
     // A pointer to the mesh used by this figure. This may be null, in which
     // case rendering will not occur.
-    gfx::mesh *m_mesh;
+    gfx::mesh *m_mesh = nullptr;
 
     // (var) m_frame
     // A pointer to the frame used by this figure. This may be null, in which
     // case rendering will not occur.
-    gfx::frame *m_frame;
+    gfx::frame *m_frame = nullptr;
 
     // (var) m_matrix
     // The model matrix for this figure. The view and projection matrix come
@@ -333,12 +333,28 @@ private:
     // Implements `figure::draw'.
     void draw(const env &e) override;
 
+    // (handler) h_mesh_triangles_change, h_mesh_quads_change,
+    //           h_mesh_colors_change
+    // Hooks the relevant mesh properties' change events so that the figure can
+    // update itself when they change.
+    decltype(decltype(gfx::mesh::p_triangles)::on_change)::watch
+        h_mesh_triangles_change;
+    decltype(decltype(gfx::mesh::p_quads)::on_change)::watch
+        h_mesh_quads_change;
+    decltype(decltype(gfx::mesh::p_colors)::on_change)::watch
+        h_mesh_colors_change;
+
+    // (handler) h_frame_vertices_change
+    // Hooks the frame's vertices property change event so that the figure can
+    // update itself when a change occurs.
+    decltype(decltype(gfx::frame::p_vertices)::on_change)::watch
+        h_frame_vertices_change;
+
 public:
     // (explicit ctor)
     // Constructs the figure. Initially, it does not reference any mesh
     // or frame.
-    explicit meshframe_fig(viewport &vp) :
-        figure(vp) {}
+    explicit meshframe_fig(viewport &vp);
 
     // (func) get_mesh, set_mesh
     // Gets or sets the gfx::mesh reference used by this figure. This may be a
