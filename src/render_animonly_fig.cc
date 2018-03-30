@@ -28,14 +28,12 @@ namespace render {
 animonly_fig::animonly_fig(viewport &vp) :
     m_framefig(vp)
 {
-    h_frame_acquire <<= [this](gfx::frame *frame) {
+    m_frame_tracker.on_acquire <<= [this](gfx::frame *frame) {
         m_framefig.set_frame(frame);
     };
-    h_frame_acquire.bind(m_frame_tracker.on_acquire);
-    h_frame_lose <<= [this] {
+    m_frame_tracker.on_lose <<= [this] {
         m_framefig.set_frame(nullptr);
     };
-    h_frame_lose.bind(m_frame_tracker.on_lose);
     h_anim_frames_change <<= [this] {
         if (m_anim->get_frames().empty()) {
             m_frame_tracker.set_name(nullptr);

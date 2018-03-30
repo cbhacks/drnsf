@@ -28,23 +28,19 @@ namespace render {
 model_fig::model_fig(viewport &vp) :
     m_meshanimfig(vp)
 {
-    h_mesh_acquire <<= [this](gfx::mesh *mesh) {
+    m_mesh_tracker.on_acquire <<= [this](gfx::mesh *mesh) {
         m_meshanimfig.set_mesh(mesh);
     };
-    h_mesh_acquire.bind(m_mesh_tracker.on_acquire);
-    h_mesh_lose <<= [this] {
+    m_mesh_tracker.on_lose <<= [this] {
         m_meshanimfig.set_mesh(nullptr);
     };
-    h_mesh_lose.bind(m_mesh_tracker.on_lose);
 
-    h_anim_acquire <<= [this](gfx::anim *anim) {
+    m_anim_tracker.on_acquire <<= [this](gfx::anim *anim) {
         m_meshanimfig.set_anim(anim);
     };
-    h_anim_acquire.bind(m_anim_tracker.on_acquire);
-    h_anim_lose <<= [this] {
+    m_anim_tracker.on_lose <<= [this] {
         m_meshanimfig.set_anim(nullptr);
     };
-    h_anim_lose.bind(m_anim_tracker.on_lose);
 
     h_model_mesh_change <<= [this] {
         m_mesh_tracker.set_name(m_model->get_mesh());

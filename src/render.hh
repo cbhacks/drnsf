@@ -274,13 +274,6 @@ private:
     // pointers needed by `m_framefig'.
     res::tracker<gfx::frame> m_frame_tracker;
 
-    // (handler) h_frame_acquire, h_frame_lose
-    // Responds to changes from `m_frame_tracker' to update `m_framefig' as the
-    // animation's frames come into and out of existence, and as the frame list
-    // itself changes.
-    decltype(res::tracker<gfx::frame>::on_acquire)::watch h_frame_acquire;
-    decltype(res::tracker<gfx::frame>::on_lose)::watch h_frame_lose;
-
     // (handler) h_anim_frames_change
     // Hooks the anim's frames property change event to keep track of the anim's
     // frames so that the figure can update itself when they change.
@@ -399,13 +392,6 @@ private:
     // pointers needed by `m_meshframefig'.
     res::tracker<gfx::frame> m_frame_tracker;
 
-    // (handler) h_frame_acquire, h_frame_lose
-    // Responds to changes from `m_frame_tracker' to update `m_meshframefig' as
-    // the animation's frames come into and out of existence, and as the frame
-    // list itself changes.
-    decltype(res::tracker<gfx::frame>::on_acquire)::watch h_frame_acquire;
-    decltype(res::tracker<gfx::frame>::on_lose)::watch h_frame_lose;
-
     // (handler) h_anim_frames_change
     // Hooks the anim's frames property change event to keep track of the anim's
     // frames so that the figure can update itself when they change.
@@ -474,15 +460,6 @@ private:
     // provide the actual pointers needed by `m_meshanimfig'.
     res::tracker<gfx::mesh> m_mesh_tracker;
     res::tracker<gfx::anim> m_anim_tracker;
-
-    // (handler) h_mesh_acquire, h_mesh_lose, h_anim_acquire, h_mesh_lose
-    // Responds to changes from `m_mesh_tracker' and `m_anim_tracker' to update
-    // `m_meshanimfig' as the model's mesh and animation come into and out of
-    // existences, and as the references themselves change.
-    decltype(res::tracker<gfx::mesh>::on_acquire)::watch h_mesh_acquire;
-    decltype(res::tracker<gfx::mesh>::on_lose)::watch h_mesh_lose;
-    decltype(res::tracker<gfx::anim>::on_acquire)::watch h_anim_acquire;
-    decltype(res::tracker<gfx::anim>::on_lose)::watch h_anim_lose;
 
     // (handler) h_model_mesh_change, h_model_anim_change
     // Hooks the model's mesh and anim property change events to keep track of

@@ -212,12 +212,32 @@ private:
     // A list of pointers to the watches bound to this event.
     std::list<watch *> m_watchers;
 
+    // (var) m_direct_handler
+    // A direct handler function which also responds to this event. This may be
+    // null if no direct handler has been installed.
+    std::function<void(Args...)> m_direct_handler;
+
 public:
+    // (feed operator)
+    // Sets the direct handler function for this event. This may be done only
+    // once for the lifetime of the event. The given function must be valid.
+    void operator <<=(std::function<void(Args...)> func)
+    {
+        if (m_direct_handler) {
+            throw std::logic_error("util::event::(shift op): already set");
+        }
+
+        m_direct_handler = std::move(func);
+    }
+
     // (call operator)
     // Raises the event with the specified arguments. This means triggering
     // all of the watches bound to this event.
     void operator ()(Args... args)
     {
+        if (m_direct_handler) {
+            m_direct_handler(args...);
+        }
         for (auto &&watcher : m_watchers) {
             watcher->m_func(args...);
         }
