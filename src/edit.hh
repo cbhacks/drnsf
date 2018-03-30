@@ -458,15 +458,12 @@ private:
     gui::menubar m_newmenubar;
     menus::mnu_file m_mnu_file{m_newmenubar, m_ctx};
     menus::mnu_edit m_mnu_edit{m_newmenubar, m_ctx};
-    res::project *m_proj_p;
-    std::unique_ptr<asset_editor> m_assets_view;
+    asset_editor m_assets_view{m_wnd, gui::layout::fill(), *m_ctx.get_proj()};
 
 public:
     explicit main_window(context &ctx);
 
     void show();
-
-    void set_project(res::project &proj);
 };
 
 //// SEEN BELOW: soon-to-be-obsolete code ////

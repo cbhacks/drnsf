@@ -32,19 +32,12 @@ main_window::main_window(context &ctx) :
     m_wnd(APP_TITLE, 1024, 768),
     m_newmenubar(m_wnd)
 {
+    m_assets_view.show();
 }
 
 void main_window::show()
 {
     m_wnd.show();
-}
-
-void main_window::set_project(res::project &proj)
-{
-    m_proj_p = &proj;
-    m_assets_view = std::make_unique<asset_editor>(m_wnd, gui::layout::fill(), proj);
-
-    m_assets_view->show();
 }
 
 }

@@ -109,7 +109,6 @@ static int cmd_gui(argv_t argv)
 
     edit::main_window wnd(ctx);
     wnd.show();
-    wnd.set_project(*proj);
 
     // Run the main application/game loop.
     gui::run();
