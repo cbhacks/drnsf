@@ -28,6 +28,7 @@
 
 #include <list>
 #include <set>
+#include <unordered_map>
 #include "../imgui/imgui.h"
 #include "res.hh"
 #include "transact.hh"
@@ -441,6 +442,50 @@ public:
     util::event<res::atom> on_select;
 };
 
+/*
+ * edit::map_mainctl
+ *
+ * FIXME explain
+ */
+class map_mainctl : private render::viewport {
+private:
+    // (var) m_ctx
+    // The context this map editor is attached to.
+    context &m_ctx;
+
+    // (var) m_reticle
+    // FIXME explain
+    render::reticle_fig m_reticle{*this};
+
+    // (var) m_world_figs
+    // FIXME explain
+    std::unordered_map<
+        gfx::world *,
+        std::unique_ptr<render::world_fig>> m_world_figs;
+
+    // (handler) h_asset_appear, h_asset_disappear
+    // Hooks the editor context's current project to see when assets come into
+    // and out of existence so their figures can be added or removed on the
+    // viewport.
+    decltype(res::project::on_asset_appear)::watch h_asset_appear;
+    decltype(res::project::on_asset_disappear)::watch h_asset_disappear;
+
+public:
+    // (explicit ctor)
+    // FIXME explain
+    explicit map_mainctl(
+        gui::container &parent,
+        gui::layout layout,
+        context &ctx);
+
+    using viewport::show;
+    using viewport::hide;
+    using viewport::get_layout;
+    using viewport::set_layout;
+    using viewport::get_real_size;
+    using viewport::get_screen_pos;
+};
+
 // FIXME - temporary global for compatibility
 extern res::atom g_selected_asset;
 extern render::camera g_camera;
@@ -458,7 +503,14 @@ private:
     gui::menubar m_newmenubar;
     menus::mnu_file m_mnu_file{m_newmenubar, m_ctx};
     menus::mnu_edit m_mnu_edit{m_newmenubar, m_ctx};
-    asset_editor m_assets_view{m_wnd, gui::layout::fill(), *m_ctx.get_proj()};
+    asset_editor m_assets_view{
+        m_wnd,
+        gui::layout::grid(0, 2, 3, 0, 1, 1),
+        *m_ctx.get_proj()};
+    map_mainctl m_map_view{
+        m_wnd,
+        gui::layout::grid(2, 1, 3, 0, 1, 1),
+        m_ctx};
 
 public:
     explicit main_window(context &ctx);

@@ -70,6 +70,7 @@ add_executable (drnsf
     src/render_meshframe_fig.cc
     src/render_meshanim_fig.cc
     src/render_model_fig.cc
+    src/render_world_fig.cc
 
     src/edit.hh
     src/edit_context.cc
@@ -79,6 +80,7 @@ add_executable (drnsf
     src/edit_asset_propctl.cc
     src/edit_asset_editor.cc
     src/edit_asset_tree.cc
+    src/edit_map_mainctl.cc
     src/edit_main_window.cc
     src/edit_im_canvas.cc
     src/edit_editor.cc

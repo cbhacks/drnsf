@@ -509,5 +509,84 @@ public:
     void set_matrix(glm::mat4 matrix);
 };
 
+/*
+ * render::world_fig
+ *
+ * This figure draws a gfx::world's model at that world's location. Only the
+ * first frame of the model's animation is used at this time.
+ *
+ * The world is given directly by pointer. Any code which uses this class must
+ * ensure that the world pointer is valid or null at all times. The model need
+ * not be valid, however; world_fig will track the validity itself and handle
+ * any changes to the model ref or the model's lifetime.
+ *
+ * This class is only a pseudo-figure. Rather than implementing the `figure'
+ * class itself, this class drives an underlying `model_fig' object.
+ */
+class world_fig : private util::nocopy {
+private:
+    // (var) m_world
+    // A pointer to the world used by this figure. This may be null, in which
+    // case rendering will not occur.
+    gfx::world *m_world = nullptr;
+
+    // (var) m_modelfig
+    // The underlying figure which handles rendering the selected world's model.
+    // The world_fig drives the model_fig by providing the model pointer and
+    // world position specified in the world.
+    model_fig m_modelfig;
+
+    // (var) m_model_tracker
+    // A helper object which tracks the model ref in the world and provides the
+    // actual pointers needed by `m_modelfig'.
+    res::tracker<gfx::model> m_model_tracker;
+
+    // (var) m_matrix
+    // The model matrix used by this figure. The actual model matrix used when
+    // drawing is held in `m_modelfig', but the original matrix set on the
+    // world_fig is stored here so it can be reused later if the world X/Y/Z
+    // position changes.
+    glm::mat4 m_matrix{1.0f};
+
+    // (handler) h_world_model_change
+    // Hooks the world's model property change event to keep track of the
+    // world's model ref so that the figure can update itself when it changes.
+    decltype(decltype(gfx::world::p_model)::on_change)::watch
+        h_world_model_change;
+
+    // (handler) h_world_x_change, h_world_y_change, h_world_z_change
+    // Hooks the world's x/y/z property change events to update the figure when
+    // the world's position changes.
+    decltype(decltype(gfx::world::p_x)::on_change)::watch
+        h_world_x_change;
+    decltype(decltype(gfx::world::p_y)::on_change)::watch
+        h_world_y_change;
+    decltype(decltype(gfx::world::p_z)::on_change)::watch
+        h_world_z_change;
+
+public:
+    // (explicit ctor)
+    // Constructs the figure. Initially, it does not reference any world.
+    explicit world_fig(viewport &vp);
+
+    // (func) show, hide
+    // Changes the visibility of the figure. Since this is not a real figure,
+    // the show/hide calls are passed on to the actual underlying figure.
+    void show();
+    void hide();
+
+    // (func) get_world, set_world
+    // Gets or sets the gfx::world reference used by this figure. This may be a
+    // null pointer.
+    gfx::world * const &get_world() const;
+    void set_world(gfx::world *world);
+
+    // (func) get_matrix, set_matrix
+    // Gets or sets the model matrix. The matrix passed to the underlying
+    // model_fig is based on this matrix and the world's x/y/z position.
+    const glm::mat4 &get_matrix() const;
+    void set_matrix(glm::mat4 matrix);
+};
+
 }
 }

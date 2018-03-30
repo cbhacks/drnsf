@@ -33,6 +33,7 @@ main_window::main_window(context &ctx) :
     m_newmenubar(m_wnd)
 {
     m_assets_view.show();
+    m_map_view.show();
 }
 
 void main_window::show()
