@@ -159,7 +159,7 @@ void reticle_fig::draw(const env &e)
     }
 
     glUseProgram(s_prog);
-    auto matrix = e.projection * e.view * m_matrix;
+    auto matrix = e.projection * e.view_nomove * m_matrix;
     glUniformMatrix4fv(s_matrix_uni, 1, false, &matrix[0][0]);
     glBindVertexArray(s_vao);
     glDrawArrays(GL_LINES, 0, sizeof(reticle_model) / sizeof(reticle_vert));

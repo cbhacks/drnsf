@@ -132,43 +132,42 @@ void viewport::impl::draw_gl(int width, int height, gl::renderbuffer &rbo)
     // Enable Z-buffer / depth testing.
     glEnable(GL_DEPTH_TEST);
 
+    figure::env e;
+
     // Build the projection matrix.
-    auto projection = glm::perspective(
+    e.projection = glm::perspective(
         70.0f,
         static_cast<float>(width) / height,
         500.0f,
         200000.0f
     );
-    projection = glm::translate(
-        projection,
+    e.projection = glm::translate(
+        e.projection,
         glm::vec3(0.0f, 0.0f, -800.0f)
     );
 
     // Build the view matrix.
-    glm::mat4 view(1.0f);
-    view = glm::translate(
-        view,
+    e.view = glm::translate(
+        e.view,
         glm::vec3(0.0f, 0.0f, -edit::g_camera_zoom)
     );
-    view = glm::rotate(
-        view,
+    e.view = glm::rotate(
+        e.view,
         glm::radians(edit::g_camera_pitch),
         glm::vec3(1.0f, 0.0f, 0.0f)
     );
-    view = glm::rotate(
-        view,
+    e.view = glm::rotate(
+        e.view,
         glm::radians(edit::g_camera_yaw),
         glm::vec3(0.0f, 1.0f, 0.0f)
     );
-
-    view = glm::translate(
-        view,
+    e.view_nomove = e.view;
+    e.view = glm::translate(
+        e.view,
         glm::vec3(edit::g_camera.x, edit::g_camera.y, edit::g_camera.z)
     );
+
     // Render the viewport's visible figures.
-    figure::env e;
-    e.view = view;
-    e.projection = projection;
     for (auto &&fig : m_outer.m_figs) {
         if (!fig->m_visible) continue;
         fig->draw(e);

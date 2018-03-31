@@ -115,8 +115,19 @@ protected:
     // without the need to change the function signature every time new
     // information needs to be passed through.
     struct env {
+        // (var) projection
+        // The projection matrix.
         glm::mat4 projection;
+
+        // (var) view
+        // The view matrix.
         glm::mat4 view;
+
+        // (var) view
+        // The view matrix, but not translated according to the camera's x/y/z
+        // pivot position. This could be used place a model such that it is
+        // always located at the pivot point, as is done by the reticle.
+        glm::mat4 view_nomove;
     };
 
 private:
@@ -134,8 +145,8 @@ private:
 
     // (pure func) draw
     // Derived classes must implement this method to draw themselves in
-    // whatever way is appropriate. The modelview and projection matrices
-    // are given as parameters.
+    // whatever way is appropriate. The view and projection matrices are given
+    // as parameters.
     virtual void draw(const env &e) = 0;
 
 protected:
