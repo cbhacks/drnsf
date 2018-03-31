@@ -42,7 +42,7 @@ namespace render {
  * the application.
  */
 struct camera {
-    static constexpr float default_yaw = 330.0f;
+    static constexpr float default_yaw = 240.0f;
     static constexpr float default_pitch = -30.0f;
     static constexpr float default_distance = 5000.0f;
 

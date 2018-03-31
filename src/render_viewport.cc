@@ -158,6 +158,11 @@ void viewport::impl::draw_gl(int width, int height, gl::renderbuffer &rbo)
     );
     e.view = glm::rotate(
         e.view,
+        glm::radians(90.0f),
+        glm::vec3(0.0f, -1.0f, 0.0f)
+    );
+    e.view = glm::rotate(
+        e.view,
         glm::radians(edit::g_camera.yaw),
         glm::vec3(0.0f, -1.0f, 0.0f)
     );
@@ -178,9 +183,11 @@ void viewport::impl::draw_gl(int width, int height, gl::renderbuffer &rbo)
 // declared above FIXME
 void viewport::impl::mousemove(int x, int y)
 {
+    int delta_x = x - m_mouse_x_prev;
+    int delta_y = y - m_mouse_y_prev;
+
     if (m_mouse1_down && m_mouse2_down) {
         // Zoom if both buttons are held.
-        int delta_y = y - m_mouse_y_prev;
 
         edit::g_camera.distance -= edit::g_camera.distance * 0.01 * delta_y;
         if (edit::g_camera.distance < camera::min_distance) {
@@ -189,11 +196,8 @@ void viewport::impl::mousemove(int x, int y)
         invalidate();//FIXME remove
     } else if (m_mouse1_down) {
         // Rotate if only "left" button is held.
-        int delta_x = x - m_mouse_x_prev;
-        int delta_y = y - m_mouse_y_prev;
 
         edit::g_camera.yaw -= delta_x;
-
         edit::g_camera.pitch -= delta_y;
         if (edit::g_camera.pitch > 90.0f) {
             edit::g_camera.pitch = 90.0f;
@@ -201,6 +205,41 @@ void viewport::impl::mousemove(int x, int y)
             edit::g_camera.pitch = -90.0f;
         }
         invalidate();//FIXME remove
+    } else if (m_mouse2_down) {
+        // Rotate if only "right" button is held.
+
+        using glm::sin;
+        using glm::cos;
+        using glm::radians;
+
+        float delta_yaw = -delta_x;
+
+        glm::vec3 camera_pos(
+            edit::g_camera.pivot.x -
+                edit::g_camera.distance *
+                cos(radians(edit::g_camera.yaw)),
+            edit::g_camera.pivot.y, /* TODO */
+            edit::g_camera.pivot.z +
+                edit::g_camera.distance *
+                sin(radians(edit::g_camera.yaw))
+        );
+
+        glm::vec3 target_pos(
+            camera_pos.x -
+                edit::g_camera.distance *
+                cos(radians(edit::g_camera.yaw + 180 + delta_yaw)),
+            camera_pos.y, /* TODO */
+            camera_pos.z +
+                edit::g_camera.distance *
+                sin(radians(edit::g_camera.yaw + 180 + delta_yaw))
+        );
+
+        float target_yaw = edit::g_camera.yaw + delta_yaw;
+
+        edit::g_camera.pivot = target_pos;
+        edit::g_camera.yaw = target_yaw;
+
+        invalidate(); //FIXME remove
     }
 
     m_mouse_x_prev = x;
@@ -307,6 +346,11 @@ int viewport::impl::update(int delta_ms)
         rotation = glm::rotate(
             rotation,
             glm::radians(edit::g_camera.yaw),
+            glm::vec3(0.0f, 1.0f, 0.0f)
+        );
+        rotation = glm::rotate(
+            rotation,
+            glm::radians(90.0f),
             glm::vec3(0.0f, 1.0f, 0.0f)
         );
         rotation = glm::rotate(
