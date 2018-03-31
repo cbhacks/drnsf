@@ -53,11 +53,24 @@ private:
     int m_mouse_x_prev;
     int m_mouse_y_prev;
 
+    // (var) m_key_w_down, m_key_a_down, m_key_s_down, m_key_d_down,
+    //       m_key_q_down, m_key_e_down
+    // True if the respective key is is currently down for this widget; false
+    // otherwise.
+    bool m_key_w_down = false;
+    bool m_key_a_down = false;
+    bool m_key_s_down = false;
+    bool m_key_d_down = false;
+    bool m_key_q_down = false;
+    bool m_key_e_down = false;
+
     // FIXME non-pimpl later on
     void draw_gl(int width, int height, gl::renderbuffer &rbo) override;
     void mousemove(int x, int y) override;
     void mousewheel(int delta_y) override;
     void mousebutton(int number, bool down) override;
+    void key(gui::keycode code, bool down) override;
+    int update(int delta_ms) override;
 
 public:
     // (explicit ctor)
@@ -148,6 +161,10 @@ void viewport::impl::draw_gl(int width, int height, gl::renderbuffer &rbo)
         glm::vec3(0.0f, 1.0f, 0.0f)
     );
 
+    view = glm::translate(
+        view,
+        glm::vec3(edit::g_camera.x, edit::g_camera.y, edit::g_camera.z)
+    );
     // Render the viewport's visible figures.
     figure::env e;
     e.view = view;
@@ -215,6 +232,93 @@ void viewport::impl::mousebutton(int number, bool down)
         m_mouse2_down = down;
         break;
     }
+}
+
+// declared above FIXME
+void viewport::impl::key(gui::keycode code, bool down)
+{
+    switch (code) {
+    case gui::keycode::W:
+        m_key_w_down = down;
+        break;
+    case gui::keycode::A:
+        m_key_a_down = down;
+        break;
+    case gui::keycode::S:
+        m_key_s_down = down;
+        break;
+    case gui::keycode::D:
+        m_key_d_down = down;
+        break;
+    case gui::keycode::Q:
+        m_key_q_down = down;
+        break;
+    case gui::keycode::E:
+        m_key_e_down = down;
+        break;
+    default:
+        // Silence gcc warning for -Wswitch.
+        break;
+    }
+}
+
+// declared above FIXME
+int viewport::impl::update(int delta_ms)
+{
+    const int vp_update_interval = 1;
+    const float vp_speed = 10000.0f;
+
+    int move_x = 0;
+    int move_y = 0;
+    int move_z = 0;
+
+    // Calculate the total movement vectors based on keyboard input status.
+    if (m_key_w_down)
+        move_z--;
+    if (m_key_s_down)
+        move_z++;
+    if (m_key_a_down)
+        move_x--;
+    if (m_key_d_down)
+        move_x++;
+    if (m_key_q_down)
+        move_y--;
+    if (m_key_e_down)
+        move_y++;
+
+    // Exit early with no need for future updates if there is no movement, or
+    // all movement is cancelled (e.g. W + S results in forward and backward
+    // movement cancelling eachother out).
+    if (!move_x && !move_y && !move_z)
+        return INT_MAX;
+
+    float delta_x = delta_ms * vp_speed / 1000.0f * move_x;
+    float delta_y = delta_ms * vp_speed / 1000.0f * move_y;
+    float delta_z = delta_ms * vp_speed / 1000.0f * move_z;
+
+    auto absolute_delta = glm::vec4(delta_x, delta_y, delta_z, 1.0f);
+
+    if (m_mouse1_down && !m_mouse2_down) {
+        // WASDQE moves on the absolute X/Y/Z axis if only the "left" button
+        // is held.
+
+        edit::g_camera.x -= absolute_delta[0];
+        edit::g_camera.y -= absolute_delta[1];
+        edit::g_camera.z -= absolute_delta[2];
+
+        invalidate();
+        return vp_update_interval;
+    } else if (m_mouse2_down && !m_mouse1_down) {
+        // WASDQE moves with respect to the camera's orientation if only the
+        // "right" button is held.
+
+        // TODO
+
+        invalidate();
+        return vp_update_interval;
+    }
+
+    return INT_MAX;
 }
 
 // declared in render.hh

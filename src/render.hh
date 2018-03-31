@@ -46,6 +46,9 @@ struct camera {
     static constexpr float default_pitch = 30.0f;
     static constexpr float default_zoom = 5000.0f;
 
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
     float yaw = default_yaw;
     float pitch = default_pitch;
     float zoom = default_zoom;;
