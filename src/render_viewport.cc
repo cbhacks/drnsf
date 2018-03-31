@@ -261,7 +261,6 @@ void viewport::impl::key(gui::keycode code, bool down)
 // declared above FIXME
 int viewport::impl::update(int delta_ms)
 {
-    const int vp_update_interval = 1;
     const float vp_speed = 10000.0f;
 
     int move_x = 0;
@@ -299,7 +298,7 @@ int viewport::impl::update(int delta_ms)
         edit::g_camera.pivot -= absolute_delta;
 
         invalidate();
-        return vp_update_interval;
+        return 0;
     } else if (m_mouse2_down && !m_mouse1_down) {
         // WASDQE moves with respect to the camera's orientation if only the
         // "right" button is held.
@@ -307,7 +306,7 @@ int viewport::impl::update(int delta_ms)
         // TODO
 
         invalidate();
-        return vp_update_interval;
+        return 0;
     }
 
     return INT_MAX;
