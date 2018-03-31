@@ -149,12 +149,12 @@ void run()
                     case KeyPress:
                     case KeyRelease: {
                         char buf[30] = {};
-                        KeySym sym;
+                        KeySym sym = XLookupKeysym(&ev.xkey, 0);
                         int len = XLookupString(
                             &ev.xkey,
                             buf,
                             sizeof(buf),
-                            &sym,
+                            nullptr,
                             nullptr
                         );
                         if (sym != NoSymbol) {

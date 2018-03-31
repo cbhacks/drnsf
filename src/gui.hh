@@ -107,12 +107,12 @@ enum class keycode : int {
     r_super = 0xFFEC,
 
     // Only adding letters needed by ImGui for now.
-    A = 'A',
-    C = 'C',
-    V = 'V',
-    X = 'X',
-    Y = 'Y',
-    Z = 'Z'
+    A = 'a',
+    C = 'c',
+    V = 'v',
+    X = 'x',
+    Y = 'y',
+    Z = 'z'
 #endif
 };
 
