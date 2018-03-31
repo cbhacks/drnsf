@@ -149,23 +149,20 @@ void viewport::impl::draw_gl(int width, int height, gl::renderbuffer &rbo)
     // Build the view matrix.
     e.view = glm::translate(
         e.view,
-        glm::vec3(0.0f, 0.0f, -edit::g_camera_zoom)
+        glm::vec3(0.0f, 0.0f, -edit::g_camera.distance)
     );
     e.view = glm::rotate(
         e.view,
-        glm::radians(edit::g_camera_pitch),
-        glm::vec3(1.0f, 0.0f, 0.0f)
+        glm::radians(edit::g_camera.pitch),
+        glm::vec3(-1.0f, 0.0f, 0.0f)
     );
     e.view = glm::rotate(
         e.view,
-        glm::radians(edit::g_camera_yaw),
-        glm::vec3(0.0f, 1.0f, 0.0f)
+        glm::radians(edit::g_camera.yaw),
+        glm::vec3(0.0f, -1.0f, 0.0f)
     );
     e.view_nomove = e.view;
-    e.view = glm::translate(
-        e.view,
-        glm::vec3(edit::g_camera.x, edit::g_camera.y, edit::g_camera.z)
-    );
+    e.view = glm::translate(e.view, edit::g_camera.pivot);
 
     // Render the viewport's visible figures.
     for (auto &&fig : m_outer.m_figs) {
@@ -185,9 +182,9 @@ void viewport::impl::mousemove(int x, int y)
         // Zoom if both buttons are held.
         int delta_y = y - m_mouse_y_prev;
 
-        edit::g_camera_zoom -= edit::g_camera_zoom * 0.01 * delta_y;
-        if (edit::g_camera_zoom < 500.0f) {
-            edit::g_camera_zoom = 500.0f;
+        edit::g_camera.distance -= edit::g_camera.distance * 0.01 * delta_y;
+        if (edit::g_camera.distance < camera::min_distance) {
+            edit::g_camera.distance = camera::min_distance;
         }
         invalidate();//FIXME remove
     } else if (m_mouse1_down) {
@@ -195,13 +192,13 @@ void viewport::impl::mousemove(int x, int y)
         int delta_x = x - m_mouse_x_prev;
         int delta_y = y - m_mouse_y_prev;
 
-        edit::g_camera_yaw += delta_x;
+        edit::g_camera.yaw -= delta_x;
 
-        edit::g_camera_pitch += delta_y;
-        if (edit::g_camera_pitch > 90.0f) {
-            edit::g_camera_pitch = 90.0f;
-        } else if (edit::g_camera_pitch < -90.0f) {
-            edit::g_camera_pitch = -90.0f;
+        edit::g_camera.pitch -= delta_y;
+        if (edit::g_camera.pitch > 90.0f) {
+            edit::g_camera.pitch = 90.0f;
+        } else if (edit::g_camera.pitch < -90.0f) {
+            edit::g_camera.pitch = -90.0f;
         }
         invalidate();//FIXME remove
     }
@@ -213,9 +210,9 @@ void viewport::impl::mousemove(int x, int y)
 // declared above FIXME
 void viewport::impl::mousewheel(int delta_y)
 {
-    edit::g_camera_zoom -= edit::g_camera_zoom * 0.1 * delta_y;
-    if (edit::g_camera_zoom < 500.0f) {
-        edit::g_camera_zoom = 500.0f;
+    edit::g_camera.distance -= edit::g_camera.distance * 0.1 * delta_y;
+    if (edit::g_camera.distance < camera::min_distance) {
+        edit::g_camera.distance = camera::min_distance;
     }
     invalidate();//FIXME remove
 }
@@ -291,19 +288,15 @@ int viewport::impl::update(int delta_ms)
     if (!move_x && !move_y && !move_z)
         return INT_MAX;
 
-    float delta_x = delta_ms * vp_speed / 1000.0f * move_x;
-    float delta_y = delta_ms * vp_speed / 1000.0f * move_y;
-    float delta_z = delta_ms * vp_speed / 1000.0f * move_z;
-
-    auto absolute_delta = glm::vec4(delta_x, delta_y, delta_z, 1.0f);
+    auto absolute_delta =
+        glm::vec3(float(move_x), float(move_y), float(move_z)) *
+        (delta_ms * vp_speed / 1000.0f);
 
     if (m_mouse1_down && !m_mouse2_down) {
         // WASDQE moves on the absolute X/Y/Z axis if only the "left" button
         // is held.
 
-        edit::g_camera.x -= absolute_delta[0];
-        edit::g_camera.y -= absolute_delta[1];
-        edit::g_camera.z -= absolute_delta[2];
+        edit::g_camera.pivot -= absolute_delta;
 
         invalidate();
         return vp_update_interval;

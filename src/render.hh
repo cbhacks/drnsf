@@ -42,16 +42,16 @@ namespace render {
  * the application.
  */
 struct camera {
-    static constexpr float default_yaw = 30.0f;
-    static constexpr float default_pitch = 30.0f;
-    static constexpr float default_zoom = 5000.0f;
+    static constexpr float default_yaw = 330.0f;
+    static constexpr float default_pitch = -30.0f;
+    static constexpr float default_distance = 5000.0f;
 
-    float x = 0.0f;
-    float y = 0.0f;
-    float z = 0.0f;
+    static constexpr float min_distance = 500.0f;
+
+    glm::vec3 pivot = { 0.0f, 0.0f, 0.0f };
     float yaw = default_yaw;
     float pitch = default_pitch;
-    float zoom = default_zoom;;
+    float distance = default_distance;
 };
 
 // defined later in this file

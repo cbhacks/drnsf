@@ -489,9 +489,6 @@ public:
 // FIXME - temporary global for compatibility
 extern res::atom g_selected_asset;
 extern render::camera g_camera;
-static float &g_camera_yaw = g_camera.yaw;
-static float &g_camera_pitch = g_camera.pitch;
-static float &g_camera_zoom = g_camera.zoom;
 
 // FIXME FIXME FIXME FIXME FIXME
 // slightly newer but still obsolete code below
