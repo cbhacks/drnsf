@@ -303,7 +303,21 @@ int viewport::impl::update(int delta_ms)
         // WASDQE moves with respect to the camera's orientation if only the
         // "right" button is held.
 
-        // TODO
+        glm::mat4 rotation;
+        rotation = glm::rotate(
+            rotation,
+            glm::radians(edit::g_camera.yaw),
+            glm::vec3(0.0f, 1.0f, 0.0f)
+        );
+        rotation = glm::rotate(
+            rotation,
+            glm::radians(edit::g_camera.pitch),
+            glm::vec3(1.0f, 0.0f, 0.0f)
+        );
+
+        auto relative_delta = glm::vec3(rotation * glm::vec4(absolute_delta, 1.0f));
+
+        edit::g_camera.pivot -= relative_delta;
 
         invalidate();
         return 0;
