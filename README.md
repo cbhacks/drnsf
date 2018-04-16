@@ -48,9 +48,6 @@ You will need the following dependencies to build DRNSF:
 Depending on your selected frontend and features, you may need more
 dependencies. See `docs/build_options.md` for more details.
 
-You will likely need Git when you retrieve the source code and some of
-its included dependencies.
-
 Building is done using cmake. This should be done out-of-tree. The
 `build/` directory is reserved in `.gitignore` for this purpose so it
 will not be included in git commits.
@@ -60,7 +57,6 @@ Retrieiving and building drnsf can be done like so:
 ```sh
 /$ git clone https://github.com/cbhacks/drnsf
 /$ cd drnsf
-/drnsf$ git submodule update --init
 /drnsf$ mkdir build
 /drnsf$ cd build
 /drnsf/build$ cmake ..
