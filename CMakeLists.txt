@@ -156,7 +156,7 @@ find_package (PkgConfig REQUIRED)
 
 # Dependency: cairo
 if (USE_X11)
-    pkg_search_module (CAIRO REQUIRED cairo-x11 IMPORTED_TARGET)
+    pkg_search_module (CAIRO REQUIRED cairo-xlib IMPORTED_TARGET)
     target_link_libraries (drnsf PRIVATE PkgConfig::CAIRO)
 endif ()
 
