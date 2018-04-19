@@ -39,6 +39,7 @@ You will need the following dependencies to build DRNSF:
 
  * CMake >= 3.8
  * PkgConfig
+ * Python 3
  * libepoxy _(recommended >= 1.3.1)_
  * Cairo _(recommended >= 1.14.12)_
  * C++17 compiler and toolset; specifically supported are:
