@@ -49,6 +49,11 @@ private:
         if (ImGui::Button("OK")) {
             auto new_path = fs::path(m_filename);
             if (new_path.is_absolute()) {
+                // Under standard C++17, both branches should have identical
+                // results in the case of a absolute path. However, we also
+                // support the experimental Filesystem TS (see file fs.hh),
+                // where the behavior of `operator /' with an absolute path on
+                // the righthand side is different from standard C++17.
                 m_cdir = new_path;
             } else {
                 m_cdir /= m_filename;
