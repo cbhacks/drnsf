@@ -37,7 +37,7 @@ namespace menus {
 void mni_open::on_activate()
 {
     // Get the file to open from the user.
-    std::string path = ".";
+    std::string path;
     if (!gui::show_open_dialog(path)) return;
 
     // Create the new project to import into.

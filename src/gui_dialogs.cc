@@ -58,7 +58,7 @@ private:
             } else {
                 m_cdir /= m_filename;
             }
-            m_cdir = fs::canonical(m_cdir);
+            m_cdir = fs::absolute(m_cdir);
             m_filename = "";
             if (!fs::exists(m_cdir) || !fs::is_directory(m_cdir)) {
                 m_ok = true;
@@ -96,7 +96,7 @@ private:
         ImGui::BeginChild("Directory Contents", ImVec2(0, 0));
         ImGui::Columns(2);
         for (auto &&de : fs::directory_iterator(m_cdir)) {
-            auto de_path = fs::canonical(de.path());
+            auto de_path = fs::absolute(de.path());
             auto de_filename = de_path.filename();
 
             // Display this entry's name as a selectable object. If it is
@@ -137,7 +137,7 @@ public:
 
     bool show_open(std::string &path)
     {
-        m_cdir = fs::canonical(path);
+        m_cdir = fs::absolute(path);
         if (!fs::is_directory(m_cdir)) {
             m_filename = m_cdir.filename();
             m_cdir = m_cdir.parent_path();
