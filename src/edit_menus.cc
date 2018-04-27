@@ -99,8 +99,57 @@ void mni_open::on_activate()
 }
 
 // declared in edit.hh
+void mni_save_as::on_activate()
+{
+    // Verify that there is an open project.
+    auto proj = m_ctx.get_proj();
+    if (!proj) {
+        // TODO - error message box?
+        return;
+    }
+
+    // Verify that there is an appropriate NSF asset to be saved.
+    nsf::archive::ref nsf_asset = proj->get_asset_root() / "nsfile";
+    if (!nsf_asset.ok()) {
+        // TODO - error message box
+        return;
+    }
+
+    // Get the file to save to from the user.
+    std::string path;
+    if (!gui::show_save_dialog(path)) return;
+
+    // TODO - make the remaining code asynchronous to not block the UI
+
+    // Deserialize all of the assets referenced (directly or indirectly) into
+    // one large blob of NSF file data.
+    util::blob nsf_data;
+    /*try*/ {
+        nsf_data = nsf_asset->export_file();
+    } /*catch (?) {
+        TODO - handle errors
+    }*/
+
+    // Write the NSF data into the file specified by the user.
+    /*try*/ {
+        std::ofstream nsf_file(path);
+        nsf_file.exceptions(std::ofstream::failbit);
+        nsf_file.write(
+            reinterpret_cast<char *>(nsf_data.data()),
+            nsf_data.size()
+        );
+    } /*catch (?) {
+        TODO - handle errors
+    }*/
+}
+
+// declared in edit.hh
 void mni_exit::on_activate()
 {
+    // Check for unsaved changes and prompt the user to confirm they wish to
+    // exit without saving.
+    // TODO
+
     gui::end();
 }
 

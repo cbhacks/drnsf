@@ -1145,10 +1145,12 @@ public:
 
 /*
  * gui::show_open_dialog
+ * gui::show_save_dialog
  *
  * FIXME explain
  */
 bool show_open_dialog(std::string &path);
+bool show_save_dialog(std::string &path);
 
 // FIXME obsolete
 namespace im {

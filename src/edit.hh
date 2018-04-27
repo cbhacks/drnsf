@@ -97,6 +97,23 @@ public:
 };
 
 /*
+ * edit::menus::mni_save_as
+ *
+ * File -> Save As
+ * Saves the currently open project under a new name.
+ */
+class mni_save_as : private gui::menu::item {
+private:
+    context &m_ctx;
+    void on_activate() final override;
+
+public:
+    explicit mni_save_as(gui::menu &menu, context &ctx) :
+        item(menu, "Save As"),
+        m_ctx(ctx) {}
+};
+
+/*
  * edit::menus::mni_exit
  *
  * File -> Exit
@@ -120,6 +137,7 @@ class mnu_file : private gui::menubar::item {
 private:
     context &m_ctx;
     mni_open m_open{*this, m_ctx};
+    mni_save_as m_save_as{*this, m_ctx};
     mni_exit m_exit{*this};
 
 public:

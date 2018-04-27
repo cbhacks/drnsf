@@ -153,6 +153,11 @@ public:
             return false;
         }
     }
+
+    bool show_save(std::string &path)
+    {
+        return show_open(path);
+    }
 };
 
 }
@@ -161,6 +166,12 @@ public:
 bool show_open_dialog(std::string &path)
 {
     return file_dialog{}.show_open(path);
+}
+
+// declared in gui.hh
+bool show_save_dialog(std::string &path)
+{
+    return file_dialog{}.show_save(path);
 }
 
 }
