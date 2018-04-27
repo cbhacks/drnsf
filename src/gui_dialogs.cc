@@ -49,11 +49,16 @@ private:
         if (ImGui::Button("OK")) {
             auto new_path = fs::path(m_filename);
             if (new_path.is_absolute()) {
+                // Under standard C++17, both branches should have identical
+                // results in the case of a absolute path. However, we also
+                // support the experimental Filesystem TS (see file fs.hh),
+                // where the behavior of `operator /' with an absolute path on
+                // the righthand side is different from standard C++17.
                 m_cdir = new_path;
             } else {
                 m_cdir /= m_filename;
             }
-            m_cdir = fs::canonical(m_cdir);
+            m_cdir = fs::absolute(m_cdir);
             m_filename = "";
             if (!fs::exists(m_cdir) || !fs::is_directory(m_cdir)) {
                 m_ok = true;
@@ -91,7 +96,7 @@ private:
         ImGui::BeginChild("Directory Contents", ImVec2(0, 0));
         ImGui::Columns(2);
         for (auto &&de : fs::directory_iterator(m_cdir)) {
-            auto de_path = fs::canonical(de.path());
+            auto de_path = fs::absolute(de.path());
             auto de_filename = de_path.filename();
 
             // Display this entry's name as a selectable object. If it is
@@ -132,7 +137,7 @@ public:
 
     bool show_open(std::string &path)
     {
-        m_cdir = fs::canonical(path);
+        m_cdir = fs::absolute(path);
         if (!fs::is_directory(m_cdir)) {
             m_filename = m_cdir.filename();
             m_cdir = m_cdir.parent_path();
@@ -148,6 +153,11 @@ public:
             return false;
         }
     }
+
+    bool show_save(std::string &path)
+    {
+        return show_open(path);
+    }
 };
 
 }
@@ -156,6 +166,12 @@ public:
 bool show_open_dialog(std::string &path)
 {
     return file_dialog{}.show_open(path);
+}
+
+// declared in gui.hh
+bool show_save_dialog(std::string &path)
+{
+    return file_dialog{}.show_save(path);
 }
 
 }
