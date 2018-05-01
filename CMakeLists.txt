@@ -158,6 +158,9 @@ find_package (PkgConfig REQUIRED)
 if (USE_X11)
     pkg_search_module (CAIRO REQUIRED cairo-xlib IMPORTED_TARGET)
     target_link_libraries (drnsf PRIVATE PkgConfig::CAIRO)
+elseif (USE_WINAPI)
+    pkg_search_module (CAIRO REQUIRED cairo-win32 IMPORTED_TARGET)
+    target_link_libraries (drnsf PRIVATE PkgConfig::CAIRO)
 endif ()
 
 # Dependency: X11
