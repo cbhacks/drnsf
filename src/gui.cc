@@ -273,7 +273,11 @@ void run()
 // declared in gui.hh
 void end()
 {
+#if USE_X11
     s_ending = true;
+#else
+#error Unimplemented UI frontend code.
+#endif
 }
 
 }
