@@ -21,6 +21,16 @@
 cmake_minimum_required (VERSION 3.8)
 project (DRNSF VERSION 0.0)
 
+# Option: AUTOMATIC_DEPS
+if (WIN32)
+    set (AUTOMATIC_DEPS OFF CACHE BOOL
+        "Automatically download and manage DRNSF dependencies."
+    )
+    if (AUTOMATIC_DEPS)
+        include (tools/automatic_deps_win32.cmake)
+    endif ()
+endif ()
+
 add_library (imgui OBJECT
     imgui/imgui.h
     imgui/imconfig.h

@@ -25,14 +25,25 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See `LICENSE.txt` for more details.
 
-Some software is included with this version of the DRNSF source code.
-This software may be available under other licenses.
+If you have received DRNSF in source code form, then it includes some
+additional software which is available under other GPL-compatible
+licenses.
 
-For GLM, see `glm/copying.txt`.
+ * GLM: see `glm/copying.txt`.
+ * Dear ImGui: see `imgui/LICENSE`.
+ * Google Test: see `googletest/LICENSE`.
 
-For Dear ImGui, see `imgui/LICENSE`.
+If you are building the source code on Windows and choose to enable the
+automatic dependency system (see `docs/automatic_deps.md`), additional
+software will be automatically downloaded and utilized on your behalf.
+Some of this software is available under other GPL-compatible licenses:
 
-For Google Test, see `googletest/LICENSE`.
+ * zlib: see `extra/autodep_licenses/zlib.txt`
+ * libpng: see `extra/autodep_licenses/libpng.txt`
+ * Pixman: see `extra/autodep_licenses/pixman.txt`
+ * Cairo: see `extra/autodep_licenses/cairo.txt`
+ * libepoxy: see `extra/autodep_licenses/libepoxy.txt`
+ * PkgConfig: see `extra/autodep_licenses/pkg-config-with-glib.txt`
 
 ## Building ##
 You will need the following dependencies to build DRNSF:
