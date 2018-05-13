@@ -24,12 +24,28 @@
  * gui.hh
  *
  * FIXME explain
+ *
+ * For compile speed reasons, this file intentionally does not include any
+ * frontend-specific headers (especially "windows.h"). If you are including
+ * this file with the intention of implementing frontend-specific behavior, you
+ * may wish to #define DRNSF_FRONTEND_IMPLEMENTATION before including this
+ * file.
  */
 
 #include <unordered_set>
 #include <cairo.h>
 #include "../imgui/imgui.h"
 #include "gl.hh"
+
+// Include system headers only for implementation code.
+#ifdef DRNSF_FRONTEND_IMPLEMENTATION
+#if USE_X11
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xresource.h>
+#include <cairo-xlib.h>
+#endif
+#endif
 
 namespace drnsf {
 namespace gui {
@@ -1151,6 +1167,19 @@ public:
  */
 bool show_open_dialog(std::string &path);
 bool show_save_dialog(std::string &path);
+
+#ifdef DRNSF_FRONTEND_IMPLEMENTATION
+#if USE_X11
+// (var) g_display
+// The connection to the X server returned by XOpenDisplay.
+extern Display *g_display;
+
+// (var) g_ctx_ptr
+// Used with XSaveContext/XFindContext to associate an object pointer (widget *,
+// window *, etc) with an X window.
+extern XContext g_ctx_ptr;
+#endif
+#endif
 
 // FIXME obsolete
 namespace im {

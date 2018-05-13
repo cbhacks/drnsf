@@ -19,13 +19,8 @@
 //
 
 #include "common.hh"
+#define DRNSF_FRONTEND_IMPLEMENTATION
 #include "gui.hh"
-
-#if USE_X11
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xresource.h>
-#endif
 
 namespace drnsf {
 namespace gui {
@@ -35,13 +30,10 @@ namespace gui {
 // This flag is set by gui::end and informs gui::run to exit its loop.
 static bool s_ending;
 
-// (var) g_display
-// The connection to the X server returned by XOpenDisplay.
+// declared in gui.hh
 Display *g_display = nullptr;
 
-// (var) g_ctx_ptr
-// Used with XSaveContext/XFindContext to associate an object pointer (widget *,
-// window *, etc) with an X window.
+// declared in gui.hh
 XContext g_ctx_ptr;
 #endif
 

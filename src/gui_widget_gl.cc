@@ -19,38 +19,13 @@
 //
 
 #include "common.hh"
+#define DRNSF_FRONTEND_IMPLEMENTATION
 #include "gui.hh"
-
-#if USE_X11
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xresource.h>
-#include <epoxy/glx.h>
-
-namespace drnsf {
-namespace gl {
-// defined in gl.cc
-extern Window g_wnd;
-
-// defined in gl.cc
-extern GLXContext g_ctx;
-
-// defined in gl.cc
-extern XVisualInfo *g_vi;
-}
-}
-#endif
 
 namespace drnsf {
 namespace gui {
 
 #if USE_X11
-// defined in gui.cc
-extern Display *g_display;
-
-// defined in gui.cc
-extern XContext g_ctx_ptr;
-
 // declared in gui.hh
 void widget_gl::on_draw()
 {

@@ -19,34 +19,21 @@
 //
 
 #include "common.hh"
+#define DRNSF_FRONTEND_IMPLEMENTATION
 #include "gl.hh"
-
-#if USE_X11
-#include <X11/Xlib.h>
-#include <epoxy/glx.h>
-
-namespace drnsf {
-namespace gui {
-// defined in gui.cc
-extern Display *g_display;
-}
-}
-#endif
+#include "gui.hh"
 
 namespace drnsf {
 namespace gl {
 
 #if USE_X11
-// (var) g_wnd
-// The background window which the GL context is bound to.
+// declared in gl.hh
 Window g_wnd;
 
-// (var) g_ctx
-// The GL context.
+// declared in gl.hh
 GLXContext g_ctx;
 
-// (var) g_vi
-// XVisualInfo pointer used for creating GLX-capable windows.
+// declared in gl.hh
 XVisualInfo *g_vi;
 
 // (s-var) s_cmap

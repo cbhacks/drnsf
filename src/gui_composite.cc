@@ -19,24 +19,11 @@
 //
 
 #include "common.hh"
+#define DRNSF_FRONTEND_IMPLEMENTATION
 #include "gui.hh"
-
-#if USE_X11
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xresource.h>
-#endif
 
 namespace drnsf {
 namespace gui {
-
-#if USE_X11
-// defined in gui.cc
-extern Display *g_display;
-
-// defined in gui.cc
-extern XContext g_ctx_ptr;
-#endif
 
 // declared in gui.hh
 void composite::on_resize(int width, int height)
