@@ -38,6 +38,7 @@
 #include <string>
 #include <functional>
 #include <type_traits>
+#include <mutex>
 
 /*
  * DRNSF_STRINGIFY

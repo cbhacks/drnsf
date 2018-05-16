@@ -53,6 +53,63 @@ window::window(const std::string &title, int width, int height) :
 
     XStoreName(g_display, m_handle, title.c_str());
     XSaveContext(g_display, m_handle, g_ctx_ptr, XPointer(this));
+#elif USE_WINAPI
+    static auto wndproc = [](
+        HWND hwnd,
+        UINT uMsg,
+        WPARAM wParam,
+        LPARAM lParam) -> LRESULT {
+        auto wnd = reinterpret_cast<window *>(
+            GetWindowLongPtrW(hwnd, GWLP_USERDATA)
+        );
+        if (uMsg == WM_CREATE) {
+            auto create = reinterpret_cast<CREATESTRUCT *>(lParam);
+            SetWindowLongPtr(
+                hwnd,
+                GWLP_USERDATA,
+                reinterpret_cast<LONG_PTR>(create->lpCreateParams)
+            );
+            return 0;
+        }
+        if (uMsg == WM_SIZE) {
+            wnd->m_width = LOWORD(lParam);
+            wnd->m_height = HIWORD(lParam);
+            wnd->apply_layouts();
+            return 0;
+        }
+        return DefWindowProcW(hwnd, uMsg, wParam, lParam);
+    };
+    static std::once_flag wndclass_flag;
+    std::call_once(wndclass_flag, [] {
+        WNDCLASSW wndclass{};
+        wndclass.lpfnWndProc = wndproc;
+        wndclass.hInstance = GetModuleHandleW(nullptr);
+        wndclass.hCursor = LoadCursor(nullptr, IDC_ARROW);
+        wndclass.hbrBackground = HBRUSH(COLOR_3DFACE + 1);
+        wndclass.lpszClassName = L"DRNSF_GUI_WINDOW";
+        if (!RegisterClassW(&wndclass)) {
+            throw std::runtime_error("gui::window: failed to register");
+        }
+    });
+
+    auto title_w = util::u8str_to_wstr(title);
+
+    m_handle = CreateWindowExW(
+        0,
+        L"DRNSF_GUI_WINDOW",
+        title_w.c_str(),
+        WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN,
+        CW_USEDEFAULT, CW_USEDEFAULT,
+        width, height,
+        nullptr,
+        nullptr,
+        GetModuleHandleW(nullptr),
+        this
+    );
+    if (!m_handle) {
+        throw std::runtime_error("gui::window: failed to create window");
+    }
+    // FIXME on error free window
 #else
 #error Unimplemented UI frontend code.
 #endif
@@ -67,6 +124,8 @@ window::~window()
 
 #if USE_X11
     XDestroyWindow(g_display, m_handle);
+#elif USE_WINAPI
+    DestroyWindow(HWND(m_handle));
 #else
 #error Unimplemented UI frontend code.
 #endif
@@ -77,6 +136,8 @@ void window::show()
 {
 #if USE_X11
     XMapWindow(g_display, m_handle);
+#elif USE_WINAPI
+    ShowWindow(HWND(m_handle), SW_SHOW);
 #else
 #error Unimplemented UI frontend code.
 #endif
@@ -90,6 +151,11 @@ void window::show_dialog()
     // FIXME modal window
     run();
     XUnmapWindow(g_display, m_handle);
+#elif USE_WINAPI
+    ShowWindow(HWND(m_handle), SW_SHOW);
+    // FIXME modal window
+    run();
+    ShowWindow(HWND(m_handle), SW_HIDE);
 #endif
 }
 

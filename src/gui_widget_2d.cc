@@ -88,6 +88,121 @@ widget_2d::widget_2d(container &parent, layout layout) :
     // m_handle is released by the base class destructor on exception.
 
     XSaveContext(g_display, m_handle, g_ctx_ptr, XPointer(this));
+#elif USE_WINAPI
+    static auto wndproc = [](
+        HWND hwnd,
+        UINT uMsg,
+        WPARAM wParam,
+        LPARAM lParam) -> LRESULT {
+        auto wdg = reinterpret_cast<widget_2d *>(
+            GetWindowLongPtrW(hwnd, GWLP_USERDATA)
+        );
+        if (uMsg == WM_CREATE) {
+            auto create = reinterpret_cast<CREATESTRUCT *>(lParam);
+            SetWindowLongPtr(
+                hwnd,
+                GWLP_USERDATA,
+                reinterpret_cast<LONG_PTR>(create->lpCreateParams)
+            );
+            return 0;
+        }
+        if (uMsg == WM_SIZE) {
+            wdg->m_real_width = LOWORD(lParam);
+            wdg->m_real_height = HIWORD(lParam);
+            wdg->on_resize(wdg->m_real_width, wdg->m_real_height);
+            return 0;
+        }
+        if (uMsg == WM_LBUTTONDOWN || uMsg == WM_LBUTTONUP) {
+            if (uMsg == WM_LBUTTONDOWN)
+                SetFocus(hwnd);
+            wdg->mousebutton(1, uMsg == WM_LBUTTONDOWN);
+            return 0;
+        }
+        if (uMsg == WM_RBUTTONDOWN || uMsg == WM_RBUTTONUP) {
+            if (uMsg == WM_RBUTTONDOWN)
+                SetFocus(hwnd);
+            wdg->mousebutton(3, uMsg == WM_RBUTTONDOWN);
+            return 0;
+        }
+        if (uMsg == WM_MBUTTONDOWN || uMsg == WM_MBUTTONUP) {
+            if (uMsg == WM_MBUTTONDOWN)
+                SetFocus(hwnd);
+            wdg->mousebutton(2, uMsg == WM_MBUTTONDOWN);
+            return 0;
+        }
+        if (uMsg == WM_MOUSEMOVE) {
+            if (s_hover_widget != wdg) {
+                if (s_hover_widget) {
+                    s_hover_widget->mouseleave();
+                }
+                s_hover_widget = wdg;
+            }
+            wdg->mousemove(LOWORD(lParam), HIWORD(lParam));
+            return 0;
+        }
+        if (uMsg == WM_MOUSELEAVE) {
+            if (s_hover_widget == wdg) {
+                wdg->mouseleave();
+                s_hover_widget = nullptr;
+            }
+            return 0;
+        }
+        if (uMsg == WM_KEYDOWN || uMsg == WM_KEYUP) {
+            wdg->key(keycode(wParam), uMsg == WM_KEYDOWN);
+            return 0;
+        }
+        if (uMsg == WM_CHAR) {
+            auto str = util::wstr_to_u8str(std::wstring(1, wchar_t(wParam)));
+            wdg->text(str.c_str());
+            return 0;
+        }
+        if (uMsg == WM_PAINT) {
+            PAINTSTRUCT paint;
+            HDC hdc = BeginPaint(hwnd, &paint);
+            DRNSF_ON_EXIT { EndPaint(hwnd, &paint); };
+            auto surface = cairo_win32_surface_create(hdc);
+            DRNSF_ON_EXIT { cairo_surface_destroy(surface); };
+            auto cr = cairo_create(surface);
+            DRNSF_ON_EXIT { cairo_destroy(cr); };
+
+            int width, height;
+            wdg->get_real_size(width, height);
+            wdg->draw_2d(width, height, cr);
+
+            return 0;
+        }
+        return DefWindowProcW(hwnd, uMsg, wParam, lParam);
+    };
+    static std::once_flag wndclass_flag;
+    std::call_once(wndclass_flag, [] {
+        WNDCLASSW wndclass{};
+        wndclass.style = CS_HREDRAW | CS_VREDRAW;
+        wndclass.lpfnWndProc = wndproc;
+        wndclass.hInstance = GetModuleHandleW(nullptr);
+        wndclass.hCursor = LoadCursor(nullptr, IDC_ARROW);
+        wndclass.hbrBackground = HBRUSH(COLOR_3DFACE + 1);
+        wndclass.lpszClassName = L"DRNSF_GUI_WIDGET_2D";
+        if (!RegisterClassW(&wndclass)) {
+            throw std::runtime_error("gui::widget_2d: failed to register");
+        }
+    });
+
+    m_handle = CreateWindowExW(
+        0,
+        L"DRNSF_GUI_WIDGET_2D",
+        nullptr,
+        WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
+        0, 0,
+        1, 1,
+        HWND(parent.get_container_handle()),
+        nullptr,
+        GetModuleHandleW(nullptr),
+        this
+    );
+    if (!m_handle) {
+        throw std::runtime_error("gui::widget_2d: failed to create window");
+    }
+    // m_handle is released by the base class destructor on exception.
 #else
 #error Unimplemented UI frontend code.
 #endif
@@ -100,6 +215,8 @@ void widget_2d::invalidate()
 {
 #if USE_X11
     m_dirty = true;
+#elif USE_WINAPI
+    InvalidateRect(HWND(m_handle), nullptr, true);
 #else
 #error Unimplemented UI frontend code.
 #endif

@@ -44,6 +44,9 @@
 #include <X11/Xutil.h>
 #include <X11/Xresource.h>
 #include <cairo-xlib.h>
+#elif USE_WINAPI
+#include <windows.h>
+#include <cairo-win32.h>
 #endif
 #endif
 
@@ -134,6 +137,47 @@ enum class keycode : int {
     X = 'x',
     Y = 'y',
     Z = 'z'
+#elif USE_WINAPI
+    backspace = 0x08,
+    tab       = 0x09,
+    enter     = 0x0D,
+    escape    = 0x1B,
+
+    left_arrow  = 0x25,
+    right_arrow = 0x27,
+    up_arrow    = 0x26,
+    down_arrow  = 0x28,
+
+    home      = 0x24,
+    end       = 0x23,
+    page_up   = 0x21,
+    page_down = 0x22,
+    insert    = 0x2D,
+    del       = 0x2E,
+
+    l_shift = 0xA0,
+    r_shift = 0xA1,
+    l_ctrl  = 0xA2,
+    r_ctrl  = 0xA3,
+    //l_meta  = unknown,
+    //r_meta  = unknown,
+    l_alt   = 0xA4,
+    r_alt   = 0xA5,
+    l_super = 0x5B,
+    r_super = 0x5C,
+
+    // Add new characters as necessary.
+    A = 'A',
+    C = 'C',
+    D = 'D',
+    E = 'E',
+    Q = 'Q',
+    S = 'S',
+    V = 'V',
+    W = 'W',
+    X = 'X',
+    Y = 'Y',
+    Z = 'Z'
 #endif
 };
 
@@ -236,6 +280,9 @@ class window;
 class widget : public util::nocopy {
     friend class container;
     friend class window;
+    friend class composite;
+    friend class widget_gl;
+    friend class widget_2d;
     friend void run();
 
 private:
@@ -309,6 +356,8 @@ protected:
     // this function. When the final mouse button is released, the widget loses
     // mouse grab status. If the mouse is still over the widget at this time,
     // it will receive both a `mouseleave' call followed by a `mousemove' call.
+    //
+    // WINAPI: No grabbing occurs.
     virtual void mousebutton(int number, bool down) {}
 
     // (func) key
@@ -1080,6 +1129,7 @@ class menubar : private widget_2d {
 public:
     // inner class defined later in this file
     class item;
+    friend class item; // workaround for MSVC
 
 private:
     // (var) m_wnd

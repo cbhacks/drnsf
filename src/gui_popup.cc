@@ -54,6 +54,61 @@ popup::popup(int width, int height) :
     // FIXME make exempt from usual WM top-level window usage
 
     XSaveContext(g_display, m_handle, g_ctx_ptr, XPointer(this));
+#elif USE_WINAPI
+    static auto wndproc = [](
+        HWND hwnd,
+        UINT uMsg,
+        WPARAM wParam,
+        LPARAM lParam) -> LRESULT {
+        auto pp = reinterpret_cast<popup *>(
+            GetWindowLongPtrW(hwnd, GWLP_USERDATA)
+        );
+        if (uMsg == WM_CREATE) {
+            auto create = reinterpret_cast<CREATESTRUCT *>(lParam);
+            SetWindowLongPtr(
+                hwnd,
+                GWLP_USERDATA,
+                reinterpret_cast<LONG_PTR>(create->lpCreateParams)
+            );
+            return 0;
+        }
+        if (uMsg == WM_SIZE) {
+            pp->m_width = LOWORD(lParam);
+            pp->m_height = HIWORD(lParam);
+            pp->apply_layouts();
+            return 0;
+        }
+        return DefWindowProcW(hwnd, uMsg, wParam, lParam);
+    };
+    static std::once_flag wndclass_flag;
+    std::call_once(wndclass_flag, [] {
+        WNDCLASSW wndclass{};
+        wndclass.lpfnWndProc = wndproc;
+        wndclass.hInstance = GetModuleHandleW(nullptr);
+        wndclass.hCursor = LoadCursor(nullptr, IDC_ARROW);
+        wndclass.hbrBackground = HBRUSH(COLOR_3DFACE + 1);
+        wndclass.lpszClassName = L"DRNSF_GUI_POPUP";
+        if (!RegisterClassW(&wndclass)) {
+            throw std::runtime_error("gui::popup: failed to register");
+        }
+    });
+
+    m_handle = CreateWindowExW(
+        0,
+        L"DRNSF_GUI_POPUP",
+        nullptr,
+        WS_POPUP | WS_CLIPCHILDREN,
+        0, 0,
+        width, height,
+        nullptr,
+        nullptr,
+        GetModuleHandleW(nullptr),
+        this
+    );
+    if (!m_handle) {
+        throw std::runtime_error("gui::popup: failed to create window");
+    }
+    // FIXME on error free window
 #else
 #error Unimplemented UI frontend code.
 #endif
@@ -68,6 +123,8 @@ popup::~popup()
 
 #if USE_X11
     XDestroyWindow(g_display, m_handle);
+#elif USE_WINAPI
+    DestroyWindow(HWND(m_handle));
 #else
 #error Unimplemented UI frontend code.
 #endif
@@ -79,6 +136,9 @@ void popup::show_at(int x, int y)
 #if USE_X11
     XMoveWindow(g_display, m_handle, x, y);
     XMapWindow(g_display, m_handle);
+#elif USE_WINAPI
+    MoveWindow(HWND(m_handle), x, y, m_width, m_height, false);
+    ShowWindow(HWND(m_handle), SW_SHOW);
 #else
 #error Unimplemented UI frontend code.
 #endif
@@ -89,6 +149,8 @@ void popup::hide()
 {
 #if USE_X11
     XUnmapWindow(g_display, m_handle);
+#elif USE_WINAPI
+    ShowWindow(HWND(m_handle), SW_HIDE);
 #else
 #error Unimplemented UI frontend code.
 #endif
@@ -99,6 +161,10 @@ void popup::set_size(int width, int height)
 {
 #if USE_X11
     XResizeWindow(g_display, m_handle, width, height);
+#elif USE_WINAPI
+    RECT rect;
+    GetWindowRect(HWND(m_handle), &rect);
+    MoveWindow(HWND(m_handle), rect.left, rect.top, width, height, true);
 #else
 #error Unimplemented UI frontend code.
 #endif
