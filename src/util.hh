@@ -713,13 +713,25 @@ public:
  *
  * When R is destroyed, the functor is invoked with no parameters.
  */
-struct {} on_exit_helper;
+static struct {} on_exit_helper;
 template <typename T>
 auto operator %(decltype(on_exit_helper), T &&t)
 {
     struct handler {
+        bool live = true;
         T t;
-        ~handler() { t(); }
+
+        handler(T t) : t(std::move(t)) {}
+
+        handler(handler &&src) :
+            live(src.live),
+            t(std::move(src.t))
+        {
+            // MSVC workaround; no move elision yet
+            src.live = false;
+        }
+
+        ~handler() { if (live) { t(); } }
     };
     return handler{std::forward<T>(t)};
 }
