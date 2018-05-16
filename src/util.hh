@@ -723,5 +723,20 @@ auto operator %(decltype(on_exit_helper), T &&t)
     return handler{std::forward<T>(t)};
 }
 
+#ifdef _WIN32
+/*
+ * util::u8str_to_wstr
+ * util::wstr_to_u8str
+ *
+ * Provided on Windows only, these functions provide conversion between UTF-8
+ * strings and wchar_t strings. This is necessary because many Windows API
+ * functions require wide strings ('W' functions). Using non-unicode functions
+ * ('A' functions) is highly discouraged as it results in problems for many
+ * non-english texts and filenames.
+ */
+std::wstring u8str_to_wstr(std::string u8str);
+std::string wstr_to_u8str(std::wstring wstr);
+#endif
+
 }
 }

@@ -22,6 +22,10 @@
 #include <sstream>
 #include "util.hh"
 
+#if _WIN32
+#include <windows.h> // for wchar_t conversions
+#endif
+
 namespace drnsf {
 namespace util {
 
@@ -38,6 +42,82 @@ std::string to_string(long long ll)
     ss << ll;
     return ss.str();
 }
+
+#ifdef _WIN32
+// declared in util.hh
+std::wstring u8str_to_wstr(std::string u8str)
+{
+    if (u8str.empty())
+        return L"";
+
+    int len = MultiByteToWideChar(
+        CP_UTF8,
+        0,
+        u8str.c_str(),
+        u8str.size(),
+        nullptr,
+        0
+    );
+
+    if (len <= 0)
+        throw std::runtime_error("util::u8str_to_wstr: failed to convert");
+
+    std::wstring wstr(len, L' ');
+
+    int err = MultiByteToWideChar(
+        CP_UTF8,
+        0,
+        u8str.c_str(),
+        u8str.size(),
+        wstr.data(),
+        len
+    );
+
+    if (err <= 0)
+        throw std::runtime_error("util::u8str_to_wstr: failed to convert");
+
+    return wstr;
+}
+
+// declared in util.hh
+std::string wstr_to_u8str(std::wstring wstr)
+{
+    if (wstr.empty())
+        return "";
+
+    int len = WideCharToMultiByte(
+        CP_UTF8,
+        0,
+        wstr.c_str(),
+        wstr.size(),
+        nullptr,
+        0,
+        nullptr,
+        nullptr
+    );
+
+    if (len <= 0)
+        throw std::runtime_error("util::wstr_to_u8str: failed to convert");
+
+    std::string u8str(len, ' ');
+
+    int err = WideCharToMultiByte(
+        CP_UTF8,
+        0,
+        wstr.c_str(),
+        wstr.size(),
+        u8str.data(),
+        u8str.size(),
+        nullptr,
+        nullptr
+    );
+
+    if (err <= 0)
+        throw std::runtime_error("util::wstr_to_u8str: failed to convert");
+
+    return u8str;
+}
+#endif
 
 }
 }
