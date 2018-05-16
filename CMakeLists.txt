@@ -124,6 +124,7 @@ add_executable (drnsf
 
     src/embed_data.cc
 )
+set_property (DIRECTORY PROPERTY VS_STARTUP_PROJECT drnsf)
 
 # Enable C++17
 set_target_properties (drnsf PROPERTIES
