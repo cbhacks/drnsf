@@ -89,7 +89,8 @@ private:
         }
 
         // Show the current directory as an absolute path.
-        ImGui::TextUnformatted(m_cdir.c_str());
+        auto cdir_u8 = m_cdir.u8string();
+        ImGui::TextUnformatted(cdir_u8.c_str());
 
         // Display a listing of the directory's contents. "." and ".." are
         // skipped automatically by the fs iterator.
@@ -102,12 +103,13 @@ private:
             // Display this entry's name as a selectable object. If it is
             // clicked, browse into it if it is a directory, or fill it into
             // the filename textbox otherwise.
-            if (ImGui::Selectable(de_filename.c_str(), de_filename == m_filename)) {
+            auto de_filename_u8 = de_filename.u8string();
+            if (ImGui::Selectable(de_filename_u8.c_str(), de_filename == m_filename)) {
                 if (fs::is_directory(de)) {
                     m_cdir = de_path;
                     m_filename = "";
                 } else {
-                    m_filename = de_filename.c_str();
+                    m_filename = de_filename.u8string();
                 }
             }
             ImGui::NextColumn();
@@ -137,9 +139,9 @@ public:
 
     bool show_open(std::string &path)
     {
-        m_cdir = fs::absolute(path);
+        m_cdir = fs::absolute(fs::u8path(path));
         if (!fs::is_directory(m_cdir)) {
-            m_filename = m_cdir.filename();
+            m_filename = m_cdir.filename().u8string();
             m_cdir = m_cdir.parent_path();
         } else {
             m_filename = "";
@@ -147,7 +149,7 @@ public:
         m_ok = false;
         show_dialog();
         if (m_ok) {
-            path = m_cdir;
+            path = m_cdir.u8string();
             return true;
         } else {
             return false;
