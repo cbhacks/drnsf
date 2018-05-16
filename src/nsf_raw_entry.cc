@@ -70,7 +70,10 @@ void raw_entry::import_file(TRANSACT, const util::blob &data)
             throw res::import_error("nsf::raw_entry: negative item size");
 
         // Extract the item's data.
-        items[i] = {&data[item_start_offset], &data[item_end_offset]};
+        items[i] = {
+            data.data() + item_start_offset,
+            data.data() + item_end_offset
+        };
     }
 
     // Finish importing.

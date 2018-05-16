@@ -47,9 +47,10 @@ void archive::import_file(TRANSACT, const util::blob &data)
         page.create(TS, get_proj());
 
         // Copy the page data into the asset.
-        page->set_data(TS,
-            {&data[page_size * i], &data[page_size * (i + 1)]}
-        );
+        page->set_data(TS, {
+            data.data() + page_size * i,
+            data.data() + page_size * (i + 1)
+        });
     }
 
     // Finish importing.
