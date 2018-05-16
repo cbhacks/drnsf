@@ -32,6 +32,7 @@
 #include <vector>
 #include <string>
 #include <list>
+#include <fstream>
 
 namespace drnsf {
 namespace util {
@@ -737,6 +738,19 @@ auto operator %(decltype(on_exit_helper), T &&t)
 std::wstring u8str_to_wstr(std::string u8str);
 std::string wstr_to_u8str(std::wstring wstr);
 #endif
+
+/*
+ * util::fstream_open_bin
+ *
+ * Opens an fstream in binary mode combined with the specified flags. This
+ * function should be used in place of the fstream/ifstream/ofstream
+ * constructors because the filename strings must be converted on certain
+ * platforms (Windows).
+ */
+std::fstream fstream_open_bin(
+    std::string filename,
+    std::fstream::openmode mode
+);
 
 }
 }

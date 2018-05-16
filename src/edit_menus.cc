@@ -48,12 +48,12 @@ void mni_open::on_activate()
         TS.describe("Import NSF");
 
         // Open the NSF file and read the data into memory.
-        std::ifstream nsf_file(path);
-        nsf_file.exceptions(std::ifstream::failbit | std::ifstream::eofbit);
+        auto nsf_file = util::fstream_open_bin(path, std::fstream::in);
+        nsf_file.exceptions(std::fstream::failbit | std::fstream::eofbit);
 
-        nsf_file.seekg(0, std::ifstream::end);
+        nsf_file.seekg(0, std::fstream::end);
         auto nsf_size = nsf_file.tellg();
-        nsf_file.seekg(0, std::ifstream::beg);
+        nsf_file.seekg(0, std::fstream::beg);
 
         util::blob nsf_data(nsf_size);
         nsf_file.read(
@@ -132,8 +132,8 @@ void mni_save_as::on_activate()
 
     // Write the NSF data into the file specified by the user.
     /*try*/ {
-        std::ofstream nsf_file(path);
-        nsf_file.exceptions(std::ofstream::failbit);
+        auto nsf_file = util::fstream_open_bin(path, std::fstream::out);
+        nsf_file.exceptions(std::fstream::failbit);
         nsf_file.write(
             reinterpret_cast<char *>(nsf_data.data()),
             nsf_data.size()

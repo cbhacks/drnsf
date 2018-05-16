@@ -119,5 +119,17 @@ std::string wstr_to_u8str(std::wstring wstr)
 }
 #endif
 
+// declared in util.hh
+std::fstream fstream_open_bin(
+    std::string filename,
+    std::fstream::openmode mode
+) {
+#ifdef _WIN32
+    return std::fstream(u8str_to_wstr(filename), std::fstream::binary | mode);
+#else
+    return std::fstream(filename, std::fstream::binary | mode);
+#endif
+}
+
 }
 }
