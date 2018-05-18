@@ -34,6 +34,14 @@ set (DRNSF_DEP_VERSION "20180506")
 set (DRNSF_DEP_CHECKSUM_i386   "f40d3d7dc3ff4c1bc2d585928cff3c5031911d398443327fc58ac15d0b81b68c9f033efa0dcee432ff9a4447fca80e9fcbf029f0d35ac4ed6da56659e472e121")
 set (DRNSF_DEP_CHECKSUM_x86_64 "bdd541b32a43a1c7178b02b3a505da422f412db731327a69a4c2100540cda3607e31f3300d8338f23bea0758ee0fc52870f0ec2123982194f9c51b75ccb702d1")
 
+set (DRNSF_DEP_COPYFILES
+    "libcairo-2.dll"
+    "libepoxy-0.dll"
+    "libpixman-1-0.dll"
+    "libpng16-16.dll"
+    "zlib1.dll"
+)
+
 file (MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/autodep")
 
 set (DRNSF_DEP_NAME "drnsf-dep-${DRNSF_DEP_VERSION}-${DRNSF_DEP_ARCH}")
@@ -102,3 +110,15 @@ if (NOT EXISTS "${DRNSF_DEP_PATH}")
 endif ()
 
 list (APPEND CMAKE_PREFIX_PATH "${DRNSF_DEP_PATH}")
+
+if (CMAKE_GENERATOR MATCHES "^Visual Studio [0-9]+")
+    foreach (DRNSF_DEP_CONFIG IN LISTS CMAKE_CONFIGURATION_TYPES)
+        foreach (DRNSF_DEP_COPYFILE IN LISTS DRNSF_DEP_COPYFILES)
+            file (MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/${DRNSF_DEP_CONFIG}")
+            file (COPY
+                "${DRNSF_DEP_PATH}/bin/${DRNSF_DEP_COPYFILE}"
+                DESTINATION "${CMAKE_BINARY_DIR}/${DRNSF_DEP_CONFIG}/"
+            )
+        endforeach ()
+    endforeach ()
+endif ()
