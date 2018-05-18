@@ -55,7 +55,7 @@ You will need the following dependencies to build DRNSF:
  * Cairo _(recommended >= 1.14.12)_
  * C++17 compiler and toolset; specifically supported are:
    * GCC >= 6.4.0
-   * _more to come soon_
+   * Visual Studio 2017 _(requires "Desktop development with C++")_
 
 Depending on your selected frontend and features, you may need more
 dependencies. See `docs/build_options.md` for more details.
