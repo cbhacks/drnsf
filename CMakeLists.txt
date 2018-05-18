@@ -210,6 +210,12 @@ if (FEATURE_INTERNAL_TEST)
         "Install googlemock when installing drnsf."
         FORCE
     )
+    if (MSVC)
+        set (gtest_force_shared_crt ON CACHE INTERNAL
+            "Use non-DLL runtime for googletest."
+            FORCE
+        )
+    endif ()
     add_subdirectory (googletest)
     target_link_libraries (drnsf PRIVATE gtest)
 endif()
