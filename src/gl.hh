@@ -24,11 +24,31 @@
  * gl.hh
  *
  * FIXME explain
+ *
+ * For compile speed reasons, this file intentionally does not include any
+ * frontend-specific headers (especially "windows.h"). If you are including
+ * this file with the intention of implementing frontend-specific behavior, you
+ * may wish to #define DRNSF_FRONTEND_IMPLEMENTATION before including this
+ * file.
  */
+
+// Windows system header must be included before "gl.h" except in cases where it
+// is never included. This fixes MSVC C4005 "'APIENTRY': macro redefinition".
+#if defined(DRNSF_FRONTEND_IMPLEMENTATION) && USE_WINAPI
+#include <windows.h>
+#endif
 
 #include <epoxy/gl.h>
 #include <glm/glm.hpp>
 #include <unordered_set>
+
+#ifdef DRNSF_FRONTEND_IMPLEMENTATION
+#if USE_X11
+#include <epoxy/glx.h>
+#elif USE_WINAPI
+#include <epoxy/wgl.h>
+#endif
+#endif
 
 namespace drnsf {
 namespace gl {
@@ -339,6 +359,40 @@ inline void compile_shader(
 {
     compile_shader(sh, {reinterpret_cast<const char *>(code), size});
 }
+
+#ifdef DRNSF_FRONTEND_IMPLEMENTATION
+#if USE_X11
+// (var) g_wnd
+// The background window which the GL context is bound to.
+extern Window g_wnd;
+
+// (var) g_ctx
+// The GL context.
+extern GLXContext g_ctx;
+
+// (var) g_vi
+// XVisualInfo pointer used for creating GLX-capable windows.
+extern XVisualInfo *g_vi;
+#elif USE_WINAPI
+// (var) g_hwnd
+// The background window which the GL context is bound to.
+extern HWND g_hwnd;
+
+// (var) g_hdc
+// The device context for the background window which the GL context is bound
+// to.
+extern HDC g_hdc;
+
+// (var) g_hglrc
+// The GL context.
+extern HGLRC g_hglrc;
+
+// (var) g_pfd, g_pfid
+// The pixel format used for OpenGL-compatible windows.
+extern PIXELFORMATDESCRIPTOR g_pfd;
+extern int g_pfid;
+#endif
+#endif
 
 }
 }

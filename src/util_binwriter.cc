@@ -88,7 +88,7 @@ void binwriter::write_ubits(int bits, int64_t value)
     if (value < 0)
         throw std::logic_error("util::binwriter::write_ubits: negative value");
 
-    if (value >= (1 << bits))
+    if (value >= (1LL << bits))
         throw std::logic_error(
             "util::binwriter::write_ubits: value out of range"
         );

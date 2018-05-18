@@ -19,19 +19,11 @@
 //
 
 #include "common.hh"
+#define DRNSF_FRONTEND_IMPLEMENTATION
 #include "gui.hh"
-
-#if USE_X11
-#include <X11/Xlib.h>
-#endif
 
 namespace drnsf {
 namespace gui {
-
-#if USE_X11
-// defined in gui.cc
-extern Display *g_display;
-#endif
 
 // declared in gui.hh
 std::unordered_set<widget *> widget::s_all_widgets;
@@ -81,6 +73,8 @@ void widget::apply_layout(int ctn_x, int ctn_y, int ctn_w, int ctn_h)
 
 #if USE_X11
     XMoveResizeWindow(g_display, m_handle, x1, y1, x2 - x1, y2 - y1);
+#elif USE_WINAPI
+    MoveWindow(HWND(m_handle), x1, y1, x2 - x1, y2 - y1, true);
 #else
 #error Unimplemented UI frontend code.
 #endif
@@ -115,6 +109,8 @@ widget::~widget()
     if (m_handle) {
 #if USE_X11
         XDestroyWindow(g_display, m_handle);
+#elif USE_WINAPI
+        DestroyWindow(HWND(m_handle));
 #else
 #error Unimplemented UI frontend code.
 #endif
@@ -126,6 +122,8 @@ void widget::show()
 {
 #if USE_X11
     XMapWindow(g_display, m_handle);
+#elif USE_WINAPI
+    ShowWindow(HWND(m_handle), SW_SHOW);
 #else
 #error Unimplemented UI frontend code.
 #endif
@@ -136,6 +134,8 @@ void widget::hide()
 {
 #if USE_X11
     XUnmapWindow(g_display, m_handle);
+#elif USE_WINAPI
+    ShowWindow(HWND(m_handle), SW_HIDE);
 #else
 #error Unimplemented UI frontend code.
 #endif
@@ -181,6 +181,11 @@ void widget::get_screen_pos(int &x, int &y)
         &x, &y,
         &child
     );
+#elif USE_WINAPI
+    RECT rect;
+    GetWindowRect(HWND(m_handle), &rect);
+    x = rect.left;
+    y = rect.top;
 #else
 #error Unimplemented UI frontend code.
 #endif

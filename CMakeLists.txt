@@ -21,6 +21,16 @@
 cmake_minimum_required (VERSION 3.8)
 project (DRNSF VERSION 0.0)
 
+# Option: AUTOMATIC_DEPS
+if (WIN32)
+    set (AUTOMATIC_DEPS OFF CACHE BOOL
+        "Automatically download and manage DRNSF dependencies."
+    )
+    if (AUTOMATIC_DEPS)
+        include (tools/automatic_deps_win32.cmake)
+    endif ()
+endif ()
+
 add_library (imgui OBJECT
     imgui/imgui.h
     imgui/imconfig.h
@@ -114,6 +124,7 @@ add_executable (drnsf
 
     src/embed_data.cc
 )
+set_property (DIRECTORY PROPERTY VS_STARTUP_PROJECT drnsf)
 
 # Enable C++17
 set_target_properties (drnsf PROPERTIES
@@ -158,6 +169,9 @@ find_package (PkgConfig REQUIRED)
 if (USE_X11)
     pkg_search_module (CAIRO REQUIRED cairo-xlib IMPORTED_TARGET)
     target_link_libraries (drnsf PRIVATE PkgConfig::CAIRO)
+elseif (USE_WINAPI)
+    pkg_search_module (CAIRO REQUIRED cairo-win32 IMPORTED_TARGET)
+    target_link_libraries (drnsf PRIVATE PkgConfig::CAIRO)
 endif ()
 
 # Dependency: X11
@@ -196,6 +210,12 @@ if (FEATURE_INTERNAL_TEST)
         "Install googlemock when installing drnsf."
         FORCE
     )
+    if (MSVC)
+        set (gtest_force_shared_crt ON CACHE INTERNAL
+            "Use non-DLL runtime for googletest."
+            FORCE
+        )
+    endif ()
     add_subdirectory (googletest)
     target_link_libraries (drnsf PRIVATE gtest)
 endif()

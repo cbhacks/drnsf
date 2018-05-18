@@ -29,18 +29,18 @@
  * experimental version.
  */
 
-#if __has_include(<filesystem>)
-
-#include <filesystem>
-namespace drnsf {
-    namespace fs = std::filesystem;
-}
-
-#elif __has_include(<experimental/filesystem>)
+#if __has_include(<experimental/filesystem>)
 
 #include <experimental/filesystem>
 namespace drnsf {
     namespace fs = std::experimental::filesystem;
+}
+
+#elif __has_include(<filesystem>)
+
+#include <filesystem>
+namespace drnsf {
+    namespace fs = std::filesystem;
 }
 
 #else

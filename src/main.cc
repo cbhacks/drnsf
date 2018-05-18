@@ -298,12 +298,12 @@ static int cmd_resave_test_crash2(argv_t argv)
 
     for (auto &arg : argv) {
         try {
-            std::ifstream nsf_file(arg);
-            nsf_file.exceptions(std::ifstream::failbit | std::ifstream::eofbit);
+            auto nsf_file = util::fstream_open_bin(arg, std::fstream::in);
+            nsf_file.exceptions(std::fstream::failbit | std::fstream::eofbit);
 
-            nsf_file.seekg(0, std::ifstream::end);
+            nsf_file.seekg(0, std::fstream::end);
             auto nsf_size = nsf_file.tellg();
-            nsf_file.seekg(0, std::ifstream::beg);
+            nsf_file.seekg(0, std::fstream::beg);
 
             util::blob nsf_data(nsf_size);
             nsf_file.read(

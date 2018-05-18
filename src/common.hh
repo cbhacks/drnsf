@@ -30,6 +30,13 @@
  * likely to be needed across the entire project.
  */
 
+// Disable certain pervasive MSVC warnings.
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_DEPRECATE
+#pragma warning( disable : 4244 )
+#pragma warning( disable : 4267 )
+#endif
+
 #include <cstddef>
 #include <cstdlib>
 #include <cstdint>
@@ -38,6 +45,7 @@
 #include <string>
 #include <functional>
 #include <type_traits>
+#include <mutex>
 
 /*
  * DRNSF_STRINGIFY

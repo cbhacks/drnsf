@@ -19,13 +19,8 @@
 //
 
 #include "common.hh"
+#define DRNSF_FRONTEND_IMPLEMENTATION
 #include "gui.hh"
-
-#if USE_X11
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#include <X11/Xresource.h>
-#endif
 
 namespace drnsf {
 namespace gui {
@@ -35,13 +30,10 @@ namespace gui {
 // This flag is set by gui::end and informs gui::run to exit its loop.
 static bool s_ending;
 
-// (var) g_display
-// The connection to the X server returned by XOpenDisplay.
+// declared in gui.hh
 Display *g_display = nullptr;
 
-// (var) g_ctx_ptr
-// Used with XSaveContext/XFindContext to associate an object pointer (widget *,
-// window *, etc) with an X window.
+// declared in gui.hh
 XContext g_ctx_ptr;
 #endif
 
@@ -273,6 +265,53 @@ void run()
             }
         }
     }
+#elif USE_WINAPI
+    while (true) {
+        // Handle all pending window and thread messages. WM_QUIT messages
+        // indicate the loop should exit entirely.
+        MSG msg;
+        while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
+            if (msg.message == WM_QUIT) {
+                return;
+            }
+            TranslateMessage(&msg);
+            DispatchMessageW(&msg);
+        }
+
+        // Update all of the widgets. This also produces the timeout for the
+        // next loop iteration, based on the shortest time received from all
+        // of the widgets. Widgets will return INT_MAX if they have no interest
+        // in receiving periodic updates.
+        //
+        // GetTickCount is used over GetTickCount64 or QPC for compatibility
+        // with older hardware and pre-Vista versions of Windows. GetTickCount
+        // suffers from wraparound at 49 days, however the code will recover
+        // from this event with a slight hitch at the moment where it occurs.
+        static long last_update = LONG_MAX;
+        long current_time = GetTickCount();
+        unsigned int timeout = 0;
+        if (current_time > last_update) {
+            int delta_time = current_time - last_update;
+            long min_delay = INT_MAX;
+            for (auto &&w : widget::s_all_widgets) {
+                int delay = w->update(delta_time);
+                if (delay < min_delay) {
+                    min_delay = delay;
+                }
+            }
+            if (min_delay < INT_MAX) {
+                timeout = min_delay;
+            } else {
+                // If the shortest delay is extremely large (INT_MAX most
+                // likely), set an arbitrarily long delay.
+                timeout = 4000;
+            }
+        }
+        last_update = current_time;
+
+        // Block pending new thread or window messages.
+        MsgWaitForMultipleObjects(0, nullptr, false, timeout, QS_ALLEVENTS);
+    }
 #else
 #error Unimplemented UI frontend code.
 #endif
@@ -281,7 +320,13 @@ void run()
 // declared in gui.hh
 void end()
 {
+#if USE_X11
     s_ending = true;
+#elif USE_WINAPI
+    PostQuitMessage(0);
+#else
+#error Unimplemented UI frontend code.
+#endif
 }
 
 }

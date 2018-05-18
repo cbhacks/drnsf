@@ -315,8 +315,8 @@ void widget_im::key(keycode code, bool down)
     case keycode::r_alt:
         m_io->KeyAlt = down;
         break;
-    case keycode::l_meta:
-    case keycode::r_meta:
+    case keycode::l_super:
+    case keycode::r_super:
         m_io->KeySuper = down;
         break;
     case keycode::tab:
