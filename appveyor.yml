@@ -1,0 +1,67 @@
+version: appveyor-{build}
+image: Visual Studio 2017
+shallow_clone: true
+environment:
+  DRNSF_S3DEPLOY_ACCESSKEY_ID:
+    secure: mgMQUL7xQk0+3ZOPd7s1lEBQNeENyAyfoX0ELciemcY=
+  DRNSF_S3DEPLOY_ACCESSKEY_SECRET:
+    secure: wC7aFIRXJrwcXiEqdfLsXEaHl4W8vVLf9//NTItbL7G/koLpo38IYiFhe407Z/wb
+configuration:
+  - Debug
+  - Release
+platform:
+  - x86
+  - x64
+before_build:
+  - if %PLATFORM%==x86 (set cmake_opts= -G"Visual Studio 15 2017")
+  - if %PLATFORM%==x64 (set cmake_opts= -G"Visual Studio 15 2017 Win64")
+  - set cmake_opts=%cmake_opts% -DAUTOMATIC_DEPS=ON
+  - set cmake_opts=%cmake_opts% -DSTATIC_MSVC_RUNTIME=ON
+  - set cmake_opts=%cmake_opts% -DPYTHON_EXECUTABLE="C:\Python36\python.exe"
+  - mkdir build
+  - cd build
+  - cmake .. %cmake_opts%
+build_script:
+  - cmake --build . --config %CONFIGURATION%
+  - '%CONFIGURATION%\drnsf ":internal-test"'
+after_build:
+  - mkdir pkg
+  - copy .\%CONFIGURATION%\drnsf.exe pkg
+  - copy .\%CONFIGURATION%\libcairo-2.dll pkg
+  - copy .\%CONFIGURATION%\libepoxy-0.dll pkg
+  - copy .\%CONFIGURATION%\libpixman-1-0.dll pkg
+  - copy .\%CONFIGURATION%\libpng16-16.dll pkg
+  - copy .\%CONFIGURATION%\zlib1.dll pkg
+  - copy ..\README.md pkg
+  - copy ..\AUTHORS.md pkg
+  - copy ..\LICENSE.txt pkg
+  - mkdir pkg\lib_licenses
+  - copy ..\imgui\LICENSE pkg\lib_licenses\imgui.txt
+  - copy ..\glm\copying.txt pkg\lib_licenses\glm.txt
+  - copy ..\googletest\LICENSE pkg\lib_licenses\googletest.txt
+  - copy ..\extra\autodep_licenses\cairo.txt pkg\lib_licenses\cairo.txt
+  - copy ..\extra\autodep_licenses\COPYING-LGPL-2.1 pkg\lib_licenses\cairo-LGPL-2.1.txt
+  - copy ..\extra\autodep_licenses\COPYING-MPL-1.1 pkg\lib_licenses\cairo-MPL-1.1.txt
+  - copy ..\extra\autodep_licenses\cairo.txt pkg\lib_licenses\cairo.txt
+  - copy ..\extra\autodep_licenses\libepoxy.txt pkg\lib_licenses\libepoxy.txt
+  - copy ..\extra\autodep_licenses\pixman.txt pkg\lib_licenses\pixman.txt
+  - copy ..\extra\autodep_licenses\libpng.txt pkg\lib_licenses\libpng.txt
+  - copy ..\extra\autodep_licenses\zlib.txt pkg\lib_licenses\zlib.txt
+  - 7z a drnsf.7z .\pkg\*
+  - move drnsf.7z ..\drnsf-%APPVEYOR_REPO_COMMIT%-%PLATFORM%-%CONFIGURATION%.7z
+test: off
+artifacts:
+  - path: drnsf-$(APPVEYOR_REPO_COMMIT)-$(PLATFORM)-$(CONFIGURATION).7z
+    name: DRNSF-FULL7Z
+deploy:
+  - provider: S3
+    access_key_id: $(DRNSF_S3DEPLOY_ACCESSKEY_ID)
+    secret_access_key: $(DRNSF_S3DEPLOY_ACCESSKEY_SECRET)
+    bucket: builds.drnsf.cbhacks.com
+    region: us-east-1
+    folder: appveyor/build-$(APPVEYOR_BUILD_NUMBER)
+    max_error_retry: 2
+    artifact: DRNSF-FULL7Z
+    on:
+      branch: master
+      configuration: Release
