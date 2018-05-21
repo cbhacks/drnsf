@@ -31,6 +31,24 @@ if (WIN32)
     endif ()
 endif ()
 
+# Option: STATIC_MSVC_RUNTIME
+if (MSVC)
+    set (STATIC_MSVC_RUNTIME OFF CACHE BOOL
+    "Build DRNSF and its dependencies against static MSVC runtimes."
+    )
+    if (STATIC_MSVC_RUNTIME)
+        foreach (fvar IN ITEMS
+            CMAKE_CXX_FLAGS
+            CMAKE_CXX_FLAGS_DEBUG
+            CMAKE_CXX_FLAGS_RELEASE
+            CMAKE_CXX_FLAGS_MINSIZEREL
+            CMAKE_CXX_FLAGS_RELWITHDEBINFO
+        )
+            string (REPLACE "/MD" "/MT" ${fvar} "${${fvar}}")
+        endforeach ()
+    endif ()
+endif ()
+
 add_library (imgui OBJECT
     imgui/imgui.h
     imgui/imconfig.h
