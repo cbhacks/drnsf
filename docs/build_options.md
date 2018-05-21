@@ -57,3 +57,18 @@ There is no default. If this option has not been set, the build system
 will attempt to detect the architecture based on the name of the CMake
 generator you have selected. If this detection fails, you must provide
 your own value.
+
+## `STATIC_MSVC_RUNTIME` ##
+_This option is only present for builds using an MSVC generator, such as
+Visual Studio 15 2017._
+
+This option determines if the Visual Studio or MSBUILD projects should
+link against the static MSVC runtime libraries.
+
+If ON, the project files will link against the "Multi-threaded (/MT)" or
+"Multi-threaded Debug (/MTd)" runtime libraries.
+
+If OFF, the project files will link against the default runtime library,
+often "Multi-threaded DLL (/MD)" or "Multi-threaded Debug DLL (/MDd)".
+
+The default is OFF.
