@@ -29,5 +29,5 @@ out vec4 f_Color;
 
 void main()
 {
-    f_Color = v_Color * texture2D(u_Font, v_TexCoord);
+    f_Color = v_Color * texture(u_Font, v_TexCoord);
 }
