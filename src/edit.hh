@@ -506,7 +506,6 @@ public:
 
 // FIXME - temporary global for compatibility
 extern res::atom g_selected_asset;
-extern render::camera g_camera;
 
 // FIXME FIXME FIXME FIXME FIXME
 // slightly newer but still obsolete code below
