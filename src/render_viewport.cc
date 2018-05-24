@@ -212,32 +212,41 @@ void viewport::impl::mousemove(int x, int y)
         using glm::cos;
         using glm::radians;
 
-        float delta_yaw = -delta_x;
-
         glm::vec3 camera_pos(
             edit::g_camera.pivot.x -
                 edit::g_camera.distance *
-                cos(radians(edit::g_camera.yaw)),
-            edit::g_camera.pivot.y, /* TODO */
+                cos(radians(edit::g_camera.yaw)) *
+                cos(radians(edit::g_camera.pitch)),
+            edit::g_camera.pivot.y +
+                edit::g_camera.distance *
+                sin(radians(edit::g_camera.pitch)),
             edit::g_camera.pivot.z +
                 edit::g_camera.distance *
-                sin(radians(edit::g_camera.yaw))
+                sin(radians(edit::g_camera.yaw)) *
+                cos(radians(edit::g_camera.pitch))
         );
 
-        glm::vec3 target_pos(
+        edit::g_camera.yaw -= delta_x;
+        edit::g_camera.pitch -= delta_y;
+        if (edit::g_camera.pitch > 90.0f) {
+            edit::g_camera.pitch = 90.0f;
+        } else if (edit::g_camera.pitch < -90.0f) {
+            edit::g_camera.pitch = -90.0f;
+        }
+
+        edit::g_camera.pivot = {
             camera_pos.x -
                 edit::g_camera.distance *
-                cos(radians(edit::g_camera.yaw + 180 + delta_yaw)),
-            camera_pos.y, /* TODO */
+                cos(radians(edit::g_camera.yaw + 180)) *
+                cos(radians(edit::g_camera.pitch)),
+            camera_pos.y +
+                edit::g_camera.distance *
+                sin(radians(edit::g_camera.pitch + 180)),
             camera_pos.z +
                 edit::g_camera.distance *
-                sin(radians(edit::g_camera.yaw + 180 + delta_yaw))
-        );
-
-        float target_yaw = edit::g_camera.yaw + delta_yaw;
-
-        edit::g_camera.pivot = target_pos;
-        edit::g_camera.yaw = target_yaw;
+                sin(radians(edit::g_camera.yaw + 180)) *
+                cos(radians(edit::g_camera.pitch))
+        };
 
         invalidate(); //FIXME remove
     }
