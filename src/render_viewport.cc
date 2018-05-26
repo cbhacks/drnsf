@@ -56,8 +56,8 @@ private:
     int m_mouse_y_prev;
 
     // (var) m_key_w_down, m_key_a_down, m_key_s_down, m_key_d_down,
-    //       m_key_q_down, m_key_e_down
-    // True if the respective key is is currently down for this widget; false
+    //       m_key_q_down, m_key_e_down, m_key_shift_down
+    // True if the respective key is currently down for this widget; false
     // otherwise.
     bool m_key_w_down = false;
     bool m_key_a_down = false;
@@ -65,6 +65,7 @@ private:
     bool m_key_d_down = false;
     bool m_key_q_down = false;
     bool m_key_e_down = false;
+    bool m_key_shift_down = false;
 
     // (var) m_key_uarrow_down, m_key_darrow_down,
     //       m_key_larrow_down, m_key_rarrow_down
@@ -323,6 +324,10 @@ void viewport::impl::key(gui::keycode code, bool down)
     case gui::keycode::right_arrow:
         m_key_rarrow_down = down;
         break;
+    case gui::keycode::l_shift:
+    case gui::keycode::r_shift:
+        m_key_shift_down = down;
+        break;
     default:
         // Silence gcc warning for -Wswitch.
         break;
@@ -332,7 +337,12 @@ void viewport::impl::key(gui::keycode code, bool down)
 // declared above FIXME
 int viewport::impl::update(int delta_ms)
 {
-    const float vp_speed = 10000.0f;
+    float vp_speed = 10000.0f;
+
+    // Apply fast-movement speed if the appropriate key is held.
+    if (m_key_shift_down) {
+        vp_speed *= 8;
+    }
 
     int move_x = 0;
     int move_y = 0;
