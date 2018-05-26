@@ -66,6 +66,15 @@ private:
     bool m_key_q_down = false;
     bool m_key_e_down = false;
 
+    // (var) m_key_uarrow_down, m_key_darrow_down,
+    //       m_key_larrow_down, m_key_rarrow_down
+    // True if the respective arrow key is currently down for this widget;
+    // false otherwise.
+    bool m_key_uarrow_down = false;
+    bool m_key_darrow_down = false;
+    bool m_key_larrow_down = false;
+    bool m_key_rarrow_down = false;
+
     // FIXME non-pimpl later on
     void draw_gl(int width, int height, gl::renderbuffer &rbo) override;
     void mousemove(int x, int y) override;
@@ -302,6 +311,18 @@ void viewport::impl::key(gui::keycode code, bool down)
     case gui::keycode::E:
         m_key_e_down = down;
         break;
+    case gui::keycode::up_arrow:
+        m_key_uarrow_down = down;
+        break;
+    case gui::keycode::down_arrow:
+        m_key_darrow_down = down;
+        break;
+    case gui::keycode::left_arrow:
+        m_key_larrow_down = down;
+        break;
+    case gui::keycode::right_arrow:
+        m_key_rarrow_down = down;
+        break;
     default:
         // Silence gcc warning for -Wswitch.
         break;
@@ -322,13 +343,13 @@ int viewport::impl::update(int delta_ms)
         move_z--;
     if (m_key_s_down)
         move_z++;
-    if (m_key_a_down)
+    if (m_key_a_down || m_key_larrow_down)
         move_x--;
-    if (m_key_d_down)
+    if (m_key_d_down || m_key_rarrow_down)
         move_x++;
-    if (m_key_q_down)
+    if (m_key_q_down || m_key_darrow_down)
         move_y--;
-    if (m_key_e_down)
+    if (m_key_e_down || m_key_uarrow_down)
         move_y++;
 
     // Exit early with no need for future updates if there is no movement, or
