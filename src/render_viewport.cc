@@ -147,15 +147,14 @@ void viewport::impl::draw_gl(int width, int height, gl::renderbuffer &rbo)
     figure::env e;
 
     // Build the projection matrix.
-    e.projection = glm::perspective(
-        70.0f,
+    e.projection = glm::infinitePerspective(
+        glm::radians(80.0f),
         static_cast<float>(width) / height,
-        500.0f,
-        200000.0f
+        200.0f
     );
     e.projection = glm::translate(
         e.projection,
-        glm::vec3(0.0f, 0.0f, -800.0f)
+        glm::vec3(0.0f, 0.0f, -200.0f)
     );
 
     // Build the view matrix.
