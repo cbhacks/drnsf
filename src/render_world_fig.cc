@@ -99,6 +99,11 @@ void world_fig::set_world(gfx::world *world)
             h_world_y_change.bind(m_world->p_y.on_change);
             h_world_z_change.bind(m_world->p_z.on_change);
             m_model_tracker.set_name(m_world->get_model());
+            m_modelfig.set_matrix(glm::translate(m_matrix, {
+                m_world->get_x(),
+                m_world->get_y(),
+                m_world->get_z()
+            }));
         }
     }
 }

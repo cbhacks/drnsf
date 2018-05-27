@@ -22,8 +22,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "render.hh"
 
-#include "edit.hh" // FIXME temporary
-
 namespace drnsf {
 namespace render {
 
@@ -36,6 +34,10 @@ private:
     // (var) m_outer
     // A reference to the outer viewport.
     viewport &m_outer;
+
+    // (var) m_camera
+    // The configuration used for this viewport.
+    camera m_camera;
 
     // (var) m_mouse1_down
     // True if the mouse button (primary/"left") is currently down on this
@@ -54,8 +56,8 @@ private:
     int m_mouse_y_prev;
 
     // (var) m_key_w_down, m_key_a_down, m_key_s_down, m_key_d_down,
-    //       m_key_q_down, m_key_e_down
-    // True if the respective key is is currently down for this widget; false
+    //       m_key_q_down, m_key_e_down, m_key_shift_down
+    // True if the respective key is currently down for this widget; false
     // otherwise.
     bool m_key_w_down = false;
     bool m_key_a_down = false;
@@ -63,6 +65,16 @@ private:
     bool m_key_d_down = false;
     bool m_key_q_down = false;
     bool m_key_e_down = false;
+    bool m_key_shift_down = false;
+
+    // (var) m_key_uarrow_down, m_key_darrow_down,
+    //       m_key_larrow_down, m_key_rarrow_down
+    // True if the respective arrow key is currently down for this widget;
+    // false otherwise.
+    bool m_key_uarrow_down = false;
+    bool m_key_darrow_down = false;
+    bool m_key_larrow_down = false;
+    bool m_key_rarrow_down = false;
 
     // FIXME non-pimpl later on
     void draw_gl(int width, int height, gl::renderbuffer &rbo) override;
@@ -135,25 +147,24 @@ void viewport::impl::draw_gl(int width, int height, gl::renderbuffer &rbo)
     figure::env e;
 
     // Build the projection matrix.
-    e.projection = glm::perspective(
-        70.0f,
+    e.projection = glm::infinitePerspective(
+        glm::radians(80.0f),
         static_cast<float>(width) / height,
-        500.0f,
-        200000.0f
+        200.0f
     );
     e.projection = glm::translate(
         e.projection,
-        glm::vec3(0.0f, 0.0f, -800.0f)
+        glm::vec3(0.0f, 0.0f, -200.0f)
     );
 
     // Build the view matrix.
     e.view = glm::translate(
         e.view,
-        glm::vec3(0.0f, 0.0f, -edit::g_camera.distance)
+        glm::vec3(0.0f, 0.0f, -m_camera.distance)
     );
     e.view = glm::rotate(
         e.view,
-        glm::radians(edit::g_camera.pitch),
+        glm::radians(m_camera.pitch),
         glm::vec3(-1.0f, 0.0f, 0.0f)
     );
     e.view = glm::rotate(
@@ -163,11 +174,11 @@ void viewport::impl::draw_gl(int width, int height, gl::renderbuffer &rbo)
     );
     e.view = glm::rotate(
         e.view,
-        glm::radians(edit::g_camera.yaw),
+        glm::radians(m_camera.yaw),
         glm::vec3(0.0f, -1.0f, 0.0f)
     );
     e.view_nomove = e.view;
-    e.view = glm::translate(e.view, edit::g_camera.pivot);
+    e.view = glm::translate(e.view, m_camera.pivot);
 
     // Render the viewport's visible figures.
     for (auto &&fig : m_outer.m_figs) {
@@ -189,20 +200,20 @@ void viewport::impl::mousemove(int x, int y)
     if (m_mouse1_down && m_mouse2_down) {
         // Zoom if both buttons are held.
 
-        edit::g_camera.distance -= edit::g_camera.distance * 0.01 * delta_y;
-        if (edit::g_camera.distance < camera::min_distance) {
-            edit::g_camera.distance = camera::min_distance;
+        m_camera.distance -= m_camera.distance * 0.01 * delta_y;
+        if (m_camera.distance < camera::min_distance) {
+            m_camera.distance = camera::min_distance;
         }
         invalidate();//FIXME remove
     } else if (m_mouse1_down) {
         // Rotate if only "left" button is held.
 
-        edit::g_camera.yaw -= delta_x;
-        edit::g_camera.pitch -= delta_y;
-        if (edit::g_camera.pitch > 90.0f) {
-            edit::g_camera.pitch = 90.0f;
-        } else if (edit::g_camera.pitch < -90.0f) {
-            edit::g_camera.pitch = -90.0f;
+        m_camera.yaw -= delta_x;
+        m_camera.pitch -= delta_y;
+        if (m_camera.pitch > 90.0f) {
+            m_camera.pitch = 90.0f;
+        } else if (m_camera.pitch < -90.0f) {
+            m_camera.pitch = -90.0f;
         }
         invalidate();//FIXME remove
     } else if (m_mouse2_down) {
@@ -212,32 +223,41 @@ void viewport::impl::mousemove(int x, int y)
         using glm::cos;
         using glm::radians;
 
-        float delta_yaw = -delta_x;
-
         glm::vec3 camera_pos(
-            edit::g_camera.pivot.x -
-                edit::g_camera.distance *
-                cos(radians(edit::g_camera.yaw)),
-            edit::g_camera.pivot.y, /* TODO */
-            edit::g_camera.pivot.z +
-                edit::g_camera.distance *
-                sin(radians(edit::g_camera.yaw))
+            m_camera.pivot.x -
+                m_camera.distance *
+                cos(radians(m_camera.yaw)) *
+                cos(radians(m_camera.pitch)),
+            m_camera.pivot.y +
+                m_camera.distance *
+                sin(radians(m_camera.pitch)),
+            m_camera.pivot.z +
+                m_camera.distance *
+                sin(radians(m_camera.yaw)) *
+                cos(radians(m_camera.pitch))
         );
 
-        glm::vec3 target_pos(
+        m_camera.yaw -= delta_x;
+        m_camera.pitch -= delta_y;
+        if (m_camera.pitch > 90.0f) {
+            m_camera.pitch = 90.0f;
+        } else if (m_camera.pitch < -90.0f) {
+            m_camera.pitch = -90.0f;
+        }
+
+        m_camera.pivot = {
             camera_pos.x -
-                edit::g_camera.distance *
-                cos(radians(edit::g_camera.yaw + 180 + delta_yaw)),
-            camera_pos.y, /* TODO */
+                m_camera.distance *
+                cos(radians(m_camera.yaw + 180)) *
+                cos(radians(m_camera.pitch)),
+            camera_pos.y +
+                m_camera.distance *
+                sin(radians(m_camera.pitch + 180)),
             camera_pos.z +
-                edit::g_camera.distance *
-                sin(radians(edit::g_camera.yaw + 180 + delta_yaw))
-        );
-
-        float target_yaw = edit::g_camera.yaw + delta_yaw;
-
-        edit::g_camera.pivot = target_pos;
-        edit::g_camera.yaw = target_yaw;
+                m_camera.distance *
+                sin(radians(m_camera.yaw + 180)) *
+                cos(radians(m_camera.pitch))
+        };
 
         invalidate(); //FIXME remove
     }
@@ -249,9 +269,9 @@ void viewport::impl::mousemove(int x, int y)
 // declared above FIXME
 void viewport::impl::mousewheel(int delta_y)
 {
-    edit::g_camera.distance -= edit::g_camera.distance * 0.1 * delta_y;
-    if (edit::g_camera.distance < camera::min_distance) {
-        edit::g_camera.distance = camera::min_distance;
+    m_camera.distance -= m_camera.distance * 0.1 * delta_y;
+    if (m_camera.distance < camera::min_distance) {
+        m_camera.distance = camera::min_distance;
     }
     invalidate();//FIXME remove
 }
@@ -291,6 +311,22 @@ void viewport::impl::key(gui::keycode code, bool down)
     case gui::keycode::E:
         m_key_e_down = down;
         break;
+    case gui::keycode::up_arrow:
+        m_key_uarrow_down = down;
+        break;
+    case gui::keycode::down_arrow:
+        m_key_darrow_down = down;
+        break;
+    case gui::keycode::left_arrow:
+        m_key_larrow_down = down;
+        break;
+    case gui::keycode::right_arrow:
+        m_key_rarrow_down = down;
+        break;
+    case gui::keycode::l_shift:
+    case gui::keycode::r_shift:
+        m_key_shift_down = down;
+        break;
     default:
         // Silence gcc warning for -Wswitch.
         break;
@@ -300,7 +336,12 @@ void viewport::impl::key(gui::keycode code, bool down)
 // declared above FIXME
 int viewport::impl::update(int delta_ms)
 {
-    const float vp_speed = 10000.0f;
+    float vp_speed = 10000.0f;
+
+    // Apply fast-movement speed if the appropriate key is held.
+    if (m_key_shift_down) {
+        vp_speed *= 8;
+    }
 
     int move_x = 0;
     int move_y = 0;
@@ -311,13 +352,13 @@ int viewport::impl::update(int delta_ms)
         move_z--;
     if (m_key_s_down)
         move_z++;
-    if (m_key_a_down)
+    if (m_key_a_down || m_key_larrow_down)
         move_x--;
-    if (m_key_d_down)
+    if (m_key_d_down || m_key_rarrow_down)
         move_x++;
-    if (m_key_q_down)
+    if (m_key_q_down || m_key_darrow_down)
         move_y--;
-    if (m_key_e_down)
+    if (m_key_e_down || m_key_uarrow_down)
         move_y++;
 
     // Exit early with no need for future updates if there is no movement, or
@@ -334,7 +375,7 @@ int viewport::impl::update(int delta_ms)
         // WASDQE moves on the absolute X/Y/Z axis if only the "left" button
         // is held.
 
-        edit::g_camera.pivot -= absolute_delta;
+        m_camera.pivot -= absolute_delta;
 
         invalidate();
         return 0;
@@ -345,7 +386,7 @@ int viewport::impl::update(int delta_ms)
         glm::mat4 rotation;
         rotation = glm::rotate(
             rotation,
-            glm::radians(edit::g_camera.yaw),
+            glm::radians(m_camera.yaw),
             glm::vec3(0.0f, 1.0f, 0.0f)
         );
         rotation = glm::rotate(
@@ -355,13 +396,13 @@ int viewport::impl::update(int delta_ms)
         );
         rotation = glm::rotate(
             rotation,
-            glm::radians(edit::g_camera.pitch),
+            glm::radians(m_camera.pitch),
             glm::vec3(1.0f, 0.0f, 0.0f)
         );
 
         auto relative_delta = glm::vec3(rotation * glm::vec4(absolute_delta, 1.0f));
 
-        edit::g_camera.pivot -= relative_delta;
+        m_camera.pivot -= relative_delta;
 
         invalidate();
         return 0;

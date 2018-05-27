@@ -164,7 +164,10 @@ widget_gl::widget_gl(container &parent, layout layout) :
             return 0;
         }
         if (uMsg == WM_KEYDOWN || uMsg == WM_KEYUP) {
-            wdg->key(keycode(wParam), uMsg == WM_KEYDOWN);
+            auto code = keycode(
+                MapVirtualKey((lParam >> 16) & 0xFF, MAPVK_VSC_TO_VK_EX)
+            );
+            wdg->key(code, uMsg == WM_KEYDOWN);
             return 0;
         }
         if (uMsg == WM_CHAR) {
