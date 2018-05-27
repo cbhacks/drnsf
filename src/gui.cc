@@ -267,15 +267,28 @@ void run()
     }
 #elif USE_WINAPI
     while (true) {
-        // Handle all pending window and thread messages. WM_QUIT messages
-        // indicate the loop should exit entirely.
+        // Handle all pending window messages. WM_QUIT messages indicate the
+        // loop should exit entirely. If a WM_PAINT message is encountered
+        // after processing non-WM_PAINT messages, defer processing of them
+        // until the next loop iteration. This ensures drawing code doesn't
+        // starve widgets of any `update()' calls.
         MSG msg;
+        bool had_nonpaint_message = false;
         while (PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE)) {
             if (msg.message == WM_QUIT) {
                 return;
             }
+            if (msg.message == WM_PAINT) {
+                if (!had_nonpaint_message) {
+                    DispatchMessage(&msg);
+                    continue;
+                } else {
+                    break;
+                }
+            }
             TranslateMessage(&msg);
             DispatchMessageW(&msg);
+            had_nonpaint_message = true;
         }
 
         // Update all of the widgets. This also produces the timeout for the
