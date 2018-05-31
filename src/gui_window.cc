@@ -53,6 +53,17 @@ window::window(const std::string &title, int width, int height) :
 
     XStoreName(g_display, m_handle, title.c_str());
     XSaveContext(g_display, m_handle, g_ctx_ptr, XPointer(this));
+
+    // Advertise support for certain ICCCM protocols.
+    Atom protocols[] = {
+        g_xa_delete_window
+    };
+    XSetWMProtocols(
+        g_display,
+        m_handle,
+        protocols,
+        sizeof(protocols) / sizeof(*protocols)
+    );
 #elif USE_WINAPI
     static auto wndproc = [](
         HWND hwnd,
@@ -75,6 +86,10 @@ window::window(const std::string &title, int width, int height) :
             wnd->m_width = LOWORD(lParam);
             wnd->m_height = HIWORD(lParam);
             wnd->apply_layouts();
+            return 0;
+        }
+        if (uMsg == WM_CLOSE) {
+            wnd->on_close_request();
             return 0;
         }
         return DefWindowProcW(hwnd, uMsg, wParam, lParam);

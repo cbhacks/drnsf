@@ -34,6 +34,12 @@ private:
     fs::path m_cdir;
     std::string m_filename;
 
+    void on_close_request() override
+    {
+        // Exit the dialog in failure, similar to the "Cancel" button.
+        end();
+    }
+
     void frame() override
     {
         // Show the current filename textbox.

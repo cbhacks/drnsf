@@ -510,26 +510,28 @@ extern res::atom g_selected_asset;
 // FIXME FIXME FIXME FIXME FIXME
 // slightly newer but still obsolete code below
 
-class main_window : private util::nocopy {
+class main_window : private gui::window {
 private:
     context &m_ctx;
-    gui::window m_wnd;
-    gui::menubar m_newmenubar;
+    gui::menubar m_newmenubar{*this};
     menus::mnu_file m_mnu_file{m_newmenubar, m_ctx};
     menus::mnu_edit m_mnu_edit{m_newmenubar, m_ctx};
     asset_editor m_assets_view{
-        m_wnd,
+        *this,
         gui::layout::grid(0, 2, 3, 0, 1, 1),
         *m_ctx.get_proj()};
     map_mainctl m_map_view{
-        m_wnd,
+        *this,
         gui::layout::grid(2, 1, 3, 0, 1, 1),
         m_ctx};
+
+protected:
+    void on_close_request() override;
 
 public:
     explicit main_window(context &ctx);
 
-    void show();
+    using window::show;
 };
 
 //// SEEN BELOW: soon-to-be-obsolete code ////
