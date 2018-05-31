@@ -88,6 +88,10 @@ window::window(const std::string &title, int width, int height) :
             wnd->apply_layouts();
             return 0;
         }
+        if (uMsg == WM_CLOSE) {
+            wnd->on_close_request();
+            return 0;
+        }
         return DefWindowProcW(hwnd, uMsg, wParam, lParam);
     };
     static std::once_flag wndclass_flag;
