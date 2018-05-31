@@ -35,6 +35,12 @@ Display *g_display = nullptr;
 
 // declared in gui.hh
 XContext g_ctx_ptr;
+
+// declared in gui.hh
+Atom g_xa_protocols;
+
+// declared in gui.hh
+Atom g_xa_delete_window;
 #endif
 
 // declared in gui.hh
@@ -55,6 +61,9 @@ void init(int &argc, char **&argv)
 #endif
 
     g_ctx_ptr = XUniqueContext();
+
+    g_xa_protocols = XInternAtom(g_display, "WM_PROTOCOLS", false);
+    g_xa_delete_window = XInternAtom(g_display, "WM_DELETE_WINDOW", false);
 #endif
 }
 
@@ -195,6 +204,14 @@ void run()
                         wnd->m_width = ev.xconfigure.width;
                         wnd->m_height = ev.xconfigure.height;
                         wnd->apply_layouts();
+                        break;
+                    case ClientMessage:
+                        if (ev.xclient.message_type == g_xa_protocols) {
+                            auto protocol = Atom(ev.xclient.data.l[0]);
+                            if (protocol == g_xa_delete_window) {
+                                wnd->on_close_request();
+                            }
+                        }
                         break;
                     }
                     continue;

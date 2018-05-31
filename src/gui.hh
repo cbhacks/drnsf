@@ -589,6 +589,16 @@ private:
     int m_width;
     int m_height;
 
+protected:
+    // (func) on_close_request
+    // This function is called when the user requests that the window be closed
+    // such as by clicking a "close" button on the window. The window is not
+    // automatically closed or hidden by this request; you should implement
+    // this behavior yourself.
+    //
+    // The default implementation performs no action.
+    virtual void on_close_request() {}
+
 public:
     // (explicit ctor)
     // FIXME explain
@@ -1228,6 +1238,14 @@ extern Display *g_display;
 // Used with XSaveContext/XFindContext to associate an object pointer (widget *,
 // window *, etc) with an X window.
 extern XContext g_ctx_ptr;
+
+// (var) g_xa_protocols
+// The WM_PROTOCOLS atom.
+extern Atom g_xa_protocols;
+
+// (var) g_xa_delete_window
+// The WM_DELETE_WINDOW atom.
+extern Atom g_xa_delete_window;
 #endif
 #endif
 
