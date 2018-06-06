@@ -20,26 +20,41 @@
 
 #include "common.hh"
 #include "core.hh"
+#include <iostream>
 
-/*
- * main
- *
- * This is the true entry point of the program. This function simply converts
- * the program's arguments into an easier structure and passes execution off
- * to `core::main'.
- */
-int main(int C_argc, char *C_argv[])
+namespace drnsf {
+namespace core {
+
+// FIXME explain
+int cmd_help(argv_t argv)
 {
-    using namespace drnsf;
+    std::cout << R"(Usage:
 
-    // Convert the C-style argument list into a string vector.
-    core::argv_t argv(C_argv, C_argv + C_argc);
+# To view this message:
+    drnsf { -h | --help | :help }
 
-    // Discard the first argument, if present. This argument is typically the
-    // name of the executable itself.
-    if (!argv.empty()) {
-        argv.pop_front();
-    }
+# To display version and license information:
+    drnsf { -v | --version | :version }
 
-    return core::main(argv);
+# Normal usage:
+    drnsf [ :subcommand ] [ subcommand options and arguments ]
+
+
+Available subcommands:
+
+  gui                 Run the application in graphical mode (default)
+  help                Display this message
+  version             Display version and license information
+  internal-test       Runs internal unit tests
+  resave-test-crash2  Runs resave consistency tests against C2 NSF files
+
+The default subcommand is `gui', which will be used if no subcommand was
+specified.
+)"
+        << std::endl;
+
+    return EXIT_SUCCESS;
+}
+
+}
 }

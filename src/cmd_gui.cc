@@ -20,26 +20,38 @@
 
 #include "common.hh"
 #include "core.hh"
+#include <iostream>
+#include "edit.hh"
+#include "gui.hh"
+#include "gl.hh"
 
-/*
- * main
- *
- * This is the true entry point of the program. This function simply converts
- * the program's arguments into an easier structure and passes execution off
- * to `core::main'.
- */
-int main(int C_argc, char *C_argv[])
+namespace drnsf {
+namespace core {
+
+// FIXME explain
+int cmd_gui(argv_t argv)
 {
-    using namespace drnsf;
+    int dummy_argc = 0;
+    char *dummy_args[] = { nullptr };
+    char **dummy_argv = dummy_args;
+    gui::init(dummy_argc, dummy_argv);
 
-    // Convert the C-style argument list into a string vector.
-    core::argv_t argv(C_argv, C_argv + C_argc);
+    gl::init();
+    DRNSF_ON_EXIT { gl::shutdown(); };
 
-    // Discard the first argument, if present. This argument is typically the
-    // name of the executable itself.
-    if (!argv.empty()) {
-        argv.pop_front();
-    }
+    // Create the editor.
+    auto proj = std::make_shared<res::project>();
+    edit::context ctx(proj);
+    edit::core edcore(*proj);
 
-    return core::main(argv);
+    edit::main_window wnd(ctx);
+    wnd.show();
+
+    // Run the main application/game loop.
+    gui::run();
+
+    return EXIT_SUCCESS;
+}
+
+}
 }

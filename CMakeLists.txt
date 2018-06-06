@@ -63,6 +63,15 @@ add_executable (drnsf
     src/common.hh
     src/buildconfig.hh  # processed by configure_file below
 
+    src/core.hh
+    src/core.cc
+
+    src/cmd_help.cc
+    src/cmd_version.cc
+    src/cmd_gui.cc
+    src/cmd_internal_test.cc
+    src/cmd_resave_test.cc
+
     src/util.hh
     src/util.cc
     src/util_binreader.cc

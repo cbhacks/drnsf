@@ -18,28 +18,34 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#include "common.hh"
-#include "core.hh"
+#pragma once
 
 /*
- * main
+ * core.hh
  *
- * This is the true entry point of the program. This function simply converts
- * the program's arguments into an easier structure and passes execution off
- * to `core::main'.
+ * FIXME explain
  */
-int main(int C_argc, char *C_argv[])
-{
-    using namespace drnsf;
 
-    // Convert the C-style argument list into a string vector.
-    core::argv_t argv(C_argv, C_argv + C_argc);
+#include <deque>
 
-    // Discard the first argument, if present. This argument is typically the
-    // name of the executable itself.
-    if (!argv.empty()) {
-        argv.pop_front();
-    }
+namespace drnsf {
+namespace core {
 
-    return core::main(argv);
+/*
+ * core::argv_t
+ *
+ * This container type is intended to replace the C-style argc/argv structure.
+ * It is built using a deque to allow easier removal from the front and middle
+ * of the argument list.
+ */
+using argv_t = std::deque<std::string>;
+
+/*
+ * core::main
+ *
+ * FIXME explain
+ */
+int main(argv_t argv);
+
+}
 }
