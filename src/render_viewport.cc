@@ -159,7 +159,7 @@ void viewport::impl::draw_gl(int width, int height, gl::renderbuffer &rbo)
 
     // Build the view matrix.
     e.view = glm::translate(
-        e.view,
+        glm::mat4(1.0f),
         glm::vec3(0.0f, 0.0f, -m_camera.distance)
     );
     e.view = glm::rotate(
@@ -385,7 +385,7 @@ int viewport::impl::update(int delta_ms)
 
         glm::mat4 rotation;
         rotation = glm::rotate(
-            rotation,
+            glm::mat4(1.0f),
             glm::radians(m_camera.yaw),
             glm::vec3(0.0f, 1.0f, 0.0f)
         );
