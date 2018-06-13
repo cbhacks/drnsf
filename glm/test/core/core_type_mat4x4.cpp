@@ -1,4 +1,6 @@
+#include <glm/gtc/constants.hpp>
 #include <glm/gtc/epsilon.hpp>
+#include <glm/ext/vector_relational.hpp>
 #include <glm/matrix.hpp>
 #include <glm/mat2x2.hpp>
 #include <glm/mat2x3.hpp>
@@ -13,14 +15,14 @@
 #include <vector>
 
 
-template <typename genType>
-void print(genType const & Mat0)
+template<typename genType>
+void print(genType const& Mat0)
 {
 	printf("mat4(\n");
-	printf("\tvec4(%2.9f, %2.9f, %2.9f, %2.9f)\n", Mat0[0][0], Mat0[0][1], Mat0[0][2], Mat0[0][3]);
-	printf("\tvec4(%2.9f, %2.9f, %2.9f, %2.9f)\n", Mat0[1][0], Mat0[1][1], Mat0[1][2], Mat0[1][3]);
-	printf("\tvec4(%2.9f, %2.9f, %2.9f, %2.9f)\n", Mat0[2][0], Mat0[2][1], Mat0[2][2], Mat0[2][3]);
-	printf("\tvec4(%2.9f, %2.9f, %2.9f, %2.9f))\n\n", Mat0[3][0], Mat0[3][1], Mat0[3][2], Mat0[3][3]);
+	printf("\tvec4(%2.9f, %2.9f, %2.9f, %2.9f)\n", static_cast<double>(Mat0[0][0]), static_cast<double>(Mat0[0][1]), static_cast<double>(Mat0[0][2]), static_cast<double>(Mat0[0][3]));
+	printf("\tvec4(%2.9f, %2.9f, %2.9f, %2.9f)\n", static_cast<double>(Mat0[1][0]), static_cast<double>(Mat0[1][1]), static_cast<double>(Mat0[1][2]), static_cast<double>(Mat0[1][3]));
+	printf("\tvec4(%2.9f, %2.9f, %2.9f, %2.9f)\n", static_cast<double>(Mat0[2][0]), static_cast<double>(Mat0[2][1]), static_cast<double>(Mat0[2][2]), static_cast<double>(Mat0[2][3]));
+	printf("\tvec4(%2.9f, %2.9f, %2.9f, %2.9f))\n\n", static_cast<double>(Mat0[3][0]), static_cast<double>(Mat0[3][1]), static_cast<double>(Mat0[3][2]), static_cast<double>(Mat0[3][3]));
 }
 
 int test_inverse_mat4x4()
@@ -219,6 +221,15 @@ int test_ctr()
 		{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15},
 		{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}};
 
+	glm::mat4 m4{
+		{1, 0, 0, 0},
+		{0, 1, 0, 0},
+		{0, 0, 1, 0},
+		{0, 0, 0, 1} };
+
+	Error += glm::equal(m4[0][0], 1.0f, 0.0001f) ? 0 : 1;
+	Error += glm::equal(m4[3][3], 1.0f, 0.0001f) ? 0 : 1;
+
 	std::vector<glm::mat4> v1{
 		{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15},
 		{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}};
@@ -253,7 +264,7 @@ int perf_mul()
 
 namespace cast
 {
-	template <typename genType>
+	template<typename genType>
 	int entry()
 	{
 		int Error = 0;
@@ -263,7 +274,7 @@ namespace cast
 		glm::mat4x4 Identity(1.0f);
 
 		for(glm::length_t i = 0, length = B.length(); i < length; ++i)
-			Error += glm::all(glm::equal(B[i], Identity[i])) ? 0 : 1;
+			Error += glm::all(glm::epsilonEqual(B[i], Identity[i], glm::epsilon<float>())) ? 0 : 1;
 
 		return Error;
 	}

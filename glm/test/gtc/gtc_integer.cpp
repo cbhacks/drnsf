@@ -1,3 +1,4 @@
+#define GLM_ENABLE_EXPERIMENTAL
 #define GLM_FORCE_INLINE
 #include <glm/gtc/epsilon.hpp>
 #include <glm/gtc/integer.hpp>
@@ -93,7 +94,7 @@ namespace log2_
 
 			for(std::size_t i = 0; i < Count; ++i)
 			{
-				glm::tvec4<unsigned long, glm::defaultp> Tmp(glm::uninitialize);
+				glm::vec<4, unsigned long, glm::defaultp> Tmp;
 				_BitScanReverse(&Tmp.x, i);
 				_BitScanReverse(&Tmp.y, i);
 				_BitScanReverse(&Tmp.z, i);
@@ -108,7 +109,7 @@ namespace log2_
 
 
 		{
-			std::vector<glm::tvec4<unsigned long, glm::defaultp> > Result;
+			std::vector<glm::vec<4, unsigned long, glm::defaultp> > Result;
 			Result.resize(Count);
 
 			std::clock_t Begin = clock();
@@ -168,7 +169,7 @@ namespace log2_
 			std::clock_t Begin = clock();
 
 			for(int i = 0; i < static_cast<int>(Count); ++i)
-				Result[i] = glm::log2(glm::vec4(i));
+				Result[i] = glm::log2(glm::vec4(static_cast<float>(i)));
 
 			std::clock_t End = clock();
 
@@ -187,8 +188,8 @@ namespace iround
 
 		for(float f = 0.0f; f < 3.1f; f += 0.05f)
 		{
-			int RoundFast = glm::iround(f);
-			int RoundSTD = glm::round(f);
+			int RoundFast = static_cast<int>(glm::iround(f));
+			int RoundSTD = static_cast<int>(glm::round(f));
 			Error += RoundFast == RoundSTD ? 0 : 1;
 			assert(!Error);
 		}
@@ -205,8 +206,8 @@ namespace uround
 
 		for(float f = 0.0f; f < 3.1f; f += 0.05f)
 		{
-			int RoundFast = glm::uround(f);
-			int RoundSTD = glm::round(f);
+			int RoundFast = static_cast<int>(glm::uround(f));
+			int RoundSTD = static_cast<int>(glm::round(f));
 			Error += RoundFast == RoundSTD ? 0 : 1;
 			assert(!Error);
 		}

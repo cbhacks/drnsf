@@ -1,10 +1,11 @@
 #define GLM_FORCE_SWIZZLE
 #include <glm/vector_relational.hpp>
 #include <glm/gtc/vec1.hpp>
+#include <glm/vec2.hpp>
 #include <vector>
 
-static glm::vec1 v1;
-static glm::vec1 v2(1);
+static glm::vec1 g1;
+static glm::vec1 g2(1);
 
 int test_vec1_operators()
 {
@@ -106,6 +107,11 @@ int test_vec1_size()
 	Error += glm::vec1::length() == 1 ? 0 : 1;
 	Error += glm::dvec1::length() == 1 ? 0 : 1;
 
+#	if GLM_HAS_CONSTEXPR_PARTIAL
+	constexpr std::size_t Length = glm::vec1::length();
+	Error += Length == 1 ? 0 : 1;
+#	endif
+
 	return Error;
 }
 
@@ -139,9 +145,6 @@ int test_vec1_operator_increment()
 int main()
 {
 	int Error = 0;
-
-	glm::vec1 v;
-	assert(v.length() == 1);
 
 	Error += test_vec1_size();
 	Error += test_vec1_ctor();
