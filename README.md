@@ -29,7 +29,7 @@ If you have received DRNSF in source code form, then it includes some
 additional software which is available under other GPL-compatible
 licenses.
 
- * GLM: see `glm/copying.txt`.
+ * GLM: see `glm/manual.md` section 0.
  * Dear ImGui: see `imgui/LICENSE`.
  * Google Test: see `googletest/LICENSE`.
 
