@@ -60,7 +60,7 @@ struct my_u8vec4_packed
 };
 GLM_STATIC_ASSERT(sizeof(my_u8vec4_packed) == sizeof(glm::uint32) + sizeof(glm::u8vec4), "glm::u8vec4 packed is not correct");
 
-int test_copy()
+static int test_copy()
 {
 	int Error = 0;
 
@@ -90,20 +90,48 @@ int test_copy()
 	return Error;
 }
 
+static int test_ctor()
+{
+	int Error = 0;
+
+#	if GLM_HAS_CONSTEXPR && GLM_ARCH == GLM_ARCH_PURE
+	{
+		constexpr glm::aligned_ivec4 v(1);
+
+		Error += v.x == 1 ? 0 : 1;
+		Error += v.y == 1 ? 0 : 1;
+		Error += v.z == 1 ? 0 : 1;
+		Error += v.w == 1 ? 0 : 1;
+	}
+
+	{
+		constexpr glm::packed_ivec4 v(1);
+
+		Error += v.x == 1 ? 0 : 1;
+		Error += v.y == 1 ? 0 : 1;
+		Error += v.z == 1 ? 0 : 1;
+		Error += v.w == 1 ? 0 : 1;
+	}
+
+	{
+		constexpr glm::ivec4 v(1);
+
+		Error += v.x == 1 ? 0 : 1;
+		Error += v.y == 1 ? 0 : 1;
+		Error += v.z == 1 ? 0 : 1;
+		Error += v.w == 1 ? 0 : 1;
+	}
+#	endif
+
+	return Error;
+}
+
 int main()
 {
 	int Error = 0;
 
-	my_vec4_aligned GNA;
-	my_dvec4_aligned GNI;
-
-	std::size_t A0 = sizeof(my_dvec4_aligned);
-	std::size_t B0 = sizeof(my_dvec4_packed);
-	std::size_t C0 = sizeof(glm::aligned_dvec4);
-
-	std::size_t A1 = sizeof(my_vec4_aligned);
-	std::size_t B1 = sizeof(my_vec4_packed);
-	std::size_t C1 = sizeof(glm::aligned_vec4);
+	Error += test_ctor();
+	Error += test_copy();
 
 	return Error;
 }
