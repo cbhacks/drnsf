@@ -1,4 +1,4 @@
-language: cpp
+language: generic
 matrix:
   include:
     - os: linux
@@ -10,9 +10,24 @@ matrix:
             - g++-6
             - libepoxy-dev
             - libcairo2-dev
+      env:
+        - CC=/usr/bin/gcc-6
+        - CXX=/usr/bin/g++-6
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7
+            - libepoxy-dev
+            - libcairo2-dev
+      env:
+        - CC=/usr/bin/gcc-7
+        - CXX=/usr/bin/g++-7
 script:
   - mkdir build
   - cd build
-  - CC="$(which gcc-6)" CXX="$(which g++-6)" cmake .. -DPYTHON_EXECUTABLE="$(which python3)"
+  - cmake .. -DPYTHON_EXECUTABLE="$(which python3)"
   - make
   - ./drnsf :internal-test
