@@ -37,7 +37,7 @@ after_build:
   - copy ..\LICENSE.txt pkg
   - mkdir pkg\lib_licenses
   - copy ..\imgui\LICENSE pkg\lib_licenses\imgui.txt
-  - copy ..\glm\copying.txt pkg\lib_licenses\glm.txt
+  - copy ..\extra\glm_license.txt pkg\lib_licenses\glm.txt
   - copy ..\googletest\LICENSE pkg\lib_licenses\googletest.txt
   - copy ..\extra\autodep_licenses\cairo.txt pkg\lib_licenses\cairo.txt
   - copy ..\extra\autodep_licenses\COPYING-LGPL-2.1 pkg\lib_licenses\cairo-LGPL-2.1.txt
