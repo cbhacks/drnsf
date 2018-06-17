@@ -76,5 +76,15 @@ Retrieving and building drnsf can be done like so:
 /drnsf/build$ make test #if desired
 ```
 
+If you have Python 2 installed, you may receive an error such as the
+following:
+
+> Could NOT find PythonInterp: Found unsuitable version "2.7.15", but
+> required is at least "3" (found /usr/bin/python)
+
+In that case, you can add `-DPYTHON_EXECUTABLE="$(which python3)"` to
+the cmake command, or use ccmake or cmake-gui to set `PYTHON_EXECUTABLE`
+to the path to your Python 3 executable.
+
 At this time, DRNSF is not intended to be installed to any system
 directories.
