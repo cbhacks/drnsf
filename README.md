@@ -64,7 +64,7 @@ Building is done using cmake. This should be done out-of-tree. The
 `build/` directory is reserved in `.gitignore` for this purpose so it
 will not be included in git commits.
 
-Retrieiving and building drnsf can be done like so:
+Retrieving and building drnsf can be done like so:
 
 ```sh
 /$ git clone https://github.com/cbhacks/drnsf
