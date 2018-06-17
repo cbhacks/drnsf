@@ -54,7 +54,7 @@ You will need the following dependencies to build DRNSF:
  * libepoxy _(recommended >= 1.3.1)_
  * Cairo _(recommended >= 1.14.12)_
  * C++17 compiler and toolset; specifically supported are:
-   * GCC >= 6.4.0
+   * GCC >= 6.3.0
    * Visual Studio 2017 _(requires "Desktop development with C++")_
 
 Depending on your selected frontend and features, you may need more
