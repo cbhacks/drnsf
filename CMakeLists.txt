@@ -179,6 +179,10 @@ endif ()
 set (FEATURE_INTERNAL_TEST ON CACHE BOOL
     "Enable the internal-test command. (requires googletest)"
 )
+if (FEATURE_INTERNAL_TEST)
+    enable_testing ()
+    add_test (NAME internal_test COMMAND drnsf ":internal-test")
+endif ()
 
 # Dependency: pkg-config
 find_package (PkgConfig REQUIRED)
