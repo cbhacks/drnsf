@@ -54,7 +54,7 @@ You will need the following dependencies to build DRNSF:
  * libepoxy _(recommended >= 1.3.1)_
  * Cairo _(recommended >= 1.14.12)_
  * C++17 compiler and toolset; specifically supported are:
-   * GCC >= 6.4.0
+   * GCC >= 6.3.0
    * Visual Studio 2017 _(requires "Desktop development with C++")_
 
 Depending on your selected frontend and features, you may need more
@@ -64,7 +64,7 @@ Building is done using cmake. This should be done out-of-tree. The
 `build/` directory is reserved in `.gitignore` for this purpose so it
 will not be included in git commits.
 
-Retrieiving and building drnsf can be done like so:
+Retrieving and building drnsf can be done like so:
 
 ```sh
 /$ git clone https://github.com/cbhacks/drnsf
@@ -75,6 +75,16 @@ Retrieiving and building drnsf can be done like so:
 /drnsf/build$ make
 /drnsf/build$ make test #if desired
 ```
+
+If you have Python 2 installed, you may receive an error such as the
+following:
+
+> Could NOT find PythonInterp: Found unsuitable version "2.7.15", but
+> required is at least "3" (found /usr/bin/python)
+
+In that case, you can add `-DPYTHON_EXECUTABLE="$(which python3)"` to
+the cmake command, or use ccmake or cmake-gui to set `PYTHON_EXECUTABLE`
+to the path to your Python 3 executable.
 
 At this time, DRNSF is not intended to be installed to any system
 directories.
