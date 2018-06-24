@@ -181,11 +181,11 @@ static bool do_nsf(TRANSACT, std::string filename, misc::raw_data::ref src)
 }
 
 // FIXME explain
-int cmd_resave_test_crash2(argv_t argv)
+int cmd_resave_test_crash2(cmdenv e)
 {
     bool ok = true;
 
-    for (auto &arg : argv) {
+    for (auto &arg : e.argv) {
         try {
             auto nsf_file = util::fstream_open_bin(arg, std::fstream::in);
             nsf_file.exceptions(std::fstream::failbit | std::fstream::eofbit);

@@ -32,14 +32,16 @@ int main(int C_argc, char *C_argv[])
 {
     using namespace drnsf;
 
+    core::cmdenv e;
+
     // Convert the C-style argument list into a string vector.
-    core::argv_t argv(C_argv, C_argv + C_argc);
+    e.argv = core::argv_t(C_argv, C_argv + C_argc);
 
     // Discard the first argument, if present. This argument is typically the
     // name of the executable itself.
-    if (!argv.empty()) {
-        argv.pop_front();
+    if (!e.argv.empty()) {
+        e.argv.pop_front();
     }
 
-    return core::main(argv);
+    return core::main(std::move(e));
 }

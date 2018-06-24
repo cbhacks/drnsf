@@ -26,7 +26,7 @@ namespace drnsf {
 namespace core {
 
 // FIXME explain
-int cmd_version(argv_t argv)
+int cmd_version(cmdenv e)
 {
     std::cout
         << APP_VERSION

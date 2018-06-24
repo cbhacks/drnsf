@@ -26,7 +26,7 @@ namespace drnsf {
 namespace core {
 
 // FIXME explain
-int cmd_help(argv_t argv)
+int cmd_help(cmdenv e)
 {
     std::cout << R"(Usage:
 

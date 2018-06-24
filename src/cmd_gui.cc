@@ -29,7 +29,7 @@ namespace drnsf {
 namespace core {
 
 // FIXME explain
-int cmd_gui(argv_t argv)
+int cmd_gui(cmdenv e)
 {
     int dummy_argc = 0;
     char *dummy_args[] = { nullptr };

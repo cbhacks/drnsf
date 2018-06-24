@@ -26,18 +26,18 @@ namespace drnsf {
 namespace core {
 
 // FIXME explain
-int cmd_internal_test(argv_t argv)
+int cmd_internal_test(cmdenv e)
 {
 #if FEATURE_INTERNAL_TEST
     // Initialize google test with the given options.
-    int C_argc = int(argv.size() + 1);
+    int C_argc = int(e.argv.size() + 1);
     auto C_argv = std::make_unique<const char *[]>(C_argc);
     C_argv[0] = "drnsf";
     for (int i = 1; i < C_argc; i++) {
-        C_argv[i] = argv[i - 1].c_str();
+        C_argv[i] = e.argv[i - 1].c_str();
     }
     ::testing::InitGoogleTest(&C_argc, const_cast<char **>(C_argv.get()));
-    argv = argv_t(&C_argv[1], &C_argv[C_argc]);
+    e.argv = argv_t(&C_argv[1], &C_argv[C_argc]);
 
     // Check for any arguments which weren't consumed by gtest.
     // TODO

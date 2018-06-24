@@ -41,11 +41,32 @@ namespace core {
 using argv_t = std::deque<std::string>;
 
 /*
+ * core::cmdenv
+ *
+ * This structure defines the environment in which a subcommand runs, such as
+ * the arguments passed to the command, the environment variables, whether or
+ * not --help was specified, etc.
+ */
+struct cmdenv {
+    // (var) argv
+    // These are the arguments passed to the subcommand. This is similar to the
+    // `argv' passed to `main' by the OS, however there are some differences.
+    //
+    // For example, if the user runs the program like so:
+    //
+    //   ./drnsf :foo --bar --etc=1234 -- test
+    //
+    // Then the value of argv will be { "--bar", "--etc=1234", "--", "test" }
+    // when passed to the function for the "foo" subcommand.
+    argv_t argv;
+};
+
+/*
  * core::main
  *
  * FIXME explain
  */
-int main(argv_t argv);
+int main(cmdenv e);
 
 }
 }
