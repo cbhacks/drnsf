@@ -46,8 +46,8 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
     // Parse the info item (0).
     r.begin(item_info);
     auto world_x        = r.read_s32();
-    auto world_y        = r.read_s32();
     auto world_z        = r.read_s32();
+    auto world_y        = r.read_s32();
     auto info_unk0      = r.read_u32();
     auto vertex_count   = r.read_u32();
     auto triangle_count = r.read_u32();
@@ -82,12 +82,12 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
         auto x          = r.read_sbits(12);
         auto color_high = r.read_ubits(2);
         auto fx         = r.read_ubits(2);
-        auto y          = r.read_sbits(12);
+        auto z          = r.read_sbits(12);
         r.end();
 
         r.begin(&item_vertices[vertex_count * 4 + i * 2], 2);
         auto color_low = r.read_ubits(4);
-        auto z         = r.read_sbits(12);
+        auto y         = r.read_sbits(12);
         r.end();
 
         vertex.x = x * 16;
@@ -303,8 +303,8 @@ std::vector<util::blob> wgeo_v2::export_entry(uint32_t &out_type) const
     // Export the info item (0).
     w.begin();
     w.write_s32(world->get_x());
-    w.write_s32(world->get_y());
     w.write_s32(world->get_z());
+    w.write_s32(world->get_y());
     w.write_u32(get_info_unk0());
     w.write_u32(frame->get_vertices().size());
     w.write_u32(mesh->get_triangles().size());
@@ -329,11 +329,11 @@ std::vector<util::blob> wgeo_v2::export_entry(uint32_t &out_type) const
     w.begin();
     for (auto &&vertex : util::reverse_of(frame->get_vertices())) {
         int x = vertex.x / 16.0f;
-        int y = vertex.y / 16.0f;
+        int z = vertex.z / 16.0f;
 
         if (x < COORD_MIN || x >= COORD_MAX ||
-            y < COORD_MIN || y >= COORD_MAX) {
-            throw res::export_error("nsf::wgeo_v2: vertex x/y out of range");
+            z < COORD_MIN || z >= COORD_MAX) {
+            throw res::export_error("nsf::wgeo_v2: vertex x/z out of range");
         }
 
         if (vertex.color_index == -1) {
@@ -350,13 +350,13 @@ std::vector<util::blob> wgeo_v2::export_entry(uint32_t &out_type) const
         w.write_sbits(12, x);
         w.write_ubits( 2, color_high);
         w.write_ubits( 2, vertex.fx);
-        w.write_sbits(12, y);
+        w.write_sbits(12, z);
     }
     for (auto &&vertex : frame->get_vertices()) {
-        int z = vertex.z / 16.0f;
+        int y = vertex.y / 16.0f;
 
-        if (z < COORD_MIN || z >= COORD_MAX) {
-            throw res::export_error("nsf::wgeo_v2: vertex z out of range");
+        if (y < COORD_MIN || y >= COORD_MAX) {
+            throw res::export_error("nsf::wgeo_v2: vertex y out of range");
         }
 
         // The vertex color index has already been range checked in the loop
@@ -365,7 +365,7 @@ std::vector<util::blob> wgeo_v2::export_entry(uint32_t &out_type) const
         unsigned int color_low = vertex.color_index & 0xF;
 
         w.write_ubits( 4, color_low);
-        w.write_sbits(12, z);
+        w.write_sbits(12, y);
     }
     w.pad(4);
     item_vertices = w.end();

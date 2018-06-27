@@ -156,26 +156,32 @@ void viewport::impl::draw_gl(int width, int height, gl::renderbuffer &rbo)
         e.projection,
         glm::vec3(0.0f, 0.0f, -200.0f)
     );
+    e.projection *= glm::mat4(
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    );
 
     // Build the view matrix.
     e.view = glm::translate(
         glm::mat4(1.0f),
-        glm::vec3(0.0f, 0.0f, -m_camera.distance)
+        glm::vec3(0.0f, -m_camera.distance, 0.0f)
     );
     e.view = glm::rotate(
         e.view,
         glm::radians(m_camera.pitch),
-        glm::vec3(-1.0f, 0.0f, 0.0f)
+        glm::vec3(1.0f, 0.0f, 0.0f)
     );
     e.view = glm::rotate(
         e.view,
         glm::radians(90.0f),
-        glm::vec3(0.0f, -1.0f, 0.0f)
+        glm::vec3(0.0f, 0.0f, 1.0f)
     );
     e.view = glm::rotate(
         e.view,
         glm::radians(m_camera.yaw),
-        glm::vec3(0.0f, -1.0f, 0.0f)
+        glm::vec3(0.0f, 0.0f, 1.0f)
     );
     e.view_nomove = e.view;
     e.view = glm::translate(e.view, m_camera.pivot);
@@ -230,11 +236,11 @@ void viewport::impl::mousemove(int x, int y)
                 cos(radians(m_camera.pitch)),
             m_camera.pivot.y +
                 m_camera.distance *
-                sin(radians(m_camera.pitch)),
+                sin(radians(m_camera.yaw)) *
+                cos(radians(m_camera.pitch)),
             m_camera.pivot.z +
                 m_camera.distance *
-                sin(radians(m_camera.yaw)) *
-                cos(radians(m_camera.pitch))
+                sin(radians(m_camera.pitch))
         );
 
         m_camera.yaw -= delta_x;
@@ -252,11 +258,11 @@ void viewport::impl::mousemove(int x, int y)
                 cos(radians(m_camera.pitch)),
             camera_pos.y +
                 m_camera.distance *
-                sin(radians(m_camera.pitch + 180)),
+                sin(radians(m_camera.yaw + 180)) *
+                cos(radians(m_camera.pitch)),
             camera_pos.z +
                 m_camera.distance *
-                sin(radians(m_camera.yaw + 180)) *
-                cos(radians(m_camera.pitch))
+                sin(radians(m_camera.pitch + 180))
         };
 
         invalidate(); //FIXME remove
@@ -349,17 +355,17 @@ int viewport::impl::update(int delta_ms)
 
     // Calculate the total movement vectors based on keyboard input status.
     if (m_key_w_down)
-        move_z--;
+        move_y--;
     if (m_key_s_down)
-        move_z++;
+        move_y++;
     if (m_key_a_down || m_key_larrow_down)
         move_x--;
     if (m_key_d_down || m_key_rarrow_down)
         move_x++;
     if (m_key_q_down || m_key_darrow_down)
-        move_y--;
+        move_z--;
     if (m_key_e_down || m_key_uarrow_down)
-        move_y++;
+        move_z++;
 
     // Exit early with no need for future updates if there is no movement, or
     // all movement is cancelled (e.g. W + S results in forward and backward
@@ -387,17 +393,17 @@ int viewport::impl::update(int delta_ms)
         rotation = glm::rotate(
             glm::mat4(1.0f),
             glm::radians(m_camera.yaw),
-            glm::vec3(0.0f, 1.0f, 0.0f)
+            glm::vec3(0.0f, 0.0f, -1.0f)
         );
         rotation = glm::rotate(
             rotation,
             glm::radians(90.0f),
-            glm::vec3(0.0f, 1.0f, 0.0f)
+            glm::vec3(0.0f, 0.0f, -1.0f)
         );
         rotation = glm::rotate(
             rotation,
             glm::radians(m_camera.pitch),
-            glm::vec3(1.0f, 0.0f, 0.0f)
+            glm::vec3(-1.0f, 0.0f, 0.0f)
         );
 
         auto relative_delta = glm::vec3(rotation * glm::vec4(absolute_delta, 1.0f));
