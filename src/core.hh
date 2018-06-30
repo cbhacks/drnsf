@@ -59,6 +59,16 @@ struct cmdenv {
     // Then the value of argv will be { "--bar", "--etc=1234", "--", "test" }
     // when passed to the function for the "foo" subcommand.
     argv_t argv;
+
+    // (var) help_requested
+    // If this value is true, the subcommand should print information about its
+    // usage and available options or parameters, and should then return in a
+    // successful manner (EXIT_SUCCESS) without performing any of its usual
+    // operations.
+    //
+    // Normally this value is false, however it is set true if the user is
+    // requesting help, such as in `drnsf :help foo-cmd'.
+    bool help_requested = false;
 };
 
 /*

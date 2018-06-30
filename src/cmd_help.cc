@@ -25,9 +25,82 @@
 namespace drnsf {
 namespace core {
 
+// defined in core.cc
+extern const std::map<std::string, int (*)(cmdenv)> g_cmds;
+
 // FIXME explain
 int cmd_help(cmdenv e)
 {
+    if (e.help_requested) {
+        std::cout << R"(Usage:
+
+    drnsf :help [<subcommand> | :<subcommand>]
+
+This subcommand prints usage information about the program, or usage
+information about a particular subcommand (if specified).
+
+Example usage:
+
+    # Print information about DRNSF.
+    drnsf :help
+
+    # Print information about the DRNSF internal-test subcommand.
+    drnsf :help internal-test
+
+    # If provided before the subcommand name, --help may be used
+    # in place of :help.
+    drnsf --help internal-test
+)"
+            << std::endl;
+        return EXIT_SUCCESS;
+    }
+
+    // Check for a bad argument count. `help' takes one optional argument.
+    if (e.argv.size() >= 2) {
+        std::cerr
+            << "drnsf help: Too many arguments given.\n\n"
+            << "Try: drnsf :help help"
+            << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    // If the first argument is present, find it as a subcommand and display
+    // help for that command.
+    if (e.argv.size() == 1) {
+        auto &cmdname = e.argv[0];
+
+        // Check if the argument is empty or is a nameless subcommand.
+        if (cmdname.empty() || cmdname == ":") {
+            std::cerr
+                << "drnsf help: Invalid argument.\n\n"
+                << "Try: drnsf :help help"
+                << std::endl;
+            return EXIT_FAILURE;
+        }
+
+        // Remove the leading colon if it exists. The subcommand table does not
+        // include the colon in the subcommand name.
+        if (cmdname[0] == ':') {
+            cmdname.erase(0, 1);
+        }
+
+        // Lookup the subcommand. If not found, fail with an error message.
+        auto it = g_cmds.find(cmdname);
+        if (it == g_cmds.end()) {
+            std::cerr
+                << "drnsf help: Unknown subcommand: `"
+                << cmdname
+                << "'.\n\n"
+                << "Try: drnsf :help"
+                << std::endl;
+            return EXIT_FAILURE;
+        }
+
+        // Call the given subcommand to have it print help information.
+        e.help_requested = true;
+        return it->second(std::move(e));
+    }
+
     std::cout << R"(Usage:
 
     drnsf [:<subcommand>] [--] [<args>]
@@ -49,7 +122,7 @@ The following subcommands are available:
         Run the application in graphical mode (default).
 
     help
-        Display this message.
+        Display this message, or information about a given subcommand.
 
     version
         Display version and license information.
@@ -66,6 +139,9 @@ Example usage:
 
 The default subcommand is `gui', which will be used if no subcommand was
 specified.
+
+The `help' subcommand can also show information about a specific
+subcommand. See `drnsf :help help' for more details.
 )"
         << std::endl;
 

@@ -183,6 +183,41 @@ static bool do_nsf(TRANSACT, std::string filename, misc::raw_data::ref src)
 // FIXME explain
 int cmd_resave_test_crash2(cmdenv e)
 {
+    if (e.help_requested) {
+        std::cout << R"(Usage:
+
+    drnsf :resave-test-crash2 <file>...
+
+Runs resave tests against the given Crash 2 NSF files. For each given
+file, DRNSF will import the NSF file and process it, then re-export the
+processed data. If there is any mismatch between the input and output
+data, messages will be printed for each such mismatch, and the program
+will exit with a failure code.
+
+No files are overwritten by this command. All exporting is in-memory.
+
+This command is not intended to check an NSF file for consistency, but
+is instead intended to test the internal import/export code in DRNSF
+against a large set of pre-existing NSF files.
+
+Example usage:
+
+    # Run resave checks against Snow Go and Piston It Away
+    drnsf :resave-test-crash2 S000000E.NSF S0000010.NSF
+)"
+            << std::endl;
+        return EXIT_SUCCESS;
+    }
+
+    // Check for an empty argument list.
+    if (e.argv.empty()) {
+        std::cerr
+            << "drnsf resave-test-crash2: No files specified.\n\n"
+            << "Try: drnsf :help resave-test-crash2"
+            << std::endl;
+        return EXIT_FAILURE;
+    }
+
     bool ok = true;
 
     for (auto &arg : e.argv) {

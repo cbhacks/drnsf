@@ -39,9 +39,9 @@ static int cmd_default(cmdenv e)
     return cmd_gui(std::move(e));
 }
 
-// (s-var) s_cmds
+// (s-var) g_cmds
 // The set of available program subcommands by name.
-const static std::map<std::string, int (*)(cmdenv)> s_cmds = {
+extern const std::map<std::string, int (*)(cmdenv)> g_cmds = {
     { "help", cmd_help },
     { "version", cmd_version },
     { "gui", cmd_gui },
@@ -133,34 +133,20 @@ int main(cmdenv e)
     // If the first argument begins with `:' and is not just a single lone
     // colon, take the text after the colon and use that as the drnsf subcommand
     // to run.
-    if (!e.argv.empty() && e.argv[0].size() >= 2 && e.argv[0][0] == ':') {
+    if (!e.argv.empty() && e.argv[0].size() >= 2 && e.argv[0][0] == ':' &&
+        cmd == cmd_default) {
         std::string cmdname = { e.argv[0].begin() + 1, e.argv[0].end() };
         e.argv.pop_front();
 
-        if (cmd == cmd_help) {
-            std::cerr
-                << "Subcommand ignored because -h or --help was specified."
-                << std::endl;
-        } else if (cmd != cmd_default) {
-            std::cerr
-                << "A subcommand has already been specified by a previous "
-                << "option.\n`:"
-                << cmdname
-                << "' should be the first argument if you intend to specify a "
-                << "subcommand."
-                << std::endl;
+        try {
+            cmd = g_cmds.at(cmdname);
+        } catch (std::out_of_range) {
             ok = false;
-        } else {
-            try {
-                cmd = s_cmds.at(cmdname);
-            } catch (std::out_of_range) {
-                ok = false;
-                std::cerr
-                    << "drnsf: Unknown subcommand: `"
-                    << cmdname
-                    << "'."
-                    << std::endl;
-            }
+            std::cerr
+                << "drnsf: Unknown subcommand: `"
+                << cmdname
+                << "'."
+                << std::endl;
         }
     }
 

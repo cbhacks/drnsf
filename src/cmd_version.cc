@@ -28,6 +28,26 @@ namespace core {
 // FIXME explain
 int cmd_version(cmdenv e)
 {
+    if (e.help_requested) {
+        std::cout << R"(Usage:
+
+    drnsf :version
+
+Prints version and license information about the program.
+)"
+            << std::endl;
+        return EXIT_SUCCESS;
+    }
+
+    // Check for any arguments. `version' does not take any arguments.
+    if (!e.argv.empty()) {
+        std::cerr
+            << "drnsf version: Too many arguments given.\n\n"
+            << "Try: drnsf :help version"
+            << std::endl;
+        return EXIT_FAILURE;
+    }
+
     std::cout
         << APP_VERSION
         << R"(

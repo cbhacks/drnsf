@@ -28,6 +28,27 @@ namespace core {
 // FIXME explain
 int cmd_internal_test(cmdenv e)
 {
+    if (e.help_requested) {
+        std::cout << R"(Usage:
+
+    drnsf :internal-test [<gtest options>]
+
+Runs internal unit tests for DRNSF. This command is intended for use by
+developers of DRNSF or for automated build systems.
+
+DRNSF uses GoogleTest. Any options passed after the `:internal-test'
+argument will be passed to GoogleTest. For more information about these
+options, see the GoogleTest documentation. For a quick overview, run:
+
+    drnsf :internal-test --gtest_help
+
+This command is only available if FEATURE_INTERNAL_TEST was enabled in
+the DRNSF build configuration.
+)"
+            << std::endl;
+        return EXIT_SUCCESS;
+    }
+
 #if FEATURE_INTERNAL_TEST
     // Initialize google test with the given options.
     int C_argc = int(e.argv.size() + 1);

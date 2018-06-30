@@ -31,6 +31,30 @@ namespace core {
 // FIXME explain
 int cmd_gui(cmdenv e)
 {
+    if (e.help_requested) {
+        std::cout << R"(Usage:
+
+    drnsf [:gui]
+
+Runs the program in GUI mode, as most users would normally expect. This
+is the default subcommand used if none is given.
+
+At this time, no arguments are accepted by this subcommand. This may
+change in the future.
+)"
+            << std::endl;
+        return EXIT_SUCCESS;
+    }
+
+    // Check for any arguments. `gui' does not take any arguments.
+    if (!e.argv.empty()) {
+        std::cerr
+            << "drnsf gui: Too many arguments given.\n\n"
+            << "Try: drnsf :help gui"
+            << std::endl;
+        return EXIT_FAILURE;
+    }
+
     int dummy_argc = 0;
     char *dummy_args[] = { nullptr };
     char **dummy_argv = dummy_args;
