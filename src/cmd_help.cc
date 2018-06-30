@@ -30,23 +30,39 @@ int cmd_help(cmdenv e)
 {
     std::cout << R"(Usage:
 
-# To view this message:
-    drnsf { -h | --help | :help }
+    drnsf [:<subcommand>] [--] [<args>]
 
-# To display version and license information:
-    drnsf { -v | --version | :version }
+The following global options are available. They must appear before any
+specified subcommand.
 
-# Normal usage:
-    drnsf [ :subcommand ] [ subcommand options and arguments ]
+    -h, --help
+        Display this message. This is identical to specifying the
+        subcommand `help'.
 
+    -v, --version
+        Display version and license information. This is identical to
+        specifying the subcommand `version'.
 
-Available subcommands:
+The following subcommands are available:
 
-  gui                 Run the application in graphical mode (default)
-  help                Display this message
-  version             Display version and license information
-  internal-test       Runs internal unit tests
-  resave-test-crash2  Runs resave consistency tests against C2 NSF files
+    gui
+        Run the application in graphical mode (default).
+
+    help
+        Display this message.
+
+    version
+        Display version and license information.
+
+    internal-test
+        Run internal unit tests.
+
+    resave-test-crash2
+        Run resave consistency tests against C2 NSF files.
+
+Example usage:
+
+    drnsf :resave-test-crash2 S000000E.NSF S0000010.NSF
 
 The default subcommand is `gui', which will be used if no subcommand was
 specified.
