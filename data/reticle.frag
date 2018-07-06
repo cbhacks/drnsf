@@ -20,13 +20,11 @@
 
 #version 140
 
-const vec4 AXIS_POS_COLORS[] = vec4[](
-    vec4(1.0,0.0,0.0,1.0),
-    vec4(0.0,1.0,0.0,1.0),
-    vec4(0.0,0.0,1.0,1.0)
-);
-const vec4 AXIS_NEG_COLOR = vec4(0.5,0.5,0.5,1.0);
-const vec4 CUBE_COLOR = vec4(0.1,0.1,0.1,1.0);
+const vec4 AXIS_POS_X_COLOR = vec4(1.0, 0.0, 0.0, 1.0);
+const vec4 AXIS_POS_Y_COLOR = vec4(0.0, 1.0, 0.0, 1.0);
+const vec4 AXIS_POS_Z_COLOR = vec4(0.0, 0.0, 1.0, 1.0);
+const vec4 AXIS_NEG_COLOR   = vec4(0.5, 0.5, 0.5, 1.0);
+const vec4 CUBE_COLOR       = vec4(0.1, 0.1, 0.1, 1.0);
 
 flat in int v_Axis;
 smooth in float v_Value;
@@ -37,9 +35,20 @@ void main()
 {
     if (v_Axis == -1) {
         f_Color = CUBE_COLOR;
-    } else if (v_Value >= 0.0) {
-        f_Color = AXIS_POS_COLORS[v_Axis];
-    } else {
+    } else if (v_Value < 0.0) {
         f_Color = AXIS_NEG_COLOR;
+    } else switch (v_Axis) {
+    case 0:
+        f_Color = AXIS_POS_X_COLOR;
+        break;
+    case 1:
+        f_Color = AXIS_POS_Y_COLOR;
+        break;
+    case 2:
+        f_Color = AXIS_POS_Z_COLOR;
+        break;
+    default:
+        f_Color = vec4(0.0, 0.0, 0.0, 0.0);
+        break;
     }
 }
