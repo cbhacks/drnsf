@@ -91,7 +91,7 @@ void init();
  * to shutdown. Only the outermost init/shutdown call pair actually performs
  * initialization and shutdown. For an example, see the comment for `init'.
  */
-void shutdown();
+void shutdown() noexcept;
 
 /*
  * gl::is_init

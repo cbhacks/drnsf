@@ -374,7 +374,7 @@ void init()
 }
 
 // declared in gl.hh
-void shutdown()
+void shutdown() noexcept
 {
     // Exit immediately with a warning if GL was never initialized.
     if (s_init_count <= 0) {
