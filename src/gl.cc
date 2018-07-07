@@ -89,14 +89,14 @@ void init()
     DRNSF_ON_EXIT { XFree(fbcs); };
 
     if (fbc_count <= 0) {
-        throw std::runtime_error("gl::init: failed to choose GLX FB config");
+        throw error("gl::init: failed to choose GLX FB config");
     }
 
     auto fbc = fbcs[0];
 
     g_vi = glXGetVisualFromFBConfig(g_display, fbc);
     if (!g_vi) {
-        throw std::runtime_error("gl::init: failed to choose X visual");
+        throw error("gl::init: failed to choose X visual");
     }
     // FIXME on error release g_glx_vi
 
@@ -127,12 +127,12 @@ void init()
         // NOTE: glXCreateContext may also fail on the X server side, which may
         // not return NULL.
 
-        throw std::runtime_error("gl::init: failed to create basic context");
+        throw error("gl::init: failed to create basic context");
     }
     // FIXME release context on error
 
     if (!glXMakeCurrent(g_display, g_wnd, g_ctx)) {
-        throw std::runtime_error("gl::init: failed to activate basic context");
+        throw error("gl::init: failed to activate basic context");
     }
 
     auto glXCreateContextAttribs =
@@ -143,9 +143,7 @@ void init()
         ));
 
     if (!glXCreateContextAttribs) {
-        throw std::runtime_error(
-            "gl::init: failed to find glXCreateContextAttribsARB"
-        );
+        throw error("gl::init: failed to find glXCreateContextAttribsARB");
     }
 
     int core_attribs[] = {
@@ -162,21 +160,15 @@ void init()
         g_ctx = core_ctx;
 
         if (!glXMakeCurrent(g_display, g_wnd, g_ctx)) {
-            throw std::runtime_error(
-                "gl::init: failed to activate core context"
-            );
+            throw error("gl::init: failed to activate core context");
         }
 
         if (epoxy_gl_version() < 32) {
-            throw std::runtime_error(
-                "gl::init: core context version less than 3.2"
-            );
+            throw error("gl::init: core context version less than 3.2");
         }
 
         if (!epoxy_has_gl_extension("GL_ARB_shader_bit_encoding")) {
-            throw std::runtime_error(
-                "gl::init: missing feature ARB_shader_bit_encoding"
-            );
+            throw error("gl::init: missing feature ARB_shader_bit_encoding");
         }
 
         s_init_count++;
@@ -196,29 +188,21 @@ void init()
         g_ctx = fwd_ctx;
 
         if (!glXMakeCurrent(g_display, g_wnd, g_ctx)) {
-            throw std::runtime_error(
-                "gl::init: failed to activate forward context"
-            );
+            throw error("gl::init: failed to activate forward context");
         }
 
         if (epoxy_gl_version() < 31) {
-            throw std::runtime_error(
-                "gl::init: forward context version less than 3.1"
-            );
+            throw error("gl::init: forward context version less than 3.1");
         }
 
         if (!epoxy_has_gl_extension("GL_ARB_shader_bit_encoding")) {
-            throw std::runtime_error(
-                "gl::init: missing feature ARB_shader_bit_encoding"
-            );
+            throw error("gl::init: missing feature ARB_shader_bit_encoding");
         }
 
         s_init_count++;
         return;
     }
-    throw std::runtime_error(
-        "gl::init failed to create a 3.1 forward or 3.2 core context"
-    );
+    throw error("gl::init failed to create a 3.1 forward or 3.2 core context");
 #elif USE_WINAPI
     static std::once_flag wndclass_flag;
     std::call_once(wndclass_flag, [] {
@@ -229,7 +213,7 @@ void init()
         wndclass.hbrBackground = HBRUSH(COLOR_3DFACE + 1);
         wndclass.lpszClassName = L"DRNSF_GL";
         if (!RegisterClassW(&wndclass)) {
-            throw std::runtime_error("gl::init: failed to register window class");
+            throw error("gl::init: failed to register window class");
         }
     });
 
@@ -245,13 +229,13 @@ void init()
         nullptr
     );
     if (!g_hwnd) {
-        throw std::runtime_error("gl::init: failed to create window");
+        throw error("gl::init: failed to create window");
     }
     // FIXME - close window on error
 
     g_hdc = GetDC(g_hwnd);
     if (!g_hdc) {
-        throw std::runtime_error("gl::init: failed to get window hdc");
+        throw error("gl::init: failed to get window hdc");
     }
     // FIXME - release dc on error
 
@@ -264,25 +248,25 @@ void init()
     g_pfd.iLayerType = PFD_MAIN_PLANE;
     g_pfid = ChoosePixelFormat(g_hdc, &g_pfd);
     if (!g_pfid) {
-        throw std::runtime_error("gl::init: cannot find compatible pixel format");
+        throw error("gl::init: cannot find compatible pixel format");
     }
 
     // Set the window to use the discovered pixel format.
     if (!SetPixelFormat(g_hdc, g_pfid, &g_pfd)) {
-        throw std::runtime_error("gl::init: could not set pixel format");
+        throw error("gl::init: could not set pixel format");
     }
 
     // Create the initial GL context. We will use this to create the actual GL
     // context (if possible).
     g_hglrc = wglCreateContext(g_hdc);
     if (!g_hglrc) {
-        throw std::runtime_error("gl::init: could not create OpenGL context");
+        throw error("gl::init: could not create OpenGL context");
     }
     // FIXME - destroy context on error
 
     // Activate the context.
     if (!wglMakeCurrent(g_hdc, g_hglrc)) {
-        throw std::runtime_error("gl::init: could not use OpenGL context");
+        throw error("gl::init: could not use OpenGL context");
     }
 
     // Get the function for creating newer GL contexts, if available.
@@ -291,9 +275,7 @@ void init()
             "wglCreateContextAttribsARB"
         ));
     if (!wglCreateContextAttribs) {
-        throw std::runtime_error(
-            "gl::init: could not find wglCreateContextAttribsARB"
-        );
+        throw error("gl::init: could not find wglCreateContextAttribsARB");
     }
 
     int core_attribs[] = {
@@ -310,21 +292,15 @@ void init()
         wglDeleteContext(g_hglrc);
         g_hglrc = core_ctx;
         if (!wglMakeCurrent(g_hdc, g_hglrc)) {
-            throw std::runtime_error(
-                "gl::init: failed to activate core context"
-            );
+            throw error("gl::init: failed to activate core context");
         }
 
         if (epoxy_gl_version() < 32) {
-            throw std::runtime_error(
-                "gl::init: core context version less than 3.2"
-            );
+            throw error("gl::init: core context version less than 3.2");
         }
 
         if (!epoxy_has_gl_extension("GL_ARB_shader_bit_encoding")) {
-            throw std::runtime_error(
-                "gl::init: missing feature ARB_shader_bit_encoding"
-            );
+            throw error("gl::init: missing feature ARB_shader_bit_encoding");
         }
 
         s_init_count++;
@@ -344,28 +320,22 @@ void init()
         wglDeleteContext(g_hglrc);
         g_hglrc = fwd_ctx;
         if (!wglMakeCurrent(g_hdc, g_hglrc)) {
-            throw std::runtime_error(
-                "gl::init: failed to activate forward context"
-            );
+            throw error("gl::init: failed to activate forward context");
         }
 
         if (epoxy_gl_version() < 31) {
-            throw std::runtime_error(
-                "gl::init: forward context version less than 3.1"
-            );
+            throw error("gl::init: forward context version less than 3.1");
         }
 
         if (!epoxy_has_gl_extension("GL_ARB_shader_bit_encoding")) {
-            throw std::runtime_error(
-                "gl::init: missing feature ARB_shader_bit_encoding"
-            );
+            throw error("gl::init: missing feature ARB_shader_bit_encoding");
         }
 
         s_init_count++;
         return;
     }
 
-    throw std::runtime_error(
+    throw error(
         "gl::init: failed to create a 3.1 forward or 3.2 core context"
     );
 #else

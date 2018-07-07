@@ -99,6 +99,7 @@ add_executable (drnsf
 
     src/gl.hh
     src/gl.cc
+    src/gl_error.cc
 
     src/render.hh
     src/render_viewport.cc

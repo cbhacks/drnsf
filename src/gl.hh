@@ -101,6 +101,107 @@ void shutdown() noexcept;
 bool is_init() noexcept;
 
 /*
+ * gl::error
+ *
+ * This is an exception type based on the standard C++ runtime_error. It is
+ * intended for errors related to OpenGL usage, such as shader compile/link
+ * errors or GL initialization errors.
+ *
+ * If possible, information about the OpenGL implementation is collected when
+ * the object is constructed, and can be retrieved from the object later, even
+ * if the GL context has already been closed by then.
+ */
+class error : public std::runtime_error {
+private:
+    // (var) m_has_details
+    // True if the error object has details for the GL implementation, such as
+    // vendor, version, etc.
+    bool m_has_details = false;
+
+    // (var) m_vendor
+    // The value of GL_VENDOR, if available.
+    std::string m_vendor;
+
+    // (var) m_renderer
+    // The value of GL_RENDERER, if available.
+    std::string m_renderer;
+
+    // (var) m_version
+    // The value of GL_VERSION, if available.
+    std::string m_version;
+
+    // (var) m_glsl_version
+    // The value of GL_SHADING_LANGUAGE_VERSION, if available.
+    std::string m_glsl_version;
+
+    // (var) m_has_extensions
+    // True if the error object has the list of GL extensions for the GL
+    // implementation. This must be false if `m_has_details' is false.
+    bool m_has_extensions = false;
+
+    // (var) m_extensions
+    // The list of extension strings retrieved from GL_EXTENSIONS, if
+    // available.
+    std::vector<std::string> m_extensions;
+
+    // (func) collect
+    // Populates the above GL information variables.
+    void collect();
+
+public:
+    // (explicit ctor)
+    // Constructs the error with the given string as its message. This is
+    // passed verbatim to the `runtime_error' error constructor.
+    //
+    // If there is an active GL context, information about its implementation
+    // will be stored for future retrieval.
+    explicit error(const std::string &what_arg);
+
+    // (explicit ctor)
+    // Identical to the other constructor, however the string is given by
+    // `const char *'.
+    explicit error(const char *what_arg);
+
+    // (func) has_details
+    // Returns true if the error object has collected details from the GL
+    // implementation. Otherwise, returns false.
+    bool has_details() noexcept;
+
+    // (func) gl_vendor
+    // Returns the value of GL_VENDOR from the collected GL details. Throws if
+    // no details were collected.
+    const std::string &gl_vendor();
+
+    // (func) gl_renderer
+    // Returns the value of GL_RENDERER from the collected GL details. Throws
+    // if no details were collected.
+    const std::string &gl_renderer();
+
+    // (func) gl_version
+    // Returns the value of GL_VERSION from the collected GL details. Throws if
+    // no details were collected.
+    const std::string &gl_version();
+
+    // (func) gl_glsl_version
+    // Returns the value of GL_SHADING_LANGUAGE_VERSION from the collected GL
+    // details. Throws if no details were collected.
+    const std::string &gl_glsl_version();
+
+    // (func) has_extensions
+    // Returns true if the error object has collected a list of GL extensions
+    // from the GL implementation. Otherwise, returns false.
+    //
+    // This function always returns false if `has_details' returns false.
+    bool has_extensions() noexcept;
+
+    // (func) gl_extensions
+    // Returns the list of extensions retrieved from GL_EXTENSIONS from the
+    // collected GL details. Throws if no extension list or details were
+    // collected.
+    const std::vector<std::string> &gl_extensions();
+};
+
+/*
  * gl::any_object
  *
  * FIXME explain
@@ -376,7 +477,7 @@ inline void compile_shader(shader<ShaderType> &sh, const std::string &code)
         fprintf(stderr, "%s\n", log_buffer.data());
         fprintf(stderr, " === END SHADER COMPILE LOG ===\n");
 
-        throw std::runtime_error("gl::compile_shader: compile failed");
+        throw error("gl::compile_shader: compile failed");
     }
 }
 template <int ShaderType>
