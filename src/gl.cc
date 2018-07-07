@@ -56,9 +56,20 @@ PIXELFORMATDESCRIPTOR g_pfd;
 int g_pfid;
 #endif
 
+// (s-var) s_init_count
+// The number of times GL has been initialized. This is increased by calls to
+// `init' and decreased by calls to `shutdown'.
+static int s_init_count = 0;
+
 // declared in gl.hh
 void init()
 {
+    // Exit early if GL is already initialized.
+    if (s_init_count) {
+        s_init_count++;
+        return;
+    }
+
 #if USE_X11
     using gui::g_display;
 
@@ -168,6 +179,7 @@ void init()
             );
         }
 
+        s_init_count++;
         return;
     }
 
@@ -201,6 +213,7 @@ void init()
             );
         }
 
+        s_init_count++;
         return;
     }
     throw std::runtime_error(
@@ -314,6 +327,7 @@ void init()
             );
         }
 
+        s_init_count++;
         return;
     }
 
@@ -347,6 +361,7 @@ void init()
             );
         }
 
+        s_init_count++;
         return;
     }
 
@@ -361,6 +376,19 @@ void init()
 // declared in gl.hh
 void shutdown()
 {
+    // Exit immediately with a warning if GL was never initialized.
+    if (s_init_count <= 0) {
+        // TODO - log warning
+        return;
+    }
+
+    // Drop the initialization count by one if we are multiple inits deep.
+    if (s_init_count > 1) {
+        s_init_count--;
+        return;
+    }
+
+    s_init_count = 0;
     any_object::reset_all();
 
 #if USE_X11
@@ -376,6 +404,12 @@ void shutdown()
 #else
 #error Unimplemented UI frontend code.
 #endif
+}
+
+// declared in gl.hh
+bool is_init() noexcept
+{
+    return s_init_count;
 }
 
 // declared in gl.hh

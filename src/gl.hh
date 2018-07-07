@@ -57,6 +57,23 @@ namespace gl {
  * gl::init
  *
  * FIXME explain
+ *
+ * If there is already an active GL context, this function returns immediately
+ * with no error.
+ *
+ * Initialization is recursive; each call to init should be matched to a call
+ * to shutdown. Only the outermost init/shutdown call pair actually performs
+ * initialization and shutdown. For example:
+ *
+ *   ... //no gl context (init count = 0)
+ *   gl::init(); //may throw
+ *   ... //gl context OK (init count = 1)
+ *   gl::init(); //never throws
+ *   ... //gl context OK (init count = 2)
+ *   gl::shutdown(); //no change to gl objects
+ *   ... //gl context OK (init count = 1)
+ *   gl::shutdown(); //all gl objects get reset here
+ *   ... //no gl context (init count = 0)
  */
 void init();
 
@@ -69,8 +86,19 @@ void init();
  *
  * This function must not be called unless gl::init has been called previously
  * with no error (no exceptions thrown).
+ *
+ * Initialization is recursive; each call to init should be matched by a call
+ * to shutdown. Only the outermost init/shutdown call pair actually performs
+ * initialization and shutdown. For an example, see the comment for `init'.
  */
 void shutdown();
+
+/*
+ * gl::is_init
+ *
+ * Returns true if there is an active GL context.
+ */
+bool is_init() noexcept;
 
 /*
  * gl::any_object
