@@ -87,6 +87,14 @@ struct asset_type_info<misc::raw_data> {
     using base_type = res::asset;
 
     static constexpr const char *name = "misc::raw_data";
+    static constexpr int prop_count = 1;
+};
+template <>
+struct asset_prop_info<misc::raw_data, 0> {
+    using type = util::blob;
+
+    static constexpr const char *name = "data";
+    static constexpr auto ptr = &misc::raw_data::p_data;
 };
 
 }

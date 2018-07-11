@@ -355,6 +355,14 @@ struct asset_type_info<gfx::frame> {
     using base_type = res::asset;
 
     static constexpr const char *name = "gfx::frame";
+    static constexpr int prop_count = 1;
+};
+template <>
+struct asset_prop_info<gfx::frame, 0> {
+    using type = std::vector<gfx::vertex>;
+
+    static constexpr const char *name = "vertices";
+    static constexpr auto ptr = &gfx::frame::p_vertices;
 };
 
 // reflection info for gfx::anim
@@ -363,6 +371,14 @@ struct asset_type_info<gfx::anim> {
     using base_type = res::asset;
 
     static constexpr const char *name = "gfx::anim";
+    static constexpr int prop_count = 1;
+};
+template <>
+struct asset_prop_info<gfx::anim, 0> {
+    using type = std::vector<gfx::frame::ref>;
+
+    static constexpr const char *name = "frames";
+    static constexpr auto ptr = &gfx::anim::p_frames;
 };
 
 // reflection info for gfx::mesh
@@ -371,6 +387,28 @@ struct asset_type_info<gfx::mesh> {
     using base_type = res::asset;
 
     static constexpr const char *name = "gfx::mesh";
+    static constexpr int prop_count = 3;
+};
+template <>
+struct asset_prop_info<gfx::mesh, 0> {
+    using type = std::vector<gfx::triangle>;
+
+    static constexpr const char *name = "triangles";
+    static constexpr auto ptr = &gfx::mesh::p_triangles;
+};
+template <>
+struct asset_prop_info<gfx::mesh, 1> {
+    using type = std::vector<gfx::quad>;
+
+    static constexpr const char *name = "quads";
+    static constexpr auto ptr = &gfx::mesh::p_quads;
+};
+template <>
+struct asset_prop_info<gfx::mesh, 2> {
+    using type = std::vector<gfx::color>;
+
+    static constexpr const char *name = "colors";
+    static constexpr auto ptr = &gfx::mesh::p_colors;
 };
 
 // reflection info for gfx::model
@@ -379,6 +417,21 @@ struct asset_type_info<gfx::model> {
     using base_type = res::asset;
 
     static constexpr const char *name = "gfx::model";
+    static constexpr int prop_count = 2;
+};
+template <>
+struct asset_prop_info<gfx::model, 0> {
+    using type = gfx::anim::ref;
+
+    static constexpr const char *name = "anim";
+    static constexpr auto ptr = &gfx::model::p_anim;
+};
+template <>
+struct asset_prop_info<gfx::model, 1> {
+    using type = gfx::mesh::ref;
+
+    static constexpr const char *name = "mesh";
+    static constexpr auto ptr = &gfx::model::p_mesh;
 };
 
 // reflection info for gfx::world
@@ -387,6 +440,35 @@ struct asset_type_info<gfx::world> {
     using base_type = res::asset;
 
     static constexpr const char *name = "gfx::world";
+    static constexpr int prop_count = 4;
+};
+template <>
+struct asset_prop_info<gfx::world, 0> {
+    using type = gfx::model::ref;
+
+    static constexpr const char *name = "model";
+    static constexpr auto ptr = &gfx::world::p_model;
+};
+template <>
+struct asset_prop_info<gfx::world, 1> {
+    using type = double;
+
+    static constexpr const char *name = "x";
+    static constexpr auto ptr = &gfx::world::p_x;
+};
+template <>
+struct asset_prop_info<gfx::world, 2> {
+    using type = double;
+
+    static constexpr const char *name = "y";
+    static constexpr auto ptr = &gfx::world::p_y;
+};
+template <>
+struct asset_prop_info<gfx::world, 3> {
+    using type = double;
+
+    static constexpr const char *name = "z";
+    static constexpr auto ptr = &gfx::world::p_z;
 };
 
 }

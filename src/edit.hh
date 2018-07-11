@@ -202,6 +202,314 @@ public:
 }
 
 /*
+ * edit::field
+ *   for all types
+ *
+ * This type provides an (imgui-only) graphical user interface for editing some
+ * kind of data, such as an integer, a color, a polygon, a list or set of data
+ * items, etc. Primarily, this is intended for use with the asset property
+ * editor control (see `asset_propctl' below), but it could be used elsewhere
+ * if necessary.
+ *
+ * Initially, the field control does not display any data. It must be bound to
+ * an existing object first (by pointer). While the field is bound to an object,
+ * it displays information about the object to the user. Most implementations
+ * of `field' also allow the user to edit the displayed value. This does not
+ * modify the object directly, instead an event is raised (`on_change') with
+ * the intended new value for the object. The handler of this event is not
+ * required to push this change to the object; for example, if the object is
+ * currently in a read-only state then this would not be possible.
+ *
+ * This initial type provides a fallback implementation used when there is no
+ * specific `field' implementation for the given type of data.
+ */
+template <typename T, typename E = void>
+class field : private util::nocopy {
+private:
+    // (var) m_object
+    // A pointer to the object this field is bound to, or null if this field is
+    // not bound to any object. The field does not directly modify this object,
+    // however it may be modified by external code during the lifetime of the
+    // binding.
+    const T *m_object;
+
+public:
+    // (func) bind
+    // If a non-null pointer is passed, binds the field to the given object.
+    // The existing binding is discarded, if any. The lifetime of the binding
+    // must not extend beyond the lifetime of the object.
+    //
+    // If a null pointer is passed, discards the existing binding, if any.
+    void bind(const T *object)
+    {
+        m_object = object;
+    }
+
+    // (func) frame
+    // FIXME explain
+    void frame()
+    {
+        if (!m_object) {
+            ImGui::Text("--");
+            return;
+        }
+        auto &obj = *m_object;
+
+        (void)obj;
+        ImGui::Text("No options available.");
+    }
+
+    // (event) on_change
+    // This event is raised when the user attempts to change the value of the
+    // field. The argument given is the new value given by the user.
+    util::event<T> on_change;
+};
+
+/*
+ * edit::field
+ *   for integral types
+ *
+ * This provides a specialized version of `edit::field' for integral types,
+ * such as `int', `short', `unsigned long long', `uint8_t', etc.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <typename T>
+class field<T, std::enable_if_t<std::is_integral<T>::value>> :
+    private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const T *m_object;
+
+public:
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const T *object)
+    {
+        m_object = object;
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        if (!m_object) {
+            ImGui::Text("--");
+            return;
+        }
+        auto &obj = *m_object;
+
+        using std::to_string;
+        ImGui::Text(to_string(obj).c_str());
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<T> on_change;
+};
+
+/*
+ * edit::field
+ *   for floating point types
+ *
+ * This provides a specialized version of `edit::field' for floating point
+ * types, such as `float' and `double'.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <typename T>
+class field<T, std::enable_if_t<std::is_floating_point<T>::value>> :
+    private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const T *m_object;
+
+public:
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const T *object)
+    {
+        m_object = object;
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        if (!m_object) {
+            ImGui::Text("--");
+            return;
+        }
+        auto &obj = *m_object;
+
+        using std::to_string;
+        ImGui::Text(to_string(obj).c_str());
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<T> on_change;
+};
+
+/*
+ * edit::field
+ *   for lists (std::vector) of any type
+ *
+ * This provides a specialized version of `edit::field' for `std::vector<T>'
+ * where T is some other type. The user is presented with an `edit::field<T>'
+ * and can flip through the list to choose which element to edit in the field.
+ * The user may also modify the list by inserting or removing elements.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <typename T>
+class field<std::vector<T>> : private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const std::vector<T> *m_object;
+
+    // (var) m_elem_field
+    // The `edit::field' which displays information about the selected element
+    // in the list.
+    field<T> m_elem_field;
+
+    // (var) m_index
+    // The index of the currently selected element in the list. The value is
+    // preserved while in an unbound state, but is not otherwise meaningful at
+    // that time.
+    unsigned int m_index = 0;
+
+public:
+    // (default ctor)
+    // Sets up an event handler for the inner element field to propagate any
+    // changes to the event on the outer field (this).
+    field()
+    {
+        m_elem_field.on_change <<= [this](T new_elem_value) {
+            auto new_list = *m_object;
+
+            new_list[m_index] = std::move(new_elem_value);
+
+            on_change(std::move(new_list));
+        };
+    }
+
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const std::vector<T> *object)
+    {
+        m_object = object;
+
+        // Also apply the binding to the inner field.
+        if (m_object && !m_object->empty()) {
+            // If the current index is beyond the range of the new list, change
+            // it to point at the final element.
+            if (m_index >= m_object->size()) {
+                m_index = m_object->size() - 1;
+            }
+            m_elem_field.bind(&m_object->operator [](m_index));
+        } else {
+            m_elem_field.bind(nullptr);
+        }
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        if (!m_object) {
+            ImGui::Text("--");
+            ImGui::NextColumn();
+            ImGui::Indent();
+            ImGui::Text("--");
+            ImGui::NextColumn();
+            m_elem_field.frame();
+            ImGui::NextColumn();
+            ImGui::Unindent();
+            ImGui::NextColumn();
+            return;
+        }
+        auto &obj = *m_object;
+
+        ImGui::Text("List of $"_fmt(obj.size()).c_str());
+        ImGui::NextColumn();
+        ImGui::NextColumn();
+
+        // On the next row, display inputs for seeking through the list.
+        if (!obj.empty()) {
+            // First button to go to the first element.
+            if (ImGui::Button("|<")) {
+                if (!obj.empty()) {
+                    m_index = 0;
+                    m_elem_field.bind(&obj[m_index]);
+                }
+            }
+
+            // Previous button to decrease element index.
+            ImGui::SameLine();
+            if (ImGui::Button("<")) {
+                if (m_index > 0) {
+                    m_index--;
+                    m_elem_field.bind(&obj[m_index]);
+                }
+            }
+
+            // A slider to allow the user to quickly seek through the list.
+            ImGui::SameLine();
+            int index_s = int(m_index);
+            ImGui::SliderInt("###index", &index_s, 0, obj.size() - 1);
+            if (m_index != (unsigned int)index_s) {
+                m_index = (unsigned int)index_s;
+                if (m_index < obj.size()) {
+                    m_elem_field.bind(&obj[m_index]);
+                } else {
+                    m_elem_field.bind(nullptr);
+                }
+            }
+
+            // Next button to increase element index.
+            ImGui::SameLine();
+            if (ImGui::Button(">")) {
+                if (!obj.empty() && m_index < obj.size() - 1) {
+                    m_index++;
+                    m_elem_field.bind(&obj[m_index]);
+                }
+            }
+
+            // Last button to go to the final element.
+            ImGui::SameLine();
+            if (ImGui::Button(">|")) {
+                if (!obj.empty()) {
+                    m_index = obj.size() - 1;
+                    m_elem_field.bind(&obj[m_index]);
+                }
+            }
+        } else {
+            ImGui::Text("--");
+        }
+
+        // Display the inner field and zero-based index on the next row.
+        ImGui::NextColumn();
+        ImGui::Indent();
+        ImGui::Text("[$]"_fmt(m_index).c_str());
+        ImGui::NextColumn();
+        ImGui::PushID(m_index);
+        m_elem_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+        ImGui::Unindent();
+        ImGui::NextColumn();
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<std::vector<T>> on_change;
+};
+
+/*
  * edit::asset_metactl
  *
  * This widget displays basic information about an asset, such as its name and
@@ -306,6 +614,11 @@ private:
     // (var) m_name
     // FIXME explain
     res::atom m_name;
+
+    // (var) m_inner
+    // A pointer to a specialized internal widget which handles the specific
+    // type of the selected asset.
+    std::unique_ptr<util::polymorphic> m_inner;
 
     // (handler) h_asset_appear, h_asset_disappear
     // Hooks the project's on_asset_appear and on_asset_disappear events so
