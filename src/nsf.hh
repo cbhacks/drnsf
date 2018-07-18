@@ -370,4 +370,200 @@ public:
 };
 
 }
+
+namespace reflect {
+
+// reflection info for nsf::archive
+template <>
+struct asset_type_info<nsf::archive> {
+    using base_type = res::asset;
+
+    static constexpr const char *name = "nsf::archive";
+    static constexpr int prop_count = 1;
+};
+template <>
+struct asset_prop_info<nsf::archive, 0> {
+    using type = std::vector<res::anyref>;
+
+    static constexpr const char *name = "pages";
+    static constexpr auto ptr = &nsf::archive::p_pages;
+};
+
+// reflection info for nsf::spage
+template <>
+struct asset_type_info<nsf::spage> {
+    using base_type = res::asset;
+
+    static constexpr const char *name = "nsf::spage";
+    static constexpr int prop_count = 4;
+};
+template <>
+struct asset_prop_info<nsf::spage, 0> {
+    using type = std::vector<res::anyref>;
+
+    static constexpr const char *name = "pagelets";
+    static constexpr auto ptr = &nsf::spage::p_pagelets;
+};
+template <>
+struct asset_prop_info<nsf::spage, 1> {
+    using type = uint16_t;
+
+    static constexpr const char *name = "type";
+    static constexpr auto ptr = &nsf::spage::p_type;
+};
+template <>
+struct asset_prop_info<nsf::spage, 2> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "cid";
+    static constexpr auto ptr = &nsf::spage::p_cid;
+};
+template <>
+struct asset_prop_info<nsf::spage, 3> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "checksum";
+    static constexpr auto ptr = &nsf::spage::p_checksum;
+};
+
+// reflection info for nsf::entry
+template <>
+struct asset_type_info<nsf::entry> {
+    using base_type = res::asset;
+
+    static constexpr const char *name = "nsf::entry";
+    static constexpr int prop_count = 1;
+};
+template <>
+struct asset_prop_info<nsf::entry, 0> {
+    using type = nsf::eid;
+
+    static constexpr const char *name = "eid";
+    static constexpr auto ptr = &nsf::entry::p_eid;
+};
+
+// reflection info for nsf::raw_entry
+template <>
+struct asset_type_info<nsf::raw_entry> {
+    using base_type = nsf::entry;
+
+    static constexpr const char *name = "nsf::raw_entry";
+    static constexpr int prop_count = 2;
+};
+template <>
+struct asset_prop_info<nsf::raw_entry, 0> {
+    using type = std::vector<util::blob>;
+
+    static constexpr const char *name = "items";
+    static constexpr auto ptr = &nsf::raw_entry::p_items;
+};
+template <>
+struct asset_prop_info<nsf::raw_entry, 1> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "type";
+    static constexpr auto ptr = &nsf::raw_entry::p_type;
+};
+
+// reflection info for nsf::wgeo_v2
+template <>
+struct asset_type_info<nsf::wgeo_v2> {
+    using base_type = nsf::entry;
+
+    static constexpr const char *name = "nsf::wgeo_v2";
+    static constexpr int prop_count = 13;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 0> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "info_unk0";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_info_unk0;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 1> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "tpag_ref_count";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_tpag_ref_count;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 2> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "tpag_ref0";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_tpag_ref0;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 3> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "tpag_ref1";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_tpag_ref1;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 4> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "tpag_ref2";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_tpag_ref2;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 5> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "tpag_ref3";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_tpag_ref3;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 6> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "tpag_ref4";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_tpag_ref4;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 7> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "tpag_ref5";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_tpag_ref5;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 8> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "tpag_ref6";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_tpag_ref6;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 9> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "tpag_ref7";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_tpag_ref7;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 10> {
+    using type = util::blob;
+
+    static constexpr const char *name = "item4";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_item4;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 11> {
+    using type = util::blob;
+
+    static constexpr const char *name = "item6";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_item6;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 12> {
+    using type = gfx::world::ref;
+
+    static constexpr const char *name = "world";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_world;
+};
+
+}
 }
