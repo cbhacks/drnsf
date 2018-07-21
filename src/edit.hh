@@ -355,6 +355,125 @@ public:
 
 /*
  * edit::field
+ *   for asset names (atoms)
+ *
+ * This provides a specialized version of `edit::field' for `res::atom', as
+ * used for asset names and in asset references.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <>
+class field<res::atom> : private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const res::atom *m_object;
+
+public:
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const res::atom *object)
+    {
+        m_object = object;
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        if (!m_object) {
+            ImGui::Text("--");
+            return;
+        }
+        auto &obj = *m_object;
+
+        ImGui::Text(to_string(obj).c_str());
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<res::atom> on_change;
+};
+
+/*
+ * edit::field
+ *   for asset references
+ *
+ * This provides a specialized version of `edit::field' for `res::ref<T>'.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <typename T>
+class field<res::ref<T>> : private field<res::atom> {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const res::ref<T> *m_object;
+
+public:
+    // (default ctor)
+    // Installs an event handler onto the internal `res::atom' field change
+    // event to propagate the change to the outer even defined below.
+    field()
+    {
+        field<res::atom>::on_change <<= [this](res::atom new_value) {
+            on_change(new_value);
+        };
+    }
+
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const res::ref<T> *object)
+    {
+        m_object = object;
+        field<res::atom>::bind(object);
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        if (!m_object) {
+            ImGui::Text("--");
+            return;
+        }
+        auto &obj = *m_object;
+
+        // Display the basic atom field contents.
+        field<res::atom>::frame();
+
+        // On the same line, display information about the status of the name
+        // in relation to `T', such as OK, not present, type mismatch, etc.
+        //
+        // Display nothing if there is the value is a null reference.
+        if (obj) {
+            ImGui::SameLine();
+            if (obj.template is_a<T>()) {
+                const ImVec4 color = { 0.0f, 0.5f, 0.0f, 1.0f };
+                ImGui::PushStyleColor(ImGuiCol_Text, color);
+                ImGui::Text("OK");
+                ImGui::PopStyleColor();
+            } else if (obj.template is_a<res::asset>()) {
+                const ImVec4 color = { 0.5f, 0.25f, 0.0f, 1.0f };
+                ImGui::PushStyleColor(ImGuiCol_Text, color);
+                ImGui::Text("Wrong asset type");
+                ImGui::PopStyleColor();
+            } else {
+                const ImVec4 color = { 0.5f, 0.0f, 0.0f, 1.0f };
+                ImGui::PushStyleColor(ImGuiCol_Text, color);
+                ImGui::Text("Doesn't exist");
+                ImGui::PopStyleColor();
+            }
+        }
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<res::ref<T>> on_change;
+};
+
+/*
+ * edit::field
  *   for lists (std::vector) of any type
  *
  * This provides a specialized version of `edit::field' for `std::vector<T>'
