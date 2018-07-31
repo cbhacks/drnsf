@@ -35,6 +35,10 @@
 #include "gui.hh"
 #include "render.hh"
 
+#include "gfx.hh"
+#include "misc.hh"
+#include "nsf.hh"
+
 namespace drnsf {
 namespace edit {
 

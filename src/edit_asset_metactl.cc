@@ -22,10 +22,6 @@
 #include <typeinfo>
 #include "edit.hh"
 
-#include "gfx.hh"
-#include "misc.hh"
-#include "nsf.hh"
-
 namespace drnsf {
 namespace edit {
 

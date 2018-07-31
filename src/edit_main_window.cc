@@ -22,7 +22,6 @@
 #include "../imgui/imgui.h"
 #include "edit.hh"
 #include "res.hh"
-#include "gfx.hh"
 
 namespace drnsf {
 namespace edit {
