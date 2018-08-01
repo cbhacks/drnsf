@@ -633,6 +633,143 @@ public:
 };
 
 /*
+ * edit::field
+ *   for gfx::vertex
+ *
+ * This provides a specialized version of `edit::field' for `gfx::vertex'. The
+ * field breaks down the structure and provides a field for each of its member
+ * values.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <>
+class field<gfx::vertex> : private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const gfx::vertex *m_object;
+
+    // (var) m_x_field, m_y_field, m_z_field
+    // The subfields for X/Y/Z vertex components.
+    field<float> m_x_field;
+    field<float> m_y_field;
+    field<float> m_z_field;
+
+    // (var) m_fx_field
+    // The subfield for the vertex special effects bits.
+    field<unsigned int> m_fx_field;
+
+    // (var) m_color_index_field
+    // The subfield for the vertex's color index.
+    field<int> m_color_index_field;
+
+public:
+    // (default ctor)
+    // Sets up event handlers for the subfields to propagate any changes to
+    // the event on the outer field (this).
+    field()
+    {
+        m_x_field.on_change <<= [this](float new_value) {
+            auto new_vtx = *m_object;
+            new_vtx.x = new_value;
+            on_change(new_vtx);
+        };
+        m_y_field.on_change <<= [this](float new_value) {
+            auto new_vtx = *m_object;
+            new_vtx.y = new_value;
+            on_change(new_vtx);
+        };
+        m_z_field.on_change <<= [this](float new_value) {
+            auto new_vtx = *m_object;
+            new_vtx.z = new_value;
+            on_change(new_vtx);
+        };
+        m_fx_field.on_change <<= [this](unsigned int new_value) {
+            auto new_vtx = *m_object;
+            new_vtx.fx = new_value;
+            on_change(new_vtx);
+        };
+        m_color_index_field.on_change <<= [this](int new_value) {
+            auto new_vtx = *m_object;
+            new_vtx.color_index = new_value;
+            on_change(new_vtx);
+        };
+    }
+
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const gfx::vertex *object)
+    {
+        m_object = object;
+
+        // Also apply the binding to the subfields.
+        if (object) {
+            m_x_field.bind(&object->x);
+            m_y_field.bind(&object->y);
+            m_z_field.bind(&object->z);
+            m_fx_field.bind(&object->fx);
+            m_color_index_field.bind(&object->color_index);
+        } else {
+            m_x_field.bind(nullptr);
+            m_y_field.bind(nullptr);
+            m_z_field.bind(nullptr);
+            m_fx_field.bind(nullptr);
+            m_color_index_field.bind(nullptr);
+        }
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        ImGui::NextColumn();
+        ImGui::Indent();
+
+        ImGui::Text("X");
+        ImGui::NextColumn();
+        ImGui::PushID(0);
+        m_x_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+
+        ImGui::Text("Y");
+        ImGui::NextColumn();
+        ImGui::PushID(1);
+        m_y_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+
+        ImGui::Text("Z");
+        ImGui::NextColumn();
+        ImGui::PushID(2);
+        m_z_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+
+        ImGui::Text("FX");
+        ImGui::NextColumn();
+        ImGui::PushID(3);
+        m_fx_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+
+        ImGui::Text("Color Index");
+        ImGui::NextColumn();
+        ImGui::PushID(4);
+        m_color_index_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+
+        ImGui::Unindent();
+        ImGui::NextColumn();
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<gfx::vertex> on_change;
+};
+
+/*
  * edit::asset_metactl
  *
  * This widget displays basic information about an asset, such as its name and
