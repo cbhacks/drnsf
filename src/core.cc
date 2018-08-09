@@ -55,90 +55,61 @@ int main(cmdenv e)
     bool ok = true;
     int (*cmd)(cmdenv) = cmd_default;
 
-    // Parse global command-line options which are not part of a subcommand.
-    while (!e.argv.empty() && e.argv[0][0] == '-') {
-        // Stop parsing when the special argument `--' is reached.
-        if (e.argv[0] == "--") {
-            break;
+    argparser o;
+    o.add_opt('h', [&]{ cmd = cmd_help; });
+    o.add_opt('v', [&]{ if (cmd == cmd_default) cmd = cmd_version; });
+    o.alias_opt("help", 'h');
+    o.alias_opt("version", 'v');
+
+    argv_t main_argv;
+
+    // Find the subcommand argument (if present). This begins with a colon
+    // character.
+    auto subcmd_it = std::find_if(
+        e.argv.begin(),
+        e.argv.end(),
+        [](const std::string &s) -> bool {
+            return s.size() >= 2 && s[0] == ':';
         }
+    );
 
-        // Check for empty options, such as `drnsf - h' instead of `drnsf -h'.
-        if (!e.argv[0][1]) {
-            ok = false;
-            std::cerr << "drnsf: Strange empty option `-'." << std::endl;
-            e.argv.pop_front();
-            continue;
-        }
-
-        // Handle single-character options. These can be separate, like
-        // `drnsf -a -b -c' or they can be joined like `drnsf -abc'. This code
-        // handles the first in the set and removes it from the set, such that
-        // the next loop iteration will handle the second one, and so on.
-        if (e.argv[0][1] != '-') {
-            char c = e.argv[0][1];
-            if (!e.argv[0][2]) {
-                // If this is the last option in this single-char option set,
-                // remove the set from the argument list. ...
-                e.argv.pop_front();
-            } else {
-                // ... otherwise, remove this single-char option from the set.
-                // The next loop iteration will encounter the next option in the
-                // set.
-                e.argv[0].erase(e.argv[0].begin() + 1);
-            }
-
-            switch (c) {
-                case 'h':
-                    e.argv.push_front("--help");
-                    break;
-                case 'v':
-                    e.argv.push_front("--version");
-                    break;
-                default:
-                    ok = false;
-                    std::cerr
-                        << "drnsf: Unrecognized option: `-"
-                        << c
-                        << "'."
-                        << std::endl;
-                    break;
-            }
-
-            continue;
-        }
-
-        if (e.argv[0] == "--help") {
-            cmd = cmd_help;
-            e.argv.pop_front();
-            continue;
-        }
-
-        if (e.argv[0] == "--version") {
-            if (cmd != cmd_help) {
-                cmd = cmd_version;
-            }
-            e.argv.pop_front();
-            continue;
-        }
-
-        ok = false;
-        std::cerr
-            << "drnsf: Unrecognized option: `"
-            << e.argv[0]
-            << "'."
-            << std::endl;
-        e.argv.pop_front();
+    // Separate the global program arguments from the subcommand ones.
+    if (subcmd_it != e.argv.end()) {
+        main_argv = {e.argv.begin(), subcmd_it};
+        e.argv.erase(e.argv.begin(), subcmd_it);
+    } else {
+        main_argv = std::move(e.argv);
+        e.argv.clear();
     }
 
-    // If the first argument begins with `:' and is not just a single lone
-    // colon, take the text after the colon and use that as the drnsf subcommand
-    // to run.
-    if (!e.argv.empty() && e.argv[0].size() >= 2 && e.argv[0][0] == ':' &&
-        cmd == cmd_default) {
-        std::string cmdname = { e.argv[0].begin() + 1, e.argv[0].end() };
+    // Parse the global program arguments.
+    try {
+        o.begin(main_argv);
+        o.end();
+    } catch (arg_error ex) {
+        std::cerr << "drnsf: " << ex.what() << std::endl;
+        ok = false;
+    }
+
+    // If there was a subcommand, it is the first element in the remaining argv
+    // structure.
+    std::string cmdname = "gui";
+    if (!e.argv.empty()) {
+        cmdname = std::move(e.argv.front());
         e.argv.pop_front();
 
+        // Trim the leading colon character.
+        cmdname.erase(0, 1);
+
+        // Find and use the specified subcommand.
         try {
+            // If the previously selected command was "help", i.e. because the
+            // user specified "-h" or "--help", request help information for
+            // the selected subcommand.
+            if (cmd == cmd_help) {
+                e.help_requested = true;
+            }
+
             cmd = g_cmds.at(cmdname);
         } catch (std::out_of_range) {
             ok = false;
@@ -155,7 +126,14 @@ int main(cmdenv e)
         return EXIT_FAILURE;
     }
 
-    return cmd(std::move(e));
+    // Execute the subcommand.
+    try {
+        return cmd(std::move(e));
+    } catch (arg_error ex) {
+        std::cerr << "drnsf " << cmdname << ": " << ex.what() << std::endl;
+        std::cerr << "\nTry: drnsf :help " << cmdname << std::endl;
+        return EXIT_FAILURE;
+    }
 }
 
 }

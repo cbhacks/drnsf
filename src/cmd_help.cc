@@ -31,6 +31,11 @@ extern const std::map<std::string, int (*)(cmdenv)> g_cmds;
 // FIXME explain
 int cmd_help(cmdenv e)
 {
+    argparser o;
+    o.add_opt("help", [&]{ e.help_requested = true; });
+    o.alias_opt('h', "help");
+    o.begin(e.argv);
+
     if (e.help_requested) {
         std::cout << R"(Usage:
 
@@ -47,27 +52,22 @@ Example usage:
     # Print information about the DRNSF internal-test subcommand.
     drnsf :help internal-test
 
-    # If provided before the subcommand name, --help may be used
-    # in place of :help.
-    drnsf --help internal-test
+    # The option --help is available globally as well as within each
+    # subcommand. This has the same effect as the help subcommand.
+    drnsf --help
+    drnsf --help :internal-test
+    drnsf :internal-test --help
 )"
             << std::endl;
         return EXIT_SUCCESS;
     }
 
-    // Check for a bad argument count. `help' takes one optional argument.
-    if (e.argv.size() >= 2) {
-        std::cerr
-            << "drnsf help: Too many arguments given.\n\n"
-            << "Try: drnsf :help help"
-            << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    // If the first argument is present, find it as a subcommand and display
-    // help for that command.
-    if (e.argv.size() == 1) {
-        auto &cmdname = e.argv[0];
+    // Check to see if an argument is present. If so, find it as a subcommmand
+    // and display help for that command.
+    if (!o.pump_eof()) {
+        std::string cmdname;
+        o >> cmdname;
+        o.end();
 
         // Check if the argument is empty or is a nameless subcommand.
         if (cmdname.empty() || cmdname == ":") {
@@ -100,6 +100,8 @@ Example usage:
         e.help_requested = true;
         return it->second(std::move(e));
     }
+
+    o.end();
 
     std::cout << R"(Usage:
 

@@ -31,6 +31,12 @@ namespace core {
 // FIXME explain
 int cmd_gui(cmdenv e)
 {
+    argparser o;
+    o.add_opt("help", [&]{ e.help_requested = true; });
+    o.alias_opt('h', "help");
+    o.begin(e.argv);
+    o.end();
+
     if (e.help_requested) {
         std::cout << R"(Usage:
 
@@ -44,15 +50,6 @@ change in the future.
 )"
             << std::endl;
         return EXIT_SUCCESS;
-    }
-
-    // Check for any arguments. `gui' does not take any arguments.
-    if (!e.argv.empty()) {
-        std::cerr
-            << "drnsf gui: Too many arguments given.\n\n"
-            << "Try: drnsf :help gui"
-            << std::endl;
-        return EXIT_FAILURE;
     }
 
     int dummy_argc = 0;

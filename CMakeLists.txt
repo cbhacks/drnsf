@@ -65,6 +65,7 @@ add_executable (drnsf
 
     src/core.hh
     src/core.cc
+    src/core_argparser.cc
 
     src/cmd_help.cc
     src/cmd_version.cc

@@ -183,6 +183,11 @@ static bool do_nsf(TRANSACT, std::string filename, misc::raw_data::ref src)
 // FIXME explain
 int cmd_resave_test_crash2(cmdenv e)
 {
+    argparser o;
+    o.add_opt("help", [&]{ e.help_requested = true; });
+    o.alias_opt('h', "help");
+    o.begin(e.argv);
+
     if (e.help_requested) {
         std::cout << R"(Usage:
 
@@ -209,8 +214,7 @@ Example usage:
         return EXIT_SUCCESS;
     }
 
-    // Check for an empty argument list.
-    if (e.argv.empty()) {
+    if (o.pump_eof()) {
         std::cerr
             << "drnsf resave-test-crash2: No files specified.\n\n"
             << "Try: drnsf :help resave-test-crash2"
@@ -220,7 +224,10 @@ Example usage:
 
     bool ok = true;
 
-    for (auto &arg : e.argv) {
+    while (!o.pump_eof()) {
+        std::string arg;
+        o >> arg;
+
         try {
             auto nsf_file = util::fstream_open_bin(arg, std::fstream::in);
             nsf_file.exceptions(std::fstream::failbit | std::fstream::eofbit);
