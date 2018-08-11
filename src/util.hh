@@ -248,15 +248,23 @@ public:
 /*
  * util::to_string
  *
- * These functions provide a mechanism for converting some known common types
- * to strings. Any code using these should consider allowing for ADL using the
- * same idiom as the `using std::swap; swap(x, y);' concept.
+ * These functions provide a conversion from various types to std::string. When
+ * using `to_string', do so in an ADL-enabling manner similar to std::swap:
  *
- * This code actually already exists in the standard library, so it should be
- * removed from here. [ FIXME ]
+ *   using util::to_string;
+ *   auto s = to_string(foo);
+ *
+ * You can make a `to_string' for any new type by defining such a function
+ * within the same namespace as the new type. The above usage pattern enables
+ * other code to find your `to_string' function.
+ *
+ * If the type to be implemented is pre-existing, such as a primitive type or
+ * external library (e.g. standard library) type, place the to_string function
+ * here instead.
  */
+using std::to_string;
+std::string to_string(char c);
 std::string to_string(std::string s);
-std::string to_string(long long ll);
 
 /*
  * util::fmt
