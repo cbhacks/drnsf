@@ -202,7 +202,7 @@ void argparser::begin(argv_t argv)
         parse(i, true);
 
         // Stop parsing when the terminator is reached (if present).
-        if (m_argv[i] == "--") {
+        if (i < m_argv.size() && m_argv[i] == "--") {
             break;
         }
     }
