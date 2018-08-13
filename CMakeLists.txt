@@ -72,6 +72,7 @@ add_executable (drnsf
     src/cmd_gui.cc
     src/cmd_internal_test.cc
     src/cmd_resave_test.cc
+    src/cmd_cdxa_imprint.cc
 
     src/util.hh
     src/util.cc
