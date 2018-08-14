@@ -30,17 +30,15 @@ namespace drnsf {
 namespace util {
 
 // declared in util.hh
-std::string to_string(std::string s)
+std::string to_string(char c)
 {
-    return s;
+    return std::string(1, c);
 }
 
 // declared in util.hh
-std::string to_string(long long ll)
+std::string to_string(std::string s)
 {
-    std::ostringstream ss;
-    ss << ll;
-    return ss.str();
+    return s;
 }
 
 #ifdef _WIN32
