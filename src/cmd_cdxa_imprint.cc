@@ -48,7 +48,7 @@ int cmd_cdxa_imprint(cmdenv e)
         auto sysinfo_size = sysinfo_file.tellg();
         sysinfo_file.seekg(0, std::fstream::beg);
 
-        if (sysinfo_size != sizeof(sysinfo)) {
+        if (std::streamoff(sysinfo_size) != sizeof(sysinfo)) {
             throw arg_error("--info-file: file is the wrong size");
         }
         sysinfo_file.read(reinterpret_cast<char *>(sysinfo), sizeof(sysinfo));
