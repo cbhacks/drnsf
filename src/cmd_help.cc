@@ -135,6 +135,9 @@ The following subcommands are available:
     resave-test-crash2
         Run resave consistency tests against C2 NSF files.
 
+    cdxa-imprint
+        Overwrite the system info section of CD-XA BIN disc images.
+
 Example usage:
 
     drnsf :resave-test-crash2 S000000E.NSF S0000010.NSF

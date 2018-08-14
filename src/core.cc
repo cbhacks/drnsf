@@ -30,6 +30,7 @@ extern int cmd_version(cmdenv e);
 extern int cmd_gui(cmdenv e);
 extern int cmd_internal_test(cmdenv e);
 extern int cmd_resave_test_crash2(cmdenv e);
+extern int cmd_cdxa_imprint(cmdenv e);
 
 // (s-func) cmd_default
 // The default subcommand. A pointer to this function is treated differently
@@ -46,7 +47,8 @@ extern const std::map<std::string, int (*)(cmdenv)> g_cmds = {
     { "version", cmd_version },
     { "gui", cmd_gui },
     { "internal-test", cmd_internal_test },
-    { "resave-test-crash2", cmd_resave_test_crash2 }
+    { "resave-test-crash2", cmd_resave_test_crash2 },
+    { "cdxa-imprint", cmd_cdxa_imprint }
 };
 
 // declared in core.hh

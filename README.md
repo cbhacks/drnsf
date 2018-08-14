@@ -45,6 +45,10 @@ Some of this software is available under other GPL-compatible licenses:
  * libepoxy: see `extra/autodep_licenses/libepoxy.txt`
  * PkgConfig: see `extra/autodep_licenses/pkg-config-with-glib.txt`
 
+DRNSF includes three system information files which are used to build
+PlayStation-compatible game disc images. These three files may be
+subject to copyright not covered by the GNU General Public License.
+
 ## Building ##
 You will need the following dependencies to build DRNSF:
 
