@@ -35,6 +35,8 @@ after_build:
   - copy ..\README.md pkg
   - copy ..\AUTHORS.md pkg
   - copy ..\LICENSE.txt pkg
+  - mkdir pkg\cmd_tools
+  - copy ..\extra\windows_batch_helpers\*.cmd pkg\cmd_tools
   - mkdir pkg\lib_licenses
   - copy ..\imgui\LICENSE pkg\lib_licenses\imgui.txt
   - copy ..\extra\glm_license.txt pkg\lib_licenses\glm.txt
