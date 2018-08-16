@@ -138,6 +138,9 @@ The following subcommands are available:
     cdxa-imprint
         Overwrite the system info section of CD-XA BIN disc images.
 
+    dump-gl
+        Dump information about your OpenGL implementation, if possible.
+
 Example usage:
 
     drnsf :resave-test-crash2 S000000E.NSF S0000010.NSF

@@ -21,6 +21,7 @@
 #include "common.hh"
 #include "core.hh"
 #include <iostream>
+#include "gl.hh"
 
 namespace drnsf {
 namespace core {
@@ -31,6 +32,7 @@ extern int cmd_gui(cmdenv e);
 extern int cmd_internal_test(cmdenv e);
 extern int cmd_resave_test_crash2(cmdenv e);
 extern int cmd_cdxa_imprint(cmdenv e);
+extern int cmd_dump_gl(cmdenv e);
 
 // (s-func) cmd_default
 // The default subcommand. A pointer to this function is treated differently
@@ -48,7 +50,8 @@ extern const std::map<std::string, int (*)(cmdenv)> g_cmds = {
     { "gui", cmd_gui },
     { "internal-test", cmd_internal_test },
     { "resave-test-crash2", cmd_resave_test_crash2 },
-    { "cdxa-imprint", cmd_cdxa_imprint }
+    { "cdxa-imprint", cmd_cdxa_imprint },
+    { "dump-gl", cmd_dump_gl }
 };
 
 // declared in core.hh
@@ -134,6 +137,11 @@ int main(cmdenv e)
     } catch (arg_error ex) {
         std::cerr << "drnsf " << cmdname << ": " << ex.what() << std::endl;
         std::cerr << "\nTry: drnsf :help " << cmdname << std::endl;
+        return EXIT_FAILURE;
+    } catch (gl::error &ex) {
+        ex.dump(std::cerr);
+        std::cerr << "drnsf " << cmdname << ": " << ex.what() << std::endl;
+        std::cerr << "\nAn error occurred related to OpenGL." << std::endl;
         return EXIT_FAILURE;
     }
 }
