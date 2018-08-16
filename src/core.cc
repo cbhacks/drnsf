@@ -21,6 +21,7 @@
 #include "common.hh"
 #include "core.hh"
 #include <iostream>
+#include "gl.hh"
 
 namespace drnsf {
 namespace core {
@@ -134,6 +135,11 @@ int main(cmdenv e)
     } catch (arg_error ex) {
         std::cerr << "drnsf " << cmdname << ": " << ex.what() << std::endl;
         std::cerr << "\nTry: drnsf :help " << cmdname << std::endl;
+        return EXIT_FAILURE;
+    } catch (gl::error &ex) {
+        ex.dump(std::cerr);
+        std::cerr << "drnsf " << cmdname << ": " << ex.what() << std::endl;
+        std::cerr << "\nAn error occurred related to OpenGL." << std::endl;
         return EXIT_FAILURE;
     }
 }

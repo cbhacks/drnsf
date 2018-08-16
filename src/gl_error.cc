@@ -129,5 +129,43 @@ const std::vector<std::string> &error::gl_extensions()
     return m_extensions;
 }
 
+// declared in gl.hh
+void error::dump(std::ostream &out)
+{
+    if (m_has_details) {
+        out
+            << "========================================\n"
+            << "  OpenGL Information\n"
+            << "\n"
+            << "VENDOR:   " << m_vendor << "\n"
+            << "\n"
+            << "RENDERER: " << m_renderer << "\n"
+            << "\n"
+            << "VERSION:  " << m_version << "\n"
+            << "\n"
+            << "GLSL VER: " << m_glsl_version << "\n"
+            << "\n"
+            << "Extensions:\n";
+            if (m_has_extensions) {
+                for (auto &&ext : m_extensions) {
+                    out << "+ " << ext << "\n";
+                }
+            } else {
+                out << "< NO INFORMATION >\n";
+            }
+        out
+            << "========================================"
+            << std::endl;
+    } else {
+        out
+            << "========================================\n"
+            << "  OpenGL Information\n"
+            << "\n"
+            << "< NO INFORMATION> \n"
+            << "========================================"
+            << std::endl;
+    }
+}
+
 }
 }

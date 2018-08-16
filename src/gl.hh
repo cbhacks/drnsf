@@ -199,6 +199,12 @@ public:
     // collected GL details. Throws if no extension list or details were
     // collected.
     const std::vector<std::string> &gl_extensions();
+
+    // (func) dump
+    // Dumps all of the collected information, if any, to the given stream. The
+    // output is intended for human consumption, not for any kind of parsing or
+    // similar automated work.
+    void dump(std::ostream &out);
 };
 
 /*
