@@ -56,7 +56,7 @@ _This option is only present on Windows._
 
 This option determines which architecture package to retrieve when the
 automatic dependency system is enabled. This option is ignored if
-`DRNSF_FULLY_AUTOMATIC_DEPS` is OFF.
+`AUTOMATIC_DEPS` is OFF.
 
 Recommended choices are:
 
