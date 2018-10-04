@@ -888,6 +888,125 @@ public:
 };
 
 /*
+ * edit::field
+ *   for gfx::quad
+ *
+ * This provides a specialized version of `edit::field' for `gfx::quad'. The
+ * field breaks down the structure and provides a field for each of its member
+ * values.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <>
+class field<gfx::quad> : private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const gfx::quad *m_object;
+
+    // (var) m_corner_fields
+    // The subfields for the four corner components.
+    field<gfx::corner> m_corner_fields[4];
+
+    // (var) m_unk0_field, m_unk1_field
+    // The subfields for the unknown quad components. Most likely these should
+    // represent a material index.
+    field<unsigned int> m_unk0_field;
+    field<unsigned int> m_unk1_field;
+
+public:
+    // (default ctor)
+    // Sets up event handlers for the subfields to propagate any changes to
+    // the event on the outer field (this).
+    field()
+    {
+        for (int i = 0; i < 4; i++) {
+            m_corner_fields[i].on_change <<= [this, i](gfx::corner new_value) {
+                auto new_quad = *m_object;
+                new_quad.v[i] = new_value;
+                on_change(new_quad);
+            };
+        }
+        m_unk0_field.on_change <<= [this](unsigned int new_value) {
+            auto new_quad = *m_object;
+            new_quad.unk0 = new_value;
+            on_change(new_quad);
+        };
+        m_unk1_field.on_change <<= [this](unsigned int new_value) {
+            auto new_quad = *m_object;
+            new_quad.unk1 = new_value;
+            on_change(new_quad);
+        };
+    }
+
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const gfx::quad *object)
+    {
+        m_object = object;
+
+        // Also apply the binding to the subfields.
+        if (object) {
+            for (int i = 0; i < 4; i++) {
+                m_corner_fields[i].bind(&object->v[i]);
+            }
+            m_unk0_field.bind(&object->unk0);
+            m_unk1_field.bind(&object->unk1);
+        } else {
+            for (int i = 0; i < 4; i++) {
+                m_corner_fields[i].bind(nullptr);
+            }
+            m_unk0_field.bind(nullptr);
+            m_unk1_field.bind(nullptr);
+        }
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        ImGui::NextColumn();
+        ImGui::Indent();
+
+        const char *corner_labels[] = {
+            "Corner A",
+            "Corner B",
+            "Corner C",
+            "Corner D"
+        };
+        for (int i = 0; i < 4; i++) {
+            ImGui::Text(corner_labels[i]);
+            ImGui::NextColumn();
+            ImGui::PushID(i);
+            m_corner_fields[i].frame();
+            ImGui::PopID();
+            ImGui::NextColumn();
+        }
+
+        ImGui::Text("Unknown 0");
+        ImGui::NextColumn();
+        ImGui::PushID(4);
+        m_unk0_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+
+        ImGui::Text("Unknown 1");
+        ImGui::NextColumn();
+        ImGui::PushID(5);
+        m_unk1_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+
+        ImGui::Unindent();
+        ImGui::NextColumn();
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<gfx::quad> on_change;
+};
+
+/*
  * edit::asset_metactl
  *
  * This widget displays basic information about an asset, such as its name and
