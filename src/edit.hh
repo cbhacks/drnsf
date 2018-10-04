@@ -771,6 +771,92 @@ public:
 
 /*
  * edit::field
+ *   for gfx::corner
+ *
+ * This provides a specialized version of `edit::field' for `gfx::corner'. The
+ * field breaks down the structure and provides a field for each of its member
+ * values.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <>
+class field<gfx::corner> : private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const gfx::corner *m_object;
+
+    // (var) m_vertex_field, m_color_field
+    // The subfields for the corner's components.
+    field<int> m_vertex_field;
+    field<int> m_color_field;
+
+public:
+    // (default ctor)
+    // Sets up event handlers for the subfields to propagate any changes to
+    // the event on the outer field (this).
+    field()
+    {
+        m_vertex_field.on_change <<= [this](int new_value) {
+            auto new_cnr = *m_object;
+            new_cnr.vertex_index = new_value;
+            on_change(new_cnr);
+        };
+        m_color_field.on_change <<= [this](int new_value) {
+            auto new_cnr = *m_object;
+            new_cnr.color_index = new_value;
+            on_change(new_cnr);
+        };
+    }
+
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const gfx::corner *object)
+    {
+        m_object = object;
+
+        // Also apply the binding to the subfields.
+        if (object) {
+            m_vertex_field.bind(&object->vertex_index);
+            m_color_field.bind(&object->color_index);
+        } else {
+            m_vertex_field.bind(nullptr);
+            m_color_field.bind(nullptr);
+        }
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        ImGui::NextColumn();
+        ImGui::Indent();
+
+        ImGui::Text("Vertex Index");
+        ImGui::NextColumn();
+        ImGui::PushID(0);
+        m_vertex_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+
+        ImGui::Text("Color Index");
+        ImGui::NextColumn();
+        ImGui::PushID(1);
+        m_color_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+
+        ImGui::Unindent();
+        ImGui::NextColumn();
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<gfx::corner> on_change;
+};
+
+/*
+ * edit::field
  *   for gfx::triangle
  *
  * This provides a specialized version of `edit::field' for `gfx::triangle'.
