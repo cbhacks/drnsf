@@ -638,6 +638,10 @@ public:
  *
  * This kind of window is useful for implementing dropdowns, tooltips, menus,
  * etc.
+ *
+ * X11: This is a top-level window with override_redirect enabled.
+ *
+ * WINAPI: This is a top-level window with WS_POPUP set.
  */
 class popup : public container {
     friend void run();
@@ -658,7 +662,8 @@ private:
 
 public:
     // (explicit ctor)
-    // FIXME explain
+    // Constructs the popup with the specified width and height. It is not
+    // initially visible.
     explicit popup(int width, int height);
 
     // (dtor)
@@ -669,7 +674,7 @@ public:
     // Makes the popup visible at the specified location in screen coordinates.
     // If the popup is already visible, it is moved to the location.
     //
-    // The location specified matches the top-left of the popup.
+    // The location specified matches the top-left corner of the popup.
     void show_at(int x, int y);
 
     // (func) hide
@@ -682,7 +687,7 @@ public:
     void set_size(int width, int height);
 
     // (func) get_container_handle
-    // FIXME explain
+    // Implements gui::container::get_container_handle.
     sys_handle get_container_handle() override;
 
     // (func) get_child_area
