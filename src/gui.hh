@@ -641,7 +641,8 @@ public:
  *
  * X11: This is a top-level window with override_redirect enabled.
  *
- * WINAPI: This is a top-level window with WS_POPUP set.
+ * WINAPI: This is a top-level window with WS_POPUP set and placed in the
+ * topmost z-order (the window is "always on top").
  */
 class popup : public container {
     friend void run();
@@ -672,7 +673,9 @@ public:
 
     // (func) show_at
     // Makes the popup visible at the specified location in screen coordinates.
-    // If the popup is already visible, it is moved to the location.
+    // If the popup is already visible, it is moved to the location. The popup
+    // is shifted to the front of the user's view (top of z-order relative to
+    // its sibling top-level windows) if possible.
     //
     // The location specified matches the top-left corner of the popup.
     void show_at(int x, int y);
