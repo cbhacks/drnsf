@@ -771,6 +771,108 @@ public:
 
 /*
  * edit::field
+ *   for gfx::color
+ *
+ * This provides a specialized version of `edit::field' for `gfx::color'. The
+ * field provides sliders for each of the three color channels (RGB) and
+ * displays the color to the user.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <>
+class field<gfx::color> : private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const gfx::color *m_object;
+
+public:
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const gfx::color *object)
+    {
+        m_object = object;
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        if (!m_object) {
+            ImGui::NextColumn();
+            ImGui::Indent();
+
+            ImGui::Text("Red");
+            ImGui::NextColumn();
+            ImGui::Text("--");
+            ImGui::NextColumn();
+
+            ImGui::Text("Green");
+            ImGui::NextColumn();
+            ImGui::Text("--");
+            ImGui::NextColumn();
+
+            ImGui::Text("Blue");
+            ImGui::NextColumn();
+            ImGui::Text("--");
+            ImGui::NextColumn();
+
+            ImGui::Unindent();
+            ImGui::NextColumn();
+            return;
+        }
+        auto &obj = *m_object;
+
+        ImGui::NextColumn();
+        ImGui::Indent();
+        ImVec4 im_color_bg = {
+            obj.r / 255.0f,
+            obj.g / 255.0f,
+            obj.b / 255.0f,
+            1.0
+        };
+        ImVec4 im_color_fg1;
+        ImVec4 im_color_fg2;
+        if ((obj.r + obj.g + obj.b) / 3 < 100) {
+            im_color_fg1 = ImVec4{1.0f, 1.0f, 1.0f, 1.0f};
+            im_color_fg2 = ImVec4{0.8f, 0.8f, 0.8f, 1.0f};
+        } else {
+            im_color_fg1 = ImVec4{0.0f, 0.0f, 0.0f, 1.0f};
+            im_color_fg2 = ImVec4{0.2f, 0.2f, 0.2f, 1.0f};
+        }
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, im_color_bg);
+        ImGui::PushStyleColor(ImGuiCol_SliderGrab, im_color_fg2);
+        ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, im_color_fg2);
+
+        for (int i = 0; i < 3; i++) {
+            const char *labels[] = { "Red", "Green", "Blue" };
+            ImGui::Text(labels[i]);
+            ImGui::NextColumn();
+            ImGui::PushID(i);
+            ImGui::PushStyleColor(ImGuiCol_Text, im_color_fg1);
+            int n = obj.v[i];
+            if (ImGui::SliderInt("", &n, 0, 255)) {
+                auto new_value = obj;
+                new_value.v[i] = n;
+                on_change(new_value);
+            }
+            ImGui::PopStyleColor();
+            ImGui::PopID();
+            ImGui::NextColumn();
+        }
+
+        ImGui::PopStyleColor(3);
+        ImGui::Unindent();
+        ImGui::NextColumn();
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<gfx::color> on_change;
+};
+
+/*
+ * edit::field
  *   for gfx::corner
  *
  * This provides a specialized version of `edit::field' for `gfx::corner'. The
