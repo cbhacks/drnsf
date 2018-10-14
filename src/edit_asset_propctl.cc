@@ -49,14 +49,56 @@ private:
     // A pointer to the asset this control is bound to, or null if no asset is
     // bound.
     AssetType *m_asset;
+
+    // (handler) h_change
+    // Hooks the property's change event so that the field can be updated when
+    // the value changes.
+    typename decltype(res::prop<typename prop_info::type>::on_change)::watch h_change;
+
 public:
+    // (default ctor)
+    // Sets up event handlers for the field and asset property to forward any
+    // changes between the two.
+    prop_handler()
+    {
+        m_field.on_change <<= [this](typename prop_info::type new_value) {
+            // Ensure there is at least an asset bound to this object.
+            if (!m_asset) {
+                return;
+            }
+
+            // Don't commit any changes if the transaction system is busy. This
+            // should only happen if the user is in the middle of a long-running
+            // asynchronous operation.
+            auto &nx = m_asset->get_proj().get_transact();
+            if (nx.get_status() != transact::status::ready) {
+                return;
+            }
+
+            nx.run([&](TRANSACT) {
+                // FIXME condense multiple consecutive changes of a single
+                // property into a single transaction
+                (m_asset->*prop_info::ptr).set(TS, std::move(new_value));
+            });
+        };
+        h_change <<= [this]{
+            // Forward changes in the property value to the field displaying
+            // the value.
+            m_field.bind(&(m_asset->*prop_info::ptr).get());
+        };
+    }
+
     // (func) bind
     // Binds the editor to the given asset. The editor's previous binding, if
     // any, is discarded.
     void bind(AssetType &asset)
     {
         prop_handler<AssetType, PropNum - 1>::bind(asset);
+        if (m_asset) {
+            h_change.unbind();
+        }
         m_asset = &asset;
+        h_change.bind((asset.*prop_info::ptr).on_change);
         m_field.bind(&(asset.*prop_info::ptr).get());
     }
 
@@ -65,6 +107,9 @@ public:
     void unbind()
     {
         prop_handler<AssetType, PropNum - 1>::unbind();
+        if (m_asset) {
+            h_change.unbind();
+        }
         m_asset = nullptr;
         m_field.bind(nullptr);
     }
