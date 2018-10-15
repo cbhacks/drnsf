@@ -304,8 +304,33 @@ public:
         }
         auto &obj = *m_object;
 
-        using std::to_string;
-        ImGui::Text(to_string(obj).c_str());
+        intmax_t min = std::numeric_limits<T>::min();
+        uintmax_t max = std::numeric_limits<T>::max();
+
+        if (min < INT_MIN || max > INT_MAX) {
+            // If beyond the range of int, ImGui's built-in editors aren't wide
+            // enough to reach the full range of values for this type.
+            //
+            // Display the value without any editing capability.
+
+            using std::to_string;
+            ImGui::Text(to_string(obj).c_str());
+        } else if (max - min <= 255) {
+            // If the range has 256 or less values (i.e. signed/unsigned byte)
+            // then use a slider input.
+
+            int value = obj;
+            if (ImGui::SliderInt("", &value, min, max)) {
+                on_change(value);
+            }
+        } else {
+            // Otherwise, use a simple ImGui int field.
+
+            int value = obj;
+            if (ImGui::InputInt("", &value)) {
+                on_change(value);
+            }
+        }
     }
 
     // (event) on_change
