@@ -67,14 +67,6 @@ public:
     // (prop) data
     // FIXME explain
     DEFINE_APROP(data, util::blob);
-
-    // FIXME obsolete
-    template <typename Reflector>
-    void reflect(Reflector &rfl)
-    {
-        asset::reflect(rfl);
-        rfl.field(p_data, "Data");
-    }
 };
 
 }

@@ -63,7 +63,6 @@ public:
         m_mainview(*this, gui::layout::grid(1, 2, 3, 0, 1, 1))
     {
         h_tree_select <<= [this](res::atom atom) {
-            g_selected_asset = atom;
             m_mainview.set_name(atom);
         };
         h_tree_select.bind(m_tree.on_select);

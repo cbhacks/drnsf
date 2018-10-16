@@ -26,9 +26,6 @@
 #include "gui.hh"
 #include "gl.hh"
 
-// FIXME temporary hack for edit::im_canvas
-#include "edit.hh"
-
 DRNSF_DECLARE_EMBED(widget_im_vert);
 DRNSF_DECLARE_EMBED(widget_im_frag);
 
@@ -415,11 +412,6 @@ int widget_im::work() noexcept
         ImGui::SetCurrentContext(m_im);
         ImGui::NewFrame();
 
-        // FIXME temporary hack for edit::im_canvas
-        if (dynamic_cast<edit::im_canvas *>(this)) {
-            frame();
-        } else {
-
         ImGui::SetNextWindowPos({0, 0});
         ImGui::SetNextWindowSize({
             static_cast<float>(width),
@@ -434,8 +426,6 @@ int widget_im::work() noexcept
             ImGuiWindowFlags_NoCollapse);
         frame();
         ImGui::End();
-
-        }
 
         ImGui::Render();
         ImGui::SetCurrentContext(previous_im);

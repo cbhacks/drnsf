@@ -131,14 +131,6 @@ public:
     // (func) export_file
     // FIXME explain
     util::blob export_file() const;
-
-    // FIXME obsolete
-    template <typename Reflector>
-    void reflect(Reflector &rfl)
-    {
-        asset::reflect(rfl);
-        rfl.field(p_pages, "Pages");
-    }
 };
 
 /*
@@ -183,16 +175,6 @@ public:
     // (func) export_file
     // FIXME explain
     util::blob export_file() const;
-
-    // FIXME obsolete
-    template <typename Reflector>
-    void reflect(Reflector &rfl)
-    {
-        asset::reflect(rfl);
-        rfl.field(p_cid, "CID");
-        rfl.field(p_type, "Type");
-        rfl.field(p_pagelets, "Pagelets");
-    }
 };
 
 /*
@@ -224,14 +206,6 @@ public:
     // FIXME explain
     virtual std::vector<util::blob> export_entry(
         uint32_t &out_type) const = 0;
-
-    // FIXME obsolete
-    template <typename Reflector>
-    void reflect(Reflector &rfl)
-    {
-        asset::reflect(rfl);
-        rfl.field(p_eid, "EID");
-    }
 };
 
 /*
@@ -293,15 +267,6 @@ public:
     // (func) process_by_type
     // FIXME explain
     bool process_by_type(TRANSACT, game_ver ver);
-
-    // FIXME obsolete
-    template <typename Reflector>
-    void reflect(Reflector &rfl)
-    {
-        entry::reflect(rfl);
-        rfl.field(p_items, "Items");
-        rfl.field(p_type, "Type");
-    }
 };
 
 /*
@@ -358,15 +323,6 @@ public:
     // FIXME explain
     std::vector<util::blob> export_entry(
         uint32_t &out_type) const final override;
-
-    // FIXME obsolete
-    template <typename Reflector>
-    void reflect(Reflector &rfl)
-    {
-        entry::reflect(rfl);
-        rfl.field(p_item4, "Item 4");
-        rfl.field(p_item6, "Item 6");
-    }
 };
 
 }

@@ -146,7 +146,6 @@ add_executable (drnsf
     src/gui_menu.cc
     src/gui_menubar.cc
     src/gui_file_dialog.cc
-    src/gui_im.cc
     $<$<BOOL:${USE_WINAPI}>:
         src/frontend/winapi/gui_file_dialog.cc
     >
@@ -176,13 +175,6 @@ add_executable (drnsf
     src/edit_asset_tree.cc
     src/edit_map_mainctl.cc
     src/edit_main_window.cc
-    src/edit_im_canvas.cc
-    src/edit_editor.cc
-    src/edit_pane.cc
-    src/edit_core.cc
-    src/edit_mode.cc
-    src/edit_mode_classic.cc
-    src/edit_main_view.cc
 
     src/transact.hh
     src/transact_teller.cc

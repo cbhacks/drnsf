@@ -334,12 +334,6 @@ public:
     // (func) get_proj
     // FIXME explain
     project &get_proj() const;
-
-    // FIXME obsolete
-    template <typename Reflector>
-    void reflect(Reflector &rfl)
-    {
-    }
 };
 
 /*

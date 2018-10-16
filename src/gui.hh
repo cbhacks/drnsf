@@ -1326,40 +1326,5 @@ extern Atom g_xa_delete_window;
 #endif
 #endif
 
-// FIXME obsolete
-namespace im {
-
-using namespace ImGui;
-
-void label(
-    const std::string &text);
-
-void subwindow(
-    const std::string &id,
-    const std::string &title,
-    const std::function<void()> &f);
-
-void main_menu_bar(
-    const std::function<void()> &f);
-
-void menu(
-    const std::string &text,
-    const std::function<void()> &f = nullptr);
-
-void menu_item(
-    const std::string &text,
-    const std::function<void()> &f = nullptr);
-
-void menu_separator();
-
-class scope : private util::nocopy {
-public:
-    explicit scope(int id);
-    explicit scope(void *ptr);
-    ~scope();
-};
-
-}
-
 }
 }

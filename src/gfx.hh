@@ -117,17 +117,7 @@ protected:
             m_vertices_buffer.ok = false;
         }
     }
-
-public: // FIXME remove old reflect
 #endif
-
-    // FIXME obsolete
-    template <typename Reflector>
-    void reflect(Reflector &rfl)
-    {
-        asset::reflect(rfl);
-        rfl.field(p_vertices, "Vertices");
-    }
 };
 
 /*
@@ -152,14 +142,6 @@ public:
     // (prop) frames
     // FIXME explain
     DEFINE_APROP(frames, std::vector<frame::ref>);
-
-    // FIXME obsolete
-    template <typename Reflector>
-    void reflect(Reflector &rfl)
-    {
-        asset::reflect(rfl);
-        rfl.field(p_frames, "Frames");
-    }
 };
 
 /*
@@ -263,19 +245,7 @@ protected:
             m_colors_buffer.ok = false;
         }
     }
-
-public: // FIXME remove old reflect
 #endif
-
-    // FIXME obsolete
-    template <typename Reflector>
-    void reflect(Reflector &rfl)
-    {
-        asset::reflect(rfl);
-        rfl.field(p_triangles, "Triangles");
-        rfl.field(p_quads, "Quads");
-        rfl.field(p_colors, "Colors");
-    }
 };
 
 /*
@@ -304,15 +274,6 @@ public:
     // (prop) mesh
     // FIXME explain
     DEFINE_APROP(mesh, mesh::ref);
-
-    // FIXME obsolete
-    template <typename Reflector>
-    void reflect(Reflector &rfl)
-    {
-        asset::reflect(rfl);
-        rfl.field(p_anim, "Animation");
-        rfl.field(p_mesh, "Mesh");
-    }
 };
 
 /*
