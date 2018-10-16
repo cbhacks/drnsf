@@ -373,8 +373,15 @@ public:
         }
         auto &obj = *m_object;
 
-        using std::to_string;
-        ImGui::Text(to_string(obj).c_str());
+        if (typeid(T) == typeid(float)) {
+            float value = obj;
+            if (ImGui::InputFloat("", &value)) {
+                on_change(value);
+            }
+        } else {
+            using std::to_string;
+            ImGui::Text(to_string(obj).c_str());
+        }
     }
 
     // (event) on_change
