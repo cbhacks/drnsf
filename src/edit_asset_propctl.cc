@@ -79,6 +79,11 @@ public:
                 // FIXME condense multiple consecutive changes of a single
                 // property into a single transaction
                 (m_asset->*prop_info::ptr).set(TS, std::move(new_value));
+
+                TS.describe("Change $ on '$'"_fmt(
+                    prop_info::name,
+                    m_asset->get_name()
+                ));
             });
         };
         h_change <<= [this]{
