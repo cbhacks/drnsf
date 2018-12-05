@@ -666,6 +666,54 @@ public:
 
 /*
  * edit::field
+ *   for raw data (util::blob)
+ *
+ * This provides a specialized version of `edit::field' for `util::blob'. This
+ * field is presented as a basic hex editor.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <>
+class field<util::blob> : private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const util::blob *m_object;
+
+    // (var) m_selected_byte
+    // The offset of the currently selected byte in the editor. This may be
+    // out of range to indicate that no byte is currently selected.
+    size_t m_selected_byte = SIZE_MAX;
+
+    // (var) m_input_value
+    // The value currently being input by the user.
+    uint8_t m_input_value;
+
+    // (var) m_input_len
+    // The number of hex characters present in `m_input_value'. This increases
+    // by one each time the user enters a hex digit. When the value reaches 2,
+    // it is reset and the value is written to the selected byte location.
+    int m_input_len = 0;
+
+public:
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const util::blob *object)
+    {
+        m_object = object;
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame();
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<util::blob> on_change;
+};
+
+/*
+ * edit::field
  *   for gfx::vertex
  *
  * This provides a specialized version of `edit::field' for `gfx::vertex'. The
