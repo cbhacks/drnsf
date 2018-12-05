@@ -168,6 +168,7 @@ add_executable (drnsf
 
     src/edit.hh
     src/edit_context.cc
+    src/edit_mode_menuset.cc
     src/edit_menus.cc
     src/edit_field.cc
     src/edit_asset_metactl.cc

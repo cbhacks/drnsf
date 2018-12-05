@@ -30,8 +30,7 @@ main_window::main_window(context &ctx) :
     window(APP_TITLE, 1024, 768),
     m_ctx(ctx)
 {
-    m_assets_view.show();
-    m_map_view.show();
+    m_mode_widget.show();
 }
 
 void main_window::on_close_request()
