@@ -178,6 +178,7 @@ add_executable (drnsf
     src/edit_asset_tree.cc
     src/edit_map_mainctl.cc
     src/edit_main_window.cc
+    src/edit_mode_map.hh
 
     src/transact.hh
     src/transact_teller.cc

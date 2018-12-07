@@ -1879,6 +1879,13 @@ public:
     using viewport::get_screen_pos;
 };
 
+/*
+ * See other files for individual editor modes:
+ *
+ *  - Map mode
+ *    edit_mode_map.hh (edit::mode_map)
+ */
+
 // FIXME FIXME FIXME FIXME FIXME
 // slightly newer but still obsolete code below
 
@@ -1888,13 +1895,8 @@ class handler : public mode_handler, private gui::composite {
 private:
     asset_editor m_assets_view{
         *this,
-        gui::layout::grid(0, 2, 3, 0, 1, 1),
+        gui::layout::fill(),
         *m_ctx.get_proj()};
-
-    map_mainctl m_map_view{
-        *this,
-        gui::layout::grid(2, 1, 3, 0, 1, 1),
-        m_ctx};
 
 public:
     explicit handler(gui::container &parent, context &ctx) :
@@ -1902,7 +1904,6 @@ public:
         composite(parent, gui::layout::fill())
     {
         m_assets_view.show();
-        m_map_view.show();
     }
 
     void start() override

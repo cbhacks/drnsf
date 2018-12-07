@@ -21,6 +21,8 @@
 #include "common.hh"
 #include "edit.hh"
 
+#include "edit_mode_map.hh"
+
 namespace drnsf {
 namespace edit {
 
@@ -68,9 +70,11 @@ public:
 // declared in edit.hh
 struct mode_menuset::impl {
     mode_menuitem<mode_interrim::handler> interrim;
+    mode_menuitem<mode_map::handler> map;
 
     impl(gui::menu &menu, mode_widget &wdg) :
-        interrim(menu, wdg, "Interrim") {}
+        interrim(menu, wdg, "Interrim"),
+        map(menu, wdg, "Map") {}
 };
 
 // declared in edit.hh
