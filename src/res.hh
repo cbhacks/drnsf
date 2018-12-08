@@ -604,6 +604,107 @@ public:
 };
 
 /*
+ * res::tree_tracker
+ *
+ * FIXME explain
+ */
+template <typename T>
+class tree_tracker : private util::nocopy {
+private:
+    // (var) m_base
+    // The base of the asset tree this object is tracking.
+    atom m_base;
+
+    // (handler) h_asset_appear, h_asset_disappear
+    // Hooks the on_asset_appear and on_asset_disappear event of m_base's
+    // associated project to track whenever assets appear or disappear on the
+    // base name or a child of that name.
+    decltype(project::on_asset_appear)::watch h_asset_appear;
+    decltype(project::on_asset_disappear)::watch h_asset_disappear;
+
+    // (func) report
+    // Raises an on_acquire or on_lose event with the given asset pointer if it
+    // is non-null and refers to an asset whose name matches or is a descendant
+    // of the current base name.
+    void report(T *asset, bool is_acquire)
+    {
+        if (!asset)
+            return;
+
+        const auto &name = asset->get_name();
+        if (!(name == m_base || name.is_descendant_of(m_base)))
+            return;
+
+        if (is_acquire) {
+            on_acquire(asset);
+        } else {
+            on_lose(asset);
+        }
+    }
+
+public:
+    // (default ctor)
+    // Constructs a tracker with no base name set on it.
+    tree_tracker()
+    {
+        h_asset_appear <<= [this](asset &asset) {
+            report(dynamic_cast<T *>(&asset), true);
+        };
+        h_asset_disappear <<= [this](asset &asset) {
+            report(dynamic_cast<T *>(&asset), false);
+        };
+    }
+
+    // (func) get_base, set_base
+    // Gets or sets the base asset name this object is tracking.
+    const atom &get_base() const
+    {
+        return m_base;
+    }
+    void set_base(atom base)
+    {
+        // Exit early if the new name matches the existing one.
+        if (m_base == base)
+            return;
+
+        // If there is already a base name set, raise an on_lose event for
+        // each of the applicable assets (`T' or derived) bound to that name
+        // and its descendants.
+        if (m_base) {
+            h_asset_appear.unbind();
+            h_asset_disappear.unbind();
+            report(m_base.get_as<T>(), false);
+            for (auto &&descendant : base.get_children_recursive()) {
+                report(descendant.get_as<T>(), false);
+            }
+        }
+
+        m_base = base;
+
+        // If the new name is non-null, raise on_acquire events in a similar
+        // manner.
+        if (m_base) {
+            h_asset_appear.bind(m_base.get_proj()->on_asset_appear);
+            h_asset_disappear.bind(m_base.get_proj()->on_asset_disappear);
+            report(m_base.get_as<T>(), true);
+            for (auto &&descendant : base.get_children_recursive()) {
+                report(descendant.get_as<T>(), true);
+            }
+        }
+    }
+
+    // (event) on_acquire, on_lose
+    // These events operate in the same manner as the standard non-tree tracker
+    // object events. Unlike those events, however, the on_lose event here
+    // specifies which asset has been lost.
+    //
+    // There is no guarantee that on_lose events for various assets will be
+    // raised in the same order as the matching on_acquire events were.
+    util::event<T *> on_acquire;
+    util::event<T *> on_lose;
+};
+
+/*
  * res::import_error
  *
  * FIXME explain
