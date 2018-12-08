@@ -20,12 +20,14 @@
 
 #include "common.hh"
 #include "edit.hh"
+#include "edit_mode_map.hh"
 
 namespace drnsf {
 namespace edit {
+namespace mode_map {
 
 // declared in edit.hh
-map_mainctl::map_mainctl(
+mainctl::mainctl(
     gui::container &parent,
     gui::layout layout,
     context &ctx) :
@@ -58,5 +60,6 @@ map_mainctl::map_mainctl(
     m_reticle.show();
 }
 
+}
 }
 }

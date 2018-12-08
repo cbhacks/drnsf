@@ -33,6 +33,50 @@ namespace edit {
 namespace mode_map {
 
 /*
+ * edit::mode_map::mainctl
+ *
+ * FIXME explain
+ */
+class mainctl : private render::viewport {
+private:
+    // (var) m_ctx
+    // The context this map editor is attached to.
+    context &m_ctx;
+
+    // (var) m_reticle
+    // FIXME explain
+    render::reticle_fig m_reticle{*this};
+
+    // (var) m_world_figs
+    // FIXME explain
+    std::unordered_map<
+        gfx::world *,
+        std::unique_ptr<render::world_fig>> m_world_figs;
+
+    // (handler) h_asset_appear, h_asset_disappear
+    // Hooks the editor context's current project to see when assets come into
+    // and out of existence so their figures can be added or removed on the
+    // viewport.
+    decltype(res::project::on_asset_appear)::watch h_asset_appear;
+    decltype(res::project::on_asset_disappear)::watch h_asset_disappear;
+
+public:
+    // (explicit ctor)
+    // FIXME explain
+    explicit mainctl(
+        gui::container &parent,
+        gui::layout layout,
+        context &ctx);
+
+    using viewport::show;
+    using viewport::hide;
+    using viewport::get_layout;
+    using viewport::set_layout;
+    using viewport::get_real_size;
+    using viewport::get_screen_pos;
+};
+
+/*
  * edit::mode_map::handler
  *
  * FIXME explain
@@ -41,7 +85,7 @@ class handler : public mode_handler {
 private:
     // (var) m_mainctl
     // The main widget for this mode.
-    map_mainctl m_mainctl;
+    mainctl m_mainctl;
 
 public:
     // (explicit ctor)
