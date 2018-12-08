@@ -49,6 +49,11 @@ struct atom::nucleus {
     // FIXME explain
     nucleus *m_parent;
 
+    // (var) m_depth
+    // The depth, as explained in the comment for `atom::get_depth'. For the
+    // root this will be zero.
+    int m_depth;
+
     // (var) m_asset
     // FIXME explain
     asset *m_asset;
@@ -90,6 +95,7 @@ atom atom::make_root(project *proj)
     }
     nuc->m_refcount = 0;
     nuc->m_name = "_ROOT";
+    nuc->m_depth = 0;
     nuc->m_parent = nullptr;
     nuc->m_asset = nullptr;
     std::memcpy(nuc + 1, &proj, sizeof(project *));
@@ -218,6 +224,7 @@ atom atom::operator /(const char *s) const
     auto name = static_cast<char *>(newnuc_space) + sizeof(nucleus);
     newnuc->m_refcount = 0;
     newnuc->m_name = name;
+    newnuc->m_depth = m_nuc->m_depth + 1;
     newnuc->m_parent = m_nuc;
     newnuc->m_asset = nullptr;
     std::strcpy(name, s);
@@ -298,6 +305,16 @@ atom atom::get_parent() const
     }
 
     return atom(m_nuc->m_parent);
+}
+
+// declared in res.hh
+int atom::get_depth() const
+{
+    if (!m_nuc) {
+        throw std::logic_error("res::atom::get_depth: atom is null");
+    }
+
+    return m_nuc->m_depth;
 }
 
 // declared in res.hh

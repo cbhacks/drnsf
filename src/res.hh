@@ -171,6 +171,20 @@ public:
     // FIXME explain
     atom get_parent() const;
 
+    // (func) get_depth
+    // Returns this atom's distance from the root atom. For example:
+    //
+    //   Asset name "foo" has depth 1.
+    //
+    //   Asset name "foo/bar" has depth 2.
+    //
+    //   Asset name "foo/bar/baz" has depth 3
+    //
+    // A root atom has a depth of zero.
+    //
+    // It is an error to call this method on a null atom.
+    int get_depth() const;
+
     // (func) get_children
     // FIXME explain
     std::vector<atom> get_children() const;
