@@ -34,28 +34,31 @@ mainctl::mainctl(
     viewport(parent, layout),
     m_ctx(ctx)
 {
-    h_asset_appear <<= [this](res::asset &asset) {
-        auto world = dynamic_cast<gfx::world *>(&asset);
-        if (world) {
-            auto fig = new render::world_fig(*this);
-            m_world_figs.emplace(
-                world,
-                std::unique_ptr<render::world_fig>(fig)
-            );
-            fig->show();
-            fig->set_world(world);
-        }
+    m_world_tracker.on_acquire <<= [this](gfx::world *world) {
+        auto fig = new render::world_fig(*this);
+        m_world_figs.emplace(
+            world,
+            std::unique_ptr<render::world_fig>(fig)
+        );
+        fig->show();
+        fig->set_world(world);
     };
-    h_asset_appear.bind(m_ctx.get_proj()->on_asset_appear);
-    h_asset_disappear <<= [this](res::asset &asset) {
-        auto world = dynamic_cast<gfx::world *>(&asset);
-        if (world) {
-            m_world_figs.erase(world);
-        }
+    m_world_tracker.on_lose <<= [this](gfx::world *world) {
+        m_world_figs.erase(world);
     };
-    h_asset_disappear.bind(m_ctx.get_proj()->on_asset_disappear);
 
-    // FIXME - support context project switching
+    h_project_change <<= [this](const std::shared_ptr<res::project> &proj) {
+        if (proj) {
+            m_world_tracker.set_base(proj->get_asset_root());
+        } else {
+            m_world_tracker.set_base(nullptr);
+        }
+    };
+    h_project_change.bind(m_ctx.on_project_change);
+
+    if (m_ctx.get_proj()) {
+        m_world_tracker.set_base(m_ctx.get_proj()->get_asset_root());
+    }
 
     m_reticle.show();
 }
