@@ -197,6 +197,18 @@ public:
     // Gets the project pointer the root node was created with (see make_root).
     project *get_proj() const;
 
+    // (func) is_descendant_of
+    // Returns true if the atom is a descendant of the specified atom. For
+    // example, "foo/bar" is a descendant of "foo", but not of "snappy". "a/b/c"
+    // and "a/b/hello" are both descendants of "a/b" but not of eachother.
+    //
+    // An atom is not a descendant of itself. All non-root atoms are descendants
+    // of their tree's root atom, but not of the root atom of any other tree.
+    //
+    // It is an error to call this method on a null atom. The parameter atom may
+    // be null, however, in which case the return value will be false.
+    bool is_descendant_of(const atom &potential_ancestor) const;
+
     // (func) get_asset_names
     // FIXME explain
     std::vector<atom> get_asset_names() const

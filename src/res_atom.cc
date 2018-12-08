@@ -378,5 +378,35 @@ project *atom::get_proj() const
     return proj;
 }
 
+// declared in res.hh
+bool atom::is_descendant_of(const atom &potential_ancestor) const
+{
+    if (!m_nuc) {
+        throw std::logic_error("res::atom::is_descendant_of: atom is null");
+    }
+
+    if (!potential_ancestor) {
+        // Null atoms are never ancestors.
+        return false;
+    }
+
+    // Compute the difference of the depths of the two atoms within the tree.
+    // The potential_ancestor must be less-deep than this atom to possible be
+    // an ancestor.
+    int depth_difference = m_nuc->m_depth - potential_ancestor.m_nuc->m_depth;
+    if (depth_difference <= 0) {
+        return false;
+    }
+
+    // Walk up the ancestral path to the same depth as the given potential
+    // ancestor.
+    auto it = m_nuc;
+    for (int i = 0; i < depth_difference; i++) {
+        it = it->m_parent;
+    }
+
+    return it == potential_ancestor.m_nuc;
+}
+
 }
 }
