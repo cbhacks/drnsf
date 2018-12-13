@@ -96,7 +96,7 @@ add_executable (drnsf
     src/gui_treeview.cc
     src/gui_menu.cc
     src/gui_menubar.cc
-    src/gui_dialogs.cc
+    src/gui_file_dialog.cc
     src/gui_im.cc
 
     src/gl.hh

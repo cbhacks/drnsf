@@ -26,13 +26,18 @@
 namespace drnsf {
 namespace gui {
 
-namespace {
-
-class file_dialog : private window, private widget_im {
-private:
+// declared in gui.hh
+struct file_dialog::impl final : window, widget_im {
     bool m_ok;
     fs::path m_cdir;
     std::string m_filename;
+
+    impl() :
+        window("File Browser", 400, 300),
+        widget_im(*this, layout::fill())
+    {
+        widget_im::show();
+    }
 
     void on_close_request() override
     {
@@ -68,6 +73,8 @@ private:
             m_filename = "";
             if (!fs::exists(m_cdir) || !fs::is_directory(m_cdir)) {
                 m_ok = true;
+                m_filename = m_cdir.u8string();
+                m_cdir = m_cdir.parent_path();
                 end();
                 return;
             }
@@ -134,52 +141,58 @@ private:
         ImGui::Columns(1);
         ImGui::EndChild();
     }
-
-public:
-    file_dialog() :
-        window("File Browser", 400, 300),
-        widget_im(*this, layout::fill())
-    {
-        widget_im::show();
-    }
-
-    bool show_open(std::string &path)
-    {
-        m_cdir = fs::absolute(fs::u8path(path));
-        if (!fs::is_directory(m_cdir)) {
-            m_filename = m_cdir.filename().u8string();
-            m_cdir = m_cdir.parent_path();
-        } else {
-            m_filename = "";
-        }
-        m_ok = false;
-        show_dialog();
-        if (m_ok) {
-            path = m_cdir.u8string();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    bool show_save(std::string &path)
-    {
-        return show_open(path);
-    }
 };
 
+// declared in gui.hh
+file_dialog::file_dialog()
+{
+    M = new impl;
 }
 
 // declared in gui.hh
-bool show_open_dialog(std::string &path)
+file_dialog::~file_dialog()
 {
-    return file_dialog{}.show_open(path);
+    delete M;
 }
 
 // declared in gui.hh
-bool show_save_dialog(std::string &path)
+std::string file_dialog::get_dir() const
 {
-    return file_dialog{}.show_save(path);
+    return M->m_cdir.u8string();
+}
+
+// declared in gui.hh
+void file_dialog::set_dir(std::string dir)
+{
+    M->m_cdir = fs::absolute(fs::u8path(dir));
+}
+
+// declared in gui.hh
+std::string file_dialog::get_filename() const
+{
+    return M->m_filename;
+}
+
+// declared in gui.hh
+void file_dialog::set_filename(std::string filename)
+{
+    M->m_filename = filename;
+}
+
+// declared in gui.hh
+bool file_dialog::run_open()
+{
+    M->m_ok = false;
+    M->show_dialog();
+    return M->m_ok;
+}
+
+// declared in gui.hh
+bool file_dialog::run_save()
+{
+    M->m_ok = false;
+    M->show_dialog();
+    return M->m_ok;
 }
 
 }
