@@ -590,8 +590,6 @@ public:
         auto &obj = *m_object;
 
         ImGui::Text("List of $"_fmt(obj.size()).c_str());
-        ImGui::NextColumn();
-        ImGui::NextColumn();
 
         // On the next row, display inputs for seeking through the list.
         if (!obj.empty()) {
@@ -642,8 +640,45 @@ public:
                     m_elem_field.bind(&obj[m_index]);
                 }
             }
+
+            // Insert / remove / etc buttons on the next line.
+            if (ImGui::SmallButton("Append")) {
+                auto old_size = obj.size();
+
+                auto new_list = obj;
+                new_list.push_back(obj.back());
+                on_change(std::move(new_list));
+
+                // Jump to the new element if the append appears to have gone
+                // through.
+                if (obj.size() == old_size + 1) {
+                    m_index = old_size;
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Insert")) {
+                if (m_index < obj.size()) {
+                    auto new_list = obj;
+                    new_list.insert(new_list.begin() + m_index, obj[m_index]);
+                    on_change(std::move(new_list));
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Remove")) {
+                if (m_index < obj.size()) {
+                    auto new_list = obj;
+                    new_list.erase(new_list.begin() + m_index);
+                    on_change(std::move(new_list));
+                }
+            }
         } else {
             ImGui::Text("--");
+
+            if (ImGui::SmallButton("Append")) {
+                auto new_list = obj;
+                new_list.emplace_back();
+                on_change(std::move(new_list));
+            }
         }
 
         // Display the inner field and zero-based index on the next row.
