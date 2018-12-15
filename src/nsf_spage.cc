@@ -112,6 +112,11 @@ util::blob spage::export_file() const
     w.write_u32(pagelets.size());
     w.write_u32(get_checksum());
 
+    // Decide on a page entry alignment. All known non-zero type pages (except
+    // type 1 TPAG texture pages) contain audio data and need to have 16-byte
+    // aligned entries. Normal type zero pages only require 4-byte alignment.
+    int alignment = (get_type() == 0) ? 4 : 16;
+
     // Export the pagelets if they are processed entries.
     std::vector<util::blob> pagelets_raw(pagelets.size());
     for (auto &&i : util::range_of(get_pagelets())) {
@@ -136,8 +141,47 @@ util::blob spage::export_file() const
     }
 
     // Calculate and write the pagelet offsets.
+    std::vector<int> pagelet_padding(pagelets.size());
     uint32_t pagelet_offset = 20 + pagelets.size() * 4;
-    for (auto &&pagelet : pagelets_raw) {
+    for (auto &&i : util::range_of(pagelets_raw)) {
+        auto &&pagelet = pagelets_raw[i];
+
+        // When calculating the offset of an entry within a page, we must pad
+        // out the area before the entry such that the first item of the entry
+        // is aligned. For most pages with 4-byte alignment, this should should
+        // already be the case as every header and entry size is a multiple of
+        // 4. However, audio pages require 16-byte alignment.
+        //
+        // There is no guarantee that this particular pagelet is actually backed
+        // by an `nsf::entry' asset. For example, it may be an unprocessed
+        // `misc::raw_data' asset. We still need to pad such entries, so here we
+        // will parse a little bit of the entry header and perform some basic
+        // tests to ensure this pagelet actually is an entry.
+        if (pagelet.size() >= 20) {
+            // Read the entry header.
+            util::binreader er;
+            er.begin(pagelet);
+            auto magic = er.read_u32();
+            er.discard(12);
+            auto first_offset = er.read_u32();
+            er.end_early();
+
+            // Ensure this appears to be a viable entry.
+            if (magic != 0x100FFFF)
+                goto pagelet_not_an_entry;
+            if (first_offset >= pagelet.size())
+                goto pagelet_not_an_entry;
+
+            // Calculate the padding.
+            int misalignment = (pagelet_offset + first_offset) % alignment;
+            if (misalignment) {
+                pagelet_padding[i] = alignment - misalignment;
+            }
+        }
+
+        pagelet_offset += pagelet_padding[i];
+
+    pagelet_not_an_entry:
         w.write_u32(pagelet_offset);
         pagelet_offset += pagelet.size();
     }
@@ -146,7 +190,9 @@ util::blob spage::export_file() const
     auto data = w.end();
 
     // Write the pagelets themselves.
-    for (auto &&pagelet : pagelets_raw) {
+    for (auto &&i : util::range_of(pagelets_raw)) {
+        auto &&pagelet = pagelets_raw[i];
+        data.insert(data.end(), pagelet_padding[i], 0);
         data.insert(data.end(), pagelet.begin(), pagelet.end());
     }
 

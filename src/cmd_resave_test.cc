@@ -28,6 +28,44 @@
 namespace drnsf {
 namespace core {
 
+// (s-func) equal_without_padding
+// Returns true if the two blobs given are equivalent after trimming all
+// trailing zero bytes from them, if any.
+//
+// For example, returns true for the following:
+//
+// lhs: { 1, 2, 3, 4 }
+// rhs: { 1, 2, 3, 4, 0, 0, 0 }
+//
+// lhs: { 1, 2, 3, 0, 0 }
+// rhs: { 1, 2, 3, 0 }
+//
+// This is necessary as imported data may be captured with padding data which
+// is not present in re-exported data, since this padding may be applied by
+// its container's export function.
+bool equal_without_padding(const util::blob &lhs, const util::blob &rhs)
+{
+    const auto nonzero = [](util::byte x) { return x; };
+
+    auto mismatch = std::mismatch(
+        lhs.begin(),
+        lhs.end(),
+        rhs.begin(),
+        rhs.end()
+    );
+
+    if (mismatch.first == lhs.end()) {
+        if (mismatch.second == rhs.end()) {
+            return true;
+        }
+        return std::find_if(mismatch.second, rhs.end(), nonzero) == rhs.end();
+    } else if (mismatch.second == rhs.end()) {
+        return std::find_if(mismatch.first, lhs.end(), nonzero) == lhs.end();
+    } else {
+        return false;
+    }
+}
+
 // (s-func) do_entry
 // Processes a given raw_entry, exports the resulting entry, and then compares
 // the exported data with the input data to ensure a lossless import->export
@@ -88,7 +126,7 @@ static bool do_pagelet(TRANSACT, std::string filename, misc::raw_data::ref src)
 
     util::blob out_data = raw_entry->export_file();
 
-    if (in_data != out_data) {
+    if (!equal_without_padding(in_data, out_data)) {
         ok = false;
         std::cerr
             << filename
