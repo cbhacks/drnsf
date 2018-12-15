@@ -22,20 +22,30 @@
 #include "core.hh"
 
 /*
- * main
+ * main, wmain
  *
  * This is the true entry point of the program. This function simply converts
  * the program's arguments into an easier structure and passes execution off
  * to `core::main'.
  */
+#ifdef _WIN32
+int wmain(int w_argc, wchar_t *w_argv[])
+#else
 int main(int C_argc, char *C_argv[])
+#endif
 {
     using namespace drnsf;
 
     core::cmdenv e;
 
     // Convert the C-style argument list into a string vector.
+#ifdef _WIN32
+    for (int i = 0; i < w_argc; i++) {
+        e.argv.push_back(util::wstr_to_u8str(w_argv[i]));
+    }
+#else
     e.argv = core::argv_t(C_argv, C_argv + C_argc);
+#endif
 
     // Discard the first argument, if present. This argument is typically the
     // name of the executable itself.
