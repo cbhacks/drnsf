@@ -21,6 +21,40 @@
 cmake_minimum_required (VERSION 3.8)
 project (DRNSF VERSION 0.0)
 
+# Option: FRONTEND
+if (WIN32)
+    set (DEFAULT_FRONTEND WINAPI)
+else ()
+    set (DEFAULT_FRONTEND X11)
+endif ()
+set (FRONTEND "${DEFAULT_FRONTEND}" CACHE STRING
+    "User interface frontend"
+)
+set_property (CACHE FRONTEND PROPERTY STRINGS
+    X11
+    WINAPI
+)
+if (FRONTEND STREQUAL X11)
+    set (USE_GUI ON)
+    set (USE_X11 ON)
+    set (USE_GL ON)
+elseif (FRONTEND STREQUAL WINAPI)
+    set (USE_GUI ON)
+    set (USE_WINAPI ON)
+    set (USE_GL ON)
+else ()
+    message (FATAL_ERROR "Unrecognized FRONTEND value: ${FRONTEND}")
+endif ()
+
+# Option: FEATURE_INTERNAL_TEST
+set (FEATURE_INTERNAL_TEST ON CACHE BOOL
+    "Enable the internal-test command. (requires googletest)"
+)
+if (FEATURE_INTERNAL_TEST)
+    enable_testing ()
+    add_test (NAME internal_test COMMAND drnsf ":internal-test")
+endif ()
+
 # Option: AUTOMATIC_DEPS
 if (WIN32)
     set (AUTOMATIC_DEPS OFF CACHE BOOL
@@ -163,40 +197,6 @@ set_target_properties (drnsf PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
 )
-
-# Option: FRONTEND
-if (WIN32)
-    set (DEFAULT_FRONTEND WINAPI)
-else ()
-    set (DEFAULT_FRONTEND X11)
-endif ()
-set (FRONTEND "${DEFAULT_FRONTEND}" CACHE STRING
-    "User interface frontend"
-)
-set_property (CACHE FRONTEND PROPERTY STRINGS
-    X11
-    WINAPI
-)
-if (FRONTEND STREQUAL X11)
-    set (USE_GUI ON)
-    set (USE_X11 ON)
-    set (USE_GL ON)
-elseif (FRONTEND STREQUAL WINAPI)
-    set (USE_GUI ON)
-    set (USE_WINAPI ON)
-    set (USE_GL ON)
-else ()
-    message (FATAL_ERROR "Unrecognized FRONTEND value: ${FRONTEND}")
-endif ()
-
-# Option: FEATURE_INTERNAL_TEST
-set (FEATURE_INTERNAL_TEST ON CACHE BOOL
-    "Enable the internal-test command. (requires googletest)"
-)
-if (FEATURE_INTERNAL_TEST)
-    enable_testing ()
-    add_test (NAME internal_test COMMAND drnsf ":internal-test")
-endif ()
 
 # Dependency: pkg-config
 find_package (PkgConfig REQUIRED)
