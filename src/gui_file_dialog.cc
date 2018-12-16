@@ -19,6 +19,7 @@
 //
 
 #include "common.hh"
+#if !USE_NATIVE_FILE_DIALOG
 #include "gui.hh"
 #include <cstring>
 #include "fs.hh"
@@ -197,3 +198,5 @@ bool file_dialog::run_save()
 
 }
 }
+
+#endif

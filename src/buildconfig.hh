@@ -54,5 +54,6 @@
 #cmakedefine USE_WINAPI 1
 
 #cmakedefine USE_GL 1
+#cmakedefine USE_NATIVE_FILE_DIALOG 1
 
 #cmakedefine FEATURE_INTERNAL_TEST 1
