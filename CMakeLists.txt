@@ -21,6 +21,53 @@
 cmake_minimum_required (VERSION 3.8)
 project (DRNSF VERSION 0.0)
 
+# Option: FRONTEND
+if (WIN32)
+    set (DEFAULT_FRONTEND WINAPI)
+else ()
+    set (DEFAULT_FRONTEND X11)
+endif ()
+set (FRONTEND "${DEFAULT_FRONTEND}" CACHE STRING
+    "User interface frontend"
+)
+set_property (CACHE FRONTEND PROPERTY STRINGS
+    X11
+    WINAPI
+)
+if (FRONTEND STREQUAL X11)
+    set (USE_GUI ON)
+    set (USE_X11 ON)
+    set (USE_GL ON)
+elseif (FRONTEND STREQUAL WINAPI)
+    set (USE_GUI ON)
+    set (USE_WINAPI ON)
+    set (USE_GL ON)
+    set (CAN_USE_NATIVE_FILE_DIALOG ON)
+else ()
+    message (FATAL_ERROR "Unrecognized FRONTEND value: ${FRONTEND}")
+endif ()
+
+# Option: FEATURE_INTERNAL_TEST
+set (FEATURE_INTERNAL_TEST ON CACHE BOOL
+    "Enable the internal-test command. (requires googletest)"
+)
+if (FEATURE_INTERNAL_TEST)
+    enable_testing ()
+    add_test (NAME internal_test COMMAND drnsf ":internal-test")
+endif ()
+
+function (forward_native_feature name)
+    if (FEATURE_NATIVE_${name} AND CAN_USE_NATIVE_${name})
+        set (USE_NATIVE_${name} ON PARENT_SCOPE)
+    endif ()
+endfunction (forward_native_feature)
+
+# Option: FEATURE_NATIVE_FILE_DIALOG
+set (FEATURE_NATIVE_FILE_DIALOG ON CACHE BOOL
+    "Use native file open and save dialogs (if available)."
+)
+forward_native_feature (FILE_DIALOG)
+
 # Option: AUTOMATIC_DEPS
 if (WIN32)
     set (AUTOMATIC_DEPS OFF CACHE BOOL
@@ -96,8 +143,11 @@ add_executable (drnsf
     src/gui_treeview.cc
     src/gui_menu.cc
     src/gui_menubar.cc
-    src/gui_dialogs.cc
+    src/gui_file_dialog.cc
     src/gui_im.cc
+    $<$<BOOL:${USE_WINAPI}>:
+        src/frontend/winapi/gui_file_dialog.cc
+    >
 
     src/gl.hh
     src/gl.cc
@@ -156,6 +206,7 @@ add_executable (drnsf
 
     src/embed_data.cc
 )
+target_include_directories (drnsf PRIVATE "${CMAKE_SOURCE_DIR}/src")
 set_property (DIRECTORY PROPERTY VS_STARTUP_PROJECT drnsf)
 
 # Enable C++17
@@ -163,40 +214,6 @@ set_target_properties (drnsf PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
 )
-
-# Option: FRONTEND
-if (WIN32)
-    set (DEFAULT_FRONTEND WINAPI)
-else ()
-    set (DEFAULT_FRONTEND X11)
-endif ()
-set (FRONTEND "${DEFAULT_FRONTEND}" CACHE STRING
-    "User interface frontend"
-)
-set_property (CACHE FRONTEND PROPERTY STRINGS
-    X11
-    WINAPI
-)
-if (FRONTEND STREQUAL X11)
-    set (USE_GUI ON)
-    set (USE_X11 ON)
-    set (USE_GL ON)
-elseif (FRONTEND STREQUAL WINAPI)
-    set (USE_GUI ON)
-    set (USE_WINAPI ON)
-    set (USE_GL ON)
-else ()
-    message (FATAL_ERROR "Unrecognized FRONTEND value: ${FRONTEND}")
-endif ()
-
-# Option: FEATURE_INTERNAL_TEST
-set (FEATURE_INTERNAL_TEST ON CACHE BOOL
-    "Enable the internal-test command. (requires googletest)"
-)
-if (FEATURE_INTERNAL_TEST)
-    enable_testing ()
-    add_test (NAME internal_test COMMAND drnsf ":internal-test")
-endif ()
 
 # Dependency: pkg-config
 find_package (PkgConfig REQUIRED)

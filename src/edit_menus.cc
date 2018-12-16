@@ -37,7 +37,11 @@ void mni_open::on_activate()
 {
     // Get the file to open from the user.
     std::string path;
-    if (!gui::show_open_dialog(path)) return;
+    {
+        gui::file_dialog dlg;
+        if (!dlg.run_open()) return;
+        path = dlg.get_filename();
+    }
 
     // Create the new project to import into.
     auto proj_p = m_ctx.get_proj(); //FIXME
@@ -113,7 +117,11 @@ void mni_save_as::on_activate()
 
     // Get the file to save to from the user.
     std::string path;
-    if (!gui::show_save_dialog(path)) return;
+    {
+        gui::file_dialog dlg;
+        if (!dlg.run_save()) return;
+        path = dlg.get_filename();
+    }
 
     // TODO - make the remaining code asynchronous to not block the UI
 

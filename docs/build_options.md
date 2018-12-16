@@ -22,6 +22,19 @@ If OFF, the `internal-test` command will not be available.
 
 The default is ON.
 
+## `FEATURE_NATIVE_FILE_DIALOG` ##
+This option determines if native file dialogs should be used.
+
+If ON, native file dialogs will be used for the following frontends:
+
+ * WINAPI
+
+For other frontends, a non-native generic fallback will be used.
+
+If OFF, non-native generic file dialogs will be used on all platforms.
+
+The default is ON.
+
 ## `AUTOMATIC_DEPS` ##
 _This option is only present on Windows._
 

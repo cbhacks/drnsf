@@ -1220,13 +1220,73 @@ public:
 };
 
 /*
- * gui::show_open_dialog
- * gui::show_save_dialog
+ * gui::file_dialog
  *
  * FIXME explain
  */
-bool show_open_dialog(std::string &path);
-bool show_save_dialog(std::string &path);
+class file_dialog : private util::nocopy {
+public:
+    // (internal struct) impl
+    // Internal implementation object.
+    struct impl;
+
+    // (var) M
+    // Pointer to implementation object (PIMPL).
+    impl *M;
+
+    // (default ctor)
+    // FIXME explain
+    file_dialog();
+
+    // (dtor)
+    // FIXME explain
+    ~file_dialog();
+
+    // (func) get_dir, set_dir
+    // Gets or sets the path of the directory whose contents should be
+    // displayed in the dialog. This string may be invalid, in which case
+    // the dialog will show some other default directory, such as the process
+    // working directory or the user's home directory.
+    std::string get_dir() const;
+    void set_dir(std::string dir);
+
+    // (func) get_filename, set_filename
+    // Gets or sets the full path of the selected file in the dialog. This will
+    // be the filename chosen by the user when the dialog closes successfully
+    // (`run_open' or `run_save' returns true). Note however that the user may
+    // select a filename which is not usable, for example:
+    //
+    //  - A file which does not exist.
+    //  - A file which the user does not have permission to access.
+    //  - A file on a remote share which cannot be accessed.
+    //  - A file which is not a regular file (e.g. device files).
+    //  - A filename which is not valid on the target filesystem.
+    //  - A filename containing a path element which does not exist.
+    //  - etc.
+    //
+    // For this reason, it is important not to assume that the user's specified
+    // filename is valid or refers to a usable, accessible regular file.
+    std::string get_filename() const;
+    void set_filename(std::string filename);
+
+    // (func) run_open
+    // Displays the dialog as an Open File dialog. This function does not
+    // return until the dialog closes; during this time, the user cannot
+    // interact with any other windows in this application.
+    //
+    // Returns true if the user successfully selected a file, false if the
+    // dialog was canceled or closed for some other reason.
+    bool run_open();
+
+    // (func) run_save
+    // Displays the dialog as a Save File dialog. This function does not
+    // return until the dialog closes; during this time, the user cannot
+    // interact with any other windows in this application.
+    //
+    // Returns true if the user successfully selected a file, false if the
+    // dialog was canceled or closed for some other reason.
+    bool run_save();
+};
 
 #ifdef DRNSF_FRONTEND_IMPLEMENTATION
 #if USE_X11
