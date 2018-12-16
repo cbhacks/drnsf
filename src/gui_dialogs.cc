@@ -53,7 +53,7 @@ private:
         // "OK" confirmation button. Return successful if the path entered is
         // a non-directory, or just browse to that directory if it is one.
         if (ImGui::Button("OK")) {
-            auto new_path = fs::path(m_filename);
+            auto new_path = fs::u8path(m_filename);
             if (new_path.is_absolute()) {
                 // Under standard C++17, both branches should have identical
                 // results in the case of a absolute path. However, we also
@@ -62,7 +62,7 @@ private:
                 // the righthand side is different from standard C++17.
                 m_cdir = new_path;
             } else {
-                m_cdir /= m_filename;
+                m_cdir /= new_path;
             }
             m_cdir = fs::absolute(m_cdir);
             m_filename = "";
@@ -110,7 +110,7 @@ private:
             // clicked, browse into it if it is a directory, or fill it into
             // the filename textbox otherwise.
             auto de_filename_u8 = de_filename.u8string();
-            if (ImGui::Selectable(de_filename_u8.c_str(), de_filename == m_filename)) {
+            if (ImGui::Selectable(de_filename_u8.c_str(), de_filename_u8 == m_filename)) {
                 if (fs::is_directory(de)) {
                     m_cdir = de_path;
                     m_filename = "";
