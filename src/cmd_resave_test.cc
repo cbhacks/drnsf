@@ -21,7 +21,6 @@
 #include "common.hh"
 #include "core.hh"
 #include <iostream>
-#include <fstream>
 #include "nsf.hh"
 #include "misc.hh"
 
@@ -267,18 +266,15 @@ Example usage:
         o >> arg;
 
         try {
-            auto nsf_file = util::fstream_open_bin(arg, std::fstream::in);
-            nsf_file.exceptions(std::fstream::failbit | std::fstream::eofbit);
+            util::file nsf_file;
+            nsf_file.open(arg, "rb");
 
-            nsf_file.seekg(0, std::fstream::end);
-            auto nsf_size = nsf_file.tellg();
-            nsf_file.seekg(0, std::fstream::beg);
+            nsf_file.seek(0, SEEK_END);
+            auto nsf_size = nsf_file.tell();
+            nsf_file.seek(0, SEEK_SET);
 
             util::blob nsf_data(nsf_size);
-            nsf_file.read(
-                reinterpret_cast<char *>(nsf_data.data()),
-                nsf_size
-            );
+            nsf_file.read(nsf_data.data(), nsf_size);
             nsf_file.close();
 
             res::project proj;

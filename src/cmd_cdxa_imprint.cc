@@ -21,7 +21,6 @@
 #include "common.hh"
 #include "core.hh"
 #include <iostream>
-#include <fstream>
 #include <cstring>
 
 DRNSF_DECLARE_EMBED(imprints::infousa_dat);
@@ -41,17 +40,17 @@ int cmd_cdxa_imprint(cmdenv e)
     o.add_opt("help", [&]{ e.help_requested = true; });
     o.alias_opt('h', "help");
     o.add_opt("info-file", [&](std::string filename) {
-        auto sysinfo_file = util::fstream_open_bin(filename, std::fstream::in);
-        sysinfo_file.exceptions(std::fstream::failbit | std::fstream::eofbit);
+        util::file sysinfo_file;
+        sysinfo_file.open(filename, "rb");
 
-        sysinfo_file.seekg(0, std::fstream::end);
-        auto sysinfo_size = sysinfo_file.tellg();
-        sysinfo_file.seekg(0, std::fstream::beg);
+        sysinfo_file.seek(0, SEEK_END);
+        auto sysinfo_size = sysinfo_file.tell();
+        sysinfo_file.seek(0, SEEK_SET);
 
         if (std::streamoff(sysinfo_size) != sizeof(sysinfo)) {
             throw arg_error("--info-file: file is the wrong size");
         }
-        sysinfo_file.read(reinterpret_cast<char *>(sysinfo), sizeof(sysinfo));
+        sysinfo_file.read(sysinfo, sizeof(sysinfo));
         sysinfo_set = true;
     }, true);
     o.add_opt("psx-scea", [&]{
@@ -144,14 +143,9 @@ Example usage:
         std::cout << arg << ": imprinting..." << std::endl;
 
         try {
-            auto file = util::fstream_open_bin(
-                arg,
-                std::fstream::in |
-                std::fstream::out
-            );
-            file.exceptions(std::fstream::failbit | std::fstream::eofbit);
-
-            file.write(reinterpret_cast<char *>(sysinfo), sizeof(sysinfo));
+            util::file file;
+            file.open(arg, "rb+");
+            file.write(sysinfo, sizeof(sysinfo));
         } catch (std::exception &ex) {
             std::cerr
                 << arg

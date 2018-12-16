@@ -32,7 +32,6 @@
 #include <vector>
 #include <string>
 #include <list>
-#include <fstream>
 
 namespace drnsf {
 namespace util {
@@ -760,17 +759,89 @@ std::string wstr_to_u8str(std::wstring wstr);
 #endif
 
 /*
- * util::fstream_open_bin
+ * util::file
  *
- * Opens an fstream in binary mode combined with the specified flags. This
- * function should be used in place of the fstream/ifstream/ofstream
- * constructors because the filename strings must be converted on certain
- * platforms (Windows).
+ * This class provides a C++-style interface around the standard C `FILE' API.
+ * Primarily, this is intended to be used for binary files, as it is not usable
+ * with `fprintf', `fputs', `fgets', etc.
+ *
+ * When initially constructed, the file object is in a closed state. To use the
+ * object, call `open' with a filename and mode ("rb", "wb", "rb+", etc). The
+ * file is closed when the object is destroyed or when `close' is called.
  */
-std::fstream fstream_open_bin(
-    std::string filename,
-    std::fstream::openmode mode
-);
+class file : private util::nocopy {
+private:
+    // (var) m_handle
+    // The internal C API file handle. This is null if no file is open.
+    FILE *m_handle = nullptr;
+
+public:
+    // (default ctor)
+    // Constructs the object in a "closed" state.
+    file() = default;
+
+    // (dtor)
+    // Closes the file if it is open.
+    ~file();
+
+    // (func) open
+    // Based on `std::fopen'. Opens the given filename with the specified mode
+    // and associates that file handle with this object. If an error occurs, an
+    // exception is thrown and the object is not modified.
+    //
+    // If the file is already open, an exception is thrown.
+    void open(const std::string &path, const char *mode);
+
+    // (func) close
+    // Closes the currently open file. If the file is not currently open, an
+    // exception is thrown.
+    void close();
+
+    // (func) read
+    // Based on `std::fread'. Reads data from the currently open file.
+    //
+    // Returns true if the entire buffer was read successfully. Returns false
+    // if no data was read because EOF was reached. If an error occurred during
+    // reading (`std::ferror') or if only some bytes could be read before EOF,
+    // an exception is thrown.
+    //
+    // If the file is not currently open, an exception is thrown.
+    bool read(void *buffer, size_t len);
+
+    // (func) write
+    // Based on `std::fwrite'. Writes data to the currently open file. If an
+    // error occurs, an exception is thrown.
+    //
+    // If the file is not currently open, an exception is thrown.
+    void write(const void *buffer, size_t len);
+
+    // (func) seek
+    // Based on `std::fseek'. Moves the current read/write position in the open
+    // file.
+    //
+    // Whence should be one of these values:
+    //
+    //   SEEK_SET: Offset is relative to the start of the file.
+    //   SEEK_CUR: Offset is relative to the current position in the file.
+    //   SEEK_END: Offset is relative to the end of the file.
+    //
+    // A common pattern for finding the size of an open file is to seek to the
+    // end, call `tell' (see below) to find that position, then seek back to
+    // the beginning.
+    //
+    // If an error occurs, an exception is thrown.
+    //
+    // If the file is not currently open, an exception is thrown.
+    void seek(long offset, int whence);
+
+    // (func) tell
+    // Based on `std::ftell'. Returns the current read/write position in the
+    // open file, relative to the start of the file. If an error occurs, an
+    // exception is thrown.
+    //
+    // If the file is not currently open, an exception is thrown.
+    long tell() const;
+};
 
 }
 }
