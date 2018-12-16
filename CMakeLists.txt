@@ -79,6 +79,7 @@ add_executable (drnsf
     src/util.cc
     src/util_binreader.cc
     src/util_binwriter.cc
+    src/util_file.cc
 
     src/fs.hh
 
