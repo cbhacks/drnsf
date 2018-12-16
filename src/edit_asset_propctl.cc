@@ -53,7 +53,7 @@ private:
     // (handler) h_change
     // Hooks the property's change event so that the field can be updated when
     // the value changes.
-    typename decltype(res::prop<typename prop_info::type>::on_change)::watch h_change;
+    util::event<>::watch h_change;
 
 public:
     // (default ctor)
