@@ -118,10 +118,15 @@ void run()
         }
 
         if (FD_ISSET(connfd, &readfds)) {
-            int evcount = XPending(g_display);
-            while (evcount--) {
+            // Get the number of pending X events. In the case of reentrancy,
+            // the reentrant `gui::run' call will drain the evcount value to
+            // zero for us.
+            static int evcount;
+            evcount = XPending(g_display);
+            while (evcount > 0) {
                 XEvent ev;
                 XNextEvent(g_display, &ev);
+                evcount--;
 
                 XPointer ptr;
                 if (XFindContext(g_display, ev.xany.window, g_ctx_ptr, &ptr)) {
