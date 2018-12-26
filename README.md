@@ -61,10 +61,13 @@ You will need the following dependencies to build DRNSF:
    * GCC >= 6.3.0
    * Visual Studio 2017 _(requires "Desktop development with C++")_
 
-If you are using **Ubuntu** you can install these dependencies with:
+If you are using __Ubuntu 18.04__ or __Debian Buster__, you can install
+these dependencies with:
+```sh
+$ sudo apt install build-essential git cmake pkg-config libx11-dev libgl1-mesa-dev libepoxy-dev libcairo2-dev
 ```
-$ sudo apt install libx11-dev pkg-config libepoxy-dev freeglut3-dev libcairo2-dev python3 cmake gcc g++
-```
+
+For __Debian Stretch__, you may need to install `cmake` from backports.
 
 Depending on your selected frontend and features, you may need more
 dependencies. See `docs/build_options.md` for more details.
