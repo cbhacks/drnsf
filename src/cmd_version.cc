@@ -1,6 +1,6 @@
 //
 // DRNSF - An unofficial Crash Bandicoot level editor
-// Copyright (C) 2017-2018  DRNSF contributors
+// Copyright (C) 2017-2019  DRNSF contributors
 //
 // See the AUTHORS.md file for more details.
 //
@@ -50,7 +50,7 @@ Prints version and license information about the program.
         << R"(
 
 DRNSF - An unofficial Crash Bandicoot level editor
-Copyright (C) 2017-2018  DRNSF contributors
+Copyright (C) 2017-2019  DRNSF contributors
 
 See the AUTHORS.md file for more details.
 
