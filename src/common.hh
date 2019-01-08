@@ -40,6 +40,8 @@
 #include <cstddef>
 #include <cstdlib>
 #include <cstdint>
+#include <climits>
+#include <cinttypes>
 #include <memory>
 #include <utility>
 #include <string>
