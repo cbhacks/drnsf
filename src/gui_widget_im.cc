@@ -25,10 +25,6 @@
 #include "../imgui/imgui.h"
 #include "gui.hh"
 
-#if USE_GTK3
-#include <gtk/gtk.h>
-#endif
-
 // FIXME temporary hack for edit::im_canvas
 #include "edit.hh"
 
