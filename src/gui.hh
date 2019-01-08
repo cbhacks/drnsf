@@ -35,7 +35,6 @@
 #include <unordered_set>
 #include <cairo.h>
 #include "../imgui/imgui.h"
-#include "gl.hh"
 
 // Include system headers only for implementation code.
 #ifdef DRNSF_FRONTEND_IMPLEMENTATION
@@ -728,7 +727,7 @@ protected:
     // All global GL state will be default when this function is called. When
     // overriding it, you must ensure you return in such a state as well, or
     // this guarantee will not be met for widgets drawn afterwards.
-    virtual void draw_gl(int width, int height, gl::renderbuffer &rbo) = 0;
+    virtual void draw_gl(int width, int height, unsigned int rbo) = 0;
 
     // (func) invalidate
     // Marks the current rendered output of this widget as out-of-date or stale
@@ -837,7 +836,7 @@ private:
 
     // (func) draw_gl
     // FIXME explain
-    void draw_gl(int width, int height, gl::renderbuffer &rbo) final override;
+    void draw_gl(int width, int height, unsigned int rbo) final override;
 
     // (func) mousemove
     // FIXME explain

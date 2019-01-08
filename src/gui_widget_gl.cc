@@ -21,6 +21,7 @@
 #include "common.hh"
 #define DRNSF_FRONTEND_IMPLEMENTATION
 #include "gui.hh"
+#include "gl.hh"
 
 namespace drnsf {
 namespace gui {

@@ -21,6 +21,7 @@
 #include "common.hh"
 #include <glm/gtc/matrix_transform.hpp>
 #include "render.hh"
+#include "gl.hh"
 
 namespace drnsf {
 namespace render {
@@ -77,7 +78,7 @@ private:
     bool m_key_rarrow_down = false;
 
     // FIXME non-pimpl later on
-    void draw_gl(int width, int height, gl::renderbuffer &rbo) override;
+    void draw_gl(int width, int height, unsigned int rbo) override;
     void mousemove(int x, int y) override;
     void mousewheel(int delta_y) override;
     void mousebutton(int number, bool down) override;
@@ -109,7 +110,7 @@ viewport::~viewport()
 }
 
 // declared above FIXME
-void viewport::impl::draw_gl(int width, int height, gl::renderbuffer &rbo)
+void viewport::impl::draw_gl(int width, int height, unsigned int rbo)
 {
     // Prepare a depth buffer.
     gl::renderbuffer depth_rbo;

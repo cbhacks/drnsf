@@ -24,6 +24,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "../imgui/imgui.h"
 #include "gui.hh"
+#include "gl.hh"
 
 // FIXME temporary hack for edit::im_canvas
 #include "edit.hh"
@@ -44,7 +45,7 @@ static gl::buffer s_vbo;
 static gl::program s_prog;
 
 // declared in gui.hh
-void widget_im::draw_gl(int width, int height, gl::renderbuffer &rbo)
+void widget_im::draw_gl(int width, int height, unsigned int rbo)
 {
     if (!s_font_tex.ok) {
         glBindTexture(GL_TEXTURE_2D, s_font_tex);
