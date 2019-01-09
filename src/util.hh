@@ -843,5 +843,22 @@ public:
     long tell() const;
 };
 
+/*
+ * util::get_time
+ *
+ * Returns the difference in milliseconds between the current time and some
+ * unspecified origin time. A single call to this function is not meaningful,
+ * but the difference in return value between two such calls may be used to
+ * measure the time between them.
+ *
+ * This function uses a monotonic clock source, meaning it is not affected by
+ * system time changes (e.g. due to NTP, DST, leap seconds, etc) and should
+ * never rewind. The clock may be less precise than 1ms, however.
+ *
+ * Callers should be prepared for the possibility of get_time overflowing, as
+ * `long' may be a 32-bit type on some implementations.
+ */
+long get_time();
+
 }
 }

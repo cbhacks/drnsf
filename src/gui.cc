@@ -247,18 +247,12 @@ void run()
             continue;
         }
 
-        // Get the current time.
-        timespec tp;
-        if (clock_gettime(CLOCK_MONOTONIC, &tp) == -1) {
-            throw std::runtime_error("gui::run: failed to get time");
-        }
-
         // Update all of the widgets. This also produces the timeout for the
         // next loop iteration, based on the shortest time received from all
         // of the widgets. Widgets will return INT_MAX if they have no interest
         // in receiving periodic updates.
         static long last_update = LONG_MAX;
-        long current_time = tp.tv_nsec / 1000000;
+        long current_time = util::get_time();
         if (current_time > last_update) {
             int delta_time = current_time - last_update;
             long min_delay = INT_MAX;
@@ -317,13 +311,8 @@ void run()
         // next loop iteration, based on the shortest time received from all
         // of the widgets. Widgets will return INT_MAX if they have no interest
         // in receiving periodic updates.
-        //
-        // GetTickCount is used over GetTickCount64 or QPC for compatibility
-        // with older hardware and pre-Vista versions of Windows. GetTickCount
-        // suffers from wraparound at 49 days, however the code will recover
-        // from this event with a slight hitch at the moment where it occurs.
         static long last_update = LONG_MAX;
-        long current_time = GetTickCount();
+        long current_time = util::get_time();
         unsigned int timeout = 0;
         if (current_time > last_update) {
             int delta_time = current_time - last_update;
