@@ -293,9 +293,11 @@ void viewport::impl::mousebutton(int number, bool down)
 {
     switch (number) {
     case 1:
+        update();
         m_mouse1_down = down;
         break;
     case 3:
+        update();
         m_mouse2_down = down;
         break;
     }
@@ -306,37 +308,48 @@ void viewport::impl::key(gui::keycode code, bool down)
 {
     switch (code) {
     case gui::keycode::W:
+        update();
         m_key_w_down = down;
         break;
     case gui::keycode::A:
+        update();
         m_key_a_down = down;
         break;
     case gui::keycode::S:
+        update();
         m_key_s_down = down;
         break;
     case gui::keycode::D:
+        update();
         m_key_d_down = down;
         break;
     case gui::keycode::Q:
+        update();
         m_key_q_down = down;
         break;
     case gui::keycode::E:
+        update();
         m_key_e_down = down;
         break;
     case gui::keycode::up_arrow:
+        update();
         m_key_uarrow_down = down;
         break;
     case gui::keycode::down_arrow:
+        update();
         m_key_darrow_down = down;
         break;
     case gui::keycode::left_arrow:
+        update();
         m_key_larrow_down = down;
         break;
     case gui::keycode::right_arrow:
+        update();
         m_key_rarrow_down = down;
         break;
     case gui::keycode::l_shift:
     case gui::keycode::r_shift:
+        update();
         m_key_shift_down = down;
         break;
     default:
