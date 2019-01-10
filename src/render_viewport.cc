@@ -77,13 +77,18 @@ private:
     bool m_key_larrow_down = false;
     bool m_key_rarrow_down = false;
 
+    // (var) m_stopwatch
+    // A tool for measuring time for changes which apply over time, such as
+    // WASDQE camera movement inputs.
+    util::stopwatch m_stopwatch;
+
     // FIXME non-pimpl later on
     void draw_gl(int width, int height, unsigned int rbo) override;
     void mousemove(int x, int y) override;
     void mousewheel(int delta_y) override;
     void mousebutton(int number, bool down) override;
     void key(gui::keycode code, bool down) override;
-    int update(int delta_ms) override;
+    int update() override;
 
 public:
     // (explicit ctor)
@@ -341,8 +346,9 @@ void viewport::impl::key(gui::keycode code, bool down)
 }
 
 // declared above FIXME
-int viewport::impl::update(int delta_ms)
+int viewport::impl::update()
 {
+    auto delta_ms = m_stopwatch.lap();
     float vp_speed = 10000.0f;
 
     // Apply fast-movement speed if the appropriate key is held.

@@ -127,6 +127,7 @@ add_executable (drnsf
     src/util_binreader.cc
     src/util_binwriter.cc
     src/util_file.cc
+    src/util_stopwatch.cc
 
     src/fs.hh
 

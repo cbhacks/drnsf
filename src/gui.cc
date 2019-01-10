@@ -251,26 +251,20 @@ void run()
         // next loop iteration, based on the shortest time received from all
         // of the widgets. Widgets will return INT_MAX if they have no interest
         // in receiving periodic updates.
-        static long last_update = LONG_MAX;
-        long current_time = util::get_time();
-        if (current_time > last_update) {
-            int delta_time = current_time - last_update;
-            long min_delay = INT_MAX;
-            for (auto &&w : widget::s_all_widgets) {
-                int delay = w->update(delta_time);
-                if (delay < min_delay) {
-                    min_delay = delay;
-                }
-            }
-            if (min_delay < LONG_MAX / 1000) {
-                timeout.tv_usec = min_delay * 1000L;
-            } else {
-                // If the shortest delay is extremely large (INT_MAX most
-                // likely), set an arbitrarily long delay.
-                timeout.tv_sec = 4;
+        long min_delay = INT_MAX;
+        for (auto &&w : widget::s_all_widgets) {
+            int delay = w->update();
+            if (delay < min_delay) {
+                min_delay = delay;
             }
         }
-        last_update = current_time;
+        if (min_delay < LONG_MAX / 1000) {
+            timeout.tv_usec = min_delay * 1000L;
+        } else {
+            // If the shortest delay is extremely large (INT_MAX most
+            // likely), set an arbitrarily long delay.
+            timeout.tv_sec = 4;
+        }
 
         // Draw all of the widgets which need to be redrawn.
         for (auto &&w : widget::s_all_widgets) {
@@ -311,27 +305,21 @@ void run()
         // next loop iteration, based on the shortest time received from all
         // of the widgets. Widgets will return INT_MAX if they have no interest
         // in receiving periodic updates.
-        static long last_update = LONG_MAX;
-        long current_time = util::get_time();
         unsigned int timeout = 0;
-        if (current_time > last_update) {
-            int delta_time = current_time - last_update;
-            long min_delay = INT_MAX;
-            for (auto &&w : widget::s_all_widgets) {
-                int delay = w->update(delta_time);
-                if (delay < min_delay) {
-                    min_delay = delay;
-                }
-            }
-            if (min_delay < INT_MAX) {
-                timeout = min_delay;
-            } else {
-                // If the shortest delay is extremely large (INT_MAX most
-                // likely), set an arbitrarily long delay.
-                timeout = 4000;
+        long min_delay = INT_MAX;
+        for (auto &&w : widget::s_all_widgets) {
+            int delay = w->update();
+            if (delay < min_delay) {
+                min_delay = delay;
             }
         }
-        last_update = current_time;
+        if (min_delay < INT_MAX) {
+            timeout = min_delay;
+        } else {
+            // If the shortest delay is extremely large (INT_MAX most
+            // likely), set an arbitrarily long delay.
+            timeout = 4000;
+        }
 
         // Block pending new thread or window messages.
         MsgWaitForMultipleObjects(0, nullptr, false, timeout, QS_ALLEVENTS);

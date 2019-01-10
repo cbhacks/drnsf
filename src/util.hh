@@ -860,5 +860,31 @@ public:
  */
 long get_time();
 
+/*
+ * util::stopwatch
+ *
+ * FIXME explain
+ */
+class stopwatch : private util::nocopy {
+private:
+    // (var) m_last_time
+    // The time measured when first constructed or at the last `lap' call.
+    long m_last_time;
+
+public:
+    // (default ctor)
+    // Constructs the object and begins timing.
+    stopwatch();
+
+    // (func) lap
+    // Returns the number of milliseconds since the last `lap' call on this
+    // object, or since the stopwatch was constructed if this is the first
+    // such call.
+    //
+    // This function may return zero if the global time from `get_time' has
+    // overflowed since the last call to `lap'.
+    long lap();
+};
+
 }
 }

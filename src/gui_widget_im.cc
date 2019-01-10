@@ -396,8 +396,9 @@ void widget_im::on_resize(int width, int height)
 }
 
 // declared in gui.hh
-int widget_im::update(int delta_ms)
+int widget_im::update()
 {
+    auto delta_ms = m_stopwatch.lap();
     m_pending_time += delta_ms;
     m_remaining_time -= delta_ms;
     if (m_remaining_time <= 0) {

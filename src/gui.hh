@@ -403,7 +403,7 @@ protected:
 
     // (func) update
     // FIXME explain
-    virtual int update(int delta_ms)
+    virtual int update()
     {
         return INT_MAX;
     }
@@ -834,6 +834,11 @@ private:
     // draw_gl(), but ImGui::NewFrame()...ImGui::Render() occurs in update().
     bool m_render_ready = false;
 
+    // (var) m_stopwatch
+    // A tool for measuring the time for each frame. ImGui uses the difference
+    // in time between each update for various purposes.
+    util::stopwatch m_stopwatch;
+
     // (func) draw_gl
     // FIXME explain
     void draw_gl(int width, int height, unsigned int rbo) final override;
@@ -872,7 +877,7 @@ private:
     // ImGui is designed for debugging games, and its design necessitates
     // calling imgui every "frame", which is not a concept present in this
     // gui code.
-    int update(int delta_ms) final override;
+    int update() final override;
 
 protected:
     // (pure func) frame
