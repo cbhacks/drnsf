@@ -111,6 +111,7 @@ add_executable (drnsf
     src/buildconfig.hh  # processed by configure_file below
 
     src/core.hh
+    src/core.cc
     src/core_main.cc
     src/core_argparser.cc
 

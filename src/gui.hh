@@ -35,6 +35,7 @@
 #include <unordered_set>
 #include <cairo.h>
 #include "../imgui/imgui.h"
+#include "core.hh"
 
 // Include system headers only for implementation code.
 #ifdef DRNSF_FRONTEND_IMPLEMENTATION
@@ -65,6 +66,10 @@ void init(int &argc, char **&argv);
  * gui::run
  *
  * Runs the main UI event loop. This function returns after gui::end is called.
+ *
+ * This function calls `core::update' whenever it finishes processing any GUI
+ * events. If you call this function from a `core::worker', that worker may be
+ * recursively called by this function.
  */
 void run();
 
@@ -400,13 +405,6 @@ protected:
     // flag may also be set externally, for example in response to ExposeEvent.
     virtual void on_draw() = 0;
 #endif
-
-    // (func) update
-    // FIXME explain
-    virtual int update()
-    {
-        return INT_MAX;
-    }
 
     // (explicit ctor)
     // Constructs the base widget data for use in the given parent.
@@ -803,7 +801,7 @@ public:
  *
  * FIXME explain
  */
-class widget_im : private widget_gl {
+class widget_im : private widget_gl, private core::worker {
 private:
     // (var) m_im
     // The ImGui context for this widget. Each `widget_im' instance has its own
@@ -872,12 +870,11 @@ private:
     // time to zero so that ImGui can be updated for the new size.
     void on_resize(int width, int height) final override;
 
-    // (func) update
-    // Implements `update' to handle updating ImGui on a regular interval.
-    // ImGui is designed for debugging games, and its design necessitates
-    // calling imgui every "frame", which is not a concept present in this
-    // gui code.
-    int update() final override;
+    // (func) work
+    // Implements `work' to handle updating ImGui on a regular interval. ImGui
+    // is designed for debugging games, and its design necessitates calling
+    // imgui every "frame", which is not a concept present in this gui code.
+    int work() noexcept final override;
 
 protected:
     // (pure func) frame

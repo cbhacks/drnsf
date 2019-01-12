@@ -28,7 +28,7 @@ namespace render {
 
 // (inner class) impl
 // Implementation class for viewport (PIMPL).
-class viewport::impl final : private gui::widget_gl {
+class viewport::impl final : private gui::widget_gl, private core::worker {
     friend class viewport;
 
 private:
@@ -88,7 +88,7 @@ private:
     void mousewheel(int delta_y) override;
     void mousebutton(int number, bool down) override;
     void key(gui::keycode code, bool down) override;
-    int update() override;
+    int work() noexcept override;
 
 public:
     // (explicit ctor)
@@ -293,11 +293,11 @@ void viewport::impl::mousebutton(int number, bool down)
 {
     switch (number) {
     case 1:
-        update();
+        work();
         m_mouse1_down = down;
         break;
     case 3:
-        update();
+        work();
         m_mouse2_down = down;
         break;
     }
@@ -308,48 +308,48 @@ void viewport::impl::key(gui::keycode code, bool down)
 {
     switch (code) {
     case gui::keycode::W:
-        update();
+        work();
         m_key_w_down = down;
         break;
     case gui::keycode::A:
-        update();
+        work();
         m_key_a_down = down;
         break;
     case gui::keycode::S:
-        update();
+        work();
         m_key_s_down = down;
         break;
     case gui::keycode::D:
-        update();
+        work();
         m_key_d_down = down;
         break;
     case gui::keycode::Q:
-        update();
+        work();
         m_key_q_down = down;
         break;
     case gui::keycode::E:
-        update();
+        work();
         m_key_e_down = down;
         break;
     case gui::keycode::up_arrow:
-        update();
+        work();
         m_key_uarrow_down = down;
         break;
     case gui::keycode::down_arrow:
-        update();
+        work();
         m_key_darrow_down = down;
         break;
     case gui::keycode::left_arrow:
-        update();
+        work();
         m_key_larrow_down = down;
         break;
     case gui::keycode::right_arrow:
-        update();
+        work();
         m_key_rarrow_down = down;
         break;
     case gui::keycode::l_shift:
     case gui::keycode::r_shift:
-        update();
+        work();
         m_key_shift_down = down;
         break;
     default:
@@ -359,7 +359,7 @@ void viewport::impl::key(gui::keycode code, bool down)
 }
 
 // declared above FIXME
-int viewport::impl::update()
+int viewport::impl::work() noexcept
 {
     auto delta_ms = m_stopwatch.lap();
     float vp_speed = 10000.0f;

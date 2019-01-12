@@ -144,7 +144,7 @@ void widget_im::draw_gl(int width, int height, unsigned int rbo)
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
     // Exit now after clearing if ImGui::Render has not been called yet. This
-    // happens in update().
+    // happens in work().
     if (!m_render_ready) {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
         return;
@@ -396,7 +396,7 @@ void widget_im::on_resize(int width, int height)
 }
 
 // declared in gui.hh
-int widget_im::update()
+int widget_im::work() noexcept
 {
     auto delta_ms = m_stopwatch.lap();
     m_pending_time += delta_ms;

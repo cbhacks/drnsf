@@ -247,17 +247,10 @@ void run()
             continue;
         }
 
-        // Update all of the widgets. This also produces the timeout for the
+        // Update all of the workers. This also produces the timeout for the
         // next loop iteration, based on the shortest time received from all
-        // of the widgets. Widgets will return INT_MAX if they have no interest
-        // in receiving periodic updates.
-        long min_delay = INT_MAX;
-        for (auto &&w : widget::s_all_widgets) {
-            int delay = w->update();
-            if (delay < min_delay) {
-                min_delay = delay;
-            }
-        }
+        // of the workers.
+        long min_delay = core::update();
         if (min_delay < LONG_MAX / 1000) {
             timeout.tv_usec = min_delay * 1000L;
         } else {
@@ -301,25 +294,10 @@ void run()
             had_nonpaint_message = true;
         }
 
-        // Update all of the widgets. This also produces the timeout for the
+        // Update all of the workers. This also produces the timeout for the
         // next loop iteration, based on the shortest time received from all
-        // of the widgets. Widgets will return INT_MAX if they have no interest
-        // in receiving periodic updates.
-        unsigned int timeout = 0;
-        long min_delay = INT_MAX;
-        for (auto &&w : widget::s_all_widgets) {
-            int delay = w->update();
-            if (delay < min_delay) {
-                min_delay = delay;
-            }
-        }
-        if (min_delay < INT_MAX) {
-            timeout = min_delay;
-        } else {
-            // If the shortest delay is extremely large (INT_MAX most
-            // likely), set an arbitrarily long delay.
-            timeout = 4000;
-        }
+        // of the workers.
+        unsigned int timeout = core::update();
 
         // Block pending new thread or window messages.
         MsgWaitForMultipleObjects(0, nullptr, false, timeout, QS_ALLEVENTS);
