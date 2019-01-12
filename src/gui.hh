@@ -129,18 +129,12 @@ enum class keycode : int {
     l_super = 0xFFEB,
     r_super = 0xFFEC,
 
-    // Add new characters as necessary.
     A = 'a',
-    C = 'c',
-    D = 'd',
-    E = 'e',
-    Q = 'q',
-    S = 's',
-    V = 'v',
-    W = 'w',
-    X = 'x',
-    Y = 'y',
-    Z = 'z'
+    B, C, D, E, F,
+    G, H, I, J, K,
+    L, M, N, O, P,
+    Q, R, S, T, U,
+    V, W, X, Y, Z
 #elif USE_WINAPI
     backspace = 0x08,
     tab       = 0x09,
@@ -170,18 +164,12 @@ enum class keycode : int {
     l_super = 0x5B,
     r_super = 0x5C,
 
-    // Add new characters as necessary.
     A = 'A',
-    C = 'C',
-    D = 'D',
-    E = 'E',
-    Q = 'Q',
-    S = 'S',
-    V = 'V',
-    W = 'W',
-    X = 'X',
-    Y = 'Y',
-    Z = 'Z'
+    B, C, D, E, F,
+    G, H, I, J, K,
+    L, M, N, O, P,
+    Q, R, S, T, U,
+    V, W, X, Y, Z
 #endif
 };
 
