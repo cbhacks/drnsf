@@ -280,16 +280,16 @@ void widget_im::mousewheel(int delta_y)
 }
 
 // declared in gui.hh
-void widget_im::mousebutton(int number, bool down)
+void widget_im::mousebutton(mousebtn btn, bool down)
 {
-    switch (number) {
-    case 1:
+    switch (btn) {
+    case mousebtn::left:
         m_io->MouseDown[0] = down;
         break;
-    case 2:
+    case mousebtn::middle:
         m_io->MouseDown[2] = down;
         break;
-    case 3:
+    case mousebtn::right:
         m_io->MouseDown[1] = down;
         break;
     }

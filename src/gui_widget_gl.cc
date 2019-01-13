@@ -132,19 +132,19 @@ widget_gl::widget_gl(container &parent, layout layout) :
         if (uMsg == WM_LBUTTONDOWN || uMsg == WM_LBUTTONUP) {
             if (uMsg == WM_LBUTTONDOWN)
                 SetFocus(hwnd);
-            wdg->mousebutton(1, uMsg == WM_LBUTTONDOWN);
+            wdg->mousebutton(mousebtn::left, uMsg == WM_LBUTTONDOWN);
             return 0;
         }
         if (uMsg == WM_RBUTTONDOWN || uMsg == WM_RBUTTONUP) {
             if (uMsg == WM_RBUTTONDOWN)
                 SetFocus(hwnd);
-            wdg->mousebutton(3, uMsg == WM_RBUTTONDOWN);
+            wdg->mousebutton(mousebtn::right, uMsg == WM_RBUTTONDOWN);
             return 0;
         }
         if (uMsg == WM_MBUTTONDOWN || uMsg == WM_MBUTTONUP) {
             if (uMsg == WM_MBUTTONDOWN)
                 SetFocus(hwnd);
-            wdg->mousebutton(2, uMsg == WM_MBUTTONDOWN);
+            wdg->mousebutton(mousebtn::middle, uMsg == WM_MBUTTONDOWN);
             return 0;
         }
         if (uMsg == WM_MOUSEMOVE) {

@@ -86,7 +86,7 @@ private:
     void draw_gl(int width, int height, unsigned int rbo) override;
     void mousemove(int x, int y) override;
     void mousewheel(int delta_y) override;
-    void mousebutton(int number, bool down) override;
+    void mousebutton(gui::mousebtn btn, bool down) override;
     void key(gui::keycode code, bool down) override;
     int work() noexcept override;
 
@@ -289,16 +289,19 @@ void viewport::impl::mousewheel(int delta_y)
 }
 
 // declared above FIXME
-void viewport::impl::mousebutton(int number, bool down)
+void viewport::impl::mousebutton(gui::mousebtn btn, bool down)
 {
-    switch (number) {
-    case 1:
+    switch (btn) {
+    case gui::mousebtn::left:
         work();
         m_mouse1_down = down;
         break;
-    case 3:
+    case gui::mousebtn::right:
         work();
         m_mouse2_down = down;
+        break;
+    default:
+        // Silence gcc warning for -Wswitch.
         break;
     }
 }

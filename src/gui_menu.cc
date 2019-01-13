@@ -105,9 +105,9 @@ void menu::mouseleave()
 }
 
 // declared in gui.hh
-void menu::mousebutton(int button, bool down)
+void menu::mousebutton(mousebtn btn, bool down)
 {
-    if (button != 1 || !down) return;
+    if (btn != mousebtn::left || !down) return;
     if (m_active_item) {
         close();
         m_active_item->on_activate();

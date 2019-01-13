@@ -174,6 +174,26 @@ enum class keycode : int {
 };
 
 /*
+ * gui::mousebtn
+ *
+ * Identifies a single mouse button. If the user has enabled left-handed mouse
+ * accessibility features on their system, left and right may be swapped. In
+ * either case, `left' should be considered a primary mouse button, and `right'
+ * should be considered a secondary mouse button.
+ */
+enum class mousebtn : int {
+#if USE_X11
+    left   = 1,
+    right  = 3,
+    middle = 2
+#elif USE_WINAPI
+    left   = 0,
+    right  = 1,
+    middle = 2
+#endif
+};
+
+/*
  * gui::layout
  *
  * FIXME explain
@@ -350,7 +370,7 @@ protected:
     // it will receive both a `mouseleave' call followed by a `mousemove' call.
     //
     // WINAPI: No grabbing occurs.
-    virtual void mousebutton(int number, bool down) {}
+    virtual void mousebutton(mousebtn btn, bool down) {}
 
     // (func) key
     // Called when a key is pressed or released while this widget has focus.
@@ -499,7 +519,7 @@ private:
     void mousemove(int x, int y) final override {}
     void mouseleave() final override {}
     void mousewheel(int delta_y) final override {}
-    void mousebutton(int number, bool down) final override {}
+    void mousebutton(mousebtn btn, bool down) final override {}
     void key(keycode code, bool down) final override {}
     void text(const char *str) final override {}
 
@@ -843,7 +863,7 @@ private:
 
     // (func) mousebutton
     // FIXME explain
-    void mousebutton(int number, bool down) final override;
+    void mousebutton(mousebtn btn, bool down) final override;
 
     // (func) key
     // FIXME explain
@@ -1058,7 +1078,7 @@ private:
 
     // (func) mousebutton
     // Implements mousebutton for clicking to activate menu items.
-    void mousebutton(int button, bool down) final override;
+    void mousebutton(mousebtn btn, bool down) final override;
 
 protected:
     // (pure func) close
@@ -1171,7 +1191,7 @@ private:
 
     // (func) mousebutton
     // Implements mouse click for clicking on menubar items.
-    void mousebutton(int button, bool down) final override;
+    void mousebutton(mousebtn btn, bool down) final override;
 
 public:
     // (explicit ctor)

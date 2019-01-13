@@ -147,7 +147,7 @@ void run()
                             wdg->mousewheel(-1);
                         } else {
                             wdg->mousebutton(
-                                ev.xbutton.button,
+                                mousebtn(ev.xbutton.button),
                                 ev.type == ButtonPress
                             );
                         }
