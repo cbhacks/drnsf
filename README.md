@@ -98,5 +98,6 @@ In that case, you can add `-DPYTHON_EXECUTABLE="$(which python3)"` to
 the cmake command, or use ccmake or cmake-gui to set `PYTHON_EXECUTABLE`
 to the path to your Python 3 executable.
 
+## Installing ##
 At this time, DRNSF is not intended to be installed to any system
 directories.
