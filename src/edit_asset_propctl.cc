@@ -124,7 +124,7 @@ public:
     void frame()
     {
         prop_handler<AssetType, PropNum - 1>::frame();
-        ImGui::Text(prop_info::name);
+        ImGui::TextUnformatted(prop_info::name);
         ImGui::NextColumn();
         ImGui::PushID(&(m_asset->*prop_info::ptr));
         m_field.frame();

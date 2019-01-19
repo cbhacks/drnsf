@@ -314,7 +314,7 @@ public:
             // Display the value without any editing capability.
 
             using std::to_string;
-            ImGui::Text(to_string(obj).c_str());
+            ImGui::TextUnformatted(to_string(obj).c_str());
         } else if (max - min <= 255) {
             // If the range has 256 or less values (i.e. signed/unsigned byte)
             // then use a slider input.
@@ -380,7 +380,7 @@ public:
             }
         } else {
             using std::to_string;
-            ImGui::Text(to_string(obj).c_str());
+            ImGui::TextUnformatted(to_string(obj).c_str());
         }
     }
 
@@ -423,7 +423,7 @@ public:
         }
         auto &obj = *m_object;
 
-        ImGui::Text(to_string(obj).c_str());
+        ImGui::TextUnformatted(to_string(obj).c_str());
     }
 
     // (event) on_change
@@ -589,7 +589,7 @@ public:
         }
         auto &obj = *m_object;
 
-        ImGui::Text("List of $"_fmt(obj.size()).c_str());
+        ImGui::TextUnformatted("List of $"_fmt(obj.size()).c_str());
 
         // On the next row, display inputs for seeking through the list.
         if (!obj.empty()) {
@@ -684,7 +684,7 @@ public:
         // Display the inner field and zero-based index on the next row.
         ImGui::NextColumn();
         ImGui::Indent();
-        ImGui::Text("[$]"_fmt(m_index).c_str());
+        ImGui::TextUnformatted("[$]"_fmt(m_index).c_str());
         ImGui::NextColumn();
         ImGui::PushID(m_index);
         m_elem_field.frame();
@@ -961,7 +961,7 @@ public:
 
         for (int i = 0; i < 3; i++) {
             const char *labels[] = { "Red", "Green", "Blue" };
-            ImGui::Text(labels[i]);
+            ImGui::TextUnformatted(labels[i]);
             ImGui::NextColumn();
             ImGui::PushID(i);
             ImGui::PushStyleColor(ImGuiCol_Text, im_color_fg1);
@@ -1159,7 +1159,7 @@ public:
             "Corner C"
         };
         for (int i = 0; i < 3; i++) {
-            ImGui::Text(corner_labels[i]);
+            ImGui::TextUnformatted(corner_labels[i]);
             ImGui::NextColumn();
             ImGui::PushID(i);
             m_corner_fields[i].frame();
@@ -1278,7 +1278,7 @@ public:
             "Corner D"
         };
         for (int i = 0; i < 4; i++) {
-            ImGui::Text(corner_labels[i]);
+            ImGui::TextUnformatted(corner_labels[i]);
             ImGui::NextColumn();
             ImGui::PushID(i);
             m_corner_fields[i].frame();
