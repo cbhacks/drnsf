@@ -20,6 +20,7 @@
 
 #include "common.hh"
 #include <sstream>
+#include <chrono>
 #include "util.hh"
 
 #if _WIN32
@@ -116,6 +117,14 @@ std::string wstr_to_u8str(std::wstring wstr)
     return u8str;
 }
 #endif
+
+// declared in util.hh
+long get_time()
+{
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now().time_since_epoch()
+    ).count();
+}
 
 }
 }

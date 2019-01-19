@@ -136,9 +136,17 @@ void popup::show_at(int x, int y)
 #if USE_X11
     XMoveWindow(g_display, m_handle, x, y);
     XMapWindow(g_display, m_handle);
+    XRaiseWindow(g_display, m_handle);
 #elif USE_WINAPI
-    MoveWindow(HWND(m_handle), x, y, m_width, m_height, false);
-    ShowWindow(HWND(m_handle), SW_SHOW);
+    SetWindowPos(
+        HWND(m_handle),
+        HWND_TOPMOST,
+        x,
+        y,
+        m_width,
+        m_height,
+        SWP_SHOWWINDOW
+    );
 #else
 #error Unimplemented UI frontend code.
 #endif

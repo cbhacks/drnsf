@@ -118,10 +118,15 @@ void run()
         }
 
         if (FD_ISSET(connfd, &readfds)) {
-            int evcount = XPending(g_display);
-            while (evcount--) {
+            // Get the number of pending X events. In the case of reentrancy,
+            // the reentrant `gui::run' call will drain the evcount value to
+            // zero for us.
+            static int evcount;
+            evcount = XPending(g_display);
+            while (evcount > 0) {
                 XEvent ev;
                 XNextEvent(g_display, &ev);
+                evcount--;
 
                 XPointer ptr;
                 if (XFindContext(g_display, ev.xany.window, g_ctx_ptr, &ptr)) {
@@ -142,7 +147,7 @@ void run()
                             wdg->mousewheel(-1);
                         } else {
                             wdg->mousebutton(
-                                ev.xbutton.button,
+                                mousebtn(ev.xbutton.button),
                                 ev.type == ButtonPress
                             );
                         }
@@ -242,36 +247,17 @@ void run()
             continue;
         }
 
-        // Get the current time.
-        timespec tp;
-        if (clock_gettime(CLOCK_MONOTONIC, &tp) == -1) {
-            throw std::runtime_error("gui::run: failed to get time");
-        }
-
-        // Update all of the widgets. This also produces the timeout for the
+        // Update all of the workers. This also produces the timeout for the
         // next loop iteration, based on the shortest time received from all
-        // of the widgets. Widgets will return INT_MAX if they have no interest
-        // in receiving periodic updates.
-        static long last_update = LONG_MAX;
-        long current_time = tp.tv_nsec / 1000000;
-        if (current_time > last_update) {
-            int delta_time = current_time - last_update;
-            long min_delay = INT_MAX;
-            for (auto &&w : widget::s_all_widgets) {
-                int delay = w->update(delta_time);
-                if (delay < min_delay) {
-                    min_delay = delay;
-                }
-            }
-            if (min_delay < LONG_MAX / 1000) {
-                timeout.tv_usec = min_delay * 1000L;
-            } else {
-                // If the shortest delay is extremely large (INT_MAX most
-                // likely), set an arbitrarily long delay.
-                timeout.tv_sec = 4;
-            }
+        // of the workers.
+        long min_delay = core::update();
+        if (min_delay < LONG_MAX / 1000) {
+            timeout.tv_usec = min_delay * 1000L;
+        } else {
+            // If the shortest delay is extremely large (INT_MAX most
+            // likely), set an arbitrarily long delay.
+            timeout.tv_sec = 4;
         }
-        last_update = current_time;
 
         // Draw all of the widgets which need to be redrawn.
         for (auto &&w : widget::s_all_widgets) {
@@ -308,36 +294,10 @@ void run()
             had_nonpaint_message = true;
         }
 
-        // Update all of the widgets. This also produces the timeout for the
+        // Update all of the workers. This also produces the timeout for the
         // next loop iteration, based on the shortest time received from all
-        // of the widgets. Widgets will return INT_MAX if they have no interest
-        // in receiving periodic updates.
-        //
-        // GetTickCount is used over GetTickCount64 or QPC for compatibility
-        // with older hardware and pre-Vista versions of Windows. GetTickCount
-        // suffers from wraparound at 49 days, however the code will recover
-        // from this event with a slight hitch at the moment where it occurs.
-        static long last_update = LONG_MAX;
-        long current_time = GetTickCount();
-        unsigned int timeout = 0;
-        if (current_time > last_update) {
-            int delta_time = current_time - last_update;
-            long min_delay = INT_MAX;
-            for (auto &&w : widget::s_all_widgets) {
-                int delay = w->update(delta_time);
-                if (delay < min_delay) {
-                    min_delay = delay;
-                }
-            }
-            if (min_delay < INT_MAX) {
-                timeout = min_delay;
-            } else {
-                // If the shortest delay is extremely large (INT_MAX most
-                // likely), set an arbitrarily long delay.
-                timeout = 4000;
-            }
-        }
-        last_update = current_time;
+        // of the workers.
+        unsigned int timeout = core::update();
 
         // Block pending new thread or window messages.
         MsgWaitForMultipleObjects(0, nullptr, false, timeout, QS_ALLEVENTS);

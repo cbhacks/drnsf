@@ -35,7 +35,7 @@
 #include <unordered_set>
 #include <cairo.h>
 #include "../imgui/imgui.h"
-#include "gl.hh"
+#include "core.hh"
 
 // Include system headers only for implementation code.
 #ifdef DRNSF_FRONTEND_IMPLEMENTATION
@@ -66,6 +66,10 @@ void init(int &argc, char **&argv);
  * gui::run
  *
  * Runs the main UI event loop. This function returns after gui::end is called.
+ *
+ * This function calls `core::update' whenever it finishes processing any GUI
+ * events. If you call this function from a `core::worker', that worker may be
+ * recursively called by this function.
  */
 void run();
 
@@ -125,18 +129,12 @@ enum class keycode : int {
     l_super = 0xFFEB,
     r_super = 0xFFEC,
 
-    // Add new characters as necessary.
     A = 'a',
-    C = 'c',
-    D = 'd',
-    E = 'e',
-    Q = 'q',
-    S = 's',
-    V = 'v',
-    W = 'w',
-    X = 'x',
-    Y = 'y',
-    Z = 'z'
+    B, C, D, E, F,
+    G, H, I, J, K,
+    L, M, N, O, P,
+    Q, R, S, T, U,
+    V, W, X, Y, Z
 #elif USE_WINAPI
     backspace = 0x08,
     tab       = 0x09,
@@ -166,18 +164,32 @@ enum class keycode : int {
     l_super = 0x5B,
     r_super = 0x5C,
 
-    // Add new characters as necessary.
     A = 'A',
-    C = 'C',
-    D = 'D',
-    E = 'E',
-    Q = 'Q',
-    S = 'S',
-    V = 'V',
-    W = 'W',
-    X = 'X',
-    Y = 'Y',
-    Z = 'Z'
+    B, C, D, E, F,
+    G, H, I, J, K,
+    L, M, N, O, P,
+    Q, R, S, T, U,
+    V, W, X, Y, Z
+#endif
+};
+
+/*
+ * gui::mousebtn
+ *
+ * Identifies a single mouse button. If the user has enabled left-handed mouse
+ * accessibility features on their system, left and right may be swapped. In
+ * either case, `left' should be considered a primary mouse button, and `right'
+ * should be considered a secondary mouse button.
+ */
+enum class mousebtn : int {
+#if USE_X11
+    left   = 1,
+    right  = 3,
+    middle = 2
+#elif USE_WINAPI
+    left   = 0,
+    right  = 1,
+    middle = 2
 #endif
 };
 
@@ -358,7 +370,7 @@ protected:
     // it will receive both a `mouseleave' call followed by a `mousemove' call.
     //
     // WINAPI: No grabbing occurs.
-    virtual void mousebutton(int number, bool down) {}
+    virtual void mousebutton(mousebtn btn, bool down) {}
 
     // (func) key
     // Called when a key is pressed or released while this widget has focus.
@@ -401,13 +413,6 @@ protected:
     // flag may also be set externally, for example in response to ExposeEvent.
     virtual void on_draw() = 0;
 #endif
-
-    // (func) update
-    // FIXME explain
-    virtual int update(int delta_ms)
-    {
-        return INT_MAX;
-    }
 
     // (explicit ctor)
     // Constructs the base widget data for use in the given parent.
@@ -514,7 +519,7 @@ private:
     void mousemove(int x, int y) final override {}
     void mouseleave() final override {}
     void mousewheel(int delta_y) final override {}
-    void mousebutton(int number, bool down) final override {}
+    void mousebutton(mousebtn btn, bool down) final override {}
     void key(keycode code, bool down) final override {}
     void text(const char *str) final override {}
 
@@ -638,6 +643,11 @@ public:
  *
  * This kind of window is useful for implementing dropdowns, tooltips, menus,
  * etc.
+ *
+ * X11: This is a top-level window with override_redirect enabled.
+ *
+ * WINAPI: This is a top-level window with WS_POPUP set and placed in the
+ * topmost z-order (the window is "always on top").
  */
 class popup : public container {
     friend void run();
@@ -658,7 +668,8 @@ private:
 
 public:
     // (explicit ctor)
-    // FIXME explain
+    // Constructs the popup with the specified width and height. It is not
+    // initially visible.
     explicit popup(int width, int height);
 
     // (dtor)
@@ -667,9 +678,11 @@ public:
 
     // (func) show_at
     // Makes the popup visible at the specified location in screen coordinates.
-    // If the popup is already visible, it is moved to the location.
+    // If the popup is already visible, it is moved to the location. The popup
+    // is shifted to the front of the user's view (top of z-order relative to
+    // its sibling top-level windows) if possible.
     //
-    // The location specified matches the top-left of the popup.
+    // The location specified matches the top-left corner of the popup.
     void show_at(int x, int y);
 
     // (func) hide
@@ -682,7 +695,7 @@ public:
     void set_size(int width, int height);
 
     // (func) get_container_handle
-    // FIXME explain
+    // Implements gui::container::get_container_handle.
     sys_handle get_container_handle() override;
 
     // (func) get_child_area
@@ -720,7 +733,7 @@ protected:
     // All global GL state will be default when this function is called. When
     // overriding it, you must ensure you return in such a state as well, or
     // this guarantee will not be met for widgets drawn afterwards.
-    virtual void draw_gl(int width, int height, gl::renderbuffer &rbo) = 0;
+    virtual void draw_gl(int width, int height, unsigned int rbo) = 0;
 
     // (func) invalidate
     // Marks the current rendered output of this widget as out-of-date or stale
@@ -796,7 +809,7 @@ public:
  *
  * FIXME explain
  */
-class widget_im : private widget_gl {
+class widget_im : private widget_gl, private core::worker {
 private:
     // (var) m_im
     // The ImGui context for this widget. Each `widget_im' instance has its own
@@ -827,9 +840,14 @@ private:
     // draw_gl(), but ImGui::NewFrame()...ImGui::Render() occurs in update().
     bool m_render_ready = false;
 
+    // (var) m_stopwatch
+    // A tool for measuring the time for each frame. ImGui uses the difference
+    // in time between each update for various purposes.
+    util::stopwatch m_stopwatch;
+
     // (func) draw_gl
     // FIXME explain
-    void draw_gl(int width, int height, gl::renderbuffer &rbo) final override;
+    void draw_gl(int width, int height, unsigned int rbo) final override;
 
     // (func) mousemove
     // FIXME explain
@@ -845,7 +863,7 @@ private:
 
     // (func) mousebutton
     // FIXME explain
-    void mousebutton(int number, bool down) final override;
+    void mousebutton(mousebtn btn, bool down) final override;
 
     // (func) key
     // FIXME explain
@@ -860,12 +878,11 @@ private:
     // time to zero so that ImGui can be updated for the new size.
     void on_resize(int width, int height) final override;
 
-    // (func) update
-    // Implements `update' to handle updating ImGui on a regular interval.
-    // ImGui is designed for debugging games, and its design necessitates
-    // calling imgui every "frame", which is not a concept present in this
-    // gui code.
-    int update(int delta_ms) final override;
+    // (func) work
+    // Implements `work' to handle updating ImGui on a regular interval. ImGui
+    // is designed for debugging games, and its design necessitates calling
+    // imgui every "frame", which is not a concept present in this gui code.
+    int work() noexcept final override;
 
 protected:
     // (pure func) frame
@@ -1061,7 +1078,7 @@ private:
 
     // (func) mousebutton
     // Implements mousebutton for clicking to activate menu items.
-    void mousebutton(int button, bool down) final override;
+    void mousebutton(mousebtn btn, bool down) final override;
 
 protected:
     // (pure func) close
@@ -1174,7 +1191,7 @@ private:
 
     // (func) mousebutton
     // Implements mouse click for clicking on menubar items.
-    void mousebutton(int button, bool down) final override;
+    void mousebutton(mousebtn btn, bool down) final override;
 
 public:
     // (explicit ctor)

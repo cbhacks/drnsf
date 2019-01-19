@@ -21,13 +21,14 @@
 #include "common.hh"
 #include <glm/gtc/matrix_transform.hpp>
 #include "render.hh"
+#include "gl.hh"
 
 namespace drnsf {
 namespace render {
 
 // (inner class) impl
 // Implementation class for viewport (PIMPL).
-class viewport::impl final : private gui::widget_gl {
+class viewport::impl final : private gui::widget_gl, private core::worker {
     friend class viewport;
 
 private:
@@ -76,13 +77,18 @@ private:
     bool m_key_larrow_down = false;
     bool m_key_rarrow_down = false;
 
+    // (var) m_stopwatch
+    // A tool for measuring time for changes which apply over time, such as
+    // WASDQE camera movement inputs.
+    util::stopwatch m_stopwatch;
+
     // FIXME non-pimpl later on
-    void draw_gl(int width, int height, gl::renderbuffer &rbo) override;
+    void draw_gl(int width, int height, unsigned int rbo) override;
     void mousemove(int x, int y) override;
     void mousewheel(int delta_y) override;
-    void mousebutton(int number, bool down) override;
+    void mousebutton(gui::mousebtn btn, bool down) override;
     void key(gui::keycode code, bool down) override;
-    int update(int delta_ms) override;
+    int work() noexcept override;
 
 public:
     // (explicit ctor)
@@ -109,7 +115,7 @@ viewport::~viewport()
 }
 
 // declared above FIXME
-void viewport::impl::draw_gl(int width, int height, gl::renderbuffer &rbo)
+void viewport::impl::draw_gl(int width, int height, unsigned int rbo)
 {
     // Prepare a depth buffer.
     gl::renderbuffer depth_rbo;
@@ -283,14 +289,19 @@ void viewport::impl::mousewheel(int delta_y)
 }
 
 // declared above FIXME
-void viewport::impl::mousebutton(int number, bool down)
+void viewport::impl::mousebutton(gui::mousebtn btn, bool down)
 {
-    switch (number) {
-    case 1:
+    switch (btn) {
+    case gui::mousebtn::left:
+        work();
         m_mouse1_down = down;
         break;
-    case 3:
+    case gui::mousebtn::right:
+        work();
         m_mouse2_down = down;
+        break;
+    default:
+        // Silence gcc warning for -Wswitch.
         break;
     }
 }
@@ -300,37 +311,48 @@ void viewport::impl::key(gui::keycode code, bool down)
 {
     switch (code) {
     case gui::keycode::W:
+        work();
         m_key_w_down = down;
         break;
     case gui::keycode::A:
+        work();
         m_key_a_down = down;
         break;
     case gui::keycode::S:
+        work();
         m_key_s_down = down;
         break;
     case gui::keycode::D:
+        work();
         m_key_d_down = down;
         break;
     case gui::keycode::Q:
+        work();
         m_key_q_down = down;
         break;
     case gui::keycode::E:
+        work();
         m_key_e_down = down;
         break;
     case gui::keycode::up_arrow:
+        work();
         m_key_uarrow_down = down;
         break;
     case gui::keycode::down_arrow:
+        work();
         m_key_darrow_down = down;
         break;
     case gui::keycode::left_arrow:
+        work();
         m_key_larrow_down = down;
         break;
     case gui::keycode::right_arrow:
+        work();
         m_key_rarrow_down = down;
         break;
     case gui::keycode::l_shift:
     case gui::keycode::r_shift:
+        work();
         m_key_shift_down = down;
         break;
     default:
@@ -340,8 +362,9 @@ void viewport::impl::key(gui::keycode code, bool down)
 }
 
 // declared above FIXME
-int viewport::impl::update(int delta_ms)
+int viewport::impl::work() noexcept
 {
+    auto delta_ms = m_stopwatch.lap();
     float vp_speed = 10000.0f;
 
     // Apply fast-movement speed if the appropriate key is held.

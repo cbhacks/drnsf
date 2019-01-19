@@ -271,6 +271,89 @@ struct cmdenv {
 };
 
 /*
+ * core::is_main_thread
+ *
+ * Returns true if this thread is the first one to have called this function.
+ * Returns false otherwise. This is used for internal error checking in code
+ * which must be executed only on the "main" thread.
+ */
+bool is_main_thread() noexcept;
+
+/*
+ * core::worker
+ *
+ * FIXME explain
+ */
+class worker : private util::nocopy {
+    friend int update() noexcept;
+
+private:
+    // (s-var) m_head, m_tail
+    // Pointers to the first and last workers in the worker list, respectively.
+    static worker *s_head;
+    static worker *s_tail;
+
+    // (var) m_next, m_prev
+    // Links to the next and previous worker in the worker list.
+    worker *m_next;
+    worker *m_prev;
+
+protected:
+    // (default ctor)
+    // Constructs the worker and places it into the worker list. A worker may be
+    // be constructed during a call to `core::update'; in this case the update
+    // call becomes "abandoned" (see `core::update' for details).
+    //
+    // This should only be called on the main thread.
+    worker() noexcept;
+
+    // (dtor)
+    // Destroys the worker and removes it from the worker list. A worker may be
+    // destroyed during a call to `core::update'; in this case the update call
+    // becomes "abandoned" (see `core::update' for details).
+    //
+    // This should only be called on the main thread.
+    ~worker() noexcept;
+
+    // (pure func) work
+    // This function is called by `core::update' to allow the worker to perform
+    // some work. This function is always called on the main thread. If this
+    // function recurses into `core::update', it should be written such that
+    // `core::update' can safely recurse into it again. This includes calling
+    // other functions which may call `core::update', such as `gui::run'. Some
+    // Windows API functions run a modal window message loop; these may also
+    // call `core::update'.
+    //
+    // The return value is the maximum time (in milliseconds) that the main
+    // thread should block waiting for events (e.g. GUI events, signals, etc)
+    // before calling the workers again.
+    virtual int work() noexcept = 0;
+};
+
+/*
+ * core::update
+ *
+ * Calls the `work' method on all existing worker objects and cleans up nodes
+ * left behind by previously destroyed workers. The return value is the minimum
+ * of the values returned by each work method; this signifies the maximum time
+ * (in milliseconds) until the main thread should wake itself up to call update
+ * again if not woken by another event (e.g. GUI messages, signals, etc). This
+ * function may return zero, in which case the caller should NOT block to wait
+ * for events for any period of time.
+ *
+ * This function should only be called by the main thread. This function is
+ * designed to be called recursively in the case that a `worker::work' method
+ * recurses into `update'.
+ *
+ * Abandonment: During execution of this function, the function call may become
+ * "abandoned". This occurs if another update call is made recursively or if the
+ * worker list is modified. When control returns to the update function from the
+ * worker which caused it to become abandoned, it returns zero immediately. This
+ * signifies that `update' should be called again after processing other events.
+ */
+int update() noexcept;
+
+/*
  * core::main
  *
  * FIXME explain

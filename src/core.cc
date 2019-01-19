@@ -20,130 +20,91 @@
 
 #include "common.hh"
 #include "core.hh"
-#include <iostream>
-#include "gl.hh"
+#include <thread>
 
 namespace drnsf {
 namespace core {
 
-extern int cmd_help(cmdenv e);
-extern int cmd_version(cmdenv e);
-extern int cmd_gui(cmdenv e);
-extern int cmd_internal_test(cmdenv e);
-extern int cmd_resave_test_crash2(cmdenv e);
-extern int cmd_cdxa_imprint(cmdenv e);
-extern int cmd_dump_gl(cmdenv e);
-
-// (s-func) cmd_default
-// The default subcommand. A pointer to this function is treated differently
-// from a pointer to `cmd_gui' by the command line parser in `main'.
-static int cmd_default(cmdenv e)
-{
-    return cmd_gui(std::move(e));
-}
-
-// (s-var) g_cmds
-// The set of available program subcommands by name.
-extern const std::map<std::string, int (*)(cmdenv)> g_cmds = {
-    { "help", cmd_help },
-    { "version", cmd_version },
-    { "gui", cmd_gui },
-    { "internal-test", cmd_internal_test },
-    { "resave-test-crash2", cmd_resave_test_crash2 },
-    { "cdxa-imprint", cmd_cdxa_imprint },
-    { "dump-gl", cmd_dump_gl }
-};
+// (s-var) s_abandon
+// True if `core::update' should be abandoned, false otherwise.
+bool s_abandon;
 
 // declared in core.hh
-int main(cmdenv e)
+bool is_main_thread() noexcept
 {
-    bool ok = true;
-    int (*cmd)(cmdenv) = cmd_default;
+    static std::thread::id main_thread_id;
+    static std::once_flag flag;
+    std::call_once(flag, [] {
+        main_thread_id = std::this_thread::get_id();
+    });
+    return std::this_thread::get_id() == main_thread_id;
+}
 
-    argparser o;
-    o.add_opt('h', [&]{ cmd = cmd_help; });
-    o.add_opt('v', [&]{ if (cmd == cmd_default) cmd = cmd_version; });
-    o.alias_opt("help", 'h');
-    o.alias_opt("version", 'v');
+// declared in core.hh
+worker *worker::s_head = nullptr;
+worker *worker::s_tail = nullptr;
 
-    argv_t main_argv;
-
-    // Find the subcommand argument (if present). This begins with a colon
-    // character.
-    auto subcmd_it = std::find_if(
-        e.argv.begin(),
-        e.argv.end(),
-        [](const std::string &s) -> bool {
-            return s.size() >= 2 && s[0] == ':';
-        }
-    );
-
-    // Separate the global program arguments from the subcommand ones.
-    if (subcmd_it != e.argv.end()) {
-        main_argv = {e.argv.begin(), subcmd_it};
-        e.argv.erase(e.argv.begin(), subcmd_it);
+// declared in core.hh
+worker::worker() noexcept
+{
+    if (s_tail) {
+        m_prev = s_tail;
+        m_prev->m_next = this;
+        m_next = nullptr;
+        s_tail = this;
     } else {
-        main_argv = std::move(e.argv);
-        e.argv.clear();
+        m_prev = nullptr;
+        s_head = this;
+        m_next = nullptr;
+        s_tail = this;
+    }
+    s_abandon = true;
+}
+
+// declared in core.hh
+worker::~worker() noexcept
+{
+    if (m_next) {
+        m_next->m_prev = m_prev;
+    } else {
+        s_tail = m_prev;
+    }
+    if (m_prev) {
+        m_prev->m_next = m_next;
+    } else {
+        s_head = m_next;
+    }
+    s_abandon = true;
+}
+
+// declared in core.hh
+int update() noexcept
+{
+    if (!is_main_thread()) {
+        // TODO - log error
+        return INT_MAX;
     }
 
-    // Parse the global program arguments.
-    try {
-        o.begin(main_argv);
-        o.end();
-    } catch (arg_error ex) {
-        std::cerr << "drnsf: " << ex.what() << std::endl;
-        ok = false;
-    }
+    s_abandon = false;
+    DRNSF_ON_EXIT { s_abandon = true; };
 
-    // If there was a subcommand, it is the first element in the remaining argv
-    // structure.
-    std::string cmdname = "gui";
-    if (!e.argv.empty()) {
-        cmdname = std::move(e.argv.front());
-        e.argv.pop_front();
+    // Run each of the available workers.
+    int min_time = INT_MAX;
+    for (auto it = worker::s_head; it; it = it->m_next) {
+        int time = it->work();
 
-        // Trim the leading colon character.
-        cmdname.erase(0, 1);
+        // If s_abandon was set during the `work' call (i.e. from a worker being
+        // created or destroyed, or by a recursive update call), abandon this
+        // update and return a 0ms timeout.
+        if (s_abandon) {
+            return 0;
+        }
 
-        // Find and use the specified subcommand.
-        try {
-            // If the previously selected command was "help", i.e. because the
-            // user specified "-h" or "--help", request help information for
-            // the selected subcommand.
-            if (cmd == cmd_help) {
-                e.help_requested = true;
-            }
-
-            cmd = g_cmds.at(cmdname);
-        } catch (std::out_of_range) {
-            ok = false;
-            std::cerr
-                << "drnsf: Unknown subcommand: `"
-                << cmdname
-                << "'."
-                << std::endl;
+        if (time < min_time) {
+            min_time = time;
         }
     }
-
-    if (!ok) {
-        std::cerr << "\nTry: drnsf --help" << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    // Execute the subcommand.
-    try {
-        return cmd(std::move(e));
-    } catch (arg_error ex) {
-        std::cerr << "drnsf " << cmdname << ": " << ex.what() << std::endl;
-        std::cerr << "\nTry: drnsf :help " << cmdname << std::endl;
-        return EXIT_FAILURE;
-    } catch (gl::error &ex) {
-        ex.dump(std::cerr);
-        std::cerr << "drnsf " << cmdname << ": " << ex.what() << std::endl;
-        std::cerr << "\nAn error occurred related to OpenGL." << std::endl;
-        return EXIT_FAILURE;
-    }
+    return min_time;
 }
 
 }

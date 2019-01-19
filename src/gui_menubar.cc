@@ -108,9 +108,9 @@ void menubar::mouseleave()
 }
 
 // declared in gui.hh
-void menubar::mousebutton(int button, bool down)
+void menubar::mousebutton(mousebtn btn, bool down)
 {
-    if (button != 1 || !down) return;
+    if (btn != mousebtn::left || !down) return;
     if (m_hover_item && !m_open_item) {
         m_open_item = m_hover_item;
         int scr_x, scr_y;

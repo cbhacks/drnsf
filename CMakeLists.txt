@@ -112,6 +112,7 @@ add_executable (drnsf
 
     src/core.hh
     src/core.cc
+    src/core_main.cc
     src/core_argparser.cc
 
     src/cmd_help.cc
@@ -127,6 +128,7 @@ add_executable (drnsf
     src/util_binreader.cc
     src/util_binwriter.cc
     src/util_file.cc
+    src/util_stopwatch.cc
 
     src/fs.hh
 

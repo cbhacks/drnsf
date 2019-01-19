@@ -24,10 +24,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "../imgui/imgui.h"
 #include "gui.hh"
-
-#if USE_GTK3
-#include <gtk/gtk.h>
-#endif
+#include "gl.hh"
 
 // FIXME temporary hack for edit::im_canvas
 #include "edit.hh"
@@ -48,7 +45,7 @@ static gl::buffer s_vbo;
 static gl::program s_prog;
 
 // declared in gui.hh
-void widget_im::draw_gl(int width, int height, gl::renderbuffer &rbo)
+void widget_im::draw_gl(int width, int height, unsigned int rbo)
 {
     if (!s_font_tex.ok) {
         glBindTexture(GL_TEXTURE_2D, s_font_tex);
@@ -147,7 +144,7 @@ void widget_im::draw_gl(int width, int height, gl::renderbuffer &rbo)
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
     // Exit now after clearing if ImGui::Render has not been called yet. This
-    // happens in update().
+    // happens in work().
     if (!m_render_ready) {
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
         return;
@@ -283,16 +280,16 @@ void widget_im::mousewheel(int delta_y)
 }
 
 // declared in gui.hh
-void widget_im::mousebutton(int number, bool down)
+void widget_im::mousebutton(mousebtn btn, bool down)
 {
-    switch (number) {
-    case 1:
+    switch (btn) {
+    case mousebtn::left:
         m_io->MouseDown[0] = down;
         break;
-    case 2:
+    case mousebtn::middle:
         m_io->MouseDown[2] = down;
         break;
-    case 3:
+    case mousebtn::right:
         m_io->MouseDown[1] = down;
         break;
     }
@@ -399,8 +396,9 @@ void widget_im::on_resize(int width, int height)
 }
 
 // declared in gui.hh
-int widget_im::update(int delta_ms)
+int widget_im::work() noexcept
 {
+    auto delta_ms = m_stopwatch.lap();
     m_pending_time += delta_ms;
     m_remaining_time -= delta_ms;
     if (m_remaining_time <= 0) {
