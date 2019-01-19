@@ -200,6 +200,7 @@ public:
         }
 
         ImGui::Columns(2);
+        ImGui::SetColumnOffset(1, (ImGui::CalcTextSize("F").x + 1) * 24);
         m_top_prop_handler.frame();
         ImGui::Columns(1);
     }
