@@ -395,10 +395,18 @@ void widget_im::on_resize(int width, int height)
 // declared in gui.hh
 int widget_im::work() noexcept
 {
+    // Prevent recursion.
+    if (m_busy) return INT_MAX;
+    m_busy = true;
+    DRNSF_ON_EXIT { m_busy = false; };
+
     auto delta_ms = m_stopwatch.lap();
     m_pending_time += delta_ms;
     m_remaining_time -= delta_ms;
     if (m_remaining_time <= 0) {
+        // Don't allow rendering recursively while running the frame.
+        m_render_ready = false;
+
         int width, height;
         get_real_size(width, height);
 
