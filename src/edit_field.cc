@@ -202,15 +202,24 @@ void field<util::blob>::frame()
                 break;
             }
 
-            ImGui::SetCursorPos({
-                glyph_size.x * (4 + col * 2.5f) + row_heading_space,
-                glyph_size.y * row
-            });
+            float x1 = glyph_size.x * (4 + col * 2.5f) + row_heading_space;
+            float y1 = glyph_size.y * row;
+            float x2 = x1 + glyph_size.x * 2.0f;
+            float y2 = y1 + glyph_size.y;
+
+            ImGui::SetCursorPos({ x1, y1 });
 
             if (i == m_selected_byte) {
+                // Draw the selected byte with inverted colors.
                 ImGui::PushStyleColor(ImGuiCol_Text, {
-                    0.7f, 0.0f, 0.0f, 1.0f
+                    1.0f, 1.0f, 1.0f, 1.0f
                 });
+                auto base_pos = ImGui::GetWindowPos();
+                ImGui::GetWindowDrawList()->AddRectFilled(
+                    { base_pos.x + x1, base_pos.y + y1 },
+                    { base_pos.x + x2, base_pos.y + y2 },
+                    ImGui::GetColorU32({ 0.6f, 0.6f, 0.6f, 1.0f })
+                );
                 if (m_input_len) {
                     ImGui::Text("%01X_", m_input_value & 0xF);
                 } else {
