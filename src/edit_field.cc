@@ -35,6 +35,39 @@ void field<util::blob>::frame()
     // Important: Do not raise on_change if no blob is bound (m_object is
     // null).
 
+    // Import / export buttons.
+    if (ImGui::Button("Import") && m_object) {
+        gui::file_dialog dlg;
+        if (dlg.run_open()) {
+            util::file f;
+            f.open(dlg.get_filename(), "rb");
+
+            f.seek(0, SEEK_END);
+            auto size = f.tell();
+            f.seek(0, SEEK_SET);
+
+            util::blob data(size);
+            f.read(data.data(), data.size());
+            f.close();
+
+            on_change(std::move(data));
+        }
+
+        // TODO - handle errors
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Export") && m_object) {
+        gui::file_dialog dlg;
+        if (dlg.run_save()) {
+            util::file f;
+            f.open(dlg.get_filename(), "wb");
+            f.write(obj.data(), obj.size());
+            f.close();
+        }
+
+        // TODO - handle errors
+    }
+
     const int viscols = 16;       // Hex-editor body width in columns.
     const int visrows = 16;       // Hex-editor body height in rows.
 
