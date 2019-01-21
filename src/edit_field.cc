@@ -81,6 +81,8 @@ void field<util::blob>::frame()
     const int col_heading_space = 1;
     const int row_heading_space = 12;
 
+    bool scroll_to_selection = false;
+
     // Compute the number of rows of bytes for the hex editor. This is the
     // number of bytes divided by column count rounded *up*.
     int rows = (obj.size() + viscols - 1) / viscols;
@@ -173,7 +175,8 @@ void field<util::blob>::frame()
             }
             m_input_len = 0;
 
-            // TODO - scroll to the selected byte
+            // Scroll the view to show the new selected byte if not visible.
+            scroll_to_selection = true;
         }
     }
 
@@ -210,12 +213,28 @@ void field<util::blob>::frame()
                 }
                 m_input_len = 0;
 
-                // TODO - scroll to the selected byte
+                // Scroll the view to show the new selected byte if not visible.
+                scroll_to_selection = true;
             }
         }
         ImGui::GetIO().ClearInputCharacters();
     }
 
+    if (scroll_to_selection && m_selected_byte < obj.size()) {
+        float scroll_top = ImGui::GetScrollY() / glyph_size.y;
+        float scroll_bottom =
+            (ImGui::GetScrollY() + ImGui::GetWindowHeight()) / glyph_size.y;
+
+        if (std::ceil(scroll_top) * viscols > m_selected_byte) {
+            ImGui::SetScrollY(m_selected_byte / viscols * glyph_size.y);
+        } else if (std::floor(scroll_bottom) * viscols <= m_selected_byte) {
+            ImGui::SetScrollY(
+                (m_selected_byte / viscols + 1)
+                * glyph_size.y
+                - ImGui::GetWindowHeight()
+            );
+        }
+    }
 
     // Display each row which is visible in the scrolling region.
     int top_row = ImGui::GetScrollY() / glyph_size.y;
