@@ -161,18 +161,45 @@ void field<util::blob>::frame()
             offset += viscols * visrows;
         }
 
+        size_t target_byte = m_selected_byte;
+
         if (offset) {
             // Move the selection by the computed offset. Clamp to the range of
             // the byte list.
             if (offset < 0 && size_t(-offset) > m_selected_byte) {
                 // If moving before obj[0], simply move to obj[0] instead.
-                m_selected_byte = 0;
+                target_byte = 0;
             } else {
-                m_selected_byte += offset;
-                if (m_selected_byte >= obj.size()) {
-                    m_selected_byte = obj.size() - 1;
+                target_byte += offset;
+                if (target_byte >= obj.size()) {
+                    target_byte = obj.size() - 1;
                 }
             }
+        }
+
+        if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_Home))) {
+            // Navigate to the start of the row. If ctrl is held, navigate to
+            // the start of the entire blob instead.
+            if (ImGui::GetIO().KeyCtrl) {
+                target_byte = 0;
+            } else {
+                target_byte = target_byte / viscols * viscols;
+            }
+        } else if (ImGui::IsKeyPressed(ImGui::GetKeyIndex(ImGuiKey_End))) {
+            // Navigate to the end of the row. If ctrl is held, navigate to the
+            // end of the entire blob instead.
+            if (ImGui::GetIO().KeyCtrl) {
+                target_byte = obj.size() - 1;
+            } else {
+                target_byte = (target_byte / viscols + 1) * viscols - 1;
+                if (target_byte >= obj.size()) {
+                    target_byte = obj.size() - 1;
+                }
+            }
+        }
+
+        if (target_byte != m_selected_byte) {
+            m_selected_byte = target_byte;
             m_input_len = 0;
 
             // Scroll the view to show the new selected byte if not visible.
