@@ -248,6 +248,8 @@ void field<util::blob>::frame()
                     1.0f, 1.0f, 1.0f, 1.0f
                 });
                 auto base_pos = ImGui::GetWindowPos();
+                base_pos.x -= ImGui::GetScrollX();
+                base_pos.y -= ImGui::GetScrollY();
                 ImGui::GetWindowDrawList()->AddRectFilled(
                     { base_pos.x + x1, base_pos.y + y1 },
                     { base_pos.x + x2, base_pos.y + y2 },
