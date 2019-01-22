@@ -97,15 +97,34 @@ public:
     // FIXME explain
     friend std::string to_string(eid value)
     {
-        char result[5];
+        char result[8];
+        char *result_p = result;
 
-        result[0] = charset[(value >> 25) & 0x3F];
-        result[1] = charset[(value >> 19) & 0x3F];
-        result[2] = charset[(value >> 13) & 0x3F];
-        result[3] = charset[(value >> 7) & 0x3F];
-        result[4] = charset[(value >> 1) & 0x3F];
+        if (value & 0x80000000) {
+            // If the high bit is set, this EID is not legitimate and cannot be
+            // converted to a 5-char string. Instead, we will prefix it with an
+            // equal sign. This symbol will be used when converting back from
+            // string to EID to indicate that the high bit is flipped.
+            *result_p++ = '=';
+        }
 
-        return std::string(result, 5);
+        *result_p++ = charset[(value >> 25) & 0x3F];
+        *result_p++ = charset[(value >> 19) & 0x3F];
+        *result_p++ = charset[(value >> 13) & 0x3F];
+        *result_p++ = charset[(value >> 7) & 0x3F];
+        *result_p++ = charset[(value >> 1) & 0x3F];
+
+        if (~value & 1) {
+            // If the low bit is NOT set, this EID is not legitimate and cannot
+            // be converted to a 5-char string. Instead, we will append an equal
+            // sign to it. This symbol will be used when converting back from
+            // string to EID to indicate that the low bit is flipped.
+            *result_p++ = '=';
+        }
+
+        *result_p++ = '\0';
+
+        return std::string(result);
     }
 };
 
