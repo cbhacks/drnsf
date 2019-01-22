@@ -45,6 +45,18 @@ enum class game_ver {
 };
 
 /*
+ * nsf::charset
+ *
+ * The 64-char charset used in Crash. This is used for entry ID's (`nsf::eid')
+ * as well as level ID's (e.g. Snow Go (0x0E) as "levele").
+ */
+static const char charset[] =
+    "0123456789"
+    "abcdefghijklmnopqrstuvwxyz"
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "_!";
+
+/*
  * nsf::eid
  *
  * FIXME explain
@@ -76,19 +88,13 @@ public:
     // FIXME explain
     friend std::string to_string(eid value)
     {
-        static const char dictionary[] =
-            "0123456789"
-            "abcdefghijklmnopqrstuvwxyz"
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            "_!";
-
         char result[5];
 
-        result[0] = dictionary[(value >> 25) & 0x3F];
-        result[1] = dictionary[(value >> 19) & 0x3F];
-        result[2] = dictionary[(value >> 13) & 0x3F];
-        result[3] = dictionary[(value >> 7) & 0x3F];
-        result[4] = dictionary[(value >> 1) & 0x3F];
+        result[0] = charset[(value >> 25) & 0x3F];
+        result[1] = charset[(value >> 19) & 0x3F];
+        result[2] = charset[(value >> 13) & 0x3F];
+        result[3] = charset[(value >> 7) & 0x3F];
+        result[4] = charset[(value >> 1) & 0x3F];
 
         return std::string(result, 5);
     }
