@@ -391,6 +391,53 @@ public:
 
 /*
  * edit::field
+ *   for entry ID's
+ *
+ * This provides a specialized version of `edit::field' for `nsf::eid'.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <>
+class field<nsf::eid> : private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const nsf::eid *m_object;
+
+public:
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const nsf::eid *object)
+    {
+        m_object = object;
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        if (!m_object) {
+            ImGui::Text("--");
+            return;
+        }
+        auto &obj = *m_object;
+
+        if (obj.is_valid()) {
+            ImGui::TextUnformatted(to_string(obj).c_str());
+        } else {
+            ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
+            ImGui::TextUnformatted(to_string(obj).c_str());
+            ImGui::PopStyleColor();
+        }
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<nsf::eid> on_change;
+};
+
+/*
+ * edit::field
  *   for asset names (atoms)
  *
  * This provides a specialized version of `edit::field' for `res::atom', as

@@ -84,6 +84,15 @@ public:
         return m_value;
     }
 
+    // (func) is_valid
+    // Returns true if the EID is valid, false otherwise. An EID is only valid
+    // if its least-significant bit is set and its most-significant bit is
+    // clear.
+    bool is_valid() const
+    {
+        return (m_value & 1) && (~m_value & 0x80000000);
+    }
+
     // (ext-func) to_string
     // FIXME explain
     friend std::string to_string(eid value)
