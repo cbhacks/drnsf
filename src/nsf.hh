@@ -93,38 +93,17 @@ public:
         return (m_value & 1) && (~m_value & 0x80000000);
     }
 
+    // (func) str
+    // Returns the EID in string form. This is usually 5 characters in length,
+    // but could be 6 or 7 if the EID value has invalid high or low bits.
+    std::string str() const;
+
     // (ext-func) to_string
-    // FIXME explain
-    friend std::string to_string(eid value)
+    // This function provides a non-member `to_string' implementation of EID.
+    // See `util::to_string' for more information.
+    friend std::string to_string(const eid &value)
     {
-        char result[8];
-        char *result_p = result;
-
-        if (value & 0x80000000) {
-            // If the high bit is set, this EID is not legitimate and cannot be
-            // converted to a 5-char string. Instead, we will prefix it with an
-            // equal sign. This symbol will be used when converting back from
-            // string to EID to indicate that the high bit is flipped.
-            *result_p++ = '=';
-        }
-
-        *result_p++ = charset[(value >> 25) & 0x3F];
-        *result_p++ = charset[(value >> 19) & 0x3F];
-        *result_p++ = charset[(value >> 13) & 0x3F];
-        *result_p++ = charset[(value >> 7) & 0x3F];
-        *result_p++ = charset[(value >> 1) & 0x3F];
-
-        if (~value & 1) {
-            // If the low bit is NOT set, this EID is not legitimate and cannot
-            // be converted to a 5-char string. Instead, we will append an equal
-            // sign to it. This symbol will be used when converting back from
-            // string to EID to indicate that the low bit is flipped.
-            *result_p++ = '=';
-        }
-
-        *result_p++ = '\0';
-
-        return std::string(result);
+        return value.str();
     }
 };
 

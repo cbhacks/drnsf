@@ -191,6 +191,7 @@ add_executable (drnsf
     src/misc.hh
 
     src/nsf.hh
+    src/nsf_eid.cc
     src/nsf_archive.cc
     src/nsf_spage.cc
     src/nsf_entry.cc
