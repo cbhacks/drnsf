@@ -98,6 +98,13 @@ public:
     // but could be 6 or 7 if the EID value has invalid high or low bits.
     std::string str() const;
 
+    // (func) try_parse
+    // Attempts to parse the given string as an EID in the same format returned
+    // by `str' and `to_string'. If parsing is successful, the value of `this'
+    // is changed to that EID and the function returns true. Otherwise, the
+    // function returns false and there is no change to the value of `this'.
+    bool try_parse(const std::string &str);
+
     // (ext-func) to_string
     // This function provides a non-member `to_string' implementation of EID.
     // See `util::to_string' for more information.

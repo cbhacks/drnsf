@@ -57,5 +57,67 @@ std::string eid::str() const
     return std::string(result);
 }
 
+// declared in nsf.hh
+bool eid::try_parse(const std::string &str)
+{
+    static int8_t reverse_charset[CHAR_MAX + 1];
+
+    // Build the charset reverse lookup table the first time this function is
+    // called.
+    static std::once_flag once;
+    std::call_once(once, []{
+        for (int i = 0; i < CHAR_MAX; i++) {
+            reverse_charset[i] = -1;
+        }
+        for (int i = 0; i < 64; i++) {
+            reverse_charset[int(charset[i])] = i;
+        }
+    });
+
+    const char *input_p = str.c_str();
+    uint32_t value = 0;
+
+    // Parse the equal-sign prefix, if any. This indicates that the high bit is
+    // set.
+    if (*input_p == '=') {
+        value = 1;
+        input_p++;
+    }
+
+    // Parse the five content characters.
+    for (int i = 0; i < 5; i++) {
+        char c = *input_p++;
+        if (c <= 0) {
+            return false;
+        }
+
+        auto cv = reverse_charset[int(c)];
+        if (cv == -1) {
+            return false;
+        }
+
+        value <<= 6;
+        value |= (cv & 0x3F);
+    }
+
+    // Parse the equal-sign suffix, if any. This indicates that the low bit is
+    // clear.
+    if (*input_p == '=') {
+        value <<= 1;
+        input_p++;
+    } else {
+        value <<= 1;
+        value |= 1;
+    }
+
+    // Fail if the string is any longer than this.
+    if (*input_p) {
+        return false;
+    }
+
+    m_value = value;
+    return true;
+}
+
 }
 }

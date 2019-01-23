@@ -422,11 +422,26 @@ public:
         }
         auto &obj = *m_object;
 
-        if (obj.is_valid()) {
-            ImGui::TextUnformatted(to_string(obj).c_str());
-        } else {
+        bool is_valid = obj.is_valid();
+        if (!is_valid) {
             ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
-            ImGui::TextUnformatted(to_string(obj).c_str());
+        }
+
+        char buf[8];
+        std::strcpy(buf, obj.str().c_str());
+        if (ImGui::InputText("", buf, sizeof(buf))) {
+            auto new_value = obj;
+            if (new_value.try_parse(buf)) {
+                if (new_value != obj) {
+                    on_change(new_value);
+                }
+            } else {
+                ImGui::SameLine();
+                ImGui::Text("parse error");
+            }
+        }
+
+        if (!is_valid) {
             ImGui::PopStyleColor();
         }
     }
