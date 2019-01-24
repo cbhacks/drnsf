@@ -33,6 +33,7 @@ namespace drnsf {
 namespace gui {
 
 static gl::texture s_font_tex;
+static ImFontAtlas s_font_atlas;
 static unsigned char *s_font_pixels = nullptr;
 static int s_font_width;
 static int s_font_height;
@@ -456,14 +457,14 @@ widget_im::widget_im(container &parent, layout layout) :
     // no chance of this happening, so the font will be from the global context
     // provided by default.
     if (!s_font_pixels) {
-        ImGui::GetIO().Fonts->GetTexDataAsRGBA32(
+        s_font_atlas.GetTexDataAsRGBA32(
             &s_font_pixels,
             &s_font_width,
             &s_font_height
         );
     }
 
-    m_im = ImGui::CreateContext();
+    m_im = ImGui::CreateContext(&s_font_atlas);
     auto previous_im = ImGui::GetCurrentContext();
     ImGui::SetCurrentContext(m_im);
     m_io = &ImGui::GetIO();
@@ -480,50 +481,55 @@ widget_im::widget_im(container &parent, layout layout) :
     auto &style = ImGui::GetStyle();
     style.WindowRounding = 0.0f;
     ImVec4 default_color = { 1.0f, 0.0f, 1.0f, 0.25f };
-    style.Colors[ImGuiCol_Text]                 = { 0.0f, 0.0f, 0.0f, 1.0f };
-    style.Colors[ImGuiCol_TextDisabled]         = default_color;
-    style.Colors[ImGuiCol_WindowBg]             = { 0.0f, 0.0f, 0.0f, 0.0f };
-    style.Colors[ImGuiCol_ChildWindowBg]        = default_color;
-    style.Colors[ImGuiCol_PopupBg]              = default_color;
-    style.Colors[ImGuiCol_Border]               = default_color;
-    style.Colors[ImGuiCol_BorderShadow]         = default_color;
-    style.Colors[ImGuiCol_FrameBg]              = default_color;
-    style.Colors[ImGuiCol_FrameBgHovered]       = default_color;
-    style.Colors[ImGuiCol_FrameBgActive]        = default_color;
-    style.Colors[ImGuiCol_TitleBg]              = default_color;
-    style.Colors[ImGuiCol_TitleBgCollapsed]     = default_color;
-    style.Colors[ImGuiCol_TitleBgActive]        = default_color;
-    style.Colors[ImGuiCol_MenuBarBg]            = default_color;
-    style.Colors[ImGuiCol_ScrollbarBg]          = { 0.0f, 0.0f, 0.0f, 0.125f };
-    style.Colors[ImGuiCol_ScrollbarGrab]        = { 1.0f, 0.5f, 0.0f, 0.25f };
-    style.Colors[ImGuiCol_ScrollbarGrabHovered] = { 1.0f, 0.5f, 0.0f, 0.5f };
-    style.Colors[ImGuiCol_ScrollbarGrabActive]  = { 1.0f, 0.5f, 0.0f, 1.0f };
-    style.Colors[ImGuiCol_ComboBg]              = default_color;
-    style.Colors[ImGuiCol_CheckMark]            = default_color;
-    style.Colors[ImGuiCol_SliderGrab]           = default_color;
-    style.Colors[ImGuiCol_SliderGrabActive]     = default_color;
-    style.Colors[ImGuiCol_Button]               = { 1.0f, 0.5f, 0.0f, 0.25f };
-    style.Colors[ImGuiCol_ButtonHovered]        = { 1.0f, 0.5f, 0.0f, 0.5f };
-    style.Colors[ImGuiCol_ButtonActive]         = { 1.0f, 0.5f, 0.0f, 1.0f };
-    style.Colors[ImGuiCol_Header]               = { 1.0f, 0.5f, 0.0f, 0.25f };
-    style.Colors[ImGuiCol_HeaderHovered]        = { 1.0f, 0.5f, 0.0f, 0.5f };
-    style.Colors[ImGuiCol_HeaderActive]         = { 1.0f, 0.5f, 0.0f, 1.0f };
-    style.Colors[ImGuiCol_Column]               = default_color;
-    style.Colors[ImGuiCol_ColumnHovered]        = default_color;
-    style.Colors[ImGuiCol_ColumnActive]         = default_color;
-    style.Colors[ImGuiCol_ResizeGrip]           = default_color;
-    style.Colors[ImGuiCol_ResizeGripHovered]    = default_color;
-    style.Colors[ImGuiCol_ResizeGripActive]     = default_color;
-    style.Colors[ImGuiCol_CloseButton]          = default_color;
-    style.Colors[ImGuiCol_CloseButtonHovered]   = default_color;
-    style.Colors[ImGuiCol_CloseButtonActive]    = default_color;
-    style.Colors[ImGuiCol_PlotLines]            = default_color;
-    style.Colors[ImGuiCol_PlotLinesHovered]     = default_color;
-    style.Colors[ImGuiCol_PlotHistogram]        = default_color;
-    style.Colors[ImGuiCol_PlotHistogramHovered] = default_color;
-    style.Colors[ImGuiCol_TextSelectedBg]       = default_color;
-    style.Colors[ImGuiCol_ModalWindowDarkening] = default_color;
-    static_assert(ImGuiCol_COUNT == 43, "ImGui color palette has changed!");
+    style.Colors[ImGuiCol_Text]                  = { 0.0f, 0.0f, 0.0f, 1.0f };
+    style.Colors[ImGuiCol_TextDisabled]          = default_color;
+    style.Colors[ImGuiCol_WindowBg]              = { 0.0f, 0.0f, 0.0f, 0.0f };
+    style.Colors[ImGuiCol_ChildBg]               = default_color;
+    style.Colors[ImGuiCol_PopupBg]               = default_color;
+    style.Colors[ImGuiCol_Border]                = default_color;
+    style.Colors[ImGuiCol_BorderShadow]          = default_color;
+    style.Colors[ImGuiCol_FrameBg]               = default_color;
+    style.Colors[ImGuiCol_FrameBgHovered]        = default_color;
+    style.Colors[ImGuiCol_FrameBgActive]         = default_color;
+    style.Colors[ImGuiCol_TitleBg]               = default_color;
+    style.Colors[ImGuiCol_TitleBgActive]         = default_color;
+    style.Colors[ImGuiCol_TitleBgCollapsed]      = default_color;
+    style.Colors[ImGuiCol_MenuBarBg]             = default_color;
+    style.Colors[ImGuiCol_ScrollbarBg]           = { 0.0f, 0.0f, 0.0f, 0.125f };
+    style.Colors[ImGuiCol_ScrollbarGrab]         = { 1.0f, 0.5f, 0.0f, 0.25f };
+    style.Colors[ImGuiCol_ScrollbarGrabHovered]  = { 1.0f, 0.5f, 0.0f, 0.5f };
+    style.Colors[ImGuiCol_ScrollbarGrabActive]   = { 1.0f, 0.5f, 0.0f, 1.0f };
+    style.Colors[ImGuiCol_CheckMark]             = default_color;
+    style.Colors[ImGuiCol_SliderGrab]            = default_color;
+    style.Colors[ImGuiCol_SliderGrabActive]      = default_color;
+    style.Colors[ImGuiCol_Button]                = { 1.0f, 0.5f, 0.0f, 0.25f };
+    style.Colors[ImGuiCol_ButtonHovered]         = { 1.0f, 0.5f, 0.0f, 0.5f };
+    style.Colors[ImGuiCol_ButtonActive]          = { 1.0f, 0.5f, 0.0f, 1.0f };
+    style.Colors[ImGuiCol_Header]                = { 1.0f, 0.5f, 0.0f, 0.25f };
+    style.Colors[ImGuiCol_HeaderHovered]         = { 1.0f, 0.5f, 0.0f, 0.5f };
+    style.Colors[ImGuiCol_HeaderActive]          = { 1.0f, 0.5f, 0.0f, 1.0f };
+    style.Colors[ImGuiCol_Separator]             = default_color;
+    style.Colors[ImGuiCol_SeparatorHovered]      = default_color;
+    style.Colors[ImGuiCol_SeparatorActive]       = default_color;
+    style.Colors[ImGuiCol_ResizeGrip]            = default_color;
+    style.Colors[ImGuiCol_ResizeGripHovered]     = default_color;
+    style.Colors[ImGuiCol_ResizeGripActive]      = default_color;
+    style.Colors[ImGuiCol_Tab]                   = default_color;
+    style.Colors[ImGuiCol_TabHovered]            = default_color;
+    style.Colors[ImGuiCol_TabActive]             = default_color;
+    style.Colors[ImGuiCol_TabUnfocused]          = default_color;
+    style.Colors[ImGuiCol_TabUnfocusedActive]    = default_color;
+    style.Colors[ImGuiCol_PlotLines]             = default_color;
+    style.Colors[ImGuiCol_PlotLinesHovered]      = default_color;
+    style.Colors[ImGuiCol_PlotHistogram]         = default_color;
+    style.Colors[ImGuiCol_PlotHistogramHovered]  = default_color;
+    style.Colors[ImGuiCol_TextSelectedBg]        = default_color;
+    style.Colors[ImGuiCol_DragDropTarget]        = default_color;
+    style.Colors[ImGuiCol_NavHighlight]          = default_color;
+    style.Colors[ImGuiCol_NavWindowingHighlight] = default_color;
+    style.Colors[ImGuiCol_NavWindowingDimBg]     = default_color;
+    style.Colors[ImGuiCol_ModalWindowDimBg]      = default_color;
+    static_assert(ImGuiCol_COUNT == 48, "ImGui color palette has changed!");
 
     ImGui::SetCurrentContext(previous_im);
 }

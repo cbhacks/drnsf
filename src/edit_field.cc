@@ -209,7 +209,7 @@ void field<util::blob>::frame()
 
     // Process text input (0-9A-Fa-f).
     if (m_selected_byte < obj.size() && ImGui::IsWindowFocused()) {
-        for (auto &&c : ImGui::GetIO().InputCharacters) {
+        for (auto &&c : ImGui::GetIO().InputQueueCharacters) {
             if (!c) break;
 
             int value = -1;
