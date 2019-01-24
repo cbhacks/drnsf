@@ -307,29 +307,40 @@ public:
         intmax_t min = std::numeric_limits<T>::min();
         uintmax_t max = std::numeric_limits<T>::max();
 
-        if (min < INT_MIN || max > INT_MAX) {
-            // If beyond the range of int, ImGui's built-in editors aren't wide
-            // enough to reach the full range of values for this type.
-            //
-            // Display the value without any editing capability.
+        intmax_t min64 = std::numeric_limits<ImS64>::min();
+        uintmax_t max64 = std::numeric_limits<ImS64>::max();
 
-            using std::to_string;
-            ImGui::TextUnformatted(to_string(obj).c_str());
-        } else if (max - min <= 255) {
-            // If the range has 256 or less values (i.e. signed/unsigned byte)
-            // then use a slider input.
+        if (min >= INT_MIN && max <= INT_MAX && max - min <= 255) {
+            // If in the range of int and the range of values is 256 or less
+            // (int8_t, uint8_t, etc) then use a slider input.
 
             int value = obj;
             if (ImGui::SliderInt("", &value, min, max)) {
                 on_change(value);
             }
-        } else {
-            // Otherwise, use a simple ImGui int field.
+        } else if (min >= min64 && max <= max64) {
+            // If within the range of ImS64 (should be 64-bit), use an ImS64
+            // input field. This should fit all integral types used for asset
+            // properties.
 
-            int value = obj;
-            if (ImGui::InputInt("", &value)) {
-                on_change(value);
+            ImS64 value = obj;
+            if (ImGui::InputScalar("", ImGuiDataType_S64, &value)) {
+                if (value < ImS64(min)) {
+                    value = min;
+                    ImGui::SameLine();
+                    ImGui::Text("out of range; too low");
+                } else if (value > ImS64(max)) {
+                    value = max;
+                    ImGui::SameLine();
+                    ImGui::Text("out of range; too high");
+                }
+                if (value != obj) {
+                    on_change(value);
+                }
             }
+        } else {
+            using std::to_string;
+            ImGui::TextUnformatted(to_string(obj).c_str());
         }
     }
 
