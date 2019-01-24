@@ -102,6 +102,7 @@ add_library (imgui OBJECT
     imgui/imgui.cpp
     imgui/imgui_draw.cpp
     imgui/imgui_demo.cpp
+    imgui/imgui_widgets.cpp
 )
 
 add_executable (drnsf
