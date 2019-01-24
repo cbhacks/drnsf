@@ -38,7 +38,7 @@ after_build:
   - mkdir pkg\cmd_tools
   - copy ..\extra\windows_batch_helpers\*.cmd pkg\cmd_tools
   - mkdir pkg\lib_licenses
-  - copy ..\imgui\LICENSE pkg\lib_licenses\imgui.txt
+  - copy ..\imgui\LICENSE.txt pkg\lib_licenses\imgui.txt
   - copy ..\extra\glm_license.txt pkg\lib_licenses\glm.txt
   - copy ..\googletest\LICENSE pkg\lib_licenses\googletest.txt
   - copy ..\extra\autodep_licenses\cairo.txt pkg\lib_licenses\cairo.txt
