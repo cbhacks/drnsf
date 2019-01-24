@@ -389,6 +389,11 @@ public:
             if (ImGui::InputFloat("", &value)) {
                 on_change(value);
             }
+        } else if (typeid(T) == typeid(double)) {
+            double value = obj;
+            if (ImGui::InputDouble("", &value)) {
+                on_change(value);
+            }
         } else {
             using std::to_string;
             ImGui::TextUnformatted(to_string(obj).c_str());
