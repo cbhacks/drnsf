@@ -45,6 +45,18 @@ enum class game_ver {
 };
 
 /*
+ * nsf::charset
+ *
+ * The 64-char charset used in Crash. This is used for entry ID's (`nsf::eid')
+ * as well as level ID's (e.g. Snow Go (0x0E) as "levele").
+ */
+static const char charset[] =
+    "0123456789"
+    "abcdefghijklmnopqrstuvwxyz"
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "_!";
+
+/*
  * nsf::eid
  *
  * FIXME explain
@@ -72,25 +84,33 @@ public:
         return m_value;
     }
 
-    // (ext-func) to_string
-    // FIXME explain
-    friend std::string to_string(eid value)
+    // (func) is_valid
+    // Returns true if the EID is valid, false otherwise. An EID is only valid
+    // if its least-significant bit is set and its most-significant bit is
+    // clear.
+    bool is_valid() const
     {
-        static const char dictionary[] =
-            "0123456789"
-            "abcdefghijklmnopqrstuvwxyz"
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            "_!";
+        return (m_value & 1) && (~m_value & 0x80000000);
+    }
 
-        char result[5];
+    // (func) str
+    // Returns the EID in string form. This is usually 5 characters in length,
+    // but could be 6 or 7 if the EID value has invalid high or low bits.
+    std::string str() const;
 
-        result[0] = dictionary[(value >> 25) & 0x3F];
-        result[1] = dictionary[(value >> 19) & 0x3F];
-        result[2] = dictionary[(value >> 13) & 0x3F];
-        result[3] = dictionary[(value >> 7) & 0x3F];
-        result[4] = dictionary[(value >> 1) & 0x3F];
+    // (func) try_parse
+    // Attempts to parse the given string as an EID in the same format returned
+    // by `str' and `to_string'. If parsing is successful, the value of `this'
+    // is changed to that EID and the function returns true. Otherwise, the
+    // function returns false and there is no change to the value of `this'.
+    bool try_parse(const std::string &str);
 
-        return std::string(result, 5);
+    // (ext-func) to_string
+    // This function provides a non-member `to_string' implementation of EID.
+    // See `util::to_string' for more information.
+    friend std::string to_string(const eid &value)
+    {
+        return value.str();
     }
 };
 
@@ -131,14 +151,6 @@ public:
     // (func) export_file
     // FIXME explain
     util::blob export_file() const;
-
-    // FIXME obsolete
-    template <typename Reflector>
-    void reflect(Reflector &rfl)
-    {
-        asset::reflect(rfl);
-        rfl.field(p_pages, "Pages");
-    }
 };
 
 /*
@@ -183,16 +195,6 @@ public:
     // (func) export_file
     // FIXME explain
     util::blob export_file() const;
-
-    // FIXME obsolete
-    template <typename Reflector>
-    void reflect(Reflector &rfl)
-    {
-        asset::reflect(rfl);
-        rfl.field(p_cid, "CID");
-        rfl.field(p_type, "Type");
-        rfl.field(p_pagelets, "Pagelets");
-    }
 };
 
 /*
@@ -224,14 +226,6 @@ public:
     // FIXME explain
     virtual std::vector<util::blob> export_entry(
         uint32_t &out_type) const = 0;
-
-    // FIXME obsolete
-    template <typename Reflector>
-    void reflect(Reflector &rfl)
-    {
-        asset::reflect(rfl);
-        rfl.field(p_eid, "EID");
-    }
 };
 
 /*
@@ -293,15 +287,6 @@ public:
     // (func) process_by_type
     // FIXME explain
     bool process_by_type(TRANSACT, game_ver ver);
-
-    // FIXME obsolete
-    template <typename Reflector>
-    void reflect(Reflector &rfl)
-    {
-        entry::reflect(rfl);
-        rfl.field(p_items, "Items");
-        rfl.field(p_type, "Type");
-    }
 };
 
 /*
@@ -358,15 +343,202 @@ public:
     // FIXME explain
     std::vector<util::blob> export_entry(
         uint32_t &out_type) const final override;
+};
 
-    // FIXME obsolete
-    template <typename Reflector>
-    void reflect(Reflector &rfl)
-    {
-        entry::reflect(rfl);
-        rfl.field(p_item4, "Item 4");
-        rfl.field(p_item6, "Item 6");
-    }
+}
+
+namespace reflect {
+
+// reflection info for nsf::archive
+template <>
+struct asset_type_info<nsf::archive> {
+    using base_type = res::asset;
+
+    static constexpr const char *name = "nsf::archive";
+    static constexpr int prop_count = 1;
+};
+template <>
+struct asset_prop_info<nsf::archive, 0> {
+    using type = std::vector<res::anyref>;
+
+    static constexpr const char *name = "pages";
+    static constexpr auto ptr = &nsf::archive::p_pages;
+};
+
+// reflection info for nsf::spage
+template <>
+struct asset_type_info<nsf::spage> {
+    using base_type = res::asset;
+
+    static constexpr const char *name = "nsf::spage";
+    static constexpr int prop_count = 4;
+};
+template <>
+struct asset_prop_info<nsf::spage, 0> {
+    using type = std::vector<res::anyref>;
+
+    static constexpr const char *name = "pagelets";
+    static constexpr auto ptr = &nsf::spage::p_pagelets;
+};
+template <>
+struct asset_prop_info<nsf::spage, 1> {
+    using type = uint16_t;
+
+    static constexpr const char *name = "type";
+    static constexpr auto ptr = &nsf::spage::p_type;
+};
+template <>
+struct asset_prop_info<nsf::spage, 2> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "cid";
+    static constexpr auto ptr = &nsf::spage::p_cid;
+};
+template <>
+struct asset_prop_info<nsf::spage, 3> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "checksum";
+    static constexpr auto ptr = &nsf::spage::p_checksum;
+};
+
+// reflection info for nsf::entry
+template <>
+struct asset_type_info<nsf::entry> {
+    using base_type = res::asset;
+
+    static constexpr const char *name = "nsf::entry";
+    static constexpr int prop_count = 1;
+};
+template <>
+struct asset_prop_info<nsf::entry, 0> {
+    using type = nsf::eid;
+
+    static constexpr const char *name = "eid";
+    static constexpr auto ptr = &nsf::entry::p_eid;
+};
+
+// reflection info for nsf::raw_entry
+template <>
+struct asset_type_info<nsf::raw_entry> {
+    using base_type = nsf::entry;
+
+    static constexpr const char *name = "nsf::raw_entry";
+    static constexpr int prop_count = 2;
+};
+template <>
+struct asset_prop_info<nsf::raw_entry, 0> {
+    using type = std::vector<util::blob>;
+
+    static constexpr const char *name = "items";
+    static constexpr auto ptr = &nsf::raw_entry::p_items;
+};
+template <>
+struct asset_prop_info<nsf::raw_entry, 1> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "type";
+    static constexpr auto ptr = &nsf::raw_entry::p_type;
+};
+
+// reflection info for nsf::wgeo_v2
+template <>
+struct asset_type_info<nsf::wgeo_v2> {
+    using base_type = nsf::entry;
+
+    static constexpr const char *name = "nsf::wgeo_v2";
+    static constexpr int prop_count = 13;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 0> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "info_unk0";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_info_unk0;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 1> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "tpag_ref_count";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_tpag_ref_count;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 2> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "tpag_ref0";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_tpag_ref0;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 3> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "tpag_ref1";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_tpag_ref1;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 4> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "tpag_ref2";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_tpag_ref2;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 5> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "tpag_ref3";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_tpag_ref3;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 6> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "tpag_ref4";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_tpag_ref4;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 7> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "tpag_ref5";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_tpag_ref5;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 8> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "tpag_ref6";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_tpag_ref6;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 9> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "tpag_ref7";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_tpag_ref7;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 10> {
+    using type = util::blob;
+
+    static constexpr const char *name = "item4";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_item4;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 11> {
+    using type = util::blob;
+
+    static constexpr const char *name = "item6";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_item6;
+};
+template <>
+struct asset_prop_info<nsf::wgeo_v2, 12> {
+    using type = gfx::world::ref;
+
+    static constexpr const char *name = "world";
+    static constexpr auto ptr = &nsf::wgeo_v2::p_world;
 };
 
 }

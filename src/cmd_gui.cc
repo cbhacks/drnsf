@@ -63,7 +63,6 @@ change in the future.
     // Create the editor.
     auto proj = std::make_shared<res::project>();
     edit::context ctx(proj);
-    edit::core edcore(*proj);
 
     edit::main_window wnd(ctx);
     wnd.show();

@@ -20,8 +20,6 @@
 
 #include "common.hh"
 #include "edit.hh"
-#include "nsf.hh"
-#include "misc.hh"
 
 namespace drnsf {
 namespace edit {

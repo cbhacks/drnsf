@@ -334,12 +334,6 @@ public:
     // (func) get_proj
     // FIXME explain
     project &get_proj() const;
-
-    // FIXME obsolete
-    template <typename Reflector>
-    void reflect(Reflector &rfl)
-    {
-    }
 };
 
 /*
@@ -622,6 +616,11 @@ struct asset_type_info {
     // FIXME explain
     static constexpr const char *name = "(unknown type)";
 
+    // (const) prop_count
+    // The number of properties specific to this asset type. This count does
+    // not include properties from parent types.
+    static constexpr int prop_count = 0;
+
     static_assert (
         std::is_base_of<res::asset, AssetType>::value,
         "reflect::asset_type_info may only be used with types derived from "
@@ -629,12 +628,21 @@ struct asset_type_info {
     );
 };
 
+/*
+ * reflect::asset_prop_info
+ *
+ * FIXME explain
+ */
+template <typename AssetType, int PropNum>
+struct asset_prop_info;
+
 // reflection info for res::asset
 template <>
 struct asset_type_info<res::asset> {
     using base_type = void;
 
     static constexpr const char *name = "res::asset";
+    static constexpr int prop_count = 0;
 };
 
 }

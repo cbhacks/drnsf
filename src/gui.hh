@@ -845,6 +845,11 @@ private:
     // in time between each update for various purposes.
     util::stopwatch m_stopwatch;
 
+    // (var) m_busy
+    // True if the widget is in the middle of building an ImGui frame. This is
+    // used to prevent worker recursion.
+    bool m_busy = false;
+
     // (func) draw_gl
     // FIXME explain
     void draw_gl(int width, int height, unsigned int rbo) final override;
@@ -887,6 +892,10 @@ private:
 protected:
     // (pure func) frame
     // FIXME explain
+    //
+    // This method is not called recursively. If the widget needs to be updated
+    // or rendered during an ongoing 'frame' call, the update will be ignored
+    // and any render call will display a blank interface.
     virtual void frame() = 0;
 
 public:
@@ -1325,41 +1334,6 @@ extern Atom g_xa_protocols;
 extern Atom g_xa_delete_window;
 #endif
 #endif
-
-// FIXME obsolete
-namespace im {
-
-using namespace ImGui;
-
-void label(
-    const std::string &text);
-
-void subwindow(
-    const std::string &id,
-    const std::string &title,
-    const std::function<void()> &f);
-
-void main_menu_bar(
-    const std::function<void()> &f);
-
-void menu(
-    const std::string &text,
-    const std::function<void()> &f = nullptr);
-
-void menu_item(
-    const std::string &text,
-    const std::function<void()> &f = nullptr);
-
-void menu_separator();
-
-class scope : private util::nocopy {
-public:
-    explicit scope(int id);
-    explicit scope(void *ptr);
-    ~scope();
-};
-
-}
 
 }
 }

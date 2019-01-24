@@ -30,7 +30,7 @@ additional software which is available under other GPL-compatible
 licenses.
 
  * GLM: see `glm/manual.md` section 0.
- * Dear ImGui: see `imgui/LICENSE`.
+ * Dear ImGui: see `imgui/LICENSE.txt`.
  * Google Test: see `googletest/LICENSE`.
 
 If you are building the source code on Windows and choose to enable the

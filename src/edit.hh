@@ -35,6 +35,10 @@
 #include "gui.hh"
 #include "render.hh"
 
+#include "gfx.hh"
+#include "misc.hh"
+#include "nsf.hh"
+
 namespace drnsf {
 namespace edit {
 
@@ -202,6 +206,1188 @@ public:
 }
 
 /*
+ * edit::field
+ *   for all types
+ *
+ * This type provides an (imgui-only) graphical user interface for editing some
+ * kind of data, such as an integer, a color, a polygon, a list or set of data
+ * items, etc. Primarily, this is intended for use with the asset property
+ * editor control (see `asset_propctl' below), but it could be used elsewhere
+ * if necessary.
+ *
+ * Initially, the field control does not display any data. It must be bound to
+ * an existing object first (by pointer). While the field is bound to an object,
+ * it displays information about the object to the user. Most implementations
+ * of `field' also allow the user to edit the displayed value. This does not
+ * modify the object directly, instead an event is raised (`on_change') with
+ * the intended new value for the object. The handler of this event is not
+ * required to push this change to the object; for example, if the object is
+ * currently in a read-only state then this would not be possible.
+ *
+ * This initial type provides a fallback implementation used when there is no
+ * specific `field' implementation for the given type of data.
+ */
+template <typename T, typename E = void>
+class field : private util::nocopy {
+private:
+    // (var) m_object
+    // A pointer to the object this field is bound to, or null if this field is
+    // not bound to any object. The field does not directly modify this object,
+    // however it may be modified by external code during the lifetime of the
+    // binding.
+    const T *m_object;
+
+public:
+    // (func) bind
+    // If a non-null pointer is passed, binds the field to the given object.
+    // The existing binding is discarded, if any. The lifetime of the binding
+    // must not extend beyond the lifetime of the object.
+    //
+    // If a null pointer is passed, discards the existing binding, if any.
+    void bind(const T *object)
+    {
+        m_object = object;
+    }
+
+    // (func) frame
+    // FIXME explain
+    void frame()
+    {
+        if (!m_object) {
+            ImGui::Text("--");
+            return;
+        }
+        auto &obj = *m_object;
+
+        (void)obj;
+        ImGui::Text("No options available.");
+    }
+
+    // (event) on_change
+    // This event is raised when the user attempts to change the value of the
+    // field. The argument given is the new value given by the user.
+    util::event<T> on_change;
+};
+
+/*
+ * edit::field
+ *   for integral types
+ *
+ * This provides a specialized version of `edit::field' for integral types,
+ * such as `int', `short', `unsigned long long', `uint8_t', etc.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <typename T>
+class field<T, std::enable_if_t<std::is_integral<T>::value>> :
+    private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const T *m_object;
+
+public:
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const T *object)
+    {
+        m_object = object;
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        if (!m_object) {
+            ImGui::Text("--");
+            return;
+        }
+        auto &obj = *m_object;
+
+        intmax_t min = std::numeric_limits<T>::min();
+        uintmax_t max = std::numeric_limits<T>::max();
+
+        intmax_t min64 = std::numeric_limits<ImS64>::min();
+        uintmax_t max64 = std::numeric_limits<ImS64>::max();
+
+        if (min >= INT_MIN && max <= INT_MAX && max - min <= 255) {
+            // If in the range of int and the range of values is 256 or less
+            // (int8_t, uint8_t, etc) then use a slider input.
+
+            int value = obj;
+            if (ImGui::SliderInt("", &value, min, max)) {
+                on_change(value);
+            }
+        } else if (min >= min64 && max <= max64) {
+            // If within the range of ImS64 (should be 64-bit), use an ImS64
+            // input field. This should fit all integral types used for asset
+            // properties.
+
+            ImS64 value = obj;
+            if (ImGui::InputScalar("", ImGuiDataType_S64, &value)) {
+                if (value < ImS64(min)) {
+                    value = min;
+                    ImGui::SameLine();
+                    ImGui::Text("out of range; too low");
+                } else if (value > ImS64(max)) {
+                    value = max;
+                    ImGui::SameLine();
+                    ImGui::Text("out of range; too high");
+                }
+                if (value != obj) {
+                    on_change(value);
+                }
+            }
+        } else {
+            using std::to_string;
+            ImGui::TextUnformatted(to_string(obj).c_str());
+        }
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<T> on_change;
+};
+
+/*
+ * edit::field
+ *   for floating point types
+ *
+ * This provides a specialized version of `edit::field' for floating point
+ * types, such as `float' and `double'.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <typename T>
+class field<T, std::enable_if_t<std::is_floating_point<T>::value>> :
+    private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const T *m_object;
+
+public:
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const T *object)
+    {
+        m_object = object;
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        if (!m_object) {
+            ImGui::Text("--");
+            return;
+        }
+        auto &obj = *m_object;
+
+        if (typeid(T) == typeid(float)) {
+            float value = obj;
+            if (ImGui::InputFloat("", &value)) {
+                on_change(value);
+            }
+        } else if (typeid(T) == typeid(double)) {
+            double value = obj;
+            if (ImGui::InputDouble("", &value)) {
+                on_change(value);
+            }
+        } else {
+            using std::to_string;
+            ImGui::TextUnformatted(to_string(obj).c_str());
+        }
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<T> on_change;
+};
+
+/*
+ * edit::field
+ *   for entry ID's
+ *
+ * This provides a specialized version of `edit::field' for `nsf::eid'.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <>
+class field<nsf::eid> : private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const nsf::eid *m_object;
+
+public:
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const nsf::eid *object)
+    {
+        m_object = object;
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        if (!m_object) {
+            ImGui::Text("--");
+            return;
+        }
+        auto &obj = *m_object;
+
+        bool is_valid = obj.is_valid();
+        if (!is_valid) {
+            ImGui::PushStyleColor(ImGuiCol_Text, { 1.0f, 0.0f, 0.0f, 1.0f });
+        }
+
+        char buf[8];
+        std::strcpy(buf, obj.str().c_str());
+        if (ImGui::InputText("", buf, sizeof(buf))) {
+            auto new_value = obj;
+            if (new_value.try_parse(buf)) {
+                if (new_value != obj) {
+                    on_change(new_value);
+                }
+            } else {
+                ImGui::SameLine();
+                ImGui::Text("parse error");
+            }
+        }
+
+        if (!is_valid) {
+            ImGui::PopStyleColor();
+        }
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<nsf::eid> on_change;
+};
+
+/*
+ * edit::field
+ *   for asset names (atoms)
+ *
+ * This provides a specialized version of `edit::field' for `res::atom', as
+ * used for asset names and in asset references.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <>
+class field<res::atom> : private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const res::atom *m_object;
+
+public:
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const res::atom *object)
+    {
+        m_object = object;
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        if (!m_object) {
+            ImGui::Text("--");
+            return;
+        }
+        auto &obj = *m_object;
+
+        ImGui::TextUnformatted(to_string(obj).c_str());
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<res::atom> on_change;
+};
+
+/*
+ * edit::field
+ *   for asset references
+ *
+ * This provides a specialized version of `edit::field' for `res::ref<T>'.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <typename T>
+class field<res::ref<T>> : private field<res::atom> {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const res::ref<T> *m_object;
+
+public:
+    // (default ctor)
+    // Installs an event handler onto the internal `res::atom' field change
+    // event to propagate the change to the outer even defined below.
+    field()
+    {
+        field<res::atom>::on_change <<= [this](res::atom new_value) {
+            on_change(new_value);
+        };
+    }
+
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const res::ref<T> *object)
+    {
+        m_object = object;
+        field<res::atom>::bind(object);
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        if (!m_object) {
+            ImGui::Text("--");
+            return;
+        }
+        auto &obj = *m_object;
+
+        // Display the basic atom field contents.
+        field<res::atom>::frame();
+
+        // On the same line, display information about the status of the name
+        // in relation to `T', such as OK, not present, type mismatch, etc.
+        //
+        // Display nothing if there is the value is a null reference.
+        if (obj) {
+            ImGui::SameLine();
+            if (obj.template is_a<T>()) {
+                const ImVec4 color = { 0.0f, 0.5f, 0.0f, 1.0f };
+                ImGui::PushStyleColor(ImGuiCol_Text, color);
+                ImGui::Text("OK");
+                ImGui::PopStyleColor();
+            } else if (obj.template is_a<res::asset>()) {
+                const ImVec4 color = { 0.5f, 0.25f, 0.0f, 1.0f };
+                ImGui::PushStyleColor(ImGuiCol_Text, color);
+                ImGui::Text("Wrong asset type");
+                ImGui::PopStyleColor();
+            } else {
+                const ImVec4 color = { 0.5f, 0.0f, 0.0f, 1.0f };
+                ImGui::PushStyleColor(ImGuiCol_Text, color);
+                ImGui::Text("Doesn't exist");
+                ImGui::PopStyleColor();
+            }
+        }
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<res::ref<T>> on_change;
+};
+
+/*
+ * edit::field
+ *   for lists (std::vector) of any type
+ *
+ * This provides a specialized version of `edit::field' for `std::vector<T>'
+ * where T is some other type. The user is presented with an `edit::field<T>'
+ * and can flip through the list to choose which element to edit in the field.
+ * The user may also modify the list by inserting or removing elements.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <typename T>
+class field<std::vector<T>> : private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const std::vector<T> *m_object;
+
+    // (var) m_elem_field
+    // The `edit::field' which displays information about the selected element
+    // in the list.
+    field<T> m_elem_field;
+
+    // (var) m_index
+    // The index of the currently selected element in the list. The value is
+    // preserved while in an unbound state, but is not otherwise meaningful at
+    // that time.
+    unsigned int m_index = 0;
+
+public:
+    // (default ctor)
+    // Sets up an event handler for the inner element field to propagate any
+    // changes to the event on the outer field (this).
+    field()
+    {
+        m_elem_field.on_change <<= [this](T new_elem_value) {
+            auto new_list = *m_object;
+
+            new_list[m_index] = std::move(new_elem_value);
+
+            on_change(std::move(new_list));
+        };
+    }
+
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const std::vector<T> *object)
+    {
+        m_object = object;
+
+        // Also apply the binding to the inner field.
+        if (m_object && !m_object->empty()) {
+            // If the current index is beyond the range of the new list, change
+            // it to point at the final element.
+            if (m_index >= m_object->size()) {
+                m_index = m_object->size() - 1;
+            }
+            m_elem_field.bind(&m_object->operator [](m_index));
+        } else {
+            m_elem_field.bind(nullptr);
+        }
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        if (!m_object) {
+            ImGui::Text("--");
+            ImGui::NextColumn();
+            ImGui::Indent();
+            ImGui::Text("--");
+            ImGui::NextColumn();
+            m_elem_field.frame();
+            ImGui::NextColumn();
+            ImGui::Unindent();
+            ImGui::NextColumn();
+            return;
+        }
+        auto &obj = *m_object;
+
+        ImGui::TextUnformatted("List of $"_fmt(obj.size()).c_str());
+
+        // On the next row, display inputs for seeking through the list.
+        if (!obj.empty()) {
+            // First button to go to the first element.
+            if (ImGui::Button("|<")) {
+                if (!obj.empty()) {
+                    m_index = 0;
+                    m_elem_field.bind(&obj[m_index]);
+                }
+            }
+
+            // Previous button to decrease element index.
+            ImGui::SameLine();
+            if (ImGui::Button("<")) {
+                if (m_index > 0) {
+                    m_index--;
+                    m_elem_field.bind(&obj[m_index]);
+                }
+            }
+
+            // A slider to allow the user to quickly seek through the list.
+            ImGui::SameLine();
+            int index_s = int(m_index);
+            ImGui::SliderInt("###index", &index_s, 0, obj.size() - 1);
+            if (m_index != (unsigned int)index_s) {
+                m_index = (unsigned int)index_s;
+                if (m_index < obj.size()) {
+                    m_elem_field.bind(&obj[m_index]);
+                } else {
+                    m_elem_field.bind(nullptr);
+                }
+            }
+
+            // Next button to increase element index.
+            ImGui::SameLine();
+            if (ImGui::Button(">")) {
+                if (!obj.empty() && m_index < obj.size() - 1) {
+                    m_index++;
+                    m_elem_field.bind(&obj[m_index]);
+                }
+            }
+
+            // Last button to go to the final element.
+            ImGui::SameLine();
+            if (ImGui::Button(">|")) {
+                if (!obj.empty()) {
+                    m_index = obj.size() - 1;
+                    m_elem_field.bind(&obj[m_index]);
+                }
+            }
+
+            // Insert / remove / etc buttons on the next line.
+            if (ImGui::SmallButton("Append")) {
+                auto old_size = obj.size();
+
+                auto new_list = obj;
+                new_list.push_back(obj.back());
+                on_change(std::move(new_list));
+
+                // Jump to the new element if the append appears to have gone
+                // through.
+                if (obj.size() == old_size + 1) {
+                    m_index = old_size;
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Insert")) {
+                if (m_index < obj.size()) {
+                    auto new_list = obj;
+                    new_list.insert(new_list.begin() + m_index, obj[m_index]);
+                    on_change(std::move(new_list));
+                }
+            }
+            ImGui::SameLine();
+            if (ImGui::SmallButton("Remove")) {
+                if (m_index < obj.size()) {
+                    auto new_list = obj;
+                    new_list.erase(new_list.begin() + m_index);
+                    on_change(std::move(new_list));
+                }
+            }
+        } else {
+            ImGui::Text("--");
+
+            if (ImGui::SmallButton("Append")) {
+                auto new_list = obj;
+                new_list.emplace_back();
+                on_change(std::move(new_list));
+            }
+        }
+
+        // Display the inner field and zero-based index on the next row.
+        ImGui::NextColumn();
+        ImGui::Indent();
+        ImGui::TextUnformatted("[$]"_fmt(m_index).c_str());
+        ImGui::NextColumn();
+        ImGui::PushID(m_index);
+        m_elem_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+        ImGui::Unindent();
+        ImGui::NextColumn();
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<std::vector<T>> on_change;
+};
+
+/*
+ * edit::field
+ *   for raw data (util::blob)
+ *
+ * This provides a specialized version of `edit::field' for `util::blob'. This
+ * field is presented as a basic hex editor.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <>
+class field<util::blob> : private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const util::blob *m_object;
+
+    // (var) m_selected_byte
+    // The offset of the currently selected byte in the editor. This may be
+    // out of range to indicate that no byte is currently selected.
+    size_t m_selected_byte = SIZE_MAX;
+
+    // (var) m_input_value
+    // The value currently being input by the user.
+    uint8_t m_input_value;
+
+    // (var) m_input_len
+    // The number of hex characters present in `m_input_value'. This increases
+    // by one each time the user enters a hex digit. When the value reaches 2,
+    // it is reset and the value is written to the selected byte location.
+    int m_input_len = 0;
+
+public:
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const util::blob *object)
+    {
+        m_object = object;
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame();
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<util::blob> on_change;
+};
+
+/*
+ * edit::field
+ *   for gfx::vertex
+ *
+ * This provides a specialized version of `edit::field' for `gfx::vertex'. The
+ * field breaks down the structure and provides a field for each of its member
+ * values.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <>
+class field<gfx::vertex> : private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const gfx::vertex *m_object;
+
+    // (var) m_x_field, m_y_field, m_z_field
+    // The subfields for X/Y/Z vertex components.
+    field<float> m_x_field;
+    field<float> m_y_field;
+    field<float> m_z_field;
+
+    // (var) m_fx_field
+    // The subfield for the vertex special effects bits.
+    field<unsigned int> m_fx_field;
+
+    // (var) m_color_index_field
+    // The subfield for the vertex's color index.
+    field<int> m_color_index_field;
+
+public:
+    // (default ctor)
+    // Sets up event handlers for the subfields to propagate any changes to
+    // the event on the outer field (this).
+    field()
+    {
+        m_x_field.on_change <<= [this](float new_value) {
+            auto new_vtx = *m_object;
+            new_vtx.x = new_value;
+            on_change(new_vtx);
+        };
+        m_y_field.on_change <<= [this](float new_value) {
+            auto new_vtx = *m_object;
+            new_vtx.y = new_value;
+            on_change(new_vtx);
+        };
+        m_z_field.on_change <<= [this](float new_value) {
+            auto new_vtx = *m_object;
+            new_vtx.z = new_value;
+            on_change(new_vtx);
+        };
+        m_fx_field.on_change <<= [this](unsigned int new_value) {
+            auto new_vtx = *m_object;
+            new_vtx.fx = new_value;
+            on_change(new_vtx);
+        };
+        m_color_index_field.on_change <<= [this](int new_value) {
+            auto new_vtx = *m_object;
+            new_vtx.color_index = new_value;
+            on_change(new_vtx);
+        };
+    }
+
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const gfx::vertex *object)
+    {
+        m_object = object;
+
+        // Also apply the binding to the subfields.
+        if (object) {
+            m_x_field.bind(&object->x);
+            m_y_field.bind(&object->y);
+            m_z_field.bind(&object->z);
+            m_fx_field.bind(&object->fx);
+            m_color_index_field.bind(&object->color_index);
+        } else {
+            m_x_field.bind(nullptr);
+            m_y_field.bind(nullptr);
+            m_z_field.bind(nullptr);
+            m_fx_field.bind(nullptr);
+            m_color_index_field.bind(nullptr);
+        }
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        ImGui::NextColumn();
+        ImGui::Indent();
+
+        ImGui::Text("X");
+        ImGui::NextColumn();
+        ImGui::PushID(0);
+        m_x_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+
+        ImGui::Text("Y");
+        ImGui::NextColumn();
+        ImGui::PushID(1);
+        m_y_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+
+        ImGui::Text("Z");
+        ImGui::NextColumn();
+        ImGui::PushID(2);
+        m_z_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+
+        ImGui::Text("FX");
+        ImGui::NextColumn();
+        ImGui::PushID(3);
+        m_fx_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+
+        ImGui::Text("Color Index");
+        ImGui::NextColumn();
+        ImGui::PushID(4);
+        m_color_index_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+
+        ImGui::Unindent();
+        ImGui::NextColumn();
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<gfx::vertex> on_change;
+};
+
+/*
+ * edit::field
+ *   for gfx::color
+ *
+ * This provides a specialized version of `edit::field' for `gfx::color'. The
+ * field provides sliders for each of the three color channels (RGB) and
+ * displays the color to the user.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <>
+class field<gfx::color> : private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const gfx::color *m_object;
+
+public:
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const gfx::color *object)
+    {
+        m_object = object;
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        if (!m_object) {
+            ImGui::NextColumn();
+            ImGui::Indent();
+
+            ImGui::Text("Red");
+            ImGui::NextColumn();
+            ImGui::Text("--");
+            ImGui::NextColumn();
+
+            ImGui::Text("Green");
+            ImGui::NextColumn();
+            ImGui::Text("--");
+            ImGui::NextColumn();
+
+            ImGui::Text("Blue");
+            ImGui::NextColumn();
+            ImGui::Text("--");
+            ImGui::NextColumn();
+
+            ImGui::Unindent();
+            ImGui::NextColumn();
+            return;
+        }
+        auto &obj = *m_object;
+
+        ImGui::NextColumn();
+        ImGui::Indent();
+        ImVec4 im_color_bg = {
+            obj.r / 255.0f,
+            obj.g / 255.0f,
+            obj.b / 255.0f,
+            1.0
+        };
+        ImVec4 im_color_fg1;
+        ImVec4 im_color_fg2;
+        if ((obj.r + obj.g + obj.b) / 3 < 100) {
+            im_color_fg1 = ImVec4{1.0f, 1.0f, 1.0f, 1.0f};
+            im_color_fg2 = ImVec4{0.8f, 0.8f, 0.8f, 1.0f};
+        } else {
+            im_color_fg1 = ImVec4{0.0f, 0.0f, 0.0f, 1.0f};
+            im_color_fg2 = ImVec4{0.2f, 0.2f, 0.2f, 1.0f};
+        }
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, im_color_bg);
+        ImGui::PushStyleColor(ImGuiCol_SliderGrab, im_color_fg2);
+        ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, im_color_fg2);
+
+        for (int i = 0; i < 3; i++) {
+            const char *labels[] = { "Red", "Green", "Blue" };
+            ImGui::TextUnformatted(labels[i]);
+            ImGui::NextColumn();
+            ImGui::PushID(i);
+            ImGui::PushStyleColor(ImGuiCol_Text, im_color_fg1);
+            int n = obj.v[i];
+            if (ImGui::SliderInt("", &n, 0, 255)) {
+                auto new_value = obj;
+                new_value.v[i] = n;
+                on_change(new_value);
+            }
+            ImGui::PopStyleColor();
+            ImGui::PopID();
+            ImGui::NextColumn();
+        }
+
+        ImGui::PopStyleColor(3);
+        ImGui::Unindent();
+        ImGui::NextColumn();
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<gfx::color> on_change;
+};
+
+/*
+ * edit::field
+ *   for gfx::corner
+ *
+ * This provides a specialized version of `edit::field' for `gfx::corner'. The
+ * field breaks down the structure and provides a field for each of its member
+ * values.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <>
+class field<gfx::corner> : private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const gfx::corner *m_object;
+
+    // (var) m_vertex_field, m_color_field
+    // The subfields for the corner's components.
+    field<int> m_vertex_field;
+    field<int> m_color_field;
+
+public:
+    // (default ctor)
+    // Sets up event handlers for the subfields to propagate any changes to
+    // the event on the outer field (this).
+    field()
+    {
+        m_vertex_field.on_change <<= [this](int new_value) {
+            auto new_cnr = *m_object;
+            new_cnr.vertex_index = new_value;
+            on_change(new_cnr);
+        };
+        m_color_field.on_change <<= [this](int new_value) {
+            auto new_cnr = *m_object;
+            new_cnr.color_index = new_value;
+            on_change(new_cnr);
+        };
+    }
+
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const gfx::corner *object)
+    {
+        m_object = object;
+
+        // Also apply the binding to the subfields.
+        if (object) {
+            m_vertex_field.bind(&object->vertex_index);
+            m_color_field.bind(&object->color_index);
+        } else {
+            m_vertex_field.bind(nullptr);
+            m_color_field.bind(nullptr);
+        }
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        ImGui::NextColumn();
+        ImGui::Indent();
+
+        ImGui::Text("Vertex Index");
+        ImGui::NextColumn();
+        ImGui::PushID(0);
+        m_vertex_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+
+        ImGui::Text("Color Index");
+        ImGui::NextColumn();
+        ImGui::PushID(1);
+        m_color_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+
+        ImGui::Unindent();
+        ImGui::NextColumn();
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<gfx::corner> on_change;
+};
+
+/*
+ * edit::field
+ *   for gfx::triangle
+ *
+ * This provides a specialized version of `edit::field' for `gfx::triangle'.
+ * The field breaks down the structure and provides a field for each of its
+ * member values.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <>
+class field<gfx::triangle> : private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const gfx::triangle *m_object;
+
+    // (var) m_corner_fields
+    // The subfields for the three corner components.
+    field<gfx::corner> m_corner_fields[3];
+
+    // (var) m_unk0_field, m_unk1_field
+    // The subfields for the unknown triangle components. Most likely these
+    // should represent a material index.
+    field<unsigned int> m_unk0_field;
+    field<unsigned int> m_unk1_field;
+
+public:
+    // (default ctor)
+    // Sets up event handlers for the subfields to propagate any changes to
+    // the event on the outer field (this).
+    field()
+    {
+        for (int i = 0; i < 3; i++) {
+            m_corner_fields[i].on_change <<= [this, i](gfx::corner new_value) {
+                auto new_tri = *m_object;
+                new_tri.v[i] = new_value;
+                on_change(new_tri);
+            };
+        }
+        m_unk0_field.on_change <<= [this](unsigned int new_value) {
+            auto new_tri = *m_object;
+            new_tri.unk0 = new_value;
+            on_change(new_tri);
+        };
+        m_unk1_field.on_change <<= [this](unsigned int new_value) {
+            auto new_tri = *m_object;
+            new_tri.unk1 = new_value;
+            on_change(new_tri);
+        };
+    }
+
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const gfx::triangle *object)
+    {
+        m_object = object;
+
+        // Also apply the binding to the subfields.
+        if (object) {
+            for (int i = 0; i < 3; i++) {
+                m_corner_fields[i].bind(&object->v[i]);
+            }
+            m_unk0_field.bind(&object->unk0);
+            m_unk1_field.bind(&object->unk1);
+        } else {
+            for (int i = 0; i < 3; i++) {
+                m_corner_fields[i].bind(nullptr);
+            }
+            m_unk0_field.bind(nullptr);
+            m_unk1_field.bind(nullptr);
+        }
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        ImGui::NextColumn();
+        ImGui::Indent();
+
+        const char *corner_labels[] = {
+            "Corner A",
+            "Corner B",
+            "Corner C"
+        };
+        for (int i = 0; i < 3; i++) {
+            ImGui::TextUnformatted(corner_labels[i]);
+            ImGui::NextColumn();
+            ImGui::PushID(i);
+            m_corner_fields[i].frame();
+            ImGui::PopID();
+            ImGui::NextColumn();
+        }
+
+        ImGui::Text("Unknown 0");
+        ImGui::NextColumn();
+        ImGui::PushID(3);
+        m_unk0_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+
+        ImGui::Text("Unknown 1");
+        ImGui::NextColumn();
+        ImGui::PushID(4);
+        m_unk1_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+
+        ImGui::Unindent();
+        ImGui::NextColumn();
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<gfx::triangle> on_change;
+};
+
+/*
+ * edit::field
+ *   for gfx::quad
+ *
+ * This provides a specialized version of `edit::field' for `gfx::quad'. The
+ * field breaks down the structure and provides a field for each of its member
+ * values.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <>
+class field<gfx::quad> : private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const gfx::quad *m_object;
+
+    // (var) m_corner_fields
+    // The subfields for the four corner components.
+    field<gfx::corner> m_corner_fields[4];
+
+    // (var) m_unk0_field, m_unk1_field
+    // The subfields for the unknown quad components. Most likely these should
+    // represent a material index.
+    field<unsigned int> m_unk0_field;
+    field<unsigned int> m_unk1_field;
+
+public:
+    // (default ctor)
+    // Sets up event handlers for the subfields to propagate any changes to
+    // the event on the outer field (this).
+    field()
+    {
+        for (int i = 0; i < 4; i++) {
+            m_corner_fields[i].on_change <<= [this, i](gfx::corner new_value) {
+                auto new_quad = *m_object;
+                new_quad.v[i] = new_value;
+                on_change(new_quad);
+            };
+        }
+        m_unk0_field.on_change <<= [this](unsigned int new_value) {
+            auto new_quad = *m_object;
+            new_quad.unk0 = new_value;
+            on_change(new_quad);
+        };
+        m_unk1_field.on_change <<= [this](unsigned int new_value) {
+            auto new_quad = *m_object;
+            new_quad.unk1 = new_value;
+            on_change(new_quad);
+        };
+    }
+
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const gfx::quad *object)
+    {
+        m_object = object;
+
+        // Also apply the binding to the subfields.
+        if (object) {
+            for (int i = 0; i < 4; i++) {
+                m_corner_fields[i].bind(&object->v[i]);
+            }
+            m_unk0_field.bind(&object->unk0);
+            m_unk1_field.bind(&object->unk1);
+        } else {
+            for (int i = 0; i < 4; i++) {
+                m_corner_fields[i].bind(nullptr);
+            }
+            m_unk0_field.bind(nullptr);
+            m_unk1_field.bind(nullptr);
+        }
+    }
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame()
+    {
+        ImGui::NextColumn();
+        ImGui::Indent();
+
+        const char *corner_labels[] = {
+            "Corner A",
+            "Corner B",
+            "Corner C",
+            "Corner D"
+        };
+        for (int i = 0; i < 4; i++) {
+            ImGui::TextUnformatted(corner_labels[i]);
+            ImGui::NextColumn();
+            ImGui::PushID(i);
+            m_corner_fields[i].frame();
+            ImGui::PopID();
+            ImGui::NextColumn();
+        }
+
+        ImGui::Text("Unknown 0");
+        ImGui::NextColumn();
+        ImGui::PushID(4);
+        m_unk0_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+
+        ImGui::Text("Unknown 1");
+        ImGui::NextColumn();
+        ImGui::PushID(5);
+        m_unk1_field.frame();
+        ImGui::PopID();
+        ImGui::NextColumn();
+
+        ImGui::Unindent();
+        ImGui::NextColumn();
+    }
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<gfx::quad> on_change;
+};
+
+/*
  * edit::asset_metactl
  *
  * This widget displays basic information about an asset, such as its name and
@@ -306,6 +1492,11 @@ private:
     // (var) m_name
     // FIXME explain
     res::atom m_name;
+
+    // (var) m_inner
+    // A pointer to a specialized internal widget which handles the specific
+    // type of the selected asset.
+    std::unique_ptr<util::polymorphic> m_inner;
 
     // (handler) h_asset_appear, h_asset_disappear
     // Hooks the project's on_asset_appear and on_asset_disappear events so
@@ -504,9 +1695,6 @@ public:
     using viewport::get_screen_pos;
 };
 
-// FIXME - temporary global for compatibility
-extern res::atom g_selected_asset;
-
 // FIXME FIXME FIXME FIXME FIXME
 // slightly newer but still obsolete code below
 
@@ -532,137 +1720,6 @@ public:
     explicit main_window(context &ctx);
 
     using window::show;
-};
-
-//// SEEN BELOW: soon-to-be-obsolete code ////
-
-class im_canvas : public gui::widget_im {
-private:
-    void frame() final override;
-
-public:
-    im_canvas(gui::container &parent, gui::layout layout) :
-        widget_im(parent, layout) {}
-
-    using widget_im::show;
-
-    util::event<int, int, int> on_frame;
-};
-
-using res::project;
-
-class core; // FIXME
-
-class old_editor;
-
-class main_view : private util::nocopy {
-    friend class core; // FIXME
-
-    friend class pane;
-
-private:
-    old_editor &m_ed;
-    gui::window m_canvas_wnd;
-    im_canvas m_canvas;
-    decltype(m_canvas.on_frame)::watch h_frame;
-
-public:
-    explicit main_view(old_editor &ed);
-
-    void frame(int delta_time);
-
-    void show();
-};
-
-class pane;
-class mode;
-
-class old_editor : private util::nocopy {
-    friend class main_view;
-    friend class pane;
-
-private:
-    project &m_proj;
-    std::list<pane *> m_panes;
-    std::unique_ptr<mode> m_mode;
-
-public:
-    explicit old_editor(project &proj);
-
-    project &get_project() const;
-};
-
-class pane : private util::nocopy {
-private:
-    std::string m_id;
-    decltype(old_editor::m_panes)::iterator m_iter;
-
-protected:
-    old_editor &m_ed;
-
-public:
-    explicit pane(old_editor &ed, std::string id);
-    ~pane();
-
-    virtual void show() = 0;
-
-    const std::string &get_id() const;
-    virtual std::string get_title() const = 0;
-};
-
-class mode : private util::nocopy {
-protected:
-    old_editor &m_ed;
-
-    explicit mode(old_editor &ed) :
-        m_ed(ed) {}
-
-public:
-    virtual ~mode() = default;
-
-    virtual void update(double delta_time) {}
-    virtual void render() {}
-    virtual void show_gui() {}
-};
-
-class modedef : private util::nocopy {
-private:
-    std::string m_title;
-
-protected:
-    explicit modedef(std::string title);
-    ~modedef();
-
-public:
-    static const std::set<modedef*> &get_list();
-
-    const std::string &get_title() const
-    {
-        return m_title;
-    }
-
-    virtual std::unique_ptr<mode> create(old_editor &ed) const = 0;
-};
-
-template <typename T>
-class modedef_of : private modedef {
-public:
-    std::unique_ptr<mode> create(old_editor &ed) const override
-    {
-        return std::unique_ptr<mode>(new T(ed));
-    }
-
-    explicit modedef_of(std::string title) :
-        modedef(title) {}
-};
-
-class core : private util::nocopy {
-public:
-    project &m_proj;
-    old_editor m_ed;
-    edit::main_view m_wnd;
-
-    core(project &proj);
 };
 
 }

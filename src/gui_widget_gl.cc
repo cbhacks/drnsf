@@ -165,9 +165,14 @@ widget_gl::widget_gl(container &parent, layout layout) :
             return 0;
         }
         if (uMsg == WM_KEYDOWN || uMsg == WM_KEYUP) {
-            auto code = keycode(
-                MapVirtualKey((lParam >> 16) & 0xFF, MAPVK_VSC_TO_VK_EX)
-            );
+            auto code = keycode(wParam);
+            if (wParam >= VK_SHIFT && wParam <= VK_MENU) {
+                // Shift, ctrl, and alt need special processing in order to
+                // differentiate between left-hand and right-hand keys.
+                code = keycode(
+                    MapVirtualKey((lParam >> 16) & 0xFF, MAPVK_VSC_TO_VK_EX)
+                );
+            }
             wdg->key(code, uMsg == WM_KEYDOWN);
             return 0;
         }

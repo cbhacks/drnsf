@@ -102,6 +102,7 @@ add_library (imgui OBJECT
     imgui/imgui.cpp
     imgui/imgui_draw.cpp
     imgui/imgui_demo.cpp
+    imgui/imgui_widgets.cpp
 )
 
 add_executable (drnsf
@@ -146,7 +147,6 @@ add_executable (drnsf
     src/gui_menu.cc
     src/gui_menubar.cc
     src/gui_file_dialog.cc
-    src/gui_im.cc
     $<$<BOOL:${USE_WINAPI}>:
         src/frontend/winapi/gui_file_dialog.cc
     >
@@ -169,6 +169,7 @@ add_executable (drnsf
     src/edit.hh
     src/edit_context.cc
     src/edit_menus.cc
+    src/edit_field.cc
     src/edit_asset_metactl.cc
     src/edit_asset_viewctl.cc
     src/edit_asset_propctl.cc
@@ -176,13 +177,6 @@ add_executable (drnsf
     src/edit_asset_tree.cc
     src/edit_map_mainctl.cc
     src/edit_main_window.cc
-    src/edit_im_canvas.cc
-    src/edit_editor.cc
-    src/edit_pane.cc
-    src/edit_core.cc
-    src/edit_mode.cc
-    src/edit_mode_classic.cc
-    src/edit_main_view.cc
 
     src/transact.hh
     src/transact_teller.cc
@@ -198,6 +192,7 @@ add_executable (drnsf
     src/misc.hh
 
     src/nsf.hh
+    src/nsf_eid.cc
     src/nsf_archive.cc
     src/nsf_spage.cc
     src/nsf_entry.cc
