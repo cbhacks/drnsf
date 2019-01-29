@@ -75,15 +75,30 @@ void mni_open::on_activate()
             page->destroy(TS);
 
             // Process all of the entries inside each standard page.
-            for (misc::raw_data::ref pagelet : spage->get_pagelets()) {
+            auto pagelets = spage->get_pagelets();
+            for (auto &p : pagelets) {
+                misc::raw_data::ref pagelet = p;
+
                 nsf::raw_entry::ref entry = pagelet;
                 pagelet->rename(TS, pagelet / "_PROCESSING");
                 pagelet /= "_PROCESSING";
                 entry.create(TS, proj);
                 entry->import_file(TS, pagelet->get_data());
                 pagelet->destroy(TS);
+
+                // Rename the entry asset to "entries/<eid_here>". This brings
+                // all of the entries together as siblings for easy access.
+                auto new_path =
+                    proj.get_asset_root() /
+                    "entries" /
+                    entry->get_eid().str();
+                entry->rename(TS, new_path);
+                entry = new_path;
+                p = new_path;
+
                 entry->process_by_type(TS, nsf::game_ver::crash2);
             }
+            spage->set_pagelets(TS, pagelets);
         }
     });
 
