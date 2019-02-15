@@ -59,13 +59,15 @@ public:
         composite(outer, gui::layout::fill()),
         m_outer(outer),
         m_proj(proj),
-        m_tree(*this, gui::layout::grid(0, 1, 3, 0, 1, 1), proj),
+        m_tree(*this, gui::layout::grid(0, 1, 3, 0, 1, 1)),
         m_mainview(*this, gui::layout::grid(1, 2, 3, 0, 1, 1))
     {
         h_tree_select <<= [this](res::atom atom) {
             m_mainview.set_name(atom);
         };
         h_tree_select.bind(m_tree.on_select);
+
+        m_tree.set_base(m_proj.get_asset_root());
 
         m_tree.show();
         m_mainview.show();

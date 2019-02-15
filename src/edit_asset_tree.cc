@@ -37,9 +37,10 @@ private:
     // A reference to the outer asset_tree.
     asset_tree &m_outer;
 
-    // (var) m_proj
-    // A reference to the project this tree applies to.
-    res::project &m_proj;
+    // (var) m_base
+    // A reference to the base of the tree to display. If the base is a project
+    // root, the entire project's set of assets is displayed.
+    res::atom m_base;
 
     // (var) m_selected_asset
     // The selected asset name.
@@ -69,31 +70,23 @@ private:
     // asset.
     std::shared_ptr<node> m_selected_node;
 
-    // (handler) h_asset_appear
-    // Hooks the project's on_asset_appear event so that the asset can be
-    // added to the tree when this occurs.
-    decltype(res::project::on_asset_appear)::watch h_asset_appear;
-
-    // (handler) h_asset_disappear
-    // Hooks the project's on_asset_disappear event so that the asset can
-    // be removed from the tree when this occurs.
-    decltype(res::project::on_asset_disappear)::watch h_asset_disappear;
+    // (var) m_tracker
+    // Tracks the `m_base' asset name to handle asset appear/disappear events.
+    res::tree_tracker<res::asset> m_tracker;
 
 public:
     // (explicit ctor)
     // Initializes the treeview widget and installs event handlers.
     explicit impl(
-        asset_tree &outer,
-        res::project &proj) :
+        asset_tree &outer) :
         composite(outer, gui::layout::fill()),
         m_outer(outer),
-        m_proj(proj),
         m_tree(*this, gui::layout::fill())
     {
-        h_asset_appear <<= [this](res::asset &asset) {
-            auto name = asset.get_name();
+        m_tracker.on_acquire <<= [this](res::asset *asset) {
+            auto name = asset->get_name();
             auto &atom_node_wp = m_atom_nodes[name];
-            auto &atom_node_sp = m_asset_nodes[&asset];
+            auto &atom_node_sp = m_asset_nodes[asset];
             atom_node_sp = atom_node_wp.lock();
             if (!atom_node_sp) {
                 atom_node_sp = std::make_shared<node>(
@@ -103,12 +96,9 @@ public:
                 atom_node_wp = atom_node_sp;
             }
         };
-        h_asset_appear.bind(m_proj.on_asset_appear);
-
-        h_asset_disappear <<= [this](res::asset &asset) {
-            m_asset_nodes.erase(&asset);
+        m_tracker.on_lose <<= [this](res::asset *asset) {
+            m_asset_nodes.erase(asset);
         };
-        h_asset_disappear.bind(m_proj.on_asset_disappear);
 
         m_tree.show();
     }
@@ -146,7 +136,7 @@ public:
     explicit node(impl &view, res::atom atom)
     {
         auto parent_atom = atom.get_parent();
-        if (parent_atom == view.m_proj.get_asset_root()) {
+        if (parent_atom == view.m_base) {
             m_treenode = std::make_unique<gui::treeview::node>(
                 view.m_tree
             );
@@ -184,10 +174,10 @@ public:
 };
 
 // declared in edit.hh
-asset_tree::asset_tree(gui::container &parent, gui::layout layout, res::project &proj) :
+asset_tree::asset_tree(gui::container &parent, gui::layout layout) :
     composite(parent, layout)
 {
-    M = new impl(*this, proj);
+    M = new impl(*this);
     M->show();
 }
 
@@ -195,6 +185,24 @@ asset_tree::asset_tree(gui::container &parent, gui::layout layout, res::project 
 asset_tree::~asset_tree()
 {
     delete M;
+}
+
+// declared in edit.hh
+const res::atom &asset_tree::get_base() const
+{
+    return M->m_base;
+}
+
+// declared in edit.hh
+void asset_tree::set_base(res::atom base)
+{
+    if (base == M->m_base) {
+        return;
+    }
+
+    M->m_selected_node = nullptr;
+    M->m_base = base;
+    M->m_tracker.set_base(base);
 }
 
 }

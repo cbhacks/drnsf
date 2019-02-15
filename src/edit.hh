@@ -1815,11 +1815,21 @@ private:
 public:
     // (ctor)
     // Constructs the widget and places it in the given parent container.
-    asset_tree(gui::container &parent, gui::layout layout, res::project &proj);
+    asset_tree(gui::container &parent, gui::layout layout);
 
     // (dtor)
     // Destroys the widget, removing it from the parent container.
     ~asset_tree();
+
+    // (func) get_base, set_base
+    // Gets or sets the base of the tree which the widget displays. If this is
+    // a root name (i.e. a project root), the entire tree under that root is
+    // displayed. If the name is null, nothing is displayed.
+    //
+    // The specified base itself does not appear in the tree, and the user
+    // cannot select it.
+    const res::atom &get_base() const;
+    void set_base(res::atom base);
 
     using composite::show;
     using composite::hide;
