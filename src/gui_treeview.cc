@@ -79,22 +79,42 @@ void treeview::node::run()
 }
 
 // declared in gui.hh
-treeview::node::node(treeview &parent) :
+treeview::node::node(
+    treeview &parent,
+    std::function<bool(const node *)> predicate) :
     m_view(parent),
     m_parent(nullptr)
 {
-    parent.m_nodes.push_front(this);
-    m_iter = parent.m_nodes.begin();
+    if (predicate) {
+        auto it = std::find_if_not(
+            parent.m_nodes.begin(),
+            parent.m_nodes.end(),
+            predicate
+        );
+        parent.m_nodes.insert(it, this);
+    } else {
+        parent.m_nodes.push_back(this);
+    }
 }
 
 // declared in gui.hh
-treeview::node::node(node &parent) :
+treeview::node::node(
+    node &parent,
+    std::function<bool(const node *)> predicate) :
     nocopy(),
     m_view(parent.m_view),
     m_parent(&parent)
 {
-    parent.m_subnodes.push_front(this);
-    m_iter = parent.m_subnodes.begin();
+    if (predicate) {
+        auto it = std::find_if_not(
+            parent.m_subnodes.begin(),
+            parent.m_subnodes.end(),
+            predicate
+        );
+        parent.m_subnodes.insert(it, this);
+    } else {
+        parent.m_subnodes.push_back(this);
+    }
 }
 
 // declared in gui.hh
@@ -104,11 +124,24 @@ treeview::node::~node()
         on_deselect();
         m_view.m_selected_node = nullptr;
     }
-    if (m_parent) {
-        m_parent->m_subnodes.erase(m_iter);
-    } else {
-        m_view.m_nodes.erase(m_iter);
-    }
+
+    // Remove the node pointer from the list of itself and its siblings. If
+    // this is a top-level node, the list is held in the treeview. For child
+    // nodes, the list is held in the parent node.
+    //
+    // The list is searched backwards to optimize for the case where nodes with
+    // a shorter lifetime are placed at the end. This occurs especially for
+    // nodes which represent indices of an array, where later nodes will never
+    // outlive earlier ones.
+    auto &nodes = m_parent ? m_parent->m_subnodes : m_view.m_nodes;
+    auto it = std::find(nodes.rbegin(), nodes.rend(), this);
+    nodes.erase(it.base() - 1);
+}
+
+// declared in gui.hh
+const std::string &treeview::node::get_text() const
+{
+    return m_text;
 }
 
 // declared in gui.hh

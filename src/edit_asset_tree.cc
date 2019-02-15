@@ -138,7 +138,10 @@ public:
         auto parent_atom = atom.get_parent();
         if (parent_atom == view.m_base) {
             m_treenode = std::make_unique<gui::treeview::node>(
-                view.m_tree
+                view.m_tree,
+                [atom](const gui::treeview::node *n) -> bool {
+                    return n->get_text() < atom.name();
+                }
             );
         } else {
             auto &parent_node_wp = view.m_atom_nodes[parent_atom];
@@ -151,7 +154,10 @@ public:
                 parent_node_wp = m_parent;
             }
             m_treenode = std::make_unique<gui::treeview::node>(
-                *m_parent->m_treenode
+                *m_parent->m_treenode,
+                [atom](const gui::treeview::node *n) -> bool {
+                    return n->get_text() < atom.name();
+                }
             );
         }
         m_treenode->set_text(atom.name());
