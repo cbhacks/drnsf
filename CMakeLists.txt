@@ -174,7 +174,6 @@ add_executable (drnsf
     src/edit_asset_metactl.cc
     src/edit_asset_viewctl.cc
     src/edit_asset_propctl.cc
-    src/edit_asset_editor.cc
     src/edit_asset_tree.cc
     src/edit_main_window.cc
     src/edit_mode_assets.hh

@@ -1768,37 +1768,6 @@ public:
 };
 
 /*
- * edit::asset_editor
- *
- * FIXME explain
- */
-class asset_editor : private gui::composite {
-private:
-    // inner class defined in edit_asset_editor.cc
-    class impl;
-
-    // (var) M
-    // The pointer to the internal implementation object (PIMPL).
-    impl *M;
-
-public:
-    // (ctor)
-    // Constructs the widget and places it in the given parent container.
-    asset_editor(gui::container &parent, gui::layout layout, res::project &proj);
-
-    // (dtor)
-    // Destroys the widget, removing it from the parent container.
-    ~asset_editor();
-
-    using composite::show;
-    using composite::hide;
-    using composite::get_layout;
-    using composite::set_layout;
-    using composite::get_real_size;
-    using composite::get_screen_pos;
-};
-
-/*
  * edit::asset_tree
  *
  * FIXME explain
@@ -1857,36 +1826,6 @@ public:
 
 // FIXME FIXME FIXME FIXME FIXME
 // slightly newer but still obsolete code below
-
-namespace mode_interrim {
-
-class handler : public mode_handler, private gui::composite {
-private:
-    asset_editor m_assets_view{
-        *this,
-        gui::layout::fill(),
-        *m_ctx.get_proj()};
-
-public:
-    explicit handler(gui::container &parent, context &ctx) :
-        mode_handler(ctx),
-        composite(parent, gui::layout::fill())
-    {
-        m_assets_view.show();
-    }
-
-    void start() override
-    {
-        show();
-    }
-
-    void stop() noexcept override
-    {
-        hide();
-    }
-};
-
-}
 
 class main_window : private gui::window {
 private:
