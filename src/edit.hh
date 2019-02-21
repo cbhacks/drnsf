@@ -1848,6 +1848,9 @@ public:
 /*
  * See other files for individual editor modes:
  *
+ *  - Assets mode
+ *    edit_mode_assets.hh (edit::mode_assets)
+ *
  *  - Map mode
  *    edit_mode_map.hh (edit::mode_map)
  */
