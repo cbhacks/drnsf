@@ -205,6 +205,14 @@ public:
             );
             m_event = nullptr;
         }
+
+        // (func) is_bound
+        // Returns true if the watch is currently bound to an event, or false
+        // otherwise.
+        bool is_bound() const
+        {
+            return bool(m_event);
+        }
     };
 
 private:

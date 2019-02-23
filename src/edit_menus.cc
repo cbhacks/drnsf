@@ -212,9 +212,18 @@ mni_undo::mni_undo(gui::menu &menu, context &ctx) :
     h_status_change <<= [this]{
         update();
     };
-    h_status_change.bind(ctx.get_proj()->get_transact().on_status_change);
-    // FIXME handle context project change
-    update();
+
+    h_project_change <<= [this](const std::shared_ptr<res::project> &proj) {
+        if (h_status_change.is_bound()) {
+            h_status_change.unbind();
+        }
+        if (proj) {
+            h_status_change.bind(proj->get_transact().on_status_change);
+        }
+        update();
+    };
+    h_project_change.bind(ctx.on_project_change);
+    h_project_change(ctx.get_proj());
 }
 
 // (s-func) get_redo_str
@@ -267,9 +276,18 @@ mni_redo::mni_redo(gui::menu &menu, context &ctx) :
     h_status_change <<= [this]{
         update();
     };
-    h_status_change.bind(ctx.get_proj()->get_transact().on_status_change);
-    // FIXME handle context project change
-    update();
+
+    h_project_change <<= [this](const std::shared_ptr<res::project> &proj) {
+        if (h_status_change.is_bound()) {
+            h_status_change.unbind();
+        }
+        if (proj) {
+            h_status_change.bind(proj->get_transact().on_status_change);
+        }
+        update();
+    };
+    h_project_change.bind(ctx.on_project_change);
+    h_project_change(ctx.get_proj());
 }
 
 }

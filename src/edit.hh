@@ -344,6 +344,7 @@ private:
     void on_activate() final override;
 
     decltype(transact::nexus::on_status_change)::watch h_status_change;
+    decltype(context::on_project_change)::watch h_project_change;
 
 public:
     explicit mni_undo(gui::menu &menu, context &ctx);
@@ -362,6 +363,7 @@ private:
     void on_activate() final override;
 
     decltype(transact::nexus::on_status_change)::watch h_status_change;
+    decltype(context::on_project_change)::watch h_project_change;
 
 public:
     explicit mni_redo(gui::menu &menu, context &ctx);
