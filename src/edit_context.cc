@@ -25,12 +25,6 @@ namespace drnsf {
 namespace edit {
 
 // declared in edit.hh
-context::context(std::shared_ptr<res::project> proj) :
-    m_proj(std::move(proj))
-{
-}
-
-// declared in edit.hh
 const std::shared_ptr<res::project> &context::get_proj() const
 {
     return m_proj;

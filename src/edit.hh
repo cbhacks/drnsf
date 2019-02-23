@@ -56,10 +56,9 @@ private:
     std::shared_ptr<res::project> m_proj;
 
 public:
-    // (explicit ctor)
-    // Creates a context with the specified project open. The context takes a
-    // copy of the shared pointer.
-    explicit context(std::shared_ptr<res::project> proj);
+    // (default ctor)
+    // Creates a context with no project initially open.
+    context() = default;
 
     // (func) get_proj, set_proj
     // Gets or sets the project associated with this context.

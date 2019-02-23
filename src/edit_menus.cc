@@ -37,7 +37,7 @@ void mni_open::on_activate()
     }
 
     // Create the new project to import into.
-    auto proj_p = m_ctx.get_proj(); //FIXME
+    auto proj_p = std::make_shared<res::project>();
     auto &proj = *proj_p;
 
     proj.get_transact().run([&](TRANSACT) {
@@ -103,7 +103,7 @@ void mni_open::on_activate()
     });
 
     // Point the context to the newly opened project.
-    // TODO
+    m_ctx.set_proj(proj_p);
 }
 
 // declared in edit.hh
