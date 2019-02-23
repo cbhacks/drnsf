@@ -674,7 +674,7 @@ public:
             h_asset_appear.unbind();
             h_asset_disappear.unbind();
             report(m_base.get_as<T>(), false);
-            for (auto &&descendant : base.get_children_recursive()) {
+            for (auto &&descendant : m_base.get_children_recursive()) {
                 report(descendant.get_as<T>(), false);
             }
         }
@@ -687,7 +687,7 @@ public:
             h_asset_appear.bind(m_base.get_proj()->on_asset_appear);
             h_asset_disappear.bind(m_base.get_proj()->on_asset_disappear);
             report(m_base.get_as<T>(), true);
-            for (auto &&descendant : base.get_children_recursive()) {
+            for (auto &&descendant : m_base.get_children_recursive()) {
                 report(descendant.get_as<T>(), true);
             }
         }
