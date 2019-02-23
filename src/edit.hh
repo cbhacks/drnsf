@@ -291,10 +291,10 @@ private:
     context &m_ctx;
     void on_activate() final override;
 
+    decltype(context::on_project_change)::watch h_project_change;
+
 public:
-    explicit mni_save_as(gui::menu &menu, context &ctx) :
-        item(menu, "Save As"),
-        m_ctx(ctx) {}
+    explicit mni_save_as(gui::menu &menu, context &ctx);
 };
 
 /*

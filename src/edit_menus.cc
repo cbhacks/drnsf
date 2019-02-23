@@ -107,12 +107,23 @@ void mni_open::on_activate()
 }
 
 // declared in edit.hh
+mni_save_as::mni_save_as(gui::menu &menu, context &ctx) :
+    item(menu, "Save As"),
+    m_ctx(ctx)
+{
+    h_project_change <<= [this](const std::shared_ptr<res::project> &proj) {
+        set_enabled(m_ctx.get_proj() != nullptr);
+    };
+    h_project_change.bind(ctx.on_project_change);
+    h_project_change(ctx.get_proj());
+}
+
+// declared in edit.hh
 void mni_save_as::on_activate()
 {
     // Verify that there is an open project.
     auto proj = m_ctx.get_proj();
     if (!proj) {
-        // TODO - error message box?
         return;
     }
 
