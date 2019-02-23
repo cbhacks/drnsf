@@ -298,6 +298,23 @@ public:
 };
 
 /*
+ * edit::menus::mni_close
+ *
+ * File -> Close
+ * Closes the currently open project.
+ */
+class mni_close : private gui::menu::item {
+private:
+    context &m_ctx;
+    void on_activate() final override;
+
+    decltype(context::on_project_change)::watch h_project_change;
+
+public:
+    explicit mni_close(gui::menu &menu, context &ctx);
+};
+
+/*
  * edit::menus::mni_exit
  *
  * File -> Exit
@@ -322,6 +339,7 @@ private:
     context &m_ctx;
     mni_open m_open{*this, m_ctx};
     mni_save_as m_save_as{*this, m_ctx};
+    mni_close m_close{*this, m_ctx};
     mni_exit m_exit{*this};
 
 public:

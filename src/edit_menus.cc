@@ -164,6 +164,24 @@ void mni_save_as::on_activate()
 }
 
 // declared in edit.hh
+mni_close::mni_close(gui::menu &menu, context &ctx) :
+    item(menu, "Close"),
+    m_ctx(ctx)
+{
+    h_project_change <<= [this](const std::shared_ptr<res::project> &proj) {
+        set_enabled(m_ctx.get_proj() != nullptr);
+    };
+    h_project_change.bind(ctx.on_project_change);
+    h_project_change(ctx.get_proj());
+}
+
+// declared in edit.hh
+void mni_close::on_activate()
+{
+    m_ctx.set_proj(nullptr);
+}
+
+// declared in edit.hh
 void mni_exit::on_activate()
 {
     // Check for unsaved changes and prompt the user to confirm they wish to
