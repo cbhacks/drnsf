@@ -1836,6 +1836,9 @@ public:
 /*
  * See other files for individual editor modes:
  *
+ *  - Classic mode
+ *    edit_mode_classic.hh (edit::mode_classic)
+ *
  *  - Assets mode
  *    edit_mode_assets.hh (edit::mode_assets)
  *

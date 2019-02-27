@@ -150,5 +150,11 @@ void treeview::node::set_text(const std::string &text)
     m_text = text;
 }
 
+// declared in gui.hh
+bool treeview::node::is_selected() const
+{
+    return m_view.m_selected_node == this;
+}
+
 }
 }

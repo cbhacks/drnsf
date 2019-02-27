@@ -164,7 +164,7 @@ public:
                 throw std::logic_error("util::watch::(call op): no func");
             }
 
-            m_func(std::forward<Args...>(args...));
+            m_func(std::forward<Args>(args)...);
         }
 
         // (func) bind

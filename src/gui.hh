@@ -1040,7 +1040,9 @@ public:
         std::function<bool(const node *)> predicate = nullptr);
 
     // (dtor)
-    // FIXME explain
+    // Removes the node from the treeview. If this is the selected node, the
+    // `on_deselect' event is raised and the treeview ceases to have a selected
+    // node (i.e. selected node is null).
     ~node();
 
     // (func) get_text, set_text
@@ -1048,12 +1050,23 @@ public:
     const std::string &get_text() const;
     void set_text(const std::string &text);
 
+    // (func) is_selected
+    // Returns true if this node is the selected node in the tree (if any), or
+    // false otherwise.
+    bool is_selected() const;
+
     // (event) on_select
     // FIXME explain
     util::event<> on_select;
 
     // (event) on_deselect
     // FIXME explain
+    //
+    // This event is raised during destruction of the node if the node is the
+    // selected node at that time. This can lead to some unintuitive program
+    // flows, for example if the node's destruction is part of a larger object
+    // destructor and an event handler for this event accesses other subobjects
+    // which may have been destroyed prior to the selected node.
     util::event<> on_deselect;
 };
 

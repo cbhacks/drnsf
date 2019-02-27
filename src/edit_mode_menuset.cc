@@ -21,6 +21,7 @@
 #include "common.hh"
 #include "edit.hh"
 
+#include "edit_mode_classic.hh"
 #include "edit_mode_assets.hh"
 #include "edit_mode_map.hh"
 
@@ -70,10 +71,12 @@ public:
 
 // declared in edit.hh
 struct mode_menuset::impl {
+    mode_menuitem<mode_classic::handler> classic;
     mode_menuitem<mode_assets::handler> assets;
     mode_menuitem<mode_map::handler> map;
 
     impl(gui::menu &menu, mode_widget &wdg) :
+        classic(menu, wdg, "Classic"),
         assets(menu, wdg, "Assets"),
         map(menu, wdg, "Map") {}
 };
