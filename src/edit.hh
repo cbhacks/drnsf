@@ -29,6 +29,7 @@
 #include <list>
 #include <set>
 #include <unordered_map>
+#include <typeindex>
 #include "../imgui/imgui.h"
 #include "res.hh"
 #include "transact.hh"
@@ -42,23 +43,36 @@
 namespace drnsf {
 namespace edit {
 
+// defined later in this file
+class base_window;
+
 /*
  * edit::context
  *
  * FIXME explain
  */
 class context : private util::nocopy {
+    friend class base_window;
+
 private:
     // (var) m_proj
     // The project currently open under this context, or null if there is no
     // project currently open.
     std::shared_ptr<res::project> m_proj;
 
+    // (var) m_windows
+    // The windows associated with this context. Some of these windows are also
+    // owned by the context.
+    std::vector<base_window *> m_windows;
+
 public:
-    // (explicit ctor)
-    // Creates a context with the specified project open. The context takes a
-    // copy of the shared pointer.
-    explicit context(std::shared_ptr<res::project> proj);
+    // (default ctor)
+    // Creates a context with no project initially open.
+    context() = default;
+
+    // (dtor)
+    // Destroys the remaining windows owned by the context.
+    ~context();
 
     // (func) get_proj, set_proj
     // Gets or sets the project associated with this context.
@@ -74,11 +88,267 @@ public:
     const std::shared_ptr<res::project> &get_proj() const;
     void set_proj(std::shared_ptr<res::project> proj);
 
+    // (func) make_window
+    // Creates a new window of the specified type. The given parameters are
+    // forwarded to the constructor, along with a reference to the context.
+    //
+    // For example, if called as such:
+    //
+    //  make_window<foo>(a, b, c);
+    //
+    // The constructor is called with parameters `a', `b', `c', and `*this'.
+    //
+    // The specified type must be derived from `base_window'. The window is
+    // destroyed when the context is destroyed, or when the `close' method is
+    // called on the window (by default this occurs if the user requests that
+    // the window close).
+    //
+    // The window is initially hidden.
+    template <typename T, typename... Args>
+    T &make_window(Args... args);
+
     // (event) on_project_change
     // Raised whenever the project is changed by `set_proj'. The previous
     // project, if any, will be kept alive during the execution of this event's
     // handlers, but may be released once the event has finished.
     util::event<const std::shared_ptr<res::project> &> on_project_change;
+};
+
+/*
+ * edit::base_window
+ *
+ * FIXME explain
+ */
+class base_window : public gui::window {
+    friend class context;
+
+private:
+    // (var) m_owned_by_context
+    // True if this window is owned by its associated context, false otherwise.
+    bool m_owned_by_context = false;
+
+protected:
+    // (var) m_ctx
+    // A reference to the context this window is associated with.
+    context &m_ctx;
+
+    // (func) on_close_request
+    // Implements the close request method for `gui::window'. Closes the window
+    // if it is owned by the associated context. Otherwise, no change occurs.
+    //
+    // Derived types may override this behavior and may or may not call this
+    // method implementation.
+    void on_close_request() override;
+
+public:
+    // (explicit ctor)
+    // Constructs the window with the given title and size, and associates it
+    // with the given context.
+    explicit base_window(
+        const std::string &title,
+        int width,
+        int height,
+        context &ctx);
+
+    // (dtor)
+    // Destroys the window and removes it from the context.
+    virtual ~base_window();
+
+    // (func) close
+    // Closes the window and destroys it.
+    //
+    // This function must only be called on windows which are owned by their
+    // associated context (i.e. created by the context's `make_window' method).
+    void close();
+};
+
+// declared above
+template <typename T, typename... Args>
+inline T &context::make_window(Args... args)
+{
+    auto t = new T(std::forward<Args>(args)..., *this);
+    t->m_owned_by_context = true;
+    return *t;
+}
+
+/*
+ * edit::mode_handler
+ *
+ * FIXME explain
+ */
+class mode_handler : private util::nocopy {
+protected:
+    // (var) m_ctx
+    // A reference to the context which this mode operates on.
+    context &m_ctx;
+
+public:
+    // (explicit ctor)
+    // FIXME explain
+    explicit mode_handler(context &ctx) :
+        m_ctx(ctx) {}
+
+    // (dtor)
+    // Destroys the mode object. This destructor is virtual to allow
+    // destruction of derived type objects through a base-class unique_ptr as
+    // used in `mode_widget'.
+    virtual ~mode_handler() = default;
+
+    // (pure func) start
+    // This is called when the owning `mode_widget' switches to this mode.
+    virtual void start() = 0;
+
+    // (pure func) stop
+    // This is called when the owning `mode_widget' switches away from this
+    // mode. When switching between two modes, `stop' is called on the previous
+    // mode before `start' is called on the new one.
+    virtual void stop() noexcept = 0;
+};
+
+/*
+ * edit::mode_widget
+ *
+ * FIXME explain
+ */
+class mode_widget : private gui::composite {
+private:
+    // (var) m_ctx
+    // A reference to the context which this widget and its modes operate on.
+    context &m_ctx;
+
+    // (var) m_modes
+    // A map of the mode handler objects for this manager. This map is populated
+    // on-demand when switching to new modes.
+    std::unordered_map<
+        std::type_index,
+        std::unique_ptr<mode_handler>> m_modes;
+
+    // (var) m_current_mode
+    // A pointer to this window's handler object for the current mode. This is
+    // null if no mode is currently active.
+    mode_handler *m_current_mode = nullptr;
+
+    // (var) m_current_mode_typeindex
+    // The std::type_index of the current mode. This value is only meaningful
+    // if `m_current_mode' is non-null.
+    std::type_index m_current_mode_typeindex = typeid(void);
+
+protected:
+    // (var) m_modeless_content
+    // This widget is visible when no mode is currently selected. Derived types
+    // may place any relevant UI content here, such as an informational message
+    // about no mode being selected. This widget spans the full size of the
+    // mode_widget.
+    gui::composite m_modeless_content{*this, gui::layout::fill()};
+
+public:
+    // (explicit ctor)
+    // Constructs the widget with no mode set. The given context is used for
+    // all of the modes this widget will contain.
+    explicit mode_widget(
+        gui::container &parent,
+        gui::layout layout,
+        context &ctx) :
+        composite(parent, layout),
+        m_ctx(ctx)
+    {
+        m_modeless_content.show();
+    }
+
+    // (func) is_mode
+    // Returns true if the current mode matches the specified mode type.
+    template <typename T>
+    bool is_mode() const noexcept
+    {
+        return m_current_mode && m_current_mode_typeindex == typeid(T);
+    }
+
+    // (func) set_mode
+    // Switches the widget from its current mode to the specified mode. If both
+    // modes are the same, no change occurs. If the specified mode is not
+    // present in the map, one is constructed.
+    //
+    // The current mode, if any, receives a `stop' method call before the
+    // specified mode receives a `start' call.
+    //
+    // The destination mode is specified by template type.
+    template <typename T>
+    void set_mode()
+    {
+        std::type_index typeindex = typeid(T);
+
+        auto &p = m_modes[typeindex];
+        if (!p) {
+            p = std::make_unique<T>(
+                static_cast<gui::container&>(*this),
+                m_ctx
+            );
+        }
+
+        if (m_current_mode) {
+            m_current_mode->stop();
+            m_current_mode = nullptr;
+        } else {
+            m_modeless_content.hide();
+        }
+
+        m_current_mode = p.get();
+        m_current_mode_typeindex = typeindex;
+        try {
+            m_current_mode->start();
+        } catch (...) {
+            m_current_mode = nullptr;
+            m_modeless_content.show();
+            throw;
+        }
+    }
+
+    // (func) unset_mode
+    // Exits the current mode, if any.
+    void unset_mode()
+    {
+        if (m_current_mode) {
+            m_current_mode->stop();
+            m_current_mode = nullptr;
+            m_modeless_content.show();
+        }
+    }
+
+    using composite::show;
+    using composite::hide;
+    using composite::get_layout;
+    using composite::set_layout;
+    using composite::get_real_size;
+    using composite::get_screen_pos;
+};
+
+/*
+ * edit::mode_menuset
+ *
+ * This object provides a set of menu items for each mode available in the
+ * editor. When a mode menu item is clicked, the specified mode_widget switches
+ * to the associated editor mode.
+ */
+class mode_menuset {
+private:
+    // (inner struct) impl
+    // Internal implementation details for this class.
+    struct impl;
+
+    // (var) M
+    // A pointer to the internal implementation object (PIMPL).
+    impl *M;
+
+public:
+    // (explicit ctor)
+    // Constructs the menu items for the various modes and places them in the
+    // given menu. When clicked, the menu items direct the specified mode_widget
+    // to switch modes.
+    explicit mode_menuset(gui::menu &menu, mode_widget &wdg);
+
+    // (dtor)
+    // Removes the menu items from the menu.
+    ~mode_menuset();
 };
 
 namespace menus {
@@ -111,10 +381,27 @@ private:
     context &m_ctx;
     void on_activate() final override;
 
+    decltype(context::on_project_change)::watch h_project_change;
+
 public:
-    explicit mni_save_as(gui::menu &menu, context &ctx) :
-        item(menu, "Save As"),
-        m_ctx(ctx) {}
+    explicit mni_save_as(gui::menu &menu, context &ctx);
+};
+
+/*
+ * edit::menus::mni_close
+ *
+ * File -> Close
+ * Closes the currently open project.
+ */
+class mni_close : private gui::menu::item {
+private:
+    context &m_ctx;
+    void on_activate() final override;
+
+    decltype(context::on_project_change)::watch h_project_change;
+
+public:
+    explicit mni_close(gui::menu &menu, context &ctx);
 };
 
 /*
@@ -142,6 +429,7 @@ private:
     context &m_ctx;
     mni_open m_open{*this, m_ctx};
     mni_save_as m_save_as{*this, m_ctx};
+    mni_close m_close{*this, m_ctx};
     mni_exit m_exit{*this};
 
 public:
@@ -163,6 +451,7 @@ private:
     void on_activate() final override;
 
     decltype(transact::nexus::on_status_change)::watch h_status_change;
+    decltype(context::on_project_change)::watch h_project_change;
 
 public:
     explicit mni_undo(gui::menu &menu, context &ctx);
@@ -181,6 +470,7 @@ private:
     void on_activate() final override;
 
     decltype(transact::nexus::on_status_change)::watch h_status_change;
+    decltype(context::on_project_change)::watch h_project_change;
 
 public:
     explicit mni_redo(gui::menu &menu, context &ctx);
@@ -194,12 +484,48 @@ public:
 class mnu_edit : private gui::menubar::item {
 private:
     context &m_ctx;
+    mode_widget &m_mode_widget;
     mni_undo m_undo{*this, m_ctx};
     mni_redo m_redo{*this, m_ctx};
+    mode_menuset m_modes{*this, m_mode_widget};
 
 public:
-    explicit mnu_edit(gui::menubar &menubar, context &ctx) :
+    explicit mnu_edit(gui::menubar &menubar, context &ctx, mode_widget &wdg) :
         item(menubar, "Edit"),
+        m_ctx(ctx),
+        m_mode_widget(wdg) {}
+};
+
+/*
+ * edit::menus::mni_new_window
+ *
+ * Window -> New Window
+ * Spawns a new editor window.
+ */
+class mni_new_window : private gui::menu::item {
+private:
+    context &m_ctx;
+    void on_activate() final override;
+
+public:
+    explicit mni_new_window(gui::menu &menu, context &ctx) :
+        item(menu, "New Window"),
+        m_ctx(ctx) {}
+};
+
+/*
+ * edit::menus::mnu_window
+ *
+ * "Window" menu.
+ */
+class mnu_window : private gui::menubar::item {
+private:
+    context &m_ctx;
+    mni_new_window m_new_window{*this, m_ctx};
+
+public:
+    explicit mnu_window(gui::menubar &menubar, context &ctx) :
+        item(menubar, "Window"),
         m_ctx(ctx) {}
 };
 
@@ -1584,37 +1910,6 @@ public:
 };
 
 /*
- * edit::asset_editor
- *
- * FIXME explain
- */
-class asset_editor : private gui::composite {
-private:
-    // inner class defined in edit_asset_editor.cc
-    class impl;
-
-    // (var) M
-    // The pointer to the internal implementation object (PIMPL).
-    impl *M;
-
-public:
-    // (ctor)
-    // Constructs the widget and places it in the given parent container.
-    asset_editor(gui::container &parent, gui::layout layout, res::project &proj);
-
-    // (dtor)
-    // Destroys the widget, removing it from the parent container.
-    ~asset_editor();
-
-    using composite::show;
-    using composite::hide;
-    using composite::get_layout;
-    using composite::set_layout;
-    using composite::get_real_size;
-    using composite::get_screen_pos;
-};
-
-/*
  * edit::asset_tree
  *
  * FIXME explain
@@ -1631,11 +1926,21 @@ private:
 public:
     // (ctor)
     // Constructs the widget and places it in the given parent container.
-    asset_tree(gui::container &parent, gui::layout layout, res::project &proj);
+    asset_tree(gui::container &parent, gui::layout layout);
 
     // (dtor)
     // Destroys the widget, removing it from the parent container.
     ~asset_tree();
+
+    // (func) get_base, set_base
+    // Gets or sets the base of the tree which the widget displays. If this is
+    // a root name (i.e. a project root), the entire tree under that root is
+    // displayed. If the name is null, nothing is displayed.
+    //
+    // The specified base itself does not appear in the tree, and the user
+    // cannot select it.
+    const res::atom &get_base() const;
+    void set_base(res::atom base);
 
     using composite::show;
     using composite::hide;
@@ -1652,47 +1957,42 @@ public:
 };
 
 /*
- * edit::map_mainctl
+ * See other files for individual editor modes:
+ *
+ *  - Classic mode
+ *    edit_mode_classic.hh (edit::mode_classic)
+ *
+ *  - Assets mode
+ *    edit_mode_assets.hh (edit::mode_assets)
+ *
+ *  - Map mode
+ *    edit_mode_map.hh (edit::mode_map)
+ */
+
+/*
+ * edit::mode_window
  *
  * FIXME explain
  */
-class map_mainctl : private render::viewport {
+class mode_window : public base_window, private mode_widget {
 private:
-    // (var) m_ctx
-    // The context this map editor is attached to.
-    context &m_ctx;
+    gui::menubar m_menubar{*this};
+    menus::mnu_edit m_mnu_edit{m_menubar, base_window::m_ctx, *this};
 
-    // (var) m_reticle
-    // FIXME explain
-    render::reticle_fig m_reticle{*this};
-
-    // (var) m_world_figs
-    // FIXME explain
-    std::unordered_map<
-        gfx::world *,
-        std::unique_ptr<render::world_fig>> m_world_figs;
-
-    // (handler) h_asset_appear, h_asset_disappear
-    // Hooks the editor context's current project to see when assets come into
-    // and out of existence so their figures can be added or removed on the
-    // viewport.
-    decltype(res::project::on_asset_appear)::watch h_asset_appear;
-    decltype(res::project::on_asset_disappear)::watch h_asset_disappear;
+    // (var) m_modeless_message
+    // An informational message which appears when no mode is selected.
+    gui::label m_modeless_message {m_modeless_content, gui::layout::fill()};
 
 public:
     // (explicit ctor)
-    // FIXME explain
-    explicit map_mainctl(
-        gui::container &parent,
-        gui::layout layout,
-        context &ctx);
+    // Constructs the window and associates it with the given context. No mode
+    // is initially selected in the window.
+    explicit mode_window(context &ctx);
 
-    using viewport::show;
-    using viewport::hide;
-    using viewport::get_layout;
-    using viewport::set_layout;
-    using viewport::get_real_size;
-    using viewport::get_screen_pos;
+    using base_window::show;
+    using mode_widget::is_mode;
+    using mode_widget::set_mode;
+    using mode_widget::unset_mode;
 };
 
 // FIXME FIXME FIXME FIXME FIXME
@@ -1701,17 +2001,11 @@ public:
 class main_window : private gui::window {
 private:
     context &m_ctx;
+    mode_widget m_mode_widget{*this, gui::layout::fill(), m_ctx};
     gui::menubar m_newmenubar{*this};
     menus::mnu_file m_mnu_file{m_newmenubar, m_ctx};
-    menus::mnu_edit m_mnu_edit{m_newmenubar, m_ctx};
-    asset_editor m_assets_view{
-        *this,
-        gui::layout::grid(0, 2, 3, 0, 1, 1),
-        *m_ctx.get_proj()};
-    map_mainctl m_map_view{
-        *this,
-        gui::layout::grid(2, 1, 3, 0, 1, 1),
-        m_ctx};
+    menus::mnu_edit m_mnu_edit{m_newmenubar, m_ctx, m_mode_widget};
+    menus::mnu_window m_mnu_window{m_newmenubar, m_ctx};
 
 protected:
     void on_close_request() override;

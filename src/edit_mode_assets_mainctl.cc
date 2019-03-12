@@ -19,24 +19,42 @@
 //
 
 #include "common.hh"
-#include "../imgui/imgui.h"
 #include "edit.hh"
-#include "res.hh"
+#include "edit_mode_assets.hh"
 
 namespace drnsf {
 namespace edit {
+namespace mode_assets {
 
-main_window::main_window(context &ctx) :
-    window(APP_TITLE, 1024, 768),
+// declared in edit.hh
+mainctl::mainctl(
+    gui::container &parent,
+    gui::layout layout,
+    context &ctx) :
+    composite(parent, layout),
     m_ctx(ctx)
 {
-    m_mode_widget.show();
+    m_tree.on_select <<= [this](res::atom atom) {
+        m_body.set_name(atom);
+    };
+
+    h_project_change <<= [this](const std::shared_ptr<res::project> &proj) {
+        if (proj) {
+            m_tree.set_base(proj->get_asset_root());
+        } else {
+            m_tree.set_base(nullptr);
+        }
+    };
+    h_project_change.bind(m_ctx.on_project_change);
+
+    if (m_ctx.get_proj()) {
+        m_tree.set_base(m_ctx.get_proj()->get_asset_root());
+    }
+
+    m_tree.show();
+    m_body.show();
 }
 
-void main_window::on_close_request()
-{
-    gui::end();
 }
-
 }
 }

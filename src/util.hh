@@ -164,7 +164,7 @@ public:
                 throw std::logic_error("util::watch::(call op): no func");
             }
 
-            m_func(std::forward<Args...>(args...));
+            m_func(std::forward<Args>(args)...);
         }
 
         // (func) bind
@@ -204,6 +204,14 @@ public:
                 m_iter
             );
             m_event = nullptr;
+        }
+
+        // (func) is_bound
+        // Returns true if the watch is currently bound to an event, or false
+        // otherwise.
+        bool is_bound() const
+        {
+            return bool(m_event);
         }
     };
 

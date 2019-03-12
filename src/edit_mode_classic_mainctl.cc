@@ -19,24 +19,40 @@
 //
 
 #include "common.hh"
-#include "../imgui/imgui.h"
 #include "edit.hh"
-#include "res.hh"
+#include "edit_mode_classic.hh"
 
 namespace drnsf {
 namespace edit {
+namespace mode_classic {
 
-main_window::main_window(context &ctx) :
-    window(APP_TITLE, 1024, 768),
+// declared in edit.hh
+mainctl::mainctl(
+    gui::container &parent,
+    gui::layout layout,
+    context &ctx) :
+    composite(parent, layout),
     m_ctx(ctx)
 {
-    m_mode_widget.show();
+    // A separate watch object is used here instead of directly inserting a
+    // function into the event to ensure the handler does not outlive the body
+    // widget; this would cause a problem during destruction if a node was
+    // selected in the tree at that time.
+    h_tree_select <<= [this](res::atom atom) {
+        m_body.set_name(atom);
+    };
+    h_tree_select.bind(m_tree.on_select);
+
+    h_project_change <<= [this](const std::shared_ptr<res::project> &proj) {
+        m_tree.set_proj(proj.get());
+    };
+    h_project_change.bind(m_ctx.on_project_change);
+    h_project_change(m_ctx.get_proj());
+
+    m_tree.show();
+    m_body.show();
 }
 
-void main_window::on_close_request()
-{
-    gui::end();
 }
-
 }
 }

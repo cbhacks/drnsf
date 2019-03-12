@@ -37,7 +37,7 @@ void mni_open::on_activate()
     }
 
     // Create the new project to import into.
-    auto proj_p = m_ctx.get_proj(); //FIXME
+    auto proj_p = std::make_shared<res::project>();
     auto &proj = *proj_p;
 
     proj.get_transact().run([&](TRANSACT) {
@@ -75,20 +75,47 @@ void mni_open::on_activate()
             page->destroy(TS);
 
             // Process all of the entries inside each standard page.
-            for (misc::raw_data::ref pagelet : spage->get_pagelets()) {
+            auto pagelets = spage->get_pagelets();
+            for (auto &p : pagelets) {
+                misc::raw_data::ref pagelet = p;
+
                 nsf::raw_entry::ref entry = pagelet;
                 pagelet->rename(TS, pagelet / "_PROCESSING");
                 pagelet /= "_PROCESSING";
                 entry.create(TS, proj);
                 entry->import_file(TS, pagelet->get_data());
                 pagelet->destroy(TS);
+
+                // Rename the entry asset to "entries/<eid_here>". This brings
+                // all of the entries together as siblings for easy access.
+                auto new_path =
+                    proj.get_asset_root() /
+                    "entries" /
+                    entry->get_eid().str();
+                entry->rename(TS, new_path);
+                entry = new_path;
+                p = new_path;
+
                 entry->process_by_type(TS, nsf::game_ver::crash2);
             }
+            spage->set_pagelets(TS, pagelets);
         }
     });
 
     // Point the context to the newly opened project.
-    // TODO
+    m_ctx.set_proj(proj_p);
+}
+
+// declared in edit.hh
+mni_save_as::mni_save_as(gui::menu &menu, context &ctx) :
+    item(menu, "Save As"),
+    m_ctx(ctx)
+{
+    h_project_change <<= [this](const std::shared_ptr<res::project> &proj) {
+        set_enabled(m_ctx.get_proj() != nullptr);
+    };
+    h_project_change.bind(ctx.on_project_change);
+    h_project_change(ctx.get_proj());
 }
 
 // declared in edit.hh
@@ -97,7 +124,6 @@ void mni_save_as::on_activate()
     // Verify that there is an open project.
     auto proj = m_ctx.get_proj();
     if (!proj) {
-        // TODO - error message box?
         return;
     }
 
@@ -135,6 +161,24 @@ void mni_save_as::on_activate()
     } /*catch (?) {
         TODO - handle errors
     }*/
+}
+
+// declared in edit.hh
+mni_close::mni_close(gui::menu &menu, context &ctx) :
+    item(menu, "Close"),
+    m_ctx(ctx)
+{
+    h_project_change <<= [this](const std::shared_ptr<res::project> &proj) {
+        set_enabled(m_ctx.get_proj() != nullptr);
+    };
+    h_project_change.bind(ctx.on_project_change);
+    h_project_change(ctx.get_proj());
+}
+
+// declared in edit.hh
+void mni_close::on_activate()
+{
+    m_ctx.set_proj(nullptr);
 }
 
 // declared in edit.hh
@@ -197,9 +241,18 @@ mni_undo::mni_undo(gui::menu &menu, context &ctx) :
     h_status_change <<= [this]{
         update();
     };
-    h_status_change.bind(ctx.get_proj()->get_transact().on_status_change);
-    // FIXME handle context project change
-    update();
+
+    h_project_change <<= [this](const std::shared_ptr<res::project> &proj) {
+        if (h_status_change.is_bound()) {
+            h_status_change.unbind();
+        }
+        if (proj) {
+            h_status_change.bind(proj->get_transact().on_status_change);
+        }
+        update();
+    };
+    h_project_change.bind(ctx.on_project_change);
+    h_project_change(ctx.get_proj());
 }
 
 // (s-func) get_redo_str
@@ -252,9 +305,24 @@ mni_redo::mni_redo(gui::menu &menu, context &ctx) :
     h_status_change <<= [this]{
         update();
     };
-    h_status_change.bind(ctx.get_proj()->get_transact().on_status_change);
-    // FIXME handle context project change
-    update();
+
+    h_project_change <<= [this](const std::shared_ptr<res::project> &proj) {
+        if (h_status_change.is_bound()) {
+            h_status_change.unbind();
+        }
+        if (proj) {
+            h_status_change.bind(proj->get_transact().on_status_change);
+        }
+        update();
+    };
+    h_project_change.bind(ctx.on_project_change);
+    h_project_change(ctx.get_proj());
+}
+
+// declared in edit.hh
+void mni_new_window::on_activate()
+{
+    m_ctx.make_window<mode_window>().show();
 }
 
 }

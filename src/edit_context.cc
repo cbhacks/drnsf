@@ -25,12 +25,6 @@ namespace drnsf {
 namespace edit {
 
 // declared in edit.hh
-context::context(std::shared_ptr<res::project> proj) :
-    m_proj(std::move(proj))
-{
-}
-
-// declared in edit.hh
 const std::shared_ptr<res::project> &context::get_proj() const
 {
     return m_proj;
@@ -42,6 +36,18 @@ void context::set_proj(std::shared_ptr<res::project> proj)
     if (m_proj != proj) {
         std::swap(m_proj, proj);
         on_project_change(m_proj);
+    }
+}
+
+// declared in edit.hh
+context::~context()
+{
+    for (size_t i = 0; i < m_windows.size(); i++) {
+        auto window = m_windows[i];
+        if (window->m_owned_by_context) {
+            delete window;
+            i--;
+        }
     }
 }
 

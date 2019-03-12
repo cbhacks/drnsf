@@ -25,37 +25,43 @@ namespace drnsf {
 namespace edit {
 
 // declared in edit.hh
-map_mainctl::map_mainctl(
-    gui::container &parent,
-    gui::layout layout,
+void base_window::on_close_request()
+{
+    if (m_owned_by_context) {
+        close();
+    }
+}
+
+// declared in edit.hh
+base_window::base_window(
+    const std::string &title,
+    int width,
+    int height,
     context &ctx) :
-    viewport(parent, layout),
+    window(title, width, height),
     m_ctx(ctx)
 {
-    h_asset_appear <<= [this](res::asset &asset) {
-        auto world = dynamic_cast<gfx::world *>(&asset);
-        if (world) {
-            auto fig = new render::world_fig(*this);
-            m_world_figs.emplace(
-                world,
-                std::unique_ptr<render::world_fig>(fig)
-            );
-            fig->show();
-            fig->set_world(world);
-        }
-    };
-    h_asset_appear.bind(m_ctx.get_proj()->on_asset_appear);
-    h_asset_disappear <<= [this](res::asset &asset) {
-        auto world = dynamic_cast<gfx::world *>(&asset);
-        if (world) {
-            m_world_figs.erase(world);
-        }
-    };
-    h_asset_disappear.bind(m_ctx.get_proj()->on_asset_disappear);
+    ctx.m_windows.push_back(this);
+}
 
-    // FIXME - support context project switching
+// declared in edit.hh
+base_window::~base_window()
+{
+    m_ctx.m_windows.erase(std::find(
+        m_ctx.m_windows.begin(),
+        m_ctx.m_windows.end(),
+        this
+    ));
+}
 
-    m_reticle.show();
+// declared in edit.hh
+void base_window::close()
+{
+    if (!m_owned_by_context) {
+        throw std::runtime_error("edit::base_window::close: not owned by ctx");
+    }
+
+    delete this;
 }
 
 }

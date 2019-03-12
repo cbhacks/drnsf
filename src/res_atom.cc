@@ -49,6 +49,11 @@ struct atom::nucleus {
     // FIXME explain
     nucleus *m_parent;
 
+    // (var) m_depth
+    // The depth, as explained in the comment for `atom::get_depth'. For the
+    // root this will be zero.
+    int m_depth;
+
     // (var) m_asset
     // FIXME explain
     asset *m_asset;
@@ -90,6 +95,7 @@ atom atom::make_root(project *proj)
     }
     nuc->m_refcount = 0;
     nuc->m_name = "_ROOT";
+    nuc->m_depth = 0;
     nuc->m_parent = nullptr;
     nuc->m_asset = nullptr;
     std::memcpy(nuc + 1, &proj, sizeof(project *));
@@ -218,6 +224,7 @@ atom atom::operator /(const char *s) const
     auto name = static_cast<char *>(newnuc_space) + sizeof(nucleus);
     newnuc->m_refcount = 0;
     newnuc->m_name = name;
+    newnuc->m_depth = m_nuc->m_depth + 1;
     newnuc->m_parent = m_nuc;
     newnuc->m_asset = nullptr;
     std::strcpy(name, s);
@@ -301,6 +308,16 @@ atom atom::get_parent() const
 }
 
 // declared in res.hh
+int atom::get_depth() const
+{
+    if (!m_nuc) {
+        throw std::logic_error("res::atom::get_depth: atom is null");
+    }
+
+    return m_nuc->m_depth;
+}
+
+// declared in res.hh
 std::vector<atom> atom::get_children() const
 {
     if (!m_nuc) {
@@ -359,6 +376,36 @@ project *atom::get_proj() const
     std::memcpy(&proj, top + 1, sizeof(project *));
 
     return proj;
+}
+
+// declared in res.hh
+bool atom::is_descendant_of(const atom &potential_ancestor) const
+{
+    if (!m_nuc) {
+        throw std::logic_error("res::atom::is_descendant_of: atom is null");
+    }
+
+    if (!potential_ancestor) {
+        // Null atoms are never ancestors.
+        return false;
+    }
+
+    // Compute the difference of the depths of the two atoms within the tree.
+    // The potential_ancestor must be less-deep than this atom to possible be
+    // an ancestor.
+    int depth_difference = m_nuc->m_depth - potential_ancestor.m_nuc->m_depth;
+    if (depth_difference <= 0) {
+        return false;
+    }
+
+    // Walk up the ancestral path to the same depth as the given potential
+    // ancestor.
+    auto it = m_nuc;
+    for (int i = 0; i < depth_difference; i++) {
+        it = it->m_parent;
+    }
+
+    return it == potential_ancestor.m_nuc;
 }
 
 }

@@ -61,8 +61,7 @@ change in the future.
     DRNSF_ON_EXIT { gl::shutdown(); };
 
     // Create the editor.
-    auto proj = std::make_shared<res::project>();
-    edit::context ctx(proj);
+    edit::context ctx;
 
     edit::main_window wnd(ctx);
     wnd.show();

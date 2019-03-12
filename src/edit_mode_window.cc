@@ -19,23 +19,20 @@
 //
 
 #include "common.hh"
-#include "../imgui/imgui.h"
 #include "edit.hh"
-#include "res.hh"
 
 namespace drnsf {
 namespace edit {
 
-main_window::main_window(context &ctx) :
-    window(APP_TITLE, 1024, 768),
-    m_ctx(ctx)
+// declared in edit.hh
+mode_window::mode_window(context &ctx) :
+    base_window(APP_NAME " - Alt Window", 800, 600, ctx),
+    mode_widget(static_cast<base_window &>(*this), gui::layout::fill(), ctx)
 {
-    m_mode_widget.show();
-}
+    m_modeless_message.set_text("Select a mode from the \"Edit\" menu.");
+    m_modeless_message.show();
 
-void main_window::on_close_request()
-{
-    gui::end();
+    mode_widget::show();
 }
 
 }

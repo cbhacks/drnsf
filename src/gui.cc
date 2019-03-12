@@ -106,11 +106,11 @@ void run()
             // in the fd_set above without calling select. This results in the
             // event handling section running again.
             int err = select(connfd + 1, &readfds, nullptr, nullptr, &timeout);
-            timeout = timeval{};
             if (err == -1) {
                 // EINTR is a possible error if a signal interrupts the select()
                 // call. In this case, select can simply be called again.
                 if (errno == EINTR) {
+                    timeout = timeval{};
                     continue;
                 }
                 throw std::runtime_error("gui::run: select failed");
@@ -244,12 +244,14 @@ void run()
             // Skip calling update on any widgets. select() will be called with
             // a zero timeout, so if there are no more X events, widgets will be
             // updated on that iteration.
+            timeout = timeval{};
             continue;
         }
 
         // Update all of the workers. This also produces the timeout for the
         // next loop iteration, based on the shortest time received from all
         // of the workers.
+        timeout = timeval{};
         long min_delay = core::update();
         if (min_delay < LONG_MAX / 1000) {
             timeout.tv_usec = min_delay * 1000L;

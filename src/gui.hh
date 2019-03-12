@@ -960,7 +960,7 @@ public:
 private:
     // (var) m_nodes
     // The list of pointers to the top-level nodes in the treeview.
-    std::list<node *> m_nodes;
+    std::vector<node *> m_nodes;
 
     // (var) m_selected_node
     // FIXME explain
@@ -1003,12 +1003,7 @@ private:
 
     // (var) m_subnodes
     // A list of pointers to the child nodes of this node.
-    std::list<node *> m_subnodes;
-
-    // (var) m_iter
-    // An iterator pointing to the pointer to this subnode in the parent's
-    // node list, or the treeview's node list if this is a top-level node.
-    std::list<node *>::iterator m_iter;
+    std::vector<node *> m_subnodes;
 
     // (var) m_expanded
     // True if this node is expanded (its child nodes are visible) or false
@@ -1025,20 +1020,40 @@ private:
 
 public:
     // (explicit ctor)
-    // FIXME explain
-    explicit node(treeview &parent);
+    // Inserts the node into the treeview as a top-level node. If a predicate
+    // is provided, the node is inserted after the first top-level node which
+    // does not satisfy the predicate. If no predicate is provided, or if all
+    // nodes satisfy the predicate, the new node is added to the end of the
+    // list.
+    explicit node(
+        treeview &parent,
+        std::function<bool(const node *)> predicate = nullptr);
 
     // (explicit ctor)
-    // FIXME explain
-    explicit node(node &parent);
+    // Inserts the node into the treeview as a child of the specified parent
+    // node. If a predicate is provided, the node is inserted after the first
+    // sibling node which does not satisfy the predicate. If no predicate is
+    // provided, or if all nodes satisfy the predicate, the new node is added
+    // at the end of the list.
+    explicit node(
+        node &parent,
+        std::function<bool(const node *)> predicate = nullptr);
 
     // (dtor)
-    // FIXME explain
+    // Removes the node from the treeview. If this is the selected node, the
+    // `on_deselect' event is raised and the treeview ceases to have a selected
+    // node (i.e. selected node is null).
     ~node();
 
-    // (func) set_text
-    // FIXME explain
+    // (func) get_text, set_text
+    // Gets or sets the text displayed on this tree node.
+    const std::string &get_text() const;
     void set_text(const std::string &text);
+
+    // (func) is_selected
+    // Returns true if this node is the selected node in the tree (if any), or
+    // false otherwise.
+    bool is_selected() const;
 
     // (event) on_select
     // FIXME explain
@@ -1046,6 +1061,12 @@ public:
 
     // (event) on_deselect
     // FIXME explain
+    //
+    // This event is raised during destruction of the node if the node is the
+    // selected node at that time. This can lead to some unintuitive program
+    // flows, for example if the node's destruction is part of a larger object
+    // destructor and an event handler for this event accesses other subobjects
+    // which may have been destroyed prior to the selected node.
     util::event<> on_deselect;
 };
 

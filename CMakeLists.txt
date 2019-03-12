@@ -168,15 +168,23 @@ add_executable (drnsf
 
     src/edit.hh
     src/edit_context.cc
+    src/edit_base_window.cc
+    src/edit_mode_menuset.cc
     src/edit_menus.cc
     src/edit_field.cc
     src/edit_asset_metactl.cc
     src/edit_asset_viewctl.cc
     src/edit_asset_propctl.cc
-    src/edit_asset_editor.cc
     src/edit_asset_tree.cc
-    src/edit_map_mainctl.cc
     src/edit_main_window.cc
+    src/edit_mode_classic.hh
+    src/edit_mode_classic_tree.cc
+    src/edit_mode_classic_mainctl.cc
+    src/edit_mode_assets.hh
+    src/edit_mode_assets_mainctl.cc
+    src/edit_mode_map.hh
+    src/edit_mode_map_mainctl.cc
+    src/edit_mode_window.cc
 
     src/transact.hh
     src/transact_teller.cc
