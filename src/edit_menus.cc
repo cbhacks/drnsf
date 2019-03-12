@@ -319,6 +319,12 @@ mni_redo::mni_redo(gui::menu &menu, context &ctx) :
     h_project_change(ctx.get_proj());
 }
 
+// declared in edit.hh
+void mni_new_window::on_activate()
+{
+    m_ctx.make_window<mode_window>().show();
+}
+
 }
 }
 }

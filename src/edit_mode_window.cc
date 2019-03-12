@@ -25,30 +25,14 @@ namespace drnsf {
 namespace edit {
 
 // declared in edit.hh
-const std::shared_ptr<res::project> &context::get_proj() const
+mode_window::mode_window(context &ctx) :
+    base_window(APP_NAME " - Alt Window", 800, 600, ctx),
+    mode_widget(static_cast<base_window &>(*this), gui::layout::fill(), ctx)
 {
-    return m_proj;
-}
+    m_modeless_message.set_text("Select a mode from the \"Edit\" menu.");
+    m_modeless_message.show();
 
-// declared in edit.hh
-void context::set_proj(std::shared_ptr<res::project> proj)
-{
-    if (m_proj != proj) {
-        std::swap(m_proj, proj);
-        on_project_change(m_proj);
-    }
-}
-
-// declared in edit.hh
-context::~context()
-{
-    for (size_t i = 0; i < m_windows.size(); i++) {
-        auto window = m_windows[i];
-        if (window->m_owned_by_context) {
-            delete window;
-            i--;
-        }
-    }
+    mode_widget::show();
 }
 
 }

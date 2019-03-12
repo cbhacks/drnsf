@@ -43,22 +43,36 @@
 namespace drnsf {
 namespace edit {
 
+// defined later in this file
+class base_window;
+
 /*
  * edit::context
  *
  * FIXME explain
  */
 class context : private util::nocopy {
+    friend class base_window;
+
 private:
     // (var) m_proj
     // The project currently open under this context, or null if there is no
     // project currently open.
     std::shared_ptr<res::project> m_proj;
 
+    // (var) m_windows
+    // The windows associated with this context. Some of these windows are also
+    // owned by the context.
+    std::vector<base_window *> m_windows;
+
 public:
     // (default ctor)
     // Creates a context with no project initially open.
     context() = default;
+
+    // (dtor)
+    // Destroys the remaining windows owned by the context.
+    ~context();
 
     // (func) get_proj, set_proj
     // Gets or sets the project associated with this context.
@@ -74,12 +88,88 @@ public:
     const std::shared_ptr<res::project> &get_proj() const;
     void set_proj(std::shared_ptr<res::project> proj);
 
+    // (func) make_window
+    // Creates a new window of the specified type. The given parameters are
+    // forwarded to the constructor, along with a reference to the context.
+    //
+    // For example, if called as such:
+    //
+    //  make_window<foo>(a, b, c);
+    //
+    // The constructor is called with parameters `a', `b', `c', and `*this'.
+    //
+    // The specified type must be derived from `base_window'. The window is
+    // destroyed when the context is destroyed, or when the `close' method is
+    // called on the window (by default this occurs if the user requests that
+    // the window close).
+    //
+    // The window is initially hidden.
+    template <typename T, typename... Args>
+    T &make_window(Args... args);
+
     // (event) on_project_change
     // Raised whenever the project is changed by `set_proj'. The previous
     // project, if any, will be kept alive during the execution of this event's
     // handlers, but may be released once the event has finished.
     util::event<const std::shared_ptr<res::project> &> on_project_change;
 };
+
+/*
+ * edit::base_window
+ *
+ * FIXME explain
+ */
+class base_window : public gui::window {
+    friend class context;
+
+private:
+    // (var) m_owned_by_context
+    // True if this window is owned by its associated context, false otherwise.
+    bool m_owned_by_context = false;
+
+protected:
+    // (var) m_ctx
+    // A reference to the context this window is associated with.
+    context &m_ctx;
+
+    // (func) on_close_request
+    // Implements the close request method for `gui::window'. Closes the window
+    // if it is owned by the associated context. Otherwise, no change occurs.
+    //
+    // Derived types may override this behavior and may or may not call this
+    // method implementation.
+    void on_close_request() override;
+
+public:
+    // (explicit ctor)
+    // Constructs the window with the given title and size, and associates it
+    // with the given context.
+    explicit base_window(
+        const std::string &title,
+        int width,
+        int height,
+        context &ctx);
+
+    // (dtor)
+    // Destroys the window and removes it from the context.
+    virtual ~base_window();
+
+    // (func) close
+    // Closes the window and destroys it.
+    //
+    // This function must only be called on windows which are owned by their
+    // associated context (i.e. created by the context's `make_window' method).
+    void close();
+};
+
+// declared above
+template <typename T, typename... Args>
+inline T &context::make_window(Args... args)
+{
+    auto t = new T(std::forward<Args>(args)..., *this);
+    t->m_owned_by_context = true;
+    return *t;
+}
 
 /*
  * edit::mode_handler
@@ -404,6 +494,39 @@ public:
         item(menubar, "Edit"),
         m_ctx(ctx),
         m_mode_widget(wdg) {}
+};
+
+/*
+ * edit::menus::mni_new_window
+ *
+ * Window -> New Window
+ * Spawns a new editor window.
+ */
+class mni_new_window : private gui::menu::item {
+private:
+    context &m_ctx;
+    void on_activate() final override;
+
+public:
+    explicit mni_new_window(gui::menu &menu, context &ctx) :
+        item(menu, "New Window"),
+        m_ctx(ctx) {}
+};
+
+/*
+ * edit::menus::mnu_window
+ *
+ * "Window" menu.
+ */
+class mnu_window : private gui::menubar::item {
+private:
+    context &m_ctx;
+    mni_new_window m_new_window{*this, m_ctx};
+
+public:
+    explicit mnu_window(gui::menubar &menubar, context &ctx) :
+        item(menubar, "Window"),
+        m_ctx(ctx) {}
 };
 
 }
@@ -1846,6 +1969,32 @@ public:
  *    edit_mode_map.hh (edit::mode_map)
  */
 
+/*
+ * edit::mode_window
+ *
+ * FIXME explain
+ */
+class mode_window : public base_window, private mode_widget {
+private:
+    gui::menubar m_menubar{*this};
+    menus::mnu_edit m_mnu_edit{m_menubar, base_window::m_ctx, *this};
+
+    // (var) m_modeless_message
+    // An informational message which appears when no mode is selected.
+    gui::label m_modeless_message {m_modeless_content, gui::layout::fill()};
+
+public:
+    // (explicit ctor)
+    // Constructs the window and associates it with the given context. No mode
+    // is initially selected in the window.
+    explicit mode_window(context &ctx);
+
+    using base_window::show;
+    using mode_widget::is_mode;
+    using mode_widget::set_mode;
+    using mode_widget::unset_mode;
+};
+
 // FIXME FIXME FIXME FIXME FIXME
 // slightly newer but still obsolete code below
 
@@ -1856,6 +2005,7 @@ private:
     gui::menubar m_newmenubar{*this};
     menus::mnu_file m_mnu_file{m_newmenubar, m_ctx};
     menus::mnu_edit m_mnu_edit{m_newmenubar, m_ctx, m_mode_widget};
+    menus::mnu_window m_mnu_window{m_newmenubar, m_ctx};
 
 protected:
     void on_close_request() override;

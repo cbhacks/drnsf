@@ -25,30 +25,43 @@ namespace drnsf {
 namespace edit {
 
 // declared in edit.hh
-const std::shared_ptr<res::project> &context::get_proj() const
+void base_window::on_close_request()
 {
-    return m_proj;
-}
-
-// declared in edit.hh
-void context::set_proj(std::shared_ptr<res::project> proj)
-{
-    if (m_proj != proj) {
-        std::swap(m_proj, proj);
-        on_project_change(m_proj);
+    if (m_owned_by_context) {
+        close();
     }
 }
 
 // declared in edit.hh
-context::~context()
+base_window::base_window(
+    const std::string &title,
+    int width,
+    int height,
+    context &ctx) :
+    window(title, width, height),
+    m_ctx(ctx)
 {
-    for (size_t i = 0; i < m_windows.size(); i++) {
-        auto window = m_windows[i];
-        if (window->m_owned_by_context) {
-            delete window;
-            i--;
-        }
+    ctx.m_windows.push_back(this);
+}
+
+// declared in edit.hh
+base_window::~base_window()
+{
+    m_ctx.m_windows.erase(std::find(
+        m_ctx.m_windows.begin(),
+        m_ctx.m_windows.end(),
+        this
+    ));
+}
+
+// declared in edit.hh
+void base_window::close()
+{
+    if (!m_owned_by_context) {
+        throw std::runtime_error("edit::base_window::close: not owned by ctx");
     }
+
+    delete this;
 }
 
 }
