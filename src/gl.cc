@@ -398,6 +398,34 @@ void any_object::reset_all()
 }
 
 // declared in gl.hh
+void link_program(unsigned int prog)
+{
+    glLinkProgram(prog);
+
+    int status;
+    glGetProgramiv(prog, GL_LINK_STATUS, &status);
+
+    if (!status) {
+        int log_size;
+        glGetProgramiv(prog, GL_INFO_LOG_LENGTH, &log_size);
+
+        std::vector<char> log_buffer(log_size);
+        glGetProgramInfoLog(
+            prog,
+            log_size,
+            nullptr,
+            log_buffer.data()
+        );
+
+        fprintf(stderr, " == BEGIN PROGRAM LINKER LOG ==\n");
+        fprintf(stderr, "%s\n", log_buffer.data());
+        fprintf(stderr, " === END PROGRAM LINKER LOG ===\n");
+
+        throw error("gl::link_program: link failed");
+    }
+}
+
+// declared in gl.hh
 void compile_shader(unsigned int sh, const std::string &code)
 {
     const char *code_cstr = code.c_str();

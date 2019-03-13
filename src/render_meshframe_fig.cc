@@ -112,7 +112,7 @@ void meshframe_fig::draw(const env &e)
             varyings,
             GL_INTERLEAVED_ATTRIBS
         );
-        glLinkProgram(s_triangle_prog);
+        gl::link_program(s_triangle_prog);
 
         s_triangle_prog.ok = true;
     }
@@ -154,7 +154,7 @@ void meshframe_fig::draw(const env &e)
             varyings,
             GL_INTERLEAVED_ATTRIBS
         );
-        glLinkProgram(s_quad_prog);
+        gl::link_program(s_quad_prog);
 
         s_quad_prog.ok = true;
     }
@@ -179,7 +179,7 @@ void meshframe_fig::draw(const env &e)
         glBindAttribLocation(s_main_prog, 0, "a_VertexIndex");
         glBindAttribLocation(s_main_prog, 1, "a_ColorIndex");
         glBindFragDataLocation(s_main_prog, 0, "f_Color");
-        glLinkProgram(s_main_prog);
+        gl::link_program(s_main_prog);
         s_matrix_uni = glGetUniformLocation(s_main_prog, "u_Matrix");
         glUseProgram(s_main_prog);
         glUniform1i(glGetUniformLocation(s_main_prog, "u_VertexList"), 0);

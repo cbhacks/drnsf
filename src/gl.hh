@@ -429,6 +429,14 @@ struct program_traits : base_traits {
 using program = object<program_traits>;
 
 /*
+ * gl::link_program
+ *
+ * Attempts to link the specified GL program. If an error occurs, the program
+ * linker info log is output to the console and a `gl::error' object is thrown.
+ */
+void link_program(unsigned int prog);
+
+/*
  * gl::shader
  * gl::shader_traits
  * gl::vert_shader

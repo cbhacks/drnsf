@@ -152,7 +152,7 @@ void reticle_fig::draw(const env &e)
         glBindAttribLocation(s_prog, 0, "a_Position");
         glBindAttribLocation(s_prog, 1, "a_Axis");
         glBindFragDataLocation(s_prog, 0, "f_Color");
-        glLinkProgram(s_prog);
+        gl::link_program(s_prog);
         s_matrix_uni = glGetUniformLocation(s_prog, "u_Matrix");
 
         s_prog.ok = true;
