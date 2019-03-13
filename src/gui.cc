@@ -301,8 +301,17 @@ void run()
         // of the workers.
         unsigned int timeout = core::update();
 
-        // Block pending new thread or window messages.
-        MsgWaitForMultipleObjects(0, nullptr, false, timeout, QS_ALLEVENTS);
+        // Block pending new thread or window messages. `MWMO_INPUTAVAILABLE'
+        // is specified so that the function does not block if a previously
+        // seen but unhandled event is pending, such as a deferred WM_PAINT
+        // event from the previous loop.
+        MsgWaitForMultipleObjectsEx(
+            0,
+            nullptr,
+            timeout,
+            QS_ALLEVENTS,
+            MWMO_INPUTAVAILABLE
+        );
     }
 #else
 #error Unimplemented UI frontend code.
