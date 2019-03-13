@@ -46,7 +46,6 @@ void main()
     int x_i         = texelFetch(u_VertexList, a_VertexIndex * 5 + 0).r;
     int y_i         = texelFetch(u_VertexList, a_VertexIndex * 5 + 1).r;
     int z_i         = texelFetch(u_VertexList, a_VertexIndex * 5 + 2).r;
-    // FIXME - fx is unsigned in gfx.hh
     int fx          = texelFetch(u_VertexList, a_VertexIndex * 5 + 3).r;
     int color_index = texelFetch(u_VertexList, a_VertexIndex * 5 + 4).r;
 

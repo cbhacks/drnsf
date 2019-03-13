@@ -1176,7 +1176,7 @@ private:
 
     // (var) m_fx_field
     // The subfield for the vertex special effects bits.
-    field<unsigned int> m_fx_field;
+    field<int> m_fx_field;
 
     // (var) m_color_index_field
     // The subfield for the vertex's color index.
@@ -1203,7 +1203,7 @@ public:
             new_vtx.z = new_value;
             on_change(new_vtx);
         };
-        m_fx_field.on_change <<= [this](unsigned int new_value) {
+        m_fx_field.on_change <<= [this](int new_value) {
             auto new_vtx = *m_object;
             new_vtx.fx = new_value;
             on_change(new_vtx);
