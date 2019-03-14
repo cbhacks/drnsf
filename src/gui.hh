@@ -280,6 +280,57 @@ struct layout {
     }
 };
 
+#if USE_WINAPI
+/*
+ * gui::command
+ *
+ * This type is specific to the WINAPI frontend.
+ *
+ * Base type for objects which need to have WM_COMMAND identifiers, such as
+ * menu items or command buttons.
+ *
+ * Each object of this type is assigned a globally unique ID. When a window
+ * message handler processes a WM_COMMAND message containing this ID, it calls
+ * the `on_command' virtual function of the object assigned that ID.
+ *
+ * The ID's of destroyed command objects are recycled when possible.
+ */
+class command : private util::nocopy {
+private:
+    // (var) m_id
+    // The unique identifier for this command.
+    int m_id;
+
+protected:
+    // (default ctor)
+    // Constructs the command with a new unique identifier.
+    command();
+
+    // (dtor)
+    // Destroys the command and releases its identifier for future reuse.
+    ~command();
+
+    // (func) on_command
+    // Called when a window receives a WM_COMMAND message with the unique ID
+    // assigned to this command object.
+    //
+    // By default, nothing happens.
+    virtual void on_command() {}
+
+public:
+    // (s-func) dispatch
+    // Invokes the command object with the specified identifier, if any.
+    static void dispatch(int id);
+
+    // (func) get_command_id
+    // Returns the unique identifier for this command.
+    int get_command_id() const
+    {
+        return m_id;
+    }
+};
+#endif
+
 // defined later in this file
 class container;
 class window;
@@ -1075,7 +1126,13 @@ public:
  *
  * FIXME explain
  */
-class menu : private popup, private widget_2d {
+class menu :
+#if USE_NATIVE_MENU
+    private util::nocopy
+#else
+    private popup, private widget_2d
+#endif
+{
     friend class menubar;
 
 public:
@@ -1083,6 +1140,11 @@ public:
     class item;
 
 private:
+#if USE_NATIVE_MENU
+    // (var) m_handle
+    // The system handle for this menu.
+    sys_handle m_handle;
+#else
     // (var) m_items
     // The list of pointers to all of the contained menu items.
     std::vector<item *> m_items;
@@ -1119,11 +1181,18 @@ protected:
     // Solve ambiguity of popup::hide vs widget_2d::hide. The widget base
     // should never be hidden.
     using popup::hide;
+#endif
 
 public:
     // (ctor)
     // Initializes an empty menu.
     menu();
+
+#if USE_NATIVE_MENU
+    // (dtor)
+    // Destroys the menu.
+    ~menu();
+#endif
 };
 
 /*
@@ -1131,7 +1200,13 @@ public:
  *
  * FIXME explain
  */
-class menu::item : private util::nocopy {
+class menu::item :
+#if USE_NATIVE_MENU && USE_WINAPI
+    private command
+#else
+    private util::nocopy
+#endif
+{
     friend class menu;
 
 private:
@@ -1154,6 +1229,12 @@ private:
     //
     // The default implementation performs no action.
     virtual void on_activate() {}
+
+#if USE_NATIVE_MENU && USE_WINAPI
+    // (func) on_command
+    // Implements the WM_COMMAND message handler for this menu item.
+    void on_command() final override;
+#endif
 
 public:
     // (explicit ctor)
@@ -1180,7 +1261,13 @@ public:
  *
  * FIXME explain
  */
-class menubar : private widget_2d {
+class menubar :
+#if USE_NATIVE_MENU
+    private util::nocopy
+#else
+    private widget_2d
+#endif
+{
     friend class window;
 
 public:
@@ -1193,6 +1280,11 @@ private:
     // The window this menubar is attached to.
     window &m_wnd;
 
+#if USE_NATIVE_MENU
+    // (var) m_handle
+    // The system handle for this menubar.
+    sys_handle m_handle;
+#else
     // (var) m_items
     // The list of pointers to all of the contained menubar items.
     std::vector<item *> m_items;
@@ -1222,6 +1314,7 @@ private:
     // (func) mousebutton
     // Implements mouse click for clicking on menubar items.
     void mousebutton(mousebtn btn, bool down) final override;
+#endif
 
 public:
     // (explicit ctor)
@@ -1239,7 +1332,13 @@ public:
  *
  * FIXME explain
  */
-class menubar::item : public menu {
+class menubar::item :
+#if USE_NATIVE_MENU && USE_WINAPI
+    public menu, private command
+#else
+    public menu
+#endif
+{
     friend class menubar;
 
 private:
@@ -1251,9 +1350,11 @@ private:
     // The text displayed on this menubar item.
     std::string m_text;
 
+#if !USE_NATIVE_MENU
     // (func) close
     // Implements `menu::close' to close the menu.
     void close() override;
+#endif
 
 public:
     // (explicit ctor)

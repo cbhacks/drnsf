@@ -92,6 +92,10 @@ window::window(const std::string &title, int width, int height) :
             wnd->on_close_request();
             return 0;
         }
+        if (uMsg == WM_COMMAND) {
+            command::dispatch(LOWORD(wParam));
+            return 0;
+        }
         return DefWindowProcW(hwnd, uMsg, wParam, lParam);
     };
     static std::once_flag wndclass_flag;
@@ -188,12 +192,14 @@ void window::get_child_area(int &ctn_x, int &ctn_y, int &ctn_w, int &ctn_h)
     ctn_w = m_width;
     ctn_h = m_height;
 
+#if !USE_NATIVE_MENU
     // Adjust the area for a non-native menubar if present. The menubar's own
     // layout places it above the top of the child area.
     if (m_menubar) {
         ctn_y += 20;
         ctn_h -= 20;
     }
+#endif
 }
 
 }
