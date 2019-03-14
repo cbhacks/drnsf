@@ -186,7 +186,7 @@ public:
  * This figure draws a 400 x 400 x 400 wireframe cube with the origin at its
  * center.
  */
-class reticle_fig : public figure {
+class reticle_fig : private figure {
 private:
     // (var) m_matrix
     // The model matrix for this figure. The view and projection matrix come
@@ -207,6 +207,9 @@ public:
     // Gets or sets the model matrix (m_matrix above).
     const glm::mat4 &get_matrix() const;
     void set_matrix(glm::mat4 matrix);
+
+    using figure::show;
+    using figure::hide;
 };
 
 /*
@@ -218,7 +221,7 @@ public:
  * The frame is given directly by pointer. Any code using this class must ensure
  * the current frame is valid at all times.
  */
-class frameonly_fig : public figure {
+class frameonly_fig : private figure {
 private:
     // (var) m_frame
     // A non-ref pointer to the frame used by this figure.
@@ -254,6 +257,9 @@ public:
     // Gets or sets the model matrix (m_matrix above).
     const glm::mat4 &get_matrix() const;
     void set_matrix(glm::mat4 matrix);
+
+    using figure::show;
+    using figure::hide;
 };
 
 /*
@@ -310,7 +316,7 @@ public:
  * class must ensure that any non-null frame or mesh pointers are valid at all
  * times.
  */
-class meshframe_fig : public figure {
+class meshframe_fig : private figure {
 private:
     // (var) m_mesh
     // A pointer to the mesh used by this figure. This may be null, in which
@@ -370,6 +376,9 @@ public:
     // Gets or sets the model matrix (m_matrix above).
     const glm::mat4 &get_matrix() const;
     void set_matrix(glm::mat4 matrix);
+
+    using figure::show;
+    using figure::hide;
 };
 
 /*
