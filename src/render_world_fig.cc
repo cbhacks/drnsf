@@ -27,51 +27,39 @@ namespace render {
 
 // declared in render.hh
 world_fig::world_fig(viewport &vp) :
-    m_modelfig(vp)
+    model_fig(vp)
 {
     m_model_tracker.on_acquire <<= [this](gfx::model *model) {
-        m_modelfig.set_model(model);
+        set_model(model);
     };
     m_model_tracker.on_lose <<= [this] {
-        m_modelfig.set_model(nullptr);
+        set_model(nullptr);
     };
 
     h_world_model_change <<= [this] {
         m_model_tracker.set_name(m_world->get_model());
     };
     h_world_x_change <<= [this] {
-        m_modelfig.set_matrix(glm::translate(m_matrix, {
+        model_fig::set_matrix(glm::translate(m_matrix, {
             m_world->get_x(),
             m_world->get_y(),
             m_world->get_z()
         }));
     };
     h_world_y_change <<= [this] {
-        m_modelfig.set_matrix(glm::translate(m_matrix, {
+        model_fig::set_matrix(glm::translate(m_matrix, {
             m_world->get_x(),
             m_world->get_y(),
             m_world->get_z()
         }));
     };
     h_world_z_change <<= [this] {
-        m_modelfig.set_matrix(glm::translate(m_matrix, {
+        model_fig::set_matrix(glm::translate(m_matrix, {
             m_world->get_x(),
             m_world->get_y(),
             m_world->get_z()
         }));
     };
-}
-
-// declared in render.hh
-void world_fig::show()
-{
-    m_modelfig.show();
-}
-
-// declared in render.hh
-void world_fig::hide()
-{
-    m_modelfig.hide();
 }
 
 // declared in render.hh
@@ -99,7 +87,7 @@ void world_fig::set_world(gfx::world *world)
             h_world_y_change.bind(m_world->p_y.on_change);
             h_world_z_change.bind(m_world->p_z.on_change);
             m_model_tracker.set_name(m_world->get_model());
-            m_modelfig.set_matrix(glm::translate(m_matrix, {
+            model_fig::set_matrix(glm::translate(m_matrix, {
                 m_world->get_x(),
                 m_world->get_y(),
                 m_world->get_z()
@@ -120,7 +108,7 @@ void world_fig::set_matrix(glm::mat4 matrix)
     m_matrix = matrix;
 
     if (m_world) {
-        m_modelfig.set_matrix(glm::translate(matrix, {
+        model_fig::set_matrix(glm::translate(matrix, {
             m_world->get_x(),
             m_world->get_y(),
             m_world->get_z()

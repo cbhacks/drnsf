@@ -266,26 +266,16 @@ public:
  * the anim pointer is valid or null at all times. The frames in the anim need
  * not be valid, however; animonly_fig will track their validity itself and
  * handle any changes in their values or lifetime.
- *
- * This class is only a pseudo-figure. Rather than implementing the `figure'
- * class itself, this class drives an underlying frameonly_fig figure which
- * renders one frame of the given animation.
  */
-class animonly_fig : private util::nocopy {
+class animonly_fig : private frameonly_fig {
 private:
     // (var) m_anim
     // A non-ref pointer to the anim used by this figure.
     gfx::anim *m_anim = nullptr;
 
-    // (var) m_framefig
-    // The underlying figure which performs the actual rendering for this class.
-    // The animonly_fig drives the frameonly_fig by providing the frame pointers
-    // specified in the animation.
-    frameonly_fig m_framefig;
-
     // (var) m_frame_tracker
     // A helper object which tracks the frame ref and provides the actual frame
-    // pointers needed by `m_framefig'.
+    // pointers needed by `frameonly_fig'.
     res::tracker<gfx::frame> m_frame_tracker;
 
     // (handler) h_anim_frames_change
@@ -299,22 +289,16 @@ public:
     // Constructs the figure. Initially, it does not reference any animation.
     explicit animonly_fig(viewport &vp);
 
-    // (func) show, hide
-    // Changes the visibility of the figure. Since this is not a real figure,
-    // the show/hide calls are passed on to the actual underlying figure.
-    void show();
-    void hide();
-
     // (func) get_anim, set_anim
     // Gets or sets the gfx::anim reference used by this figure. This may be a
     // null pointer, in which case nothing will be drawn.
     gfx::anim * const &get_anim() const;
     void set_anim(gfx::anim *anim);
 
-    // (func) get_matrix, set_matrix
-    // Gets or sets the model matrix (held inside of the frameonly_fig).
-    const glm::mat4 &get_matrix() const;
-    void set_matrix(glm::mat4 matrix);
+    using frameonly_fig::show;
+    using frameonly_fig::hide;
+    using frameonly_fig::get_matrix;
+    using frameonly_fig::set_matrix;
 };
 
 /*
@@ -399,27 +383,17 @@ public:
  * times. The frames of the anim need not be valid, however; meshframe_fig will
  * track their validity itself and handle any changes in their values or
  * lifetime.
- *
- * This class is only a pseudo-figure. Rather than implementing the `figure'
- * class itself, this class drives an underlying meshframe_fig figure which
- * renders one frame of the given animation.
  */
-class meshanim_fig : private util::nocopy {
+class meshanim_fig : private meshframe_fig {
 private:
     // (var) m_anim
     // A pointer to the anim used by this figure. This may be null, in which
     // case rendering will not occur.
     gfx::anim *m_anim = nullptr;
 
-    // (var) m_meshframefig
-    // The underlying figure which performs the actual rendering for this class.
-    // The meshanim_fig drives the meshframe_fig by providing the frame pointers
-    // specified in the animation.
-    meshframe_fig m_meshframefig;
-
     // (var) m_frame_tracker
     // A helper object which tracks the frame ref and provides the actual frame
-    // pointers needed by `m_meshframefig'.
+    // pointers needed by `meshframe_fig'.
     res::tracker<gfx::frame> m_frame_tracker;
 
     // (handler) h_anim_frames_change
@@ -434,28 +408,18 @@ public:
     // or frame.
     explicit meshanim_fig(viewport &vp);
 
-    // (func) show, hide
-    // Changes the visibility of the figure. Since this is not a real figure,
-    // the show/hide calls are passed on to the actual underlying figure.
-    void show();
-    void hide();
-
-    // (func) get_mesh, set_mesh
-    // Gets or sets the gfx::mesh reference used by this figure. This may be a
-    // null pointer.
-    gfx::mesh * const &get_mesh() const;
-    void set_mesh(gfx::mesh *mesh);
-
     // (func) get_anim, set_anim
     // Gets or sets the gfx::anim reference used by this figure. This may be a
     // null pointer.
     gfx::anim * const &get_anim() const;
     void set_anim(gfx::anim *anim);
 
-    // (func) get_matrix, set_matrix
-    // Gets or sets the model matrix (held inside of the meshframe_fig).
-    const glm::mat4 &get_matrix() const;
-    void set_matrix(glm::mat4 matrix);
+    using meshframe_fig::show;
+    using meshframe_fig::hide;
+    using meshframe_fig::get_mesh;
+    using meshframe_fig::set_mesh;
+    using meshframe_fig::get_matrix;
+    using meshframe_fig::set_matrix;
 };
 
 /*
@@ -468,26 +432,17 @@ public:
  * ensure that the model pointer is valid or null at all times. The mesh and
  * anim referenced by the model need not be valid, however; model_fig will track
  * their validity itself and handle any changes in their values or lifetime.
- *
- * This class is onyl a pseudo-figure. Rather than implementing the `figure'
- * class itself, this class drives an underlying `meshanim_fig' object.
  */
-class model_fig : private util::nocopy {
+class model_fig : private meshanim_fig {
 private:
     // (var) m_model
     // A pointer to the model used by this figure. This may be null, in which
     // case rendering will not occur.
     gfx::model *m_model = nullptr;
 
-    // (var) m_meshanimfig
-    // The underlying figure which handles rendering the selected model's mesh
-    // and animation. The model_fig drives the meshanim_fig by providing the
-    // mesh and animation pointers specified in the model.
-    meshanim_fig m_meshanimfig;
-
     // (var) m_mesh_tracker, m_anim_tracker
     // Helper objects which track the mesh and anim refs in the model and
-    // provide the actual pointers needed by `m_meshanimfig'.
+    // provide the actual pointers needed by `meshanim_fig'.
     res::tracker<gfx::mesh> m_mesh_tracker;
     res::tracker<gfx::anim> m_anim_tracker;
 
@@ -505,22 +460,16 @@ public:
     // Constructs the figure. Initially, it does not reference any model.
     explicit model_fig(viewport &vp);
 
-    // (func) show, hide
-    // Changes the visibility of the figure. Since this is not a real figure,
-    // the show/hide calls are passed on to the actual underlying figure.
-    void show();
-    void hide();
-
     // (func) get_model, set_model
     // Gets or sets the gfx::model reference used by this figure. This may be a
     // null pointer.
     gfx::model * const &get_model() const;
     void set_model(gfx::model *model);
 
-    // (func) get_matrix, set_matrix
-    // Gets or sets the model matrix.
-    const glm::mat4 &get_matrix() const;
-    void set_matrix(glm::mat4 matrix);
+    using meshanim_fig::show;
+    using meshanim_fig::hide;
+    using meshanim_fig::get_matrix;
+    using meshanim_fig::set_matrix;
 };
 
 /*
@@ -533,31 +482,22 @@ public:
  * ensure that the world pointer is valid or null at all times. The model need
  * not be valid, however; world_fig will track the validity itself and handle
  * any changes to the model ref or the model's lifetime.
- *
- * This class is only a pseudo-figure. Rather than implementing the `figure'
- * class itself, this class drives an underlying `model_fig' object.
  */
-class world_fig : private util::nocopy {
+class world_fig : private model_fig {
 private:
     // (var) m_world
     // A pointer to the world used by this figure. This may be null, in which
     // case rendering will not occur.
     gfx::world *m_world = nullptr;
 
-    // (var) m_modelfig
-    // The underlying figure which handles rendering the selected world's model.
-    // The world_fig drives the model_fig by providing the model pointer and
-    // world position specified in the world.
-    model_fig m_modelfig;
-
     // (var) m_model_tracker
     // A helper object which tracks the model ref in the world and provides the
-    // actual pointers needed by `m_modelfig'.
+    // actual pointers needed by `model_fig'.
     res::tracker<gfx::model> m_model_tracker;
 
     // (var) m_matrix
     // The model matrix used by this figure. The actual model matrix used when
-    // drawing is held in `m_modelfig', but the original matrix set on the
+    // drawing is held in `model_fig', but the original matrix set on the
     // world_fig is stored here so it can be reused later if the world X/Y/Z
     // position changes.
     glm::mat4 m_matrix{1.0f};
@@ -583,12 +523,6 @@ public:
     // Constructs the figure. Initially, it does not reference any world.
     explicit world_fig(viewport &vp);
 
-    // (func) show, hide
-    // Changes the visibility of the figure. Since this is not a real figure,
-    // the show/hide calls are passed on to the actual underlying figure.
-    void show();
-    void hide();
-
     // (func) get_world, set_world
     // Gets or sets the gfx::world reference used by this figure. This may be a
     // null pointer.
@@ -600,6 +534,9 @@ public:
     // model_fig is based on this matrix and the world's x/y/z position.
     const glm::mat4 &get_matrix() const;
     void set_matrix(glm::mat4 matrix);
+
+    using model_fig::show;
+    using model_fig::hide;
 };
 
 }

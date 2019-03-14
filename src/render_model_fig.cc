@@ -26,20 +26,20 @@ namespace render {
 
 // declared in render.hh
 model_fig::model_fig(viewport &vp) :
-    m_meshanimfig(vp)
+    meshanim_fig(vp)
 {
     m_mesh_tracker.on_acquire <<= [this](gfx::mesh *mesh) {
-        m_meshanimfig.set_mesh(mesh);
+        set_mesh(mesh);
     };
     m_mesh_tracker.on_lose <<= [this] {
-        m_meshanimfig.set_mesh(nullptr);
+        set_mesh(nullptr);
     };
 
     m_anim_tracker.on_acquire <<= [this](gfx::anim *anim) {
-        m_meshanimfig.set_anim(anim);
+        set_anim(anim);
     };
     m_anim_tracker.on_lose <<= [this] {
-        m_meshanimfig.set_anim(nullptr);
+        set_anim(nullptr);
     };
 
     h_model_mesh_change <<= [this] {
@@ -48,18 +48,6 @@ model_fig::model_fig(viewport &vp) :
     h_model_anim_change <<= [this] {
         m_anim_tracker.set_name(m_model->get_anim());
     };
-}
-
-// declared in render.hh
-void model_fig::show()
-{
-    m_meshanimfig.show();
-}
-
-// declared in render.hh
-void model_fig::hide()
-{
-    m_meshanimfig.hide();
 }
 
 // declared in render.hh
@@ -87,18 +75,6 @@ void model_fig::set_model(gfx::model *model)
             m_anim_tracker.set_name(m_model->get_anim());
         }
     }
-}
-
-// declared in render.hh
-const glm::mat4 &model_fig::get_matrix() const
-{
-    return m_meshanimfig.get_matrix();
-}
-
-// declared in render.hh
-void model_fig::set_matrix(glm::mat4 matrix)
-{
-    m_meshanimfig.set_matrix(matrix);
 }
 
 }
