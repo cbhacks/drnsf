@@ -169,15 +169,10 @@ protected:
     void invalidate();
 
 public:
-    // (func) show
-    // Makes the figure visible, if it was not visible. A change in
-    // visibility will invalidate the viewport.
-    void show();
-
-    // (func) hide
-    // Makes the figure invisible, if it was visible. A change in
-    // visibility will invalidate the viewport.
-    void hide();
+    // (func) get_visible, set_visible
+    // Gets or sets the visibility of the figure.
+    const bool &get_visible() const;
+    void set_visible(bool visible);
 };
 
 /*
@@ -208,8 +203,8 @@ public:
     const glm::mat4 &get_matrix() const;
     void set_matrix(glm::mat4 matrix);
 
-    using figure::show;
-    using figure::hide;
+    using figure::get_visible;
+    using figure::set_visible;
 };
 
 /*
@@ -258,8 +253,8 @@ public:
     const glm::mat4 &get_matrix() const;
     void set_matrix(glm::mat4 matrix);
 
-    using figure::show;
-    using figure::hide;
+    using figure::get_visible;
+    using figure::set_visible;
 };
 
 /*
@@ -301,8 +296,8 @@ public:
     gfx::anim * const &get_anim() const;
     void set_anim(gfx::anim *anim);
 
-    using frameonly_fig::show;
-    using frameonly_fig::hide;
+    using frameonly_fig::get_visible;
+    using frameonly_fig::set_visible;
     using frameonly_fig::get_matrix;
     using frameonly_fig::set_matrix;
 };
@@ -377,8 +372,8 @@ public:
     const glm::mat4 &get_matrix() const;
     void set_matrix(glm::mat4 matrix);
 
-    using figure::show;
-    using figure::hide;
+    using figure::get_visible;
+    using figure::set_visible;
 };
 
 /*
@@ -423,8 +418,8 @@ public:
     gfx::anim * const &get_anim() const;
     void set_anim(gfx::anim *anim);
 
-    using meshframe_fig::show;
-    using meshframe_fig::hide;
+    using meshframe_fig::get_visible;
+    using meshframe_fig::set_visible;
     using meshframe_fig::get_mesh;
     using meshframe_fig::set_mesh;
     using meshframe_fig::get_matrix;
@@ -475,8 +470,8 @@ public:
     gfx::model * const &get_model() const;
     void set_model(gfx::model *model);
 
-    using meshanim_fig::show;
-    using meshanim_fig::hide;
+    using meshanim_fig::get_visible;
+    using meshanim_fig::set_visible;
     using meshanim_fig::get_matrix;
     using meshanim_fig::set_matrix;
 };
@@ -544,8 +539,8 @@ public:
     const glm::mat4 &get_matrix() const;
     void set_matrix(glm::mat4 matrix);
 
-    using model_fig::show;
-    using model_fig::hide;
+    using model_fig::get_visible;
+    using model_fig::set_visible;
 };
 
 }

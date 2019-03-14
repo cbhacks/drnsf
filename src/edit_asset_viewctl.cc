@@ -88,8 +88,8 @@ public:
         m_reticle(*this)
     {
         m_fig.set_frame(asset);
-        m_fig.show();
-        m_reticle.show();
+        m_fig.set_visible(true);
+        m_reticle.set_visible(true);
     }
 
     using viewport::show;
@@ -127,8 +127,8 @@ public:
         m_reticle(*this)
     {
         m_fig.set_anim(asset);
-        m_fig.show();
-        m_reticle.show();
+        m_fig.set_visible(true);
+        m_reticle.set_visible(true);
     }
 
     using viewport::show;
@@ -166,8 +166,8 @@ public:
         m_reticle(*this)
     {
         m_fig.set_model(asset);
-        m_fig.show();
-        m_reticle.show();
+        m_fig.set_visible(true);
+        m_reticle.set_visible(true);
     }
 
     using viewport::show;

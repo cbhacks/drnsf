@@ -52,19 +52,16 @@ void figure::invalidate()
 }
 
 // declared in render.hh
-void figure::show()
+const bool &figure::get_visible() const
 {
-    if (!m_visible) {
-        m_visible = true;
-        m_vp.invalidate();
-    }
+    return m_visible;
 }
 
 // declared in render.hh
-void figure::hide()
+void figure::set_visible(bool visible)
 {
-    if (m_visible) {
-        m_visible = false;
+    if (visible != m_visible) {
+        m_visible = visible;
         m_vp.invalidate();
     }
 }
