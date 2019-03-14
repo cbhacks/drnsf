@@ -42,6 +42,7 @@ elseif (FRONTEND STREQUAL WINAPI)
     set (USE_GUI ON)
     set (USE_WINAPI ON)
     set (USE_GL ON)
+    set (CAN_USE_NATIVE_MENU ON)
     set (CAN_USE_NATIVE_FILE_DIALOG ON)
 else ()
     message (FATAL_ERROR "Unrecognized FRONTEND value: ${FRONTEND}")
@@ -61,6 +62,12 @@ function (forward_native_feature name)
         set (USE_NATIVE_${name} ON PARENT_SCOPE)
     endif ()
 endfunction (forward_native_feature)
+
+# Option: FEATURE_NATIVE_MENU
+set (FEATURE_NATIVE_MENU ON CACHE BOOL
+    "Use native menus (if available)."
+)
+forward_native_feature (MENU)
 
 # Option: FEATURE_NATIVE_FILE_DIALOG
 set (FEATURE_NATIVE_FILE_DIALOG ON CACHE BOOL
@@ -148,6 +155,9 @@ add_executable (drnsf
     src/gui_menubar.cc
     src/gui_file_dialog.cc
     $<$<BOOL:${USE_WINAPI}>:
+        src/frontend/winapi/gui_command.cc
+        src/frontend/winapi/gui_menu.cc
+        src/frontend/winapi/gui_menubar.cc
         src/frontend/winapi/gui_file_dialog.cc
     >
 

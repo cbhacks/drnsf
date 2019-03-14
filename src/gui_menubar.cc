@@ -19,6 +19,7 @@
 //
 
 #include "common.hh"
+#if !USE_NATIVE_MENU
 #include <algorithm>
 #include "gui.hh"
 
@@ -183,3 +184,5 @@ menubar::item::~item()
 
 }
 }
+
+#endif

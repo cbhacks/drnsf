@@ -19,6 +19,7 @@
 //
 
 #include "common.hh"
+#if !USE_NATIVE_MENU
 #include <algorithm>
 #include "gui.hh"
 
@@ -174,3 +175,5 @@ void menu::item::set_enabled(bool enabled)
 
 }
 }
+
+#endif
