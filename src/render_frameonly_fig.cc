@@ -56,12 +56,14 @@ void frameonly_fig::draw(const env &e)
     if (!s_prog.ok) {
         gl::vert_shader vs;
         gl::shader_source(vs, {
+            "#version 140",
             embed::frameonly_vert::str
         });
         gl::compile_shader(vs);
 
         gl::frag_shader fs;
         gl::shader_source(fs, {
+            "#version 140",
             embed::frameonly_frag::str
         });
         gl::compile_shader(fs);

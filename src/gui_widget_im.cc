@@ -105,12 +105,14 @@ void widget_im::draw_gl(int width, int height, unsigned int rbo)
     if (!s_prog.ok) {
         gl::vert_shader vert_shader;
         gl::shader_source(vert_shader, {
+            "#version 140",
             embed::widget_im_vert::str
         });
         gl::compile_shader(vert_shader);
 
         gl::frag_shader frag_shader;
         gl::shader_source(frag_shader, {
+            "#version 140",
             embed::widget_im_frag::str
         });
         gl::compile_shader(frag_shader);

@@ -18,8 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#version 140
-
 in int ai_VertexIndex0;
 in int ai_ColorIndex0;
 in int ai_VertexIndex1;

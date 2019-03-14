@@ -18,8 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#version 140
-
 uniform sampler2D u_Font;
 
 smooth in vec2 v_TexCoord;

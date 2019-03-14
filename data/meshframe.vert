@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#version 140
 #extension GL_ARB_shader_bit_encoding: require
 
 uniform mat4 u_Matrix;

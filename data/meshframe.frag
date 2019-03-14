@@ -18,8 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#version 140
-
 smooth in vec3 v_Color;
 
 out vec3 f_Color;
