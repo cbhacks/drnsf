@@ -85,7 +85,7 @@ void meshframe_fig::draw(const env &e)
 
     if (!s_triangle_prog.ok) {
         gl::vert_shader vs;
-        compile_shader(
+        gl::compile_shader(
             vs,
             embed::meshframe_triangle_vert::data,
             embed::meshframe_triangle_vert::size
@@ -119,7 +119,7 @@ void meshframe_fig::draw(const env &e)
 
     if (!s_quad_prog.ok) {
         gl::vert_shader vs;
-        compile_shader(
+        gl::compile_shader(
             vs,
             embed::meshframe_quad_vert::data,
             embed::meshframe_quad_vert::size
@@ -161,14 +161,14 @@ void meshframe_fig::draw(const env &e)
 
     if (!s_main_prog.ok) {
         gl::vert_shader vs;
-        compile_shader(
+        gl::compile_shader(
             vs,
             embed::meshframe_vert::data,
             embed::meshframe_vert::size
         );
 
         gl::frag_shader fs;
-        compile_shader(
+        gl::compile_shader(
             fs,
             embed::meshframe_frag::data,
             embed::meshframe_frag::size

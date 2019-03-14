@@ -134,14 +134,14 @@ void reticle_fig::draw(const env &e)
 
     if (!s_prog.ok) {
         gl::vert_shader vs;
-        compile_shader(
+        gl::compile_shader(
             vs,
             embed::reticle_vert::data,
             embed::reticle_vert::size
         );
 
         gl::frag_shader fs;
-        compile_shader(
+        gl::compile_shader(
             fs,
             embed::reticle_frag::data,
             embed::reticle_frag::size

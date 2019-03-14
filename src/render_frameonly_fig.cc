@@ -55,14 +55,14 @@ void frameonly_fig::draw(const env &e)
 
     if (!s_prog.ok) {
         gl::vert_shader vs;
-        compile_shader(
+        gl::compile_shader(
             vs,
             embed::frameonly_vert::data,
             embed::frameonly_vert::size
         );
 
         gl::frag_shader fs;
-        compile_shader(
+        gl::compile_shader(
             fs,
             embed::frameonly_frag::data,
             embed::frameonly_frag::size

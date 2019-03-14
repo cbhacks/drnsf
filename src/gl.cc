@@ -397,5 +397,41 @@ void any_object::reset_all()
     }
 }
 
+// declared in gl.hh
+void compile_shader(unsigned int sh, const std::string &code)
+{
+    const char *code_cstr = code.c_str();
+    glShaderSource(sh, 1, &code_cstr, nullptr);
+    glCompileShader(sh);
+
+    int status;
+    glGetShaderiv(sh, GL_COMPILE_STATUS, &status);
+
+    if (!status) {
+        int log_size;
+        glGetShaderiv(sh, GL_INFO_LOG_LENGTH, &log_size);
+
+        std::vector<char> log_buffer(log_size);
+        glGetShaderInfoLog(
+            sh,
+            log_size,
+            nullptr,
+            log_buffer.data()
+        );
+
+        fprintf(stderr, " == BEGIN SHADER COMPILE LOG ==\n");
+        fprintf(stderr, "%s\n", log_buffer.data());
+        fprintf(stderr, " === END SHADER COMPILE LOG ===\n");
+
+        throw error("gl::compile_shader: compile failed");
+    }
+}
+
+// declared in gl.hh
+void compile_shader(unsigned int sh, const void *code, size_t size)
+{
+    compile_shader(sh, {reinterpret_cast<const char *>(code), size});
+}
+
 }
 }
