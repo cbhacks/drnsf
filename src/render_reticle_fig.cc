@@ -134,18 +134,16 @@ void reticle_fig::draw(const env &e)
 
     if (!s_prog.ok) {
         gl::vert_shader vs;
-        gl::compile_shader(
-            vs,
-            embed::reticle_vert::data,
-            embed::reticle_vert::size
-        );
+        gl::shader_source(vs, {
+            embed::reticle_vert::str
+        });
+        gl::compile_shader(vs);
 
         gl::frag_shader fs;
-        gl::compile_shader(
-            fs,
-            embed::reticle_frag::data,
-            embed::reticle_frag::size
-        );
+        gl::shader_source(fs, {
+            embed::reticle_frag::str
+        });
+        gl::compile_shader(fs);
 
         glAttachShader(s_prog, vs);
         glAttachShader(s_prog, fs);

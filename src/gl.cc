@@ -426,10 +426,28 @@ void link_program(unsigned int prog)
 }
 
 // declared in gl.hh
-void compile_shader(unsigned int sh, const std::string &code)
+void shader_source(
+    unsigned int sh,
+    std::initializer_list<std::string_view> sources)
 {
-    const char *code_cstr = code.c_str();
-    glShaderSource(sh, 1, &code_cstr, nullptr);
+    std::vector<const char *>  source_ptrs;
+    std::vector<int>           source_lens;
+
+    for (const auto &source : sources) {
+        if (source.size() > INT_MAX) {
+            throw gl::error("gl::shader_source: source file too large");
+        }
+
+        source_ptrs.push_back(source.data());
+        source_lens.push_back(source.size());
+    }
+
+    glShaderSource(sh, sources.size(), source_ptrs.data(), source_lens.data());
+}
+
+// declared in gl.hh
+void compile_shader(unsigned int sh)
+{
     glCompileShader(sh);
 
     int status;
@@ -453,12 +471,6 @@ void compile_shader(unsigned int sh, const std::string &code)
 
         throw error("gl::compile_shader: compile failed");
     }
-}
-
-// declared in gl.hh
-void compile_shader(unsigned int sh, const void *code, size_t size)
-{
-    compile_shader(sh, {reinterpret_cast<const char *>(code), size});
 }
 
 }

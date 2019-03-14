@@ -104,18 +104,16 @@ void widget_im::draw_gl(int width, int height, unsigned int rbo)
 
     if (!s_prog.ok) {
         gl::vert_shader vert_shader;
-        gl::compile_shader(
-            vert_shader,
-            embed::widget_im_vert::data,
-            embed::widget_im_vert::size
-        );
+        gl::shader_source(vert_shader, {
+            embed::widget_im_vert::str
+        });
+        gl::compile_shader(vert_shader);
 
         gl::frag_shader frag_shader;
-        gl::compile_shader(
-            frag_shader,
-            embed::widget_im_frag::data,
-            embed::widget_im_frag::size
-        );
+        gl::shader_source(frag_shader, {
+            embed::widget_im_frag::str
+        });
+        gl::compile_shader(frag_shader);
 
         glAttachShader(s_prog, vert_shader);
         glAttachShader(s_prog, frag_shader);

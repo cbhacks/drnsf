@@ -461,12 +461,20 @@ using vert_shader = shader<GL_VERTEX_SHADER>;
 using frag_shader = shader<GL_FRAGMENT_SHADER>;
 
 /*
+ * gl::shader_source
+ *
+ * Calls glShaderSource on the specified shader with the given source strings.
+ */
+void shader_source(
+    unsigned int sh,
+    std::initializer_list<std::string_view> sources);
+
+/*
  * gl::compile_shader
  *
  * FIXME explain
  */
-void compile_shader(unsigned int sh, const std::string &code);
-void compile_shader(unsigned int sh, const void *code, size_t size);
+void compile_shader(unsigned int sh);
 
 #ifdef DRNSF_FRONTEND_IMPLEMENTATION
 #if USE_X11

@@ -85,11 +85,10 @@ void meshframe_fig::draw(const env &e)
 
     if (!s_triangle_prog.ok) {
         gl::vert_shader vs;
-        gl::compile_shader(
-            vs,
-            embed::meshframe_triangle_vert::data,
-            embed::meshframe_triangle_vert::size
-        );
+        gl::shader_source(vs, {
+            embed::meshframe_triangle_vert::str
+        });
+        gl::compile_shader(vs);
 
         glAttachShader(s_triangle_prog, vs);
         glBindAttribLocation(s_triangle_prog, 0, "ai_VertexIndex0");
@@ -119,11 +118,10 @@ void meshframe_fig::draw(const env &e)
 
     if (!s_quad_prog.ok) {
         gl::vert_shader vs;
-        gl::compile_shader(
-            vs,
-            embed::meshframe_quad_vert::data,
-            embed::meshframe_quad_vert::size
-        );
+        gl::shader_source(vs, {
+            embed::meshframe_quad_vert::str
+        });
+        gl::compile_shader(vs);
 
         glAttachShader(s_quad_prog, vs);
         glBindAttribLocation(s_quad_prog, 0, "ai_VertexIndex0");
@@ -161,18 +159,16 @@ void meshframe_fig::draw(const env &e)
 
     if (!s_main_prog.ok) {
         gl::vert_shader vs;
-        gl::compile_shader(
-            vs,
-            embed::meshframe_vert::data,
-            embed::meshframe_vert::size
-        );
+        gl::shader_source(vs, {
+            embed::meshframe_vert::str
+        });
+        gl::compile_shader(vs);
 
         gl::frag_shader fs;
-        gl::compile_shader(
-            fs,
-            embed::meshframe_frag::data,
-            embed::meshframe_frag::size
-        );
+        gl::shader_source(fs, {
+            embed::meshframe_frag::str
+        });
+        gl::compile_shader(fs);
 
         glAttachShader(s_main_prog, vs);
         glAttachShader(s_main_prog, fs);

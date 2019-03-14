@@ -55,18 +55,16 @@ void frameonly_fig::draw(const env &e)
 
     if (!s_prog.ok) {
         gl::vert_shader vs;
-        gl::compile_shader(
-            vs,
-            embed::frameonly_vert::data,
-            embed::frameonly_vert::size
-        );
+        gl::shader_source(vs, {
+            embed::frameonly_vert::str
+        });
+        gl::compile_shader(vs);
 
         gl::frag_shader fs;
-        gl::compile_shader(
-            fs,
-            embed::frameonly_frag::data,
-            embed::frameonly_frag::size
-        );
+        gl::shader_source(fs, {
+            embed::frameonly_frag::str
+        });
+        gl::compile_shader(fs);
 
         glAttachShader(s_prog, vs);
         glAttachShader(s_prog, fs);
