@@ -21,8 +21,8 @@
 #include "common.hh"
 #include "render.hh"
 
-DRNSF_DECLARE_EMBED(frameonly_vert);
-DRNSF_DECLARE_EMBED(frameonly_frag);
+DRNSF_DECLARE_EMBED(shaders::frameonly_fig::vertex_glsl);
+DRNSF_DECLARE_EMBED(shaders::frameonly_fig::fragment_glsl);
 
 namespace drnsf {
 namespace render {
@@ -57,14 +57,14 @@ void frameonly_fig::draw(const env &e)
         gl::vert_shader vs;
         gl::shader_source(vs, {
             "#version 140",
-            embed::frameonly_vert::str
+            embed::shaders::frameonly_fig::vertex_glsl::str
         });
         gl::compile_shader(vs);
 
         gl::frag_shader fs;
         gl::shader_source(fs, {
             "#version 140",
-            embed::frameonly_frag::str
+            embed::shaders::frameonly_fig::fragment_glsl::str
         });
         gl::compile_shader(fs);
 

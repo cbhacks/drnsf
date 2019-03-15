@@ -26,8 +26,8 @@
 #include "gui.hh"
 #include "gl.hh"
 
-DRNSF_DECLARE_EMBED(widget_im_vert);
-DRNSF_DECLARE_EMBED(widget_im_frag);
+DRNSF_DECLARE_EMBED(shaders::imgui::vertex_glsl);
+DRNSF_DECLARE_EMBED(shaders::imgui::fragment_glsl);
 
 namespace drnsf {
 namespace gui {
@@ -106,14 +106,14 @@ void widget_im::draw_gl(int width, int height, unsigned int rbo)
         gl::vert_shader vert_shader;
         gl::shader_source(vert_shader, {
             "#version 140",
-            embed::widget_im_vert::str
+            embed::shaders::imgui::vertex_glsl::str
         });
         gl::compile_shader(vert_shader);
 
         gl::frag_shader frag_shader;
         gl::shader_source(frag_shader, {
             "#version 140",
-            embed::widget_im_frag::str
+            embed::shaders::imgui::fragment_glsl::str
         });
         gl::compile_shader(frag_shader);
 

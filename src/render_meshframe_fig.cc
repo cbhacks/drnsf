@@ -21,10 +21,10 @@
 #include "common.hh"
 #include "render.hh"
 
-DRNSF_DECLARE_EMBED(meshframe_triangle_vert);
-DRNSF_DECLARE_EMBED(meshframe_quad_vert);
-DRNSF_DECLARE_EMBED(meshframe_vert);
-DRNSF_DECLARE_EMBED(meshframe_frag);
+DRNSF_DECLARE_EMBED(shaders::meshframe_fig::triangle_glsl);
+DRNSF_DECLARE_EMBED(shaders::meshframe_fig::quad_glsl);
+DRNSF_DECLARE_EMBED(shaders::meshframe_fig::vertex_glsl);
+DRNSF_DECLARE_EMBED(shaders::meshframe_fig::fragment_glsl);
 
 namespace drnsf {
 namespace render {
@@ -87,7 +87,7 @@ void meshframe_fig::draw(const env &e)
         gl::vert_shader vs;
         gl::shader_source(vs, {
             "#version 140",
-            embed::meshframe_triangle_vert::str
+            embed::shaders::meshframe_fig::triangle_glsl::str
         });
         gl::compile_shader(vs);
 
@@ -121,7 +121,7 @@ void meshframe_fig::draw(const env &e)
         gl::vert_shader vs;
         gl::shader_source(vs, {
             "#version 140",
-            embed::meshframe_quad_vert::str
+            embed::shaders::meshframe_fig::quad_glsl::str
         });
         gl::compile_shader(vs);
 
@@ -163,14 +163,14 @@ void meshframe_fig::draw(const env &e)
         gl::vert_shader vs;
         gl::shader_source(vs, {
             "#version 140",
-            embed::meshframe_vert::str
+            embed::shaders::meshframe_fig::vertex_glsl::str
         });
         gl::compile_shader(vs);
 
         gl::frag_shader fs;
         gl::shader_source(fs, {
             "#version 140",
-            embed::meshframe_frag::str
+            embed::shaders::meshframe_fig::fragment_glsl::str
         });
         gl::compile_shader(fs);
 

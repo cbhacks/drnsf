@@ -21,8 +21,8 @@
 #include "common.hh"
 #include "render.hh"
 
-DRNSF_DECLARE_EMBED(reticle_vert);
-DRNSF_DECLARE_EMBED(reticle_frag);
+DRNSF_DECLARE_EMBED(shaders::reticle_fig::vertex_glsl);
+DRNSF_DECLARE_EMBED(shaders::reticle_fig::fragment_glsl);
 
 namespace drnsf {
 namespace render {
@@ -136,14 +136,14 @@ void reticle_fig::draw(const env &e)
         gl::vert_shader vs;
         gl::shader_source(vs, {
             "#version 140",
-            embed::reticle_vert::str
+            embed::shaders::reticle_fig::vertex_glsl::str
         });
         gl::compile_shader(vs);
 
         gl::frag_shader fs;
         gl::shader_source(fs, {
             "#version 140",
-            embed::reticle_frag::str
+            embed::shaders::reticle_fig::fragment_glsl::str
         });
         gl::compile_shader(fs);
 
