@@ -45,7 +45,6 @@
 #include <memory>
 #include <utility>
 #include <string>
-#include <string_view>
 #include <functional>
 #include <type_traits>
 #include <mutex>
@@ -162,7 +161,7 @@
     namespace name { \
         extern const unsigned char data[]; \
         extern const size_t size; \
-        const std::string_view str = { \
+        const util::string_view str = { \
             reinterpret_cast<const char *>(data), \
             size \
         }; \

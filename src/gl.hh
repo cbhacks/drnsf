@@ -467,7 +467,7 @@ using frag_shader = shader<GL_FRAGMENT_SHADER>;
  */
 void shader_source(
     unsigned int sh,
-    std::initializer_list<std::string_view> sources);
+    std::initializer_list<util::string_view> sources);
 
 /*
  * gl::compile_shader
