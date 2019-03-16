@@ -301,9 +301,9 @@ public:
 
     // (prop) x, y, z
     // FIXME explain
-    DEFINE_APROP(x, double, 0.0);
-    DEFINE_APROP(y, double, 0.0);
-    DEFINE_APROP(z, double, 0.0);
+    DEFINE_APROP(x, int, 0);
+    DEFINE_APROP(y, int, 0);
+    DEFINE_APROP(z, int, 0);
 };
 
 }
@@ -412,21 +412,21 @@ struct asset_prop_info<gfx::world, 0> {
 };
 template <>
 struct asset_prop_info<gfx::world, 1> {
-    using type = double;
+    using type = int;
 
     static constexpr const char *name = "x";
     static constexpr auto ptr = &gfx::world::p_x;
 };
 template <>
 struct asset_prop_info<gfx::world, 2> {
-    using type = double;
+    using type = int;
 
     static constexpr const char *name = "y";
     static constexpr auto ptr = &gfx::world::p_y;
 };
 template <>
 struct asset_prop_info<gfx::world, 3> {
-    using type = double;
+    using type = int;
 
     static constexpr const char *name = "z";
     static constexpr auto ptr = &gfx::world::p_z;
