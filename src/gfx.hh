@@ -93,6 +93,12 @@ public:
     // FIXME explain
     DEFINE_APROP(vertices, std::vector<vertex>);
 
+    // (prop) x_scale, y_scale, z_scale
+    // FIXME explain
+    DEFINE_APROP(x_scale, float, 1.0f);
+    DEFINE_APROP(y_scale, float, 1.0f);
+    DEFINE_APROP(z_scale, float, 1.0f);
+
 #if USE_GL
     // (var) m_vertices_buffer
     // A GL buffer object containing the data for p_vertices. The gfx::frame
@@ -316,7 +322,7 @@ struct asset_type_info<gfx::frame> {
     using base_type = res::asset;
 
     static constexpr const char *name = "gfx::frame";
-    static constexpr int prop_count = 1;
+    static constexpr int prop_count = 4;
 };
 template <>
 struct asset_prop_info<gfx::frame, 0> {
@@ -324,6 +330,27 @@ struct asset_prop_info<gfx::frame, 0> {
 
     static constexpr const char *name = "vertices";
     static constexpr auto ptr = &gfx::frame::p_vertices;
+};
+template <>
+struct asset_prop_info<gfx::frame, 1> {
+    using type = float;
+
+    static constexpr const char *name = "x_scale";
+    static constexpr auto ptr = &gfx::frame::p_x_scale;
+};
+template <>
+struct asset_prop_info<gfx::frame, 2> {
+    using type = float;
+
+    static constexpr const char *name = "y_scale";
+    static constexpr auto ptr = &gfx::frame::p_y_scale;
+};
+template <>
+struct asset_prop_info<gfx::frame, 3> {
+    using type = float;
+
+    static constexpr const char *name = "z_scale";
+    static constexpr auto ptr = &gfx::frame::p_z_scale;
 };
 
 // reflection info for gfx::anim

@@ -19,6 +19,7 @@
 //
 
 #include "common.hh"
+#include <glm/gtc/matrix_transform.hpp>
 #include "render.hh"
 
 DRNSF_DECLARE_EMBED(shaders::meshframe_fig::triangle_glsl);
@@ -352,6 +353,11 @@ void meshframe_fig::draw(const env &e)
 
     glUseProgram(s_main_prog);
     auto matrix = e.projection * e.view * m_matrix;
+    matrix = glm::scale(matrix, glm::vec3(
+        m_frame->get_x_scale(),
+        m_frame->get_y_scale(),
+        m_frame->get_z_scale()
+    ));
     glUniformMatrix4fv(s_matrix_uni, 1, false, &matrix[0][0]);
     glUniform1i(
         glGetUniformLocation(s_main_prog, "u_ColorCount"),
@@ -457,6 +463,15 @@ meshframe_fig::meshframe_fig(viewport &vp) :
     h_frame_vertices_change <<= [this] {
         invalidate();
     };
+    h_frame_x_scale_change <<= [this] {
+        invalidate();
+    };
+    h_frame_y_scale_change <<= [this] {
+        invalidate();
+    };
+    h_frame_z_scale_change <<= [this] {
+        invalidate();
+    };
 }
 
 gfx::mesh * const &meshframe_fig::get_mesh() const
@@ -493,10 +508,16 @@ void meshframe_fig::set_frame(gfx::frame *frame)
     {
         if (m_frame) {
             h_frame_vertices_change.unbind();
+            h_frame_x_scale_change.unbind();
+            h_frame_y_scale_change.unbind();
+            h_frame_z_scale_change.unbind();
         }
         m_frame = frame;
         if (m_frame) {
             h_frame_vertices_change.bind(m_frame->p_vertices.on_change);
+            h_frame_x_scale_change.bind(m_frame->p_x_scale.on_change);
+            h_frame_y_scale_change.bind(m_frame->p_y_scale.on_change);
+            h_frame_z_scale_change.bind(m_frame->p_z_scale.on_change);
         }
         invalidate();
     }

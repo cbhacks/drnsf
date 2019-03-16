@@ -300,6 +300,14 @@ std::vector<util::blob> wgeo_v2::export_entry(uint32_t &out_type) const
     if (!frame.ok())
         throw res::export_error("nsf::wgeo_v2: bad frame ref");
 
+    // Check the scale to ensure it matches this format.
+    if (frame->get_x_scale() != 1.0f ||
+        frame->get_y_scale() != 1.0f ||
+        frame->get_z_scale() != 1.0f) {
+        // TODO - consider proximity tests instead of exact equality tests
+        throw res::export_error("nsf::wgeo_v2: scale is invalid");
+    }
+
     // Export the info item (0).
     w.begin();
     w.write_s32(world->get_x());

@@ -237,6 +237,17 @@ private:
     decltype(decltype(gfx::frame::p_vertices)::on_change)::watch
         h_frame_vertices_change;
 
+    // (handler) h_frame_x_scale_change, h_frame_y_scale_change,
+    //           h_frame_z_scale_change
+    // Hooks the frame's x/y/z scale property change events so that the figure
+    // can be updated when the frame's scale is changed.
+    decltype(decltype(gfx::frame::p_x_scale)::on_change)::watch
+        h_frame_x_scale_change;
+    decltype(decltype(gfx::frame::p_y_scale)::on_change)::watch
+        h_frame_y_scale_change;
+    decltype(decltype(gfx::frame::p_z_scale)::on_change)::watch
+        h_frame_z_scale_change;
+
 public:
     // (explicit ctor)
     // Constructs the figure. Initially, it does not reference any frame.
@@ -348,6 +359,17 @@ private:
     // update itself when a change occurs.
     decltype(decltype(gfx::frame::p_vertices)::on_change)::watch
         h_frame_vertices_change;
+
+    // (handler) h_frame_x_scale_change, h_frame_y_scale_change,
+    //           h_frame_z_scale_change
+    // Hooks the frame's x/y/z scale property change events so that the figure
+    // can be updated when the frame's scale is changed.
+    decltype(decltype(gfx::frame::p_x_scale)::on_change)::watch
+        h_frame_x_scale_change;
+    decltype(decltype(gfx::frame::p_y_scale)::on_change)::watch
+        h_frame_y_scale_change;
+    decltype(decltype(gfx::frame::p_z_scale)::on_change)::watch
+        h_frame_z_scale_change;
 
 public:
     // (explicit ctor)
