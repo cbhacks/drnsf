@@ -88,7 +88,7 @@ void frameonly_fig::draw(const env &e)
 
     glBindBuffer(GL_ARRAY_BUFFER, m_frame->m_vertices_buffer);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(gfx::vertex), 0);
+    glVertexAttribPointer(0, 3, GL_INT, false, sizeof(gfx::vertex), 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glUseProgram(s_prog);

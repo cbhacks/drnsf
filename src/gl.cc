@@ -167,10 +167,6 @@ void init()
             throw error("gl::init: core context version less than 3.2");
         }
 
-        if (!epoxy_has_gl_extension("GL_ARB_shader_bit_encoding")) {
-            throw error("gl::init: missing feature ARB_shader_bit_encoding");
-        }
-
         s_init_count++;
         return;
     }
@@ -193,10 +189,6 @@ void init()
 
         if (epoxy_gl_version() < 31) {
             throw error("gl::init: forward context version less than 3.1");
-        }
-
-        if (!epoxy_has_gl_extension("GL_ARB_shader_bit_encoding")) {
-            throw error("gl::init: missing feature ARB_shader_bit_encoding");
         }
 
         s_init_count++;
@@ -299,10 +291,6 @@ void init()
             throw error("gl::init: core context version less than 3.2");
         }
 
-        if (!epoxy_has_gl_extension("GL_ARB_shader_bit_encoding")) {
-            throw error("gl::init: missing feature ARB_shader_bit_encoding");
-        }
-
         s_init_count++;
         return;
     }
@@ -325,10 +313,6 @@ void init()
 
         if (epoxy_gl_version() < 31) {
             throw error("gl::init: forward context version less than 3.1");
-        }
-
-        if (!epoxy_has_gl_extension("GL_ARB_shader_bit_encoding")) {
-            throw error("gl::init: missing feature ARB_shader_bit_encoding");
         }
 
         s_init_count++;

@@ -44,11 +44,11 @@ namespace gfx {
 struct vertex {
     union {
         struct {
-            float x;
-            float y;
-            float z;
+            int x;
+            int y;
+            int z;
         };
-        float v[3];
+        int v[3];
     };
     int fx;
     int color_index;
