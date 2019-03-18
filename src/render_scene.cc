@@ -19,50 +19,26 @@
 //
 
 #include "common.hh"
+#include <glm/gtc/matrix_transform.hpp>
 #include "render.hh"
+#include "gl.hh"
 
 namespace drnsf {
 namespace render {
 
 // declared in render.hh
-figure::figure(scene &scene) :
-    m_scene(scene)
+void scene::invalidate()
 {
-    scene.m_figs.insert(this);
-}
-
-// declared in render.hh
-figure::~figure()
-{
-    m_scene.m_figs.erase(this);
-
-    // Invalidate the scene if this figure is visible, as it has now gone
-    // from visible to non-existent.
-    if (m_visible) {
-        m_scene.invalidate();
+    for (auto &&vp : m_viewports) {
+        vp->invalidate();
     }
 }
 
 // declared in render.hh
-void figure::invalidate()
+scene::~scene()
 {
-    if (m_visible) {
-        m_scene.invalidate();
-    }
-}
-
-// declared in render.hh
-const bool &figure::get_visible() const
-{
-    return m_visible;
-}
-
-// declared in render.hh
-void figure::set_visible(bool visible)
-{
-    if (visible != m_visible) {
-        m_visible = visible;
-        m_scene.invalidate();
+    while (!m_viewports.empty()) {
+        (**m_viewports.begin()).set_scene(nullptr);
     }
 }
 

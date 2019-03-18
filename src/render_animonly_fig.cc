@@ -25,8 +25,8 @@ namespace drnsf {
 namespace render {
 
 // declared in render.hh
-animonly_fig::animonly_fig(viewport &vp) :
-    frameonly_fig(vp)
+animonly_fig::animonly_fig(scene &scene) :
+    frameonly_fig(scene)
 {
     m_frame_tracker.on_acquire <<= [this](gfx::frame *frame) {
         set_frame(frame);

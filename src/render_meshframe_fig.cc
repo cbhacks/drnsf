@@ -448,8 +448,8 @@ void meshframe_fig::draw(const env &e)
 }
 
 // declared in render.hh
-meshframe_fig::meshframe_fig(viewport &vp) :
-    figure(vp)
+meshframe_fig::meshframe_fig(scene &scene) :
+    figure(scene)
 {
     h_mesh_triangles_change <<= [this] {
         invalidate();

@@ -37,7 +37,7 @@ namespace mode_map {
  *
  * FIXME explain
  */
-class mainctl : private render::viewport {
+class mainctl : private render::scene, private render::viewport {
 private:
     // (var) m_ctx
     // The context this map editor is attached to.

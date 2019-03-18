@@ -64,6 +64,7 @@ public:
 // FIXME explain
 template <>
 class asset_viewctl_of<gfx::frame> :
+    private render::scene,
     private render::viewport,
     public util::polymorphic {
 private:
@@ -90,6 +91,7 @@ public:
         m_fig.set_frame(asset);
         m_fig.set_visible(true);
         m_reticle.set_visible(true);
+        set_scene(this);
     }
 
     using viewport::show;
@@ -103,6 +105,7 @@ public:
 // FIXME explain
 template <>
 class asset_viewctl_of<gfx::anim> :
+    private render::scene,
     private render::viewport,
     public util::polymorphic {
 private:
@@ -129,6 +132,7 @@ public:
         m_fig.set_anim(asset);
         m_fig.set_visible(true);
         m_reticle.set_visible(true);
+        set_scene(this);
     }
 
     using viewport::show;
@@ -142,6 +146,7 @@ public:
 // FIXME explain
 template <>
 class asset_viewctl_of<gfx::model> :
+    private render::scene,
     private render::viewport,
     public util::polymorphic {
 private:
@@ -168,6 +173,7 @@ public:
         m_fig.set_model(asset);
         m_fig.set_visible(true);
         m_reticle.set_visible(true);
+        set_scene(this);
     }
 
     using viewport::show;

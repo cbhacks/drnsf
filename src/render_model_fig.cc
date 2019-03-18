@@ -25,8 +25,8 @@ namespace drnsf {
 namespace render {
 
 // declared in render.hh
-model_fig::model_fig(viewport &vp) :
-    meshanim_fig(vp)
+model_fig::model_fig(scene &scene) :
+    meshanim_fig(scene)
 {
     m_mesh_tracker.on_acquire <<= [this](gfx::mesh *mesh) {
         set_mesh(mesh);

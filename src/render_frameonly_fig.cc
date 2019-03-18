@@ -104,8 +104,8 @@ void frameonly_fig::draw(const env &e)
 }
 
 // declared in render.hh
-frameonly_fig::frameonly_fig(viewport &vp) :
-    figure(vp)
+frameonly_fig::frameonly_fig(scene &scene) :
+    figure(scene)
 {
     h_frame_vertices_change <<= [this] {
         invalidate();

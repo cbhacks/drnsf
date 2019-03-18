@@ -166,6 +166,7 @@ add_executable (drnsf
     src/gl_error.cc
 
     src/render.hh
+    src/render_scene.cc
     src/render_viewport.cc
     src/render_figure.cc
     src/render_reticle_fig.cc

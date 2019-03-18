@@ -56,6 +56,36 @@ struct camera {
 
 // defined later in this file
 class figure;
+class viewport;
+
+/*
+ * render::scene
+ *
+ * FIXME explain
+ */
+class scene : private util::nocopy {
+    friend class figure;
+    friend class viewport;
+
+private:
+    // (var) m_figs
+    // The set of all figures contained within the scene.
+    std::unordered_set<figure *> m_figs;
+
+    // (var) m_viewports
+    // The set of viewports attached to this scene.
+    std::unordered_set<viewport *> m_viewports;
+
+    // (func) invalidate
+    // Used by `render::figure'. Marks the attached viewports as invalid so
+    // they will be redrawn.
+    void invalidate();
+
+public:
+    // (dtor)
+    // Detaches all of the viewports from the scene and destroys it.
+    ~scene();
+};
 
 /*
  * render::viewport
@@ -63,7 +93,7 @@ class figure;
  * FIXME explain
  */
 class viewport : private gui::composite {
-    friend class figure;
+    friend class scene;
 
 private:
     // inner class defined in render_viewport.cc
@@ -73,10 +103,9 @@ private:
     // The pointer to the internal implementation object (PIMPL).
     impl *M;
 
-    // (var) m_figs
-    // The set of all figures associated with the viewport, both visible
-    // and invisible.
-    std::unordered_set<figure *> m_figs;
+    // (var) m_scene
+    // A pointer to the attached scene, or null if no scene is attached.
+    scene *m_scene = nullptr;
 
     // (func) invalidate
     // Used by `render::figure'. Marks the viewport's display as invalid
@@ -93,6 +122,12 @@ public:
     // Destroys the widget, removing it from the parent container.
     ~viewport();
 
+    // (func) get_scene, set_scene
+    // Gets or sets the scene attachment of this viewport. If the scene is
+    // destroyed, the viewport will automatically be detached.
+    scene * const &get_scene() const;
+    void set_scene(scene *scene);
+
     using composite::show;
     using composite::hide;
     using composite::get_layout;
@@ -108,6 +143,7 @@ public:
  */
 class figure : private util::nocopy {
     friend class viewport;
+    friend class scene;
 
 protected:
     // (inner class) env
@@ -131,16 +167,16 @@ protected:
     };
 
 private:
-    // (var) m_vp
-    // A reference to the viewport this figure exists within.
-    viewport &m_vp;
+    // (var) m_scene
+    // A reference to the scene this figure exists within.
+    scene &m_scene;
 
     // (var) m_visible
     // True if the figure is visible; false otherwise. A figure which is
-    // visible must invalidate its viewport whenever it changes, however a
-    // hidden one need not do this (as it is invisible, and therefore does
-    // not affect the scene). The viewport must also be invalidated when
-    // the visibility of a figure changes.
+    // visible must invalidate the viewports attached to its scene whenever it
+    // changes, however a hidden one need not do this (as it is invisible, and
+    // therefore does not affect the scene). The viewports must also be
+    // invalidated when the visibility of a figure changes.
     bool m_visible = false;
 
     // (pure func) draw
@@ -151,21 +187,21 @@ private:
 
 protected:
     // (explicit ctor)
-    // Constructs a figure which is associated with the given viewport. The
+    // Constructs a figure which is associated with the given scene. The
     // figure is initially not visible.
-    explicit figure(viewport &vp);
+    explicit figure(scene &scene);
 
     // (dtor)
-    // Destroys the figure and removes it from the viewport. If the figure
-    // was visible, the viewport is invalidated.
+    // Destroys the figure and removes it from the scene. If the figure was
+    // visible, the viewports attached to the scene are invalidated.
     ~figure();
 
     // (func) invalidate
     // Derived classes should call this function whenever their visual
     // appearance may have changed (such as a moved vertex, color change,
     // texture change, etc). Calling this function on a visible figure will
-    // cause the associated viewport to be invalidated (marked as stale or
-    // "dirty" so that it will be redrawn).
+    // cause the associated scene's attached viewports to be invalidated (marked
+    // as stale or "dirty" so that it will be redrawn).
     void invalidate();
 
 public:
@@ -195,8 +231,8 @@ private:
 public:
     // (explicit ctor)
     // Constructs the reticle figure.
-    explicit reticle_fig(viewport &vp) :
-        figure(vp) {}
+    explicit reticle_fig(scene &scene) :
+        figure(scene) {}
 
     // (func) get_matrix, set_matrix
     // Gets or sets the model matrix (m_matrix above).
@@ -251,7 +287,7 @@ private:
 public:
     // (explicit ctor)
     // Constructs the figure. Initially, it does not reference any frame.
-    explicit frameonly_fig(viewport &vp);
+    explicit frameonly_fig(scene &scene);
 
     // (func) get_frame, set_frame
     // Gets or sets the gfx::frame reference used by this figure. This may be a
@@ -299,7 +335,7 @@ private:
 public:
     // (explicit ctor)
     // Constructs the figure. Initially, it does not reference any animation.
-    explicit animonly_fig(viewport &vp);
+    explicit animonly_fig(scene &scene);
 
     // (func) get_anim, set_anim
     // Gets or sets the gfx::anim reference used by this figure. This may be a
@@ -375,7 +411,7 @@ public:
     // (explicit ctor)
     // Constructs the figure. Initially, it does not reference any mesh
     // or frame.
-    explicit meshframe_fig(viewport &vp);
+    explicit meshframe_fig(scene &scene);
 
     // (func) get_mesh, set_mesh
     // Gets or sets the gfx::mesh reference used by this figure. This may be a
@@ -432,7 +468,7 @@ public:
     // (explicit ctor)
     // Constructs the figure. Initially, it does not reference any mesh
     // or frame.
-    explicit meshanim_fig(viewport &vp);
+    explicit meshanim_fig(scene &scene);
 
     // (func) get_anim, set_anim
     // Gets or sets the gfx::anim reference used by this figure. This may be a
@@ -484,7 +520,7 @@ private:
 public:
     // (explicit ctor)
     // Constructs the figure. Initially, it does not reference any model.
-    explicit model_fig(viewport &vp);
+    explicit model_fig(scene &scene);
 
     // (func) get_model, set_model
     // Gets or sets the gfx::model reference used by this figure. This may be a
@@ -547,7 +583,7 @@ private:
 public:
     // (explicit ctor)
     // Constructs the figure. Initially, it does not reference any world.
-    explicit world_fig(viewport &vp);
+    explicit world_fig(scene &scene);
 
     // (func) get_world, set_world
     // Gets or sets the gfx::world reference used by this figure. This may be a

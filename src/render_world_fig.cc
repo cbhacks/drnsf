@@ -26,8 +26,8 @@ namespace drnsf {
 namespace render {
 
 // declared in render.hh
-world_fig::world_fig(viewport &vp) :
-    model_fig(vp)
+world_fig::world_fig(scene &scene) :
+    model_fig(scene)
 {
     m_model_tracker.on_acquire <<= [this](gfx::model *model) {
         set_model(model);

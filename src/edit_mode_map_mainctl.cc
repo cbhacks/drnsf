@@ -61,6 +61,8 @@ mainctl::mainctl(
     }
 
     m_reticle.set_visible(true);
+
+    set_scene(this);
 }
 
 }

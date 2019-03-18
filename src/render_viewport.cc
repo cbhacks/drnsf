@@ -111,6 +111,9 @@ viewport::viewport(gui::container &parent, gui::layout layout) :
 // declared in render.hh
 viewport::~viewport()
 {
+    // Detach from the scene first.
+    set_scene(nullptr);
+
     delete M;
 }
 
@@ -146,6 +149,12 @@ void viewport::impl::draw_gl(int width, int height, unsigned int rbo)
 
     // Clear the display and reset the depth buffer.
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Exit early if no scene is attached.
+    if (!m_outer.m_scene) {
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+        return;
+    }
 
     // Enable Z-buffer / depth testing.
     glEnable(GL_DEPTH_TEST);
@@ -192,8 +201,8 @@ void viewport::impl::draw_gl(int width, int height, unsigned int rbo)
     e.view_nomove = e.view;
     e.view = glm::translate(e.view, m_camera.pivot);
 
-    // Render the viewport's visible figures.
-    for (auto &&fig : m_outer.m_figs) {
+    // Render the visible figures in the scene.
+    for (auto &&fig : m_outer.m_scene->m_figs) {
         if (!fig->m_visible) continue;
         fig->draw(e);
     }
@@ -444,6 +453,32 @@ int viewport::impl::work() noexcept
 void viewport::invalidate()
 {
     M->invalidate();
+}
+
+// declared in render.hh
+scene * const &viewport::get_scene() const
+{
+    return m_scene;
+}
+
+// declared in render.hh
+void viewport::set_scene(scene *scene)
+{
+    if (scene == m_scene)
+        return;
+
+    if (scene) {
+        // Do the insertion first. If this fails (out of memory), no change
+        // should occur to the viewport's attachment.
+        scene->m_viewports.insert(this);
+    }
+
+    if (m_scene) {
+        m_scene->m_viewports.erase(this);
+    }
+
+    m_scene = scene;
+    invalidate();
 }
 
 }
