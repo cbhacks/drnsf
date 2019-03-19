@@ -76,7 +76,7 @@ struct interrim_vertex {
 }
 
 // declared in render.hh
-void meshframe_fig::draw(const env &e)
+void meshframe_fig::draw(const scene::env &e)
 {
     if (!m_mesh)
         return;

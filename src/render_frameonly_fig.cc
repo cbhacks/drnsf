@@ -37,7 +37,7 @@ static gl::program s_prog;
 static int s_matrix_uni;
 
 // declared in render.hh
-void frameonly_fig::draw(const env &e)
+void frameonly_fig::draw(const scene::env &e)
 {
     if (!m_frame)
         return;

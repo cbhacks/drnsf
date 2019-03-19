@@ -67,6 +67,27 @@ class scene : private util::nocopy {
     friend class figure;
     friend class viewport;
 
+public:
+    // (inner class) env
+    // This structure is used to pass information to the `draw' method
+    // without the need to change the function signature every time new
+    // information needs to be passed through.
+    struct env {
+        // (var) projection
+        // The projection matrix.
+        glm::mat4 projection;
+
+        // (var) view
+        // The view matrix.
+        glm::mat4 view;
+
+        // (var) view
+        // The view matrix, but not translated according to the camera's x/y/z
+        // pivot position. This could be used place a model such that it is
+        // always located at the pivot point, as is done by the reticle.
+        glm::mat4 view_nomove;
+    };
+
 private:
     // (var) m_figs
     // The set of all figures contained within the scene.
@@ -145,27 +166,6 @@ class figure : private util::nocopy {
     friend class viewport;
     friend class scene;
 
-protected:
-    // (inner class) env
-    // This structure is used to pass information to the `draw' method
-    // without the need to change the function signature every time new
-    // information needs to be passed through.
-    struct env {
-        // (var) projection
-        // The projection matrix.
-        glm::mat4 projection;
-
-        // (var) view
-        // The view matrix.
-        glm::mat4 view;
-
-        // (var) view
-        // The view matrix, but not translated according to the camera's x/y/z
-        // pivot position. This could be used place a model such that it is
-        // always located at the pivot point, as is done by the reticle.
-        glm::mat4 view_nomove;
-    };
-
 private:
     // (var) m_scene
     // A reference to the scene this figure exists within.
@@ -183,7 +183,7 @@ private:
     // Derived classes must implement this method to draw themselves in
     // whatever way is appropriate. The view and projection matrices are given
     // as parameters.
-    virtual void draw(const env &e) = 0;
+    virtual void draw(const scene::env &e) = 0;
 
 protected:
     // (explicit ctor)
@@ -226,7 +226,7 @@ private:
 
     // (func) draw
     // Implements `figure::draw'.
-    void draw(const env &e) override;
+    void draw(const scene::env &e) override;
 
 public:
     // (explicit ctor)
@@ -265,7 +265,7 @@ private:
 
     // (func) draw
     // Implements `figure::draw'.
-    void draw(const env &e) override;
+    void draw(const scene::env &e) override;
 
     // (handler) h_frame_vertices_change
     // Hooks the frame's vertices property change event so that the figure can
@@ -377,7 +377,7 @@ private:
 
     // (func) draw
     // Implements `figure::draw'.
-    void draw(const env &e) override;
+    void draw(const scene::env &e) override;
 
     // (handler) h_mesh_triangles_change, h_mesh_quads_change,
     //           h_mesh_colors_change

@@ -159,7 +159,7 @@ void viewport::impl::draw_gl(int width, int height, unsigned int rbo)
     // Enable Z-buffer / depth testing.
     glEnable(GL_DEPTH_TEST);
 
-    figure::env e;
+    scene::env e;
 
     // Build the projection matrix.
     e.projection = glm::infinitePerspective(

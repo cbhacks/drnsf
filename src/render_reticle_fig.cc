@@ -93,7 +93,7 @@ static gl::program s_prog;
 static int s_matrix_uni;
 
 // declared in render.hh
-void reticle_fig::draw(const env &e)
+void reticle_fig::draw(const scene::env &e)
 {
     if (!s_vao.ok) {
         glBindVertexArray(s_vao);
