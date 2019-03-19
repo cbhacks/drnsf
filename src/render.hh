@@ -106,6 +106,10 @@ public:
     // (dtor)
     // Detaches all of the viewports from the scene and destroys it.
     ~scene();
+
+    // (func) draw
+    // Draws all of the figures in the scene.
+    void draw(const env &e);
 };
 
 /*

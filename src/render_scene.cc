@@ -42,5 +42,16 @@ scene::~scene()
     }
 }
 
+// declared in render.hh
+void scene::draw(const env &e)
+{
+    for (auto &&fig : m_figs) {
+        if (!fig->m_visible)
+            continue;
+
+        fig->draw(e);
+    }
+}
+
 }
 }

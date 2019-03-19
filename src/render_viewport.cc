@@ -202,10 +202,7 @@ void viewport::impl::draw_gl(int width, int height, unsigned int rbo)
     e.view = glm::translate(e.view, m_camera.pivot);
 
     // Render the visible figures in the scene.
-    for (auto &&fig : m_outer.m_scene->m_figs) {
-        if (!fig->m_visible) continue;
-        fig->draw(e);
-    }
+    m_outer.m_scene->draw(e);
 
     // Restore the default GL state.
     glDisable(GL_DEPTH_TEST);
