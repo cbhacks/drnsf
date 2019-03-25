@@ -161,7 +161,7 @@ void error::dump(std::ostream &out)
             << "========================================\n"
             << "  OpenGL Information\n"
             << "\n"
-            << "< NO INFORMATION> \n"
+            << "< NO INFORMATION > \n"
             << "========================================"
             << std::endl;
     }
