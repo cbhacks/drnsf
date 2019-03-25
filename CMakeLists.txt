@@ -164,6 +164,12 @@ add_executable (drnsf
     src/gl.hh
     src/gl.cc
     src/gl_error.cc
+    $<$<BOOL:${USE_X11}>:
+        src/frontend/x11/gl.cc
+    >
+    $<$<BOOL:${USE_WINAPI}>:
+        src/frontend/winapi/gl.cc
+    >
 
     src/render.hh
     src/render_scene.cc
