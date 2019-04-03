@@ -90,9 +90,9 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
         auto y         = r.read_sbits(12);
         r.end();
 
-        vertex.x = x * 16;
-        vertex.y = y * 16;
-        vertex.z = z * 16;
+        vertex.x = x;
+        vertex.y = y;
+        vertex.z = z;
 
         vertex.fx = fx;
 
@@ -214,6 +214,9 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
     gfx::frame::ref frame = atom / "frame";
     frame.create(TS, get_proj());
     frame->set_vertices(TS, std::move(vertices));
+    frame->set_x_scale(TS, 16.0f);
+    frame->set_y_scale(TS, 16.0f);
+    frame->set_z_scale(TS, 16.0f);
 
     // Create the animation for this scene (just one frame, scenes are not
     // vertex-animated).
@@ -300,6 +303,14 @@ std::vector<util::blob> wgeo_v2::export_entry(uint32_t &out_type) const
     if (!frame.ok())
         throw res::export_error("nsf::wgeo_v2: bad frame ref");
 
+    // Check the scale to ensure it matches this format.
+    if (frame->get_x_scale() != 16.0f ||
+        frame->get_y_scale() != 16.0f ||
+        frame->get_z_scale() != 16.0f) {
+        // TODO - consider proximity tests instead of exact equality tests
+        throw res::export_error("nsf::wgeo_v2: scale is invalid");
+    }
+
     // Export the info item (0).
     w.begin();
     w.write_s32(world->get_x());
@@ -328,8 +339,8 @@ std::vector<util::blob> wgeo_v2::export_entry(uint32_t &out_type) const
     const int COORD_MAX = (1 << 11) - 1;
     w.begin();
     for (auto &&vertex : util::reverse_of(frame->get_vertices())) {
-        int x = vertex.x / 16.0f;
-        int z = vertex.z / 16.0f;
+        int x = vertex.x;
+        int z = vertex.z;
 
         if (x < COORD_MIN || x >= COORD_MAX ||
             z < COORD_MIN || z >= COORD_MAX) {
@@ -353,7 +364,7 @@ std::vector<util::blob> wgeo_v2::export_entry(uint32_t &out_type) const
         w.write_sbits(12, z);
     }
     for (auto &&vertex : frame->get_vertices()) {
-        int y = vertex.y / 16.0f;
+        int y = vertex.y;
 
         if (y < COORD_MIN || y >= COORD_MAX) {
             throw res::export_error("nsf::wgeo_v2: vertex y out of range");

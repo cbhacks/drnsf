@@ -25,14 +25,14 @@ namespace drnsf {
 namespace render {
 
 // declared in render.hh
-meshanim_fig::meshanim_fig(viewport &vp) :
-    m_meshframefig(vp)
+meshanim_fig::meshanim_fig(scene &scene) :
+    meshframe_fig(scene)
 {
     m_frame_tracker.on_acquire <<= [this](gfx::frame *frame) {
-        m_meshframefig.set_frame(frame);
+        set_frame(frame);
     };
     m_frame_tracker.on_lose <<= [this] {
-        m_meshframefig.set_frame(nullptr);
+        set_frame(nullptr);
     };
     h_anim_frames_change <<= [this] {
         if (m_anim->get_frames().empty()) {
@@ -41,30 +41,6 @@ meshanim_fig::meshanim_fig(viewport &vp) :
             m_frame_tracker.set_name(m_anim->get_frames()[0]);
         }
     };
-}
-
-// declared in render.hh
-void meshanim_fig::show()
-{
-    m_meshframefig.show();
-}
-
-// declared in render.hh
-void meshanim_fig::hide()
-{
-    m_meshframefig.hide();
-}
-
-// declared in render.hh
-gfx::mesh * const &meshanim_fig::get_mesh() const
-{
-    return m_meshframefig.get_mesh();
-}
-
-// declared in render.hh
-void meshanim_fig::set_mesh(gfx::mesh *mesh)
-{
-    m_meshframefig.set_mesh(mesh);
 }
 
 // declared in render.hh
@@ -90,18 +66,6 @@ void meshanim_fig::set_anim(gfx::anim *anim)
             }
         }
     }
-}
-
-// declared in render.hh
-const glm::mat4 &meshanim_fig::get_matrix() const
-{
-    return m_meshframefig.get_matrix();
-}
-
-// declared in render.hh
-void meshanim_fig::set_matrix(glm::mat4 matrix)
-{
-    m_meshframefig.set_matrix(matrix);
 }
 
 }

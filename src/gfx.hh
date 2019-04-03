@@ -44,13 +44,13 @@ namespace gfx {
 struct vertex {
     union {
         struct {
-            float x;
-            float y;
-            float z;
+            int x;
+            int y;
+            int z;
         };
-        float v[3];
+        int v[3];
     };
-    unsigned int fx;
+    int fx;
     int color_index;
 };
 
@@ -92,6 +92,12 @@ public:
     // (prop) vertices
     // FIXME explain
     DEFINE_APROP(vertices, std::vector<vertex>);
+
+    // (prop) x_scale, y_scale, z_scale
+    // FIXME explain
+    DEFINE_APROP(x_scale, float, 1.0f);
+    DEFINE_APROP(y_scale, float, 1.0f);
+    DEFINE_APROP(z_scale, float, 1.0f);
 
 #if USE_GL
     // (var) m_vertices_buffer
@@ -301,9 +307,9 @@ public:
 
     // (prop) x, y, z
     // FIXME explain
-    DEFINE_APROP(x, double, 0.0);
-    DEFINE_APROP(y, double, 0.0);
-    DEFINE_APROP(z, double, 0.0);
+    DEFINE_APROP(x, int, 0);
+    DEFINE_APROP(y, int, 0);
+    DEFINE_APROP(z, int, 0);
 };
 
 }
@@ -316,7 +322,7 @@ struct asset_type_info<gfx::frame> {
     using base_type = res::asset;
 
     static constexpr const char *name = "gfx::frame";
-    static constexpr int prop_count = 1;
+    static constexpr int prop_count = 4;
 };
 template <>
 struct asset_prop_info<gfx::frame, 0> {
@@ -324,6 +330,27 @@ struct asset_prop_info<gfx::frame, 0> {
 
     static constexpr const char *name = "vertices";
     static constexpr auto ptr = &gfx::frame::p_vertices;
+};
+template <>
+struct asset_prop_info<gfx::frame, 1> {
+    using type = float;
+
+    static constexpr const char *name = "x_scale";
+    static constexpr auto ptr = &gfx::frame::p_x_scale;
+};
+template <>
+struct asset_prop_info<gfx::frame, 2> {
+    using type = float;
+
+    static constexpr const char *name = "y_scale";
+    static constexpr auto ptr = &gfx::frame::p_y_scale;
+};
+template <>
+struct asset_prop_info<gfx::frame, 3> {
+    using type = float;
+
+    static constexpr const char *name = "z_scale";
+    static constexpr auto ptr = &gfx::frame::p_z_scale;
 };
 
 // reflection info for gfx::anim
@@ -412,21 +439,21 @@ struct asset_prop_info<gfx::world, 0> {
 };
 template <>
 struct asset_prop_info<gfx::world, 1> {
-    using type = double;
+    using type = int;
 
     static constexpr const char *name = "x";
     static constexpr auto ptr = &gfx::world::p_x;
 };
 template <>
 struct asset_prop_info<gfx::world, 2> {
-    using type = double;
+    using type = int;
 
     static constexpr const char *name = "y";
     static constexpr auto ptr = &gfx::world::p_y;
 };
 template <>
 struct asset_prop_info<gfx::world, 3> {
-    using type = double;
+    using type = int;
 
     static constexpr const char *name = "z";
     static constexpr auto ptr = &gfx::world::p_z;

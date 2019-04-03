@@ -18,11 +18,18 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#version 140
+uniform mat4 u_ScreenOrtho;
 
-out vec4 f_Color;
+in vec4 a_Position;
+in vec2 a_TexCoord;
+in vec4 a_Color;
+
+smooth out vec2 v_TexCoord;
+smooth out vec4 v_Color;
 
 void main()
 {
-    f_Color = vec4(1.0,1.0,1.0,1.0);
+    gl_Position = u_ScreenOrtho * a_Position;
+    v_TexCoord = a_TexCoord;
+    v_Color = a_Color;
 }

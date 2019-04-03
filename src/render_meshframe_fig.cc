@@ -19,12 +19,13 @@
 //
 
 #include "common.hh"
+#include <glm/gtc/matrix_transform.hpp>
 #include "render.hh"
 
-DRNSF_DECLARE_EMBED(meshframe_triangle_vert);
-DRNSF_DECLARE_EMBED(meshframe_quad_vert);
-DRNSF_DECLARE_EMBED(meshframe_vert);
-DRNSF_DECLARE_EMBED(meshframe_frag);
+DRNSF_DECLARE_EMBED(shaders::meshframe_fig::triangle_glsl);
+DRNSF_DECLARE_EMBED(shaders::meshframe_fig::quad_glsl);
+DRNSF_DECLARE_EMBED(shaders::meshframe_fig::vertex_glsl);
+DRNSF_DECLARE_EMBED(shaders::meshframe_fig::fragment_glsl);
 
 namespace drnsf {
 namespace render {
@@ -75,7 +76,7 @@ struct interrim_vertex {
 }
 
 // declared in render.hh
-void meshframe_fig::draw(const env &e)
+void meshframe_fig::draw(const scene::env &e)
 {
     if (!m_mesh)
         return;
@@ -85,11 +86,11 @@ void meshframe_fig::draw(const env &e)
 
     if (!s_triangle_prog.ok) {
         gl::vert_shader vs;
-        compile_shader(
-            vs,
-            embed::meshframe_triangle_vert::data,
-            embed::meshframe_triangle_vert::size
-        );
+        gl::shader_source(vs, {
+            "#version 140",
+            embed::shaders::meshframe_fig::triangle_glsl::str
+        });
+        gl::compile_shader(vs);
 
         glAttachShader(s_triangle_prog, vs);
         glBindAttribLocation(s_triangle_prog, 0, "ai_VertexIndex0");
@@ -112,18 +113,18 @@ void meshframe_fig::draw(const env &e)
             varyings,
             GL_INTERLEAVED_ATTRIBS
         );
-        glLinkProgram(s_triangle_prog);
+        gl::link_program(s_triangle_prog);
 
         s_triangle_prog.ok = true;
     }
 
     if (!s_quad_prog.ok) {
         gl::vert_shader vs;
-        compile_shader(
-            vs,
-            embed::meshframe_quad_vert::data,
-            embed::meshframe_quad_vert::size
-        );
+        gl::shader_source(vs, {
+            "#version 140",
+            embed::shaders::meshframe_fig::quad_glsl::str
+        });
+        gl::compile_shader(vs);
 
         glAttachShader(s_quad_prog, vs);
         glBindAttribLocation(s_quad_prog, 0, "ai_VertexIndex0");
@@ -154,32 +155,32 @@ void meshframe_fig::draw(const env &e)
             varyings,
             GL_INTERLEAVED_ATTRIBS
         );
-        glLinkProgram(s_quad_prog);
+        gl::link_program(s_quad_prog);
 
         s_quad_prog.ok = true;
     }
 
     if (!s_main_prog.ok) {
         gl::vert_shader vs;
-        compile_shader(
-            vs,
-            embed::meshframe_vert::data,
-            embed::meshframe_vert::size
-        );
+        gl::shader_source(vs, {
+            "#version 140",
+            embed::shaders::meshframe_fig::vertex_glsl::str
+        });
+        gl::compile_shader(vs);
 
         gl::frag_shader fs;
-        compile_shader(
-            fs,
-            embed::meshframe_frag::data,
-            embed::meshframe_frag::size
-        );
+        gl::shader_source(fs, {
+            "#version 140",
+            embed::shaders::meshframe_fig::fragment_glsl::str
+        });
+        gl::compile_shader(fs);
 
         glAttachShader(s_main_prog, vs);
         glAttachShader(s_main_prog, fs);
         glBindAttribLocation(s_main_prog, 0, "a_VertexIndex");
         glBindAttribLocation(s_main_prog, 1, "a_ColorIndex");
         glBindFragDataLocation(s_main_prog, 0, "f_Color");
-        glLinkProgram(s_main_prog);
+        gl::link_program(s_main_prog);
         s_matrix_uni = glGetUniformLocation(s_main_prog, "u_Matrix");
         glUseProgram(s_main_prog);
         glUniform1i(glGetUniformLocation(s_main_prog, "u_VertexList"), 0);
@@ -335,7 +336,7 @@ void meshframe_fig::draw(const env &e)
         glBindBuffer(GL_COPY_WRITE_BUFFER, m_mesh->m_colors_buffer);
         glBufferData(
             GL_COPY_WRITE_BUFFER,
-            m_mesh->get_colors().size() * sizeof(gfx::quad),
+            m_mesh->get_colors().size() * sizeof(gfx::color),
             m_mesh->get_colors().data(),
             GL_STATIC_DRAW
         );
@@ -352,6 +353,11 @@ void meshframe_fig::draw(const env &e)
 
     glUseProgram(s_main_prog);
     auto matrix = e.projection * e.view * m_matrix;
+    matrix = glm::scale(matrix, glm::vec3(
+        m_frame->get_x_scale(),
+        m_frame->get_y_scale(),
+        m_frame->get_z_scale()
+    ));
     glUniformMatrix4fv(s_matrix_uni, 1, false, &matrix[0][0]);
     glUniform1i(
         glGetUniformLocation(s_main_prog, "u_ColorCount"),
@@ -442,8 +448,8 @@ void meshframe_fig::draw(const env &e)
 }
 
 // declared in render.hh
-meshframe_fig::meshframe_fig(viewport &vp) :
-    figure(vp)
+meshframe_fig::meshframe_fig(scene &scene) :
+    figure(scene)
 {
     h_mesh_triangles_change <<= [this] {
         invalidate();
@@ -455,6 +461,15 @@ meshframe_fig::meshframe_fig(viewport &vp) :
         invalidate();
     };
     h_frame_vertices_change <<= [this] {
+        invalidate();
+    };
+    h_frame_x_scale_change <<= [this] {
+        invalidate();
+    };
+    h_frame_y_scale_change <<= [this] {
+        invalidate();
+    };
+    h_frame_z_scale_change <<= [this] {
         invalidate();
     };
 }
@@ -493,10 +508,16 @@ void meshframe_fig::set_frame(gfx::frame *frame)
     {
         if (m_frame) {
             h_frame_vertices_change.unbind();
+            h_frame_x_scale_change.unbind();
+            h_frame_y_scale_change.unbind();
+            h_frame_z_scale_change.unbind();
         }
         m_frame = frame;
         if (m_frame) {
             h_frame_vertices_change.bind(m_frame->p_vertices.on_change);
+            h_frame_x_scale_change.bind(m_frame->p_x_scale.on_change);
+            h_frame_y_scale_change.bind(m_frame->p_y_scale.on_change);
+            h_frame_z_scale_change.bind(m_frame->p_z_scale.on_change);
         }
         invalidate();
     }

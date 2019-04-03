@@ -1170,13 +1170,13 @@ private:
 
     // (var) m_x_field, m_y_field, m_z_field
     // The subfields for X/Y/Z vertex components.
-    field<float> m_x_field;
-    field<float> m_y_field;
-    field<float> m_z_field;
+    field<int> m_x_field;
+    field<int> m_y_field;
+    field<int> m_z_field;
 
     // (var) m_fx_field
     // The subfield for the vertex special effects bits.
-    field<unsigned int> m_fx_field;
+    field<int> m_fx_field;
 
     // (var) m_color_index_field
     // The subfield for the vertex's color index.
@@ -1188,22 +1188,22 @@ public:
     // the event on the outer field (this).
     field()
     {
-        m_x_field.on_change <<= [this](float new_value) {
+        m_x_field.on_change <<= [this](int new_value) {
             auto new_vtx = *m_object;
             new_vtx.x = new_value;
             on_change(new_vtx);
         };
-        m_y_field.on_change <<= [this](float new_value) {
+        m_y_field.on_change <<= [this](int new_value) {
             auto new_vtx = *m_object;
             new_vtx.y = new_value;
             on_change(new_vtx);
         };
-        m_z_field.on_change <<= [this](float new_value) {
+        m_z_field.on_change <<= [this](int new_value) {
             auto new_vtx = *m_object;
             new_vtx.z = new_value;
             on_change(new_vtx);
         };
-        m_fx_field.on_change <<= [this](unsigned int new_value) {
+        m_fx_field.on_change <<= [this](int new_value) {
             auto new_vtx = *m_object;
             new_vtx.fx = new_value;
             on_change(new_vtx);

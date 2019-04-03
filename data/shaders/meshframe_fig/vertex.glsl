@@ -18,9 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#version 140
-#extension GL_ARB_shader_bit_encoding: require
-
 uniform mat4 u_Matrix;
 
 // TODO - uniform block
@@ -46,13 +43,12 @@ void main()
     int x_i         = texelFetch(u_VertexList, a_VertexIndex * 5 + 0).r;
     int y_i         = texelFetch(u_VertexList, a_VertexIndex * 5 + 1).r;
     int z_i         = texelFetch(u_VertexList, a_VertexIndex * 5 + 2).r;
-    // FIXME - fx is unsigned in gfx.hh
     int fx          = texelFetch(u_VertexList, a_VertexIndex * 5 + 3).r;
     int color_index = texelFetch(u_VertexList, a_VertexIndex * 5 + 4).r;
 
-    float x = intBitsToFloat(x_i);
-    float y = intBitsToFloat(y_i);
-    float z = intBitsToFloat(z_i);
+    float x = float(x_i);
+    float y = float(y_i);
+    float z = float(z_i);
 
     gl_Position = u_Matrix * vec4(x, y, z, 1.0);
 

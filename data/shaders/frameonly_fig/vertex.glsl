@@ -18,13 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#version 140
+uniform mat4 u_Matrix;
 
-smooth in vec3 v_Color;
-
-out vec3 f_Color;
+in vec4 a_Position;
 
 void main()
 {
-    f_Color = v_Color;
+    gl_Position = u_Matrix * a_Position;
 }

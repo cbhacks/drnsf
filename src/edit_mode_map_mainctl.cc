@@ -40,7 +40,7 @@ mainctl::mainctl(
             world,
             std::unique_ptr<render::world_fig>(fig)
         );
-        fig->show();
+        fig->set_visible(true);
         fig->set_world(world);
     };
     m_world_tracker.on_lose <<= [this](gfx::world *world) {
@@ -60,7 +60,9 @@ mainctl::mainctl(
         m_world_tracker.set_base(m_ctx.get_proj()->get_asset_root());
     }
 
-    m_reticle.show();
+    m_reticle.set_visible(true);
+
+    set_scene(this);
 }
 
 }

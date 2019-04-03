@@ -21,8 +21,8 @@
 #include "common.hh"
 #include "render.hh"
 
-DRNSF_DECLARE_EMBED(reticle_vert);
-DRNSF_DECLARE_EMBED(reticle_frag);
+DRNSF_DECLARE_EMBED(shaders::reticle_fig::vertex_glsl);
+DRNSF_DECLARE_EMBED(shaders::reticle_fig::fragment_glsl);
 
 namespace drnsf {
 namespace render {
@@ -93,7 +93,7 @@ static gl::program s_prog;
 static int s_matrix_uni;
 
 // declared in render.hh
-void reticle_fig::draw(const env &e)
+void reticle_fig::draw(const scene::env &e)
 {
     if (!s_vao.ok) {
         glBindVertexArray(s_vao);
@@ -134,25 +134,25 @@ void reticle_fig::draw(const env &e)
 
     if (!s_prog.ok) {
         gl::vert_shader vs;
-        compile_shader(
-            vs,
-            embed::reticle_vert::data,
-            embed::reticle_vert::size
-        );
+        gl::shader_source(vs, {
+            "#version 140",
+            embed::shaders::reticle_fig::vertex_glsl::str
+        });
+        gl::compile_shader(vs);
 
         gl::frag_shader fs;
-        compile_shader(
-            fs,
-            embed::reticle_frag::data,
-            embed::reticle_frag::size
-        );
+        gl::shader_source(fs, {
+            "#version 140",
+            embed::shaders::reticle_fig::fragment_glsl::str
+        });
+        gl::compile_shader(fs);
 
         glAttachShader(s_prog, vs);
         glAttachShader(s_prog, fs);
         glBindAttribLocation(s_prog, 0, "a_Position");
         glBindAttribLocation(s_prog, 1, "a_Axis");
         glBindFragDataLocation(s_prog, 0, "f_Color");
-        glLinkProgram(s_prog);
+        gl::link_program(s_prog);
         s_matrix_uni = glGetUniformLocation(s_prog, "u_Matrix");
 
         s_prog.ok = true;

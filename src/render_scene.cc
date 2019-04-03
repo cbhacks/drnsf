@@ -18,21 +18,40 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#version 140
+#include "common.hh"
+#include <glm/gtc/matrix_transform.hpp>
+#include "render.hh"
+#include "gl.hh"
 
-const vec4 SCALE = vec4(200.0,200.0,200.0,1.0);
+namespace drnsf {
+namespace render {
 
-uniform mat4 u_Matrix;
-
-in vec4 a_Position;
-in int a_Axis;
-
-flat out int v_Axis;
-smooth out float v_Value;
-
-void main()
+// declared in render.hh
+void scene::invalidate()
 {
-    gl_Position = u_Matrix * (a_Position * SCALE);
-    v_Axis = a_Axis;
-    v_Value = a_Position.x + a_Position.y + a_Position.z;
+    for (auto &&vp : m_viewports) {
+        vp->invalidate();
+    }
+}
+
+// declared in render.hh
+scene::~scene()
+{
+    while (!m_viewports.empty()) {
+        (**m_viewports.begin()).set_scene(nullptr);
+    }
+}
+
+// declared in render.hh
+void scene::draw(const env &e)
+{
+    for (auto &&fig : m_figs) {
+        if (!fig->m_visible)
+            continue;
+
+        fig->draw(e);
+    }
+}
+
+}
 }

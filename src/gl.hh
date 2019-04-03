@@ -429,6 +429,14 @@ struct program_traits : base_traits {
 using program = object<program_traits>;
 
 /*
+ * gl::link_program
+ *
+ * Attempts to link the specified GL program. If an error occurs, the program
+ * linker info log is output to the console and a `gl::error' object is thrown.
+ */
+void link_program(unsigned int prog);
+
+/*
  * gl::shader
  * gl::shader_traits
  * gl::vert_shader
@@ -453,47 +461,20 @@ using vert_shader = shader<GL_VERTEX_SHADER>;
 using frag_shader = shader<GL_FRAGMENT_SHADER>;
 
 /*
+ * gl::shader_source
+ *
+ * Calls glShaderSource on the specified shader with the given source strings.
+ */
+void shader_source(
+    unsigned int sh,
+    std::initializer_list<util::string_view> sources);
+
+/*
  * gl::compile_shader
  *
  * FIXME explain
  */
-template <int ShaderType>
-inline void compile_shader(shader<ShaderType> &sh, const std::string &code)
-{
-    const char *code_cstr = code.c_str();
-    glShaderSource(sh, 1, &code_cstr, nullptr);
-    glCompileShader(sh);
-
-    int status;
-    glGetShaderiv(sh, GL_COMPILE_STATUS, &status);
-
-    if (!status) {
-        int log_size;
-        glGetShaderiv(sh, GL_INFO_LOG_LENGTH, &log_size);
-
-        std::vector<char> log_buffer(log_size);
-        glGetShaderInfoLog(
-            sh,
-            log_size,
-            nullptr,
-            log_buffer.data()
-        );
-
-        fprintf(stderr, " == BEGIN SHADER COMPILE LOG ==\n");
-        fprintf(stderr, "%s\n", log_buffer.data());
-        fprintf(stderr, " === END SHADER COMPILE LOG ===\n");
-
-        throw error("gl::compile_shader: compile failed");
-    }
-}
-template <int ShaderType>
-inline void compile_shader(
-    shader<ShaderType> &sh,
-    const void *code,
-    size_t size)
-{
-    compile_shader(sh, {reinterpret_cast<const char *>(code), size});
-}
+void compile_shader(unsigned int sh);
 
 #ifdef DRNSF_FRONTEND_IMPLEMENTATION
 #if USE_X11

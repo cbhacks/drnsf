@@ -25,14 +25,14 @@ namespace drnsf {
 namespace render {
 
 // declared in render.hh
-animonly_fig::animonly_fig(viewport &vp) :
-    m_framefig(vp)
+animonly_fig::animonly_fig(scene &scene) :
+    frameonly_fig(scene)
 {
     m_frame_tracker.on_acquire <<= [this](gfx::frame *frame) {
-        m_framefig.set_frame(frame);
+        set_frame(frame);
     };
     m_frame_tracker.on_lose <<= [this] {
-        m_framefig.set_frame(nullptr);
+        set_frame(nullptr);
     };
     h_anim_frames_change <<= [this] {
         if (m_anim->get_frames().empty()) {
@@ -41,18 +41,6 @@ animonly_fig::animonly_fig(viewport &vp) :
             m_frame_tracker.set_name(m_anim->get_frames()[0]);
         }
     };
-}
-
-// declared in render.hh
-void animonly_fig::show()
-{
-    m_framefig.show();
-}
-
-// declared in render.hh
-void animonly_fig::hide()
-{
-    m_framefig.hide();
 }
 
 gfx::anim * const &animonly_fig::get_anim() const
@@ -76,16 +64,6 @@ void animonly_fig::set_anim(gfx::anim *anim)
             }
         }
     }
-}
-
-const glm::mat4 &animonly_fig::get_matrix() const
-{
-    return m_framefig.get_matrix();
-}
-
-void animonly_fig::set_matrix(glm::mat4 matrix)
-{
-    m_framefig.set_matrix(matrix);
 }
 
 }

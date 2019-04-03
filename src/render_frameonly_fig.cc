@@ -19,10 +19,11 @@
 //
 
 #include "common.hh"
+#include <glm/gtc/matrix_transform.hpp>
 #include "render.hh"
 
-DRNSF_DECLARE_EMBED(frameonly_vert);
-DRNSF_DECLARE_EMBED(frameonly_frag);
+DRNSF_DECLARE_EMBED(shaders::frameonly_fig::vertex_glsl);
+DRNSF_DECLARE_EMBED(shaders::frameonly_fig::fragment_glsl);
 
 namespace drnsf {
 namespace render {
@@ -36,7 +37,7 @@ static gl::program s_prog;
 static int s_matrix_uni;
 
 // declared in render.hh
-void frameonly_fig::draw(const env &e)
+void frameonly_fig::draw(const scene::env &e)
 {
     if (!m_frame)
         return;
@@ -55,24 +56,24 @@ void frameonly_fig::draw(const env &e)
 
     if (!s_prog.ok) {
         gl::vert_shader vs;
-        compile_shader(
-            vs,
-            embed::frameonly_vert::data,
-            embed::frameonly_vert::size
-        );
+        gl::shader_source(vs, {
+            "#version 140",
+            embed::shaders::frameonly_fig::vertex_glsl::str
+        });
+        gl::compile_shader(vs);
 
         gl::frag_shader fs;
-        compile_shader(
-            fs,
-            embed::frameonly_frag::data,
-            embed::frameonly_frag::size
-        );
+        gl::shader_source(fs, {
+            "#version 140",
+            embed::shaders::frameonly_fig::fragment_glsl::str
+        });
+        gl::compile_shader(fs);
 
         glAttachShader(s_prog, vs);
         glAttachShader(s_prog, fs);
         glBindAttribLocation(s_prog, 0, "a_Position");
         glBindFragDataLocation(s_prog, 0, "f_Color");
-        glLinkProgram(s_prog);
+        gl::link_program(s_prog);
         s_matrix_uni = glGetUniformLocation(s_prog, "u_Matrix");
 
         s_prog.ok = true;
@@ -87,21 +88,35 @@ void frameonly_fig::draw(const env &e)
 
     glBindBuffer(GL_ARRAY_BUFFER, m_frame->m_vertices_buffer);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(gfx::vertex), 0);
+    glVertexAttribPointer(0, 3, GL_INT, false, sizeof(gfx::vertex), 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glUseProgram(s_prog);
     auto matrix = e.projection * e.view * m_matrix;
+    matrix = glm::scale(matrix, glm::vec3(
+        m_frame->get_x_scale(),
+        m_frame->get_y_scale(),
+        m_frame->get_z_scale()
+    ));
     glUniformMatrix4fv(s_matrix_uni, 1, false, &matrix[0][0]);
     glDrawArrays(GL_POINTS, 0, m_frame->get_vertices().size());
     glUseProgram(0);
 }
 
 // declared in render.hh
-frameonly_fig::frameonly_fig(viewport &vp) :
-    figure(vp)
+frameonly_fig::frameonly_fig(scene &scene) :
+    figure(scene)
 {
     h_frame_vertices_change <<= [this] {
+        invalidate();
+    };
+    h_frame_x_scale_change <<= [this] {
+        invalidate();
+    };
+    h_frame_y_scale_change <<= [this] {
+        invalidate();
+    };
+    h_frame_z_scale_change <<= [this] {
         invalidate();
     };
 }
@@ -117,10 +132,16 @@ void frameonly_fig::set_frame(gfx::frame *frame)
     {
         if (m_frame) {
             h_frame_vertices_change.unbind();
+            h_frame_x_scale_change.unbind();
+            h_frame_y_scale_change.unbind();
+            h_frame_z_scale_change.unbind();
         }
         m_frame = frame;
         if (m_frame) {
             h_frame_vertices_change.bind(m_frame->p_vertices.on_change);
+            h_frame_x_scale_change.bind(m_frame->p_x_scale.on_change);
+            h_frame_y_scale_change.bind(m_frame->p_y_scale.on_change);
+            h_frame_z_scale_change.bind(m_frame->p_z_scale.on_change);
         }
         invalidate();
     }

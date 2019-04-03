@@ -18,20 +18,26 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-#version 140
+in int ai_VertexIndex0;
+in int ai_ColorIndex0;
+in int ai_VertexIndex1;
+in int ai_ColorIndex1;
+in int ai_VertexIndex2;
+in int ai_ColorIndex2;
 
-uniform mat4 u_ScreenOrtho;
-
-in vec4 a_Position;
-in vec2 a_TexCoord;
-in vec4 a_Color;
-
-smooth out vec2 v_TexCoord;
-smooth out vec4 v_Color;
+flat out int ao_VertexIndex0;
+flat out int ao_ColorIndex0;
+flat out int ao_VertexIndex1;
+flat out int ao_ColorIndex1;
+flat out int ao_VertexIndex2;
+flat out int ao_ColorIndex2;
 
 void main()
 {
-    gl_Position = u_ScreenOrtho * a_Position;
-    v_TexCoord = a_TexCoord;
-    v_Color = a_Color;
+    ao_VertexIndex0 = ai_VertexIndex0;
+    ao_ColorIndex0 = ai_ColorIndex0;
+    ao_VertexIndex1 = ai_VertexIndex1;
+    ao_ColorIndex1 = ai_ColorIndex1;
+    ao_VertexIndex2 = ai_VertexIndex2;
+    ao_ColorIndex2 = ai_ColorIndex2;
 }
