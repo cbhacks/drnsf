@@ -40,6 +40,28 @@
 #include "misc.hh"
 #include "nsf.hh"
 
+/*
+ * ALL_ASSET_TYPES
+ *
+ * A list of the asset types defined in the application, separated by commas.
+ * Derived asset types are ordered before their parent asset types.
+ *
+ * This list is intended primarily for use with util::dynamic_call.
+ */
+#define ALL_ASSET_TYPES \
+    gfx::frame,         \
+    gfx::anim,          \
+    gfx::mesh,          \
+    gfx::model,         \
+    gfx::world,         \
+    misc::raw_data,     \
+    nsf::archive,       \
+    nsf::spage,         \
+    nsf::raw_entry,     \
+    nsf::wgeo_v2,       \
+    nsf::entry,         \
+    res::asset
+
 namespace drnsf {
 namespace edit {
 

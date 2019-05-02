@@ -110,18 +110,8 @@ void asset_metactl::frame()
     util::dynamic_call<
         const decltype(handler) &,
         res::asset,
-        gfx::frame,
-        gfx::anim,
-        gfx::mesh,
-        gfx::model,
-        gfx::world,
-        misc::raw_data,
-        nsf::archive,
-        nsf::spage,
-        nsf::raw_entry,
-        nsf::wgeo_v2,
-        nsf::entry,
-        res::asset>(handler, asset);
+        ALL_ASSET_TYPES
+    >(handler, asset);
 }
 
 // declared in edit.hh
