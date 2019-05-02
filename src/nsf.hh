@@ -345,6 +345,60 @@ public:
         uint32_t &out_type) const final override;
 };
 
+/*
+ * nsf::zdat_v2
+ *
+ * Type 7 entry for Crash 2.
+ *
+ * An entry of this type defines one "zone" of the level map.
+ */
+class zdat_v2 : public entry {
+    friend class res::asset;
+
+private:
+    // (explicit ctor)
+    // FIXME explain
+    explicit zdat_v2(res::project &proj) :
+        entry(proj) {}
+
+public:
+    // (typedef) ref
+    // FIXME explain
+    using ref = res::ref<zdat_v2>;
+
+    // (prop) item0
+    // Raw data for the first item.
+    //
+    // This item specifies many properties for the zone, such as neighbors,
+    // worlds, colors, music, etc.
+    DEFINE_APROP(item0, util::blob);
+
+    // (prop) item1
+    // Raw data for the second item.
+    //
+    // This item specifies the physical layout of the zone, including its
+    // location, size, resolution, and (static, non-object) collision.
+    DEFINE_APROP(item1, util::blob);
+
+    // (prop) member_items
+    // Raw data for the remaining items.
+    //
+    // These items define attributes or properties of the camera segments
+    // and objects which inhabit this zone. The cameras occupy the initial
+    // items in this set, in groups of 3 per camera, followed by the objects,
+    // with one item per object.
+    DEFINE_APROP(member_items, std::vector<util::blob>);
+
+    // (func) import_entry
+    // FIXME explain
+    void import_entry(TRANSACT, const std::vector<util::blob> &items);
+
+    // (func) export_entry
+    // FIXME explain
+    std::vector<util::blob> export_entry(
+        uint32_t &out_type) const final override;
+};
+
 }
 
 namespace reflect {
@@ -539,6 +593,36 @@ struct asset_prop_info<nsf::wgeo_v2, 12> {
 
     static constexpr const char *name = "world";
     static constexpr auto ptr = &nsf::wgeo_v2::p_world;
+};
+
+// reflection info for nsf::zdat_v2
+template <>
+struct asset_type_info<nsf::zdat_v2> {
+    using base_type = nsf::entry;
+
+    static constexpr const char *name = "nsf::zdat_v2";
+    static constexpr int prop_count = 3;
+};
+template <>
+struct asset_prop_info<nsf::zdat_v2, 0> {
+    using type = util::blob;
+
+    static constexpr const char *name = "item0";
+    static constexpr auto ptr = &nsf::zdat_v2::p_item0;
+};
+template <>
+struct asset_prop_info<nsf::zdat_v2, 1> {
+    using type = util::blob;
+
+    static constexpr const char *name = "item1";
+    static constexpr auto ptr = &nsf::zdat_v2::p_item1;
+};
+template <>
+struct asset_prop_info<nsf::zdat_v2, 2> {
+    using type = std::vector<util::blob>;
+
+    static constexpr const char *name = "member_items";
+    static constexpr auto ptr = &nsf::zdat_v2::p_member_items;
 };
 
 }

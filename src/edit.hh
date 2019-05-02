@@ -59,6 +59,7 @@
     nsf::spage,         \
     nsf::raw_entry,     \
     nsf::wgeo_v2,       \
+    nsf::zdat_v2,       \
     nsf::entry,         \
     res::asset
 

@@ -223,6 +223,7 @@ add_executable (drnsf
     src/nsf_entry.cc
     src/nsf_raw_entry.cc
     src/nsf_wgeo_v2.cc
+    src/nsf_zdat_v2.cc
 
     $<TARGET_OBJECTS:imgui>
 
