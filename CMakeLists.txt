@@ -214,6 +214,11 @@ add_executable (drnsf
 
     src/gfx.hh
 
+    src/game.hh
+    src/game_attr_vgroup.cc
+    src/game_attr_row.cc
+    src/game_attr_table.cc
+
     src/misc.hh
 
     src/nsf.hh

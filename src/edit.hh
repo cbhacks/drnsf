@@ -37,6 +37,7 @@
 #include "render.hh"
 
 #include "gfx.hh"
+#include "game.hh"
 #include "misc.hh"
 #include "nsf.hh"
 

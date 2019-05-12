@@ -29,6 +29,7 @@
 #include <vector>
 #include "res.hh"
 #include "gfx.hh"
+#include "game.hh"
 
 namespace drnsf {
 namespace nsf {
@@ -380,14 +381,12 @@ public:
     // location, size, resolution, and (static, non-object) collision.
     DEFINE_APROP(item1, util::blob);
 
-    // (prop) member_items
-    // Raw data for the remaining items.
+    // (prop) member_tables
+    // Attribute tables defining the camera rail segments and objects.
     //
-    // These items define attributes or properties of the camera segments
-    // and objects which inhabit this zone. The cameras occupy the initial
-    // items in this set, in groups of 3 per camera, followed by the objects,
-    // with one item per object.
-    DEFINE_APROP(member_items, std::vector<util::blob>);
+    // The cameras occupy the initial tables in this set, in groups of 3 per
+    // camera, followed by the objects, with one table per object.
+    DEFINE_APROP(member_tables, std::vector<game::attr_table>);
 
     // (func) import_entry
     // FIXME explain
@@ -619,10 +618,10 @@ struct asset_prop_info<nsf::zdat_v2, 1> {
 };
 template <>
 struct asset_prop_info<nsf::zdat_v2, 2> {
-    using type = std::vector<util::blob>;
+    using type = std::vector<game::attr_table>;
 
-    static constexpr const char *name = "member_items";
-    static constexpr auto ptr = &nsf::zdat_v2::p_member_items;
+    static constexpr const char *name = "member_tables";
+    static constexpr auto ptr = &nsf::zdat_v2::p_member_tables;
 };
 
 }

@@ -38,12 +38,13 @@ void zdat_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
     set_item0(TS, items[0]);
     set_item1(TS, items[1]);
 
-    std::vector<util::blob> member_items;
+    std::vector<game::attr_table> member_tables;
 
     for (size_t i = 2; i < items.size(); i++) {
-        member_items.push_back(items[i]);
+        member_tables.emplace_back();
+        member_tables.back().import_file(items[i]);
     }
-    set_member_items(TS, std::move(member_items));
+    set_member_tables(TS, std::move(member_tables));
 }
 
 // declared in nsf.hh
@@ -57,8 +58,8 @@ std::vector<util::blob> zdat_v2::export_entry(uint32_t &out_type) const
     items[0] = get_item0();
     items[1] = get_item1();
 
-    for (auto &&member_item : get_member_items()) {
-        items.push_back(member_item);
+    for (auto &&member_table : get_member_tables()) {
+        items.push_back(member_table.export_file());
     }
 
     return items;
