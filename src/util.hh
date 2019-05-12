@@ -619,6 +619,10 @@ private:
     // FIXME explain
     size_t m_size;
 
+    // (var) m_data_base
+    // FIXME explain
+    const unsigned char *m_data_base;
+
     // (var) m_bitbuf
     // FIXME explain
     unsigned char m_bitbuf;
@@ -680,6 +684,10 @@ public:
     // FIXME explain
     int64_t read_sbits(int bits);
 
+    // (func) read_bytes
+    // Reads a given number of bytes and returns a vector of them.
+    blob read_bytes(int bytes);
+
     // (func) discard
     // FIXME explain
     void discard(int bytes);
@@ -687,6 +695,12 @@ public:
     // (func) discard_bits
     // FIXME explain
     void discard_bits(int bits);
+
+    // (func) discard_to_align
+    // Discards bytes from the input buffer until the offset into the buffer is
+    // a multiple of the specified alignment. If the buffer offset already meets
+    // the given alignment requirements, no change occurs.
+    void discard_to_align(int alignment);
 };
 
 /*

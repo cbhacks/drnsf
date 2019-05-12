@@ -44,6 +44,8 @@ void binreader::begin(const unsigned char *data, size_t size)
 
     m_data = data;
     m_size = size;
+
+    m_data_base = m_data;
 }
 
 // declared in util.hh
@@ -59,6 +61,8 @@ void binreader::begin(const util::blob &data)
     } else {
         m_data = data.data();
         m_size = data.size();
+
+        m_data_base = m_data;
     }
 }
 
@@ -181,6 +185,24 @@ int64_t binreader::read_sbits(int bits)
 }
 
 // declared in util.hh
+blob binreader::read_bytes(int bytes)
+{
+    if (bytes < 0)
+        throw std::logic_error("util::binreader::read_bytes: bad byte count");
+
+    if (!m_data)
+        throw std::logic_error("util::binreader::read_bytes: not started");
+
+    if (m_size < static_cast<unsigned int>(bytes))
+        throw std::logic_error("util::binreader::read_bytes: not enough data");
+
+    blob result(m_data, m_data + bytes);
+    m_data += bytes;
+    m_size -= bytes;
+    return result;
+}
+
+// declared in util.hh
 void binreader::discard(int bytes)
 {
     if (bytes < 0)
@@ -200,6 +222,34 @@ void binreader::discard(int bytes)
 void binreader::discard_bits(int bits)
 {
     read_ubits(bits);
+}
+
+// declared in util.hh
+void binreader::discard_to_align(int alignment)
+{
+    if (alignment <= 0) {
+        throw std::logic_error(
+            "util::binreader::discard_to_align: invalid alignment"
+        );
+    }
+
+    if (!m_data) {
+        throw std::logic_error(
+            "util::binreader::discard_to_align: not started"
+        );
+    }
+
+    int padding = alignment - ((m_data - m_data_base) % alignment);
+    if (padding != alignment) {
+        if (m_size < static_cast<size_t>(padding)) {
+            throw std::logic_error(
+                "util::binreader::discard_to_align: not enough data"
+            );
+        }
+
+        m_data += padding;
+        m_size -= padding;
+    }
 }
 
 #if FEATURE_INTERNAL_TEST
@@ -339,6 +389,37 @@ TEST(util_binreader, SBitsRead)
     r.end();
 }
 
+TEST(util_binreader, BytesRead)
+{
+    blob data = { 0, 1, 2, 3, 4, 5, 6, 7 };
+    binreader r;
+    r.begin(data);
+    EXPECT_EQ(r.read_bytes(0), (blob{}));
+    EXPECT_EQ(r.read_bytes(1), (blob{ 0 }));
+    EXPECT_EQ(r.read_bytes(2), (blob{ 1, 2 }));
+    EXPECT_EQ(r.read_bytes(3), (blob{ 3, 4, 5}));
+    EXPECT_EQ(r.read_bytes(2), (blob{ 6, 7 }));
+    r.end();
+}
+
+TEST(util_binreader, AlignmentDiscard)
+{
+    blob data = { 1, 2, 0, 0, 3, 4, 5, 0, 6, 0 };
+    binreader r;
+    r.begin(data);
+    r.discard_to_align(1);
+    EXPECT_EQ(r.read_u8(), 1);
+    EXPECT_EQ(r.read_u8(), 2);
+    r.discard_to_align(4);
+    EXPECT_EQ(r.read_u8(), 3);
+    EXPECT_EQ(r.read_u8(), 4);
+    EXPECT_EQ(r.read_u8(), 5);
+    r.discard_to_align(4);
+    EXPECT_EQ(r.read_u8(), 6);
+    r.discard_to_align(2);
+    EXPECT_THROW(r.discard_to_align(4), std::logic_error);
+}
+
 TEST(util_binreader, PartialBitError)
 {
     blob data = { 0, 0 };
@@ -393,6 +474,12 @@ TEST(util_binreader, OverrunError)
     r_8.begin(data_8);
     r_8.read_u8();
     EXPECT_THROW(r_8.read_u8(), std::logic_error);
+
+    blob data_bytes(8);
+    binreader r_bytes;
+    r_bytes.begin(data_bytes);
+    r_bytes.read_bytes(7);
+    EXPECT_THROW(r_bytes.read_bytes(2), std::logic_error);
 }
 
 }
