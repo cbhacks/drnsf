@@ -33,6 +33,8 @@ const char *text_for_asset_type(nsf::entry *entry)
 {
     if (dynamic_cast<nsf::wgeo_v2 *>(entry)) {
         return "WGEO v2";
+    } else if (dynamic_cast<nsf::zdat_v2 *>(entry)) {
+        return "ZDAT v2";
     } else {
         return "Unrecognized";
     }
