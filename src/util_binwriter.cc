@@ -146,6 +146,21 @@ void binwriter::write_sbits(int bits, int64_t value)
 }
 
 // declared in util.hh
+void binwriter::write_bytes(util::blob data)
+{
+    m_data.insert(m_data.end(), data.begin(), data.end());
+}
+
+// declared in util.hh
+void binwriter::skip(int bytes)
+{
+    if (bytes < 0)
+        throw std::logic_error("util::binwriter::skip: bad byte count");
+
+    m_data.insert(m_data.end(), bytes, 0);
+}
+
+// declared in util.hh
 void binwriter::pad(int alignment)
 {
     if (alignment <= 0) {
@@ -154,9 +169,7 @@ void binwriter::pad(int alignment)
 
     int padding = alignment - (m_data.size() % alignment);
     if (padding != alignment) {
-        while (padding--) {
-            write_u8(0);
-        }
+        skip(padding);
     }
 }
 
@@ -297,6 +310,15 @@ TEST(util_binwriter, SBitsWrite)
     EXPECT_EQ(w.end(), data);
 }
 
+TEST(util_binwriter, BytesWrite)
+{
+    const blob data = { 0, 1, 0x7F, 0x80, 0xFF };
+    binwriter w;
+    w.begin();
+    w.write_bytes(data);
+    EXPECT_EQ(w.end(), data);
+}
+
 TEST(util_binwriter, PartialBitError)
 {
     binwriter w;
@@ -318,6 +340,21 @@ TEST(util_binwriter, DoubleEndError)
     w.begin();
     w.end();
     EXPECT_THROW(w.end(), std::logic_error);
+}
+
+TEST(util_binwriter, Skip)
+{
+    const blob data = { 1, 2, 3, 0, 0, 4, 5 };
+    binwriter w;
+    w.begin();
+    w.write_u8(1);
+    w.write_u8(2);
+    w.skip(0);
+    w.write_u8(3);
+    w.skip(2);
+    w.write_u8(4);
+    w.write_u8(5);
+    EXPECT_EQ(w.end(), data);
 }
 
 TEST(util_binwriter, Padding)
