@@ -141,13 +141,13 @@ private:
 
     // (var) m_columned
     // True if this row is a "columned" row, false otherwise. If true, all of
-    // the value groups in this row must have a column ID, and no two such
-    // groups may share the same ID. If false, none of the value groups may
-    // have a column ID.
+    // the value groups in this row must have a column ID. If false, none of
+    // the value groups may have a column ID.
     bool m_columned;
 
     // (var) m_vgroups
-    // The value groups within this row.
+    // The value groups within this row. If this row is "columned", the groups
+    // are sorted by column ID (ascending).
     std::vector<attr_vgroup> m_vgroups;
 
 public:
@@ -181,9 +181,15 @@ public:
     const attr_vgroup &get_vgroup_by_index(size_t index) const;
 
     // (func) find_vgroup_id
-    // Returns the index of the value group with the specified column ID, or
-    // SIZE_MAX is there is none. If the row is not columned, an exception is
-    // thrown.
+    // Returns the index of the first value group with the specified column ID,
+    // or the index of the first value group with a greater column ID if there
+    // is none. If all existing value groups have a lesser column ID, the count
+    // (`vgroup_count()') is returned.
+    //
+    // (i.e.) This function returns the position at which front-insertions or
+    // searches should start for the specified column ID.
+    //
+    // If the row is not columned, an exception is thrown.
     size_t find_vgroup_id(int id) const;
 
     // (func) has_vgroup_id
@@ -192,54 +198,77 @@ public:
     // thrown.
     bool has_vgroup_id(int id) const;
 
-    // (func) get_vgroup_by_id
-    // Returns the value group with the specified column ID. If the row does
-    // not contain a value group for that ID, or if the row is not columned,
-    // an exception is thrown.
-    const attr_vgroup &get_vgroup_by_id(int id) const;
-
-    // (func) put_vgroup
-    // Inserts the value group into the row based on its column ID. If the
-    // value group does not have an ID, the row is not columned, or the value
-    // group's value size does not match the row's value size, an exception is
-    // thrown. If a value group already exists in the row with the given ID,
-    // it is overwritten.
+    // (func) get_vgroups_by_id
+    // Returns the value groups with the specified column ID, in the order in
+    // which they appear in the row. If the row does not contain any vgroups
+    // with the specified ID, an empty list is returned.
     //
-    // For non-columned rows, use `set_vgroup', `insert_vgroup' or
-    // `append_vgroup' instead.
-    void put_vgroup(attr_vgroup vgroup);
+    // If the row is not columned, an exception is thrown.
+    std::vector<attr_vgroup> get_vgroups_by_id(int id) const;
 
     // (func) insert_vgroup
-    // Inserts a value group at the specified index in the row. If the index is
-    // inside the bounds of the array, the value group is inserted before the
-    // value group at the specified index. If the index is the size of the
-    // array, the value group is appended to the row. Otherwise, an exception
-    // is thrown.
+    // Inserts a value group at the specified index in the row.
     //
-    // If the value group's value size does not match the row's value size, or
-    // if the row is columned, an exception is thrown
+    // For non-columned rows:
     //
-    // For columned rows, use `put_vgroup' instead.
+    //   If the value group has a column ID, an exception is thrown.
+    //
+    //   If the index is inside the bounds of the array, the value group is
+    //   inserted before the value group at the specified index. If the index
+    //   is the size of the array, the value group is appended to the row.
+    //   Otherwise, an exception is thrown.
+    //
+    // For columned rows:
+    //
+    //   If the value group does not have a column ID, an exception is thrown.
+    //
+    //   If the index refers to a value group with an equal column ID to the
+    //   given value group, the given group is inserted before the group at the
+    //   specified index.
+    //
+    //   If the index refers to a value group with a lesser column ID than the
+    //   given value group, the given group is inserted as the first value group
+    //   of its column ID.
+    //
+    //   If the index refers to a value group with a greater column ID than the
+    //   given value group, or if the index is equal to the size of the array,
+    //   the given group is inserted as the last value group of its column ID.
+    //
+    //   If the index is out of bounds and is not equal to the size of the
+    //   value group array, an exception is thrown.
+    //
+    //   In any case, if insertion is successful, the value group array order
+    //   is preserved such that no value group precedes a value group of lesser
+    //   column ID.
+    //
+    // For both columned and non-columned rows, if the value group's value size
+    // does not match the row's value size, an exception is thrown.
     void insert_vgroup(size_t index, attr_vgroup vgroup);
 
     // (func) append_vgroup
-    // Appends the given value group to the end of the row. If the value size
-    // of the value group does not match the row's value size, or if the row
-    // is columned, an exception is thrown.
+    // Appends a value group to the row.
     //
-    // For columned rows, use `put_vgroup' instead.
+    // For non-columned rows:
+    //
+    //   If the value group has a column ID, an exception is thrown.
+    //
+    //   The value group is inserted at the end of the row.
+    //
+    // For columned rows:
+    //
+    //   If the value group does not have a column ID, an exception is thrown.
+    //
+    //   The value group is inserted into the row such that it is the last
+    //   group of its column ID.
+    //
+    // For both columned and non-columned rows, if the value group's value size
+    // does not match the row's value size, an exception is thrown.
     void append_vgroup(attr_vgroup vgroup);
 
     // (func) remove_vgroup_by_index
     // Removes the value group at the specified index. The index must be within
     // the bounds of the row's value group array or an exception is thrown.
     void remove_vgroup_by_index(size_t index);
-
-    // (func) remove_vgroup_by_id
-    // Removes the value group with the specified column ID. If no such group
-    // is present in the row, or if the row is not columned, an exception is
-    // thrown.
-    void remove_vgroup_by_id(int id);
 };
 
 /*

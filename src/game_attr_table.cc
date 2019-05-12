@@ -259,13 +259,9 @@ void attr_table::import_file(const util::blob &data)
             for (auto &group_column_id : group_column_ids) {
                 group_column_id = r.read_u16();
 
-                if (group_column_id == max_id) {
+                if (group_column_id < max_id) {
                     throw res::import_error(
-                        "game::attr_table: duplicate column ID"
-                    );
-                } else if (group_column_id < max_id) {
-                    throw res::import_error(
-                        "game:attr_table: column ID's out of order"
+                        "game::attr_table: column ID's out of order"
                     );
                 }
 
@@ -287,11 +283,7 @@ void attr_table::import_file(const util::blob &data)
                 group.append(r.read_bytes(descriptor.value_size));
             }
 
-            if (is_columned) {
-                row.put_vgroup(std::move(group));
-            } else {
-                row.append_vgroup(std::move(group));
-            }
+            row.append_vgroup(std::move(group));
         }
 
         // Align to a 4-byte boundary before the next row or EOF.

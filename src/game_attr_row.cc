@@ -76,7 +76,7 @@ size_t attr_row::find_vgroup_id(int id) const
         }
     );
     if (it == m_vgroups.end() || it->column_id() != id) {
-        return SIZE_MAX;
+        return m_vgroups.size();
     } else {
         return it - m_vgroups.begin();
     }
@@ -90,102 +90,79 @@ bool attr_row::has_vgroup_id(int id) const
             "game::attr_row::has_vgroup_id: row is not columned"
         );
     }
-    return find_vgroup_id(id) != SIZE_MAX;
+    return find_vgroup_id(id) < m_vgroups.size();
 }
 
 // declared in game.hh
-const attr_vgroup &attr_row::get_vgroup_by_id(int id) const
+std::vector<attr_vgroup> attr_row::get_vgroups_by_id(int id) const
 {
     if (!m_columned) {
         throw std::logic_error(
             "game::attr_row::get_vgroup_by_id: row is not columned"
         );
     }
-    auto index = find_vgroup_id(id);
-    if (index == SIZE_MAX) {
-        throw std::logic_error(
-            "game::attr_row::get_vgroup_by_id: no such value group"
-        );
-    }
-    return m_vgroups[index];
-}
 
-// declared in game.hh
-void attr_row::put_vgroup(attr_vgroup vgroup)
-{
-    if (!m_columned) {
-        throw std::logic_error(
-            "game::attr_row::put_vgroup: row is not columned"
-        );
+    std::vector<attr_vgroup> result;
+
+    auto index = find_vgroup_id(id);
+    while (index < m_vgroups.size()) {
+        if (m_vgroups[index].column_id() != id)
+            break;
+
+        result.push_back(m_vgroups[index]);
     }
-    if (vgroup.column_id() == -1) {
-        throw std::logic_error(
-            "game::attr_row::put_vgroup: value group has no column id"
-        );
-    }
-    if (vgroup.value_size() != m_value_size) {
-        throw std::logic_error(
-            "game::attr_row::put_vgroup: value size mismatch"
-        );
-    }
-    auto it = std::lower_bound(
-        m_vgroups.begin(),
-        m_vgroups.end(),
-        vgroup.column_id(),
-        [](const attr_vgroup &lhs, auto rhs) -> int {
-            return lhs.column_id() - rhs;
-        }
-    );
-    if (it == m_vgroups.end() || it->column_id() != vgroup.column_id()) {
-        m_vgroups.insert(it, std::move(vgroup));
-    } else {
-        *it = std::move(vgroup);
-    }
+
+    return result;
 }
 
 // declared in game.hh
 void attr_row::insert_vgroup(size_t index, attr_vgroup vgroup)
 {
-    if (m_columned) {
+    if (m_columned && vgroup.column_id() == -1) {
         throw std::logic_error(
-            "game::attr_row::insert_vgroup: row is columned"
+            "game::attr_row::insert_vgroup: row is columned but vgroup is not"
+        );
+    }
+    if (!m_columned && vgroup.column_id() != -1) {
+        throw std::logic_error(
+            "game::attr_row::insert_vgroup: vgroup is columned but row is not"
         );
     }
     if (index > m_vgroups.size()) {
         throw std::logic_error("game::attr_row::insert_vgroup: out of bounds");
-    }
-    if (vgroup.column_id() != -1) {
-        throw std::logic_error(
-            "game::attr_row::insert_vgroup: value group has column id"
-        );
     }
     if (vgroup.value_size() != m_value_size) {
         throw std::logic_error(
             "game::attr_row::insert_vgroup: value size mismatch"
         );
     }
+
+    // If the row is columned, adjust the index to keep the column ID's sorted.
+    if (m_columned) {
+        auto id = vgroup.column_id();
+        if (index == m_vgroups.size() || m_vgroups[index].column_id() > id) {
+            index = find_vgroup_id(id);
+            while (index < m_vgroups.size()) {
+                if (m_vgroups[index].column_id() != id)
+                    break;
+                index++;
+            }
+        } else if (m_vgroups[index].column_id() < id){
+            index = find_vgroup_id(id);
+        }
+
+        // If the index's value group ID matches the given group's ID, no
+        // adjustment is necessary.
+    }
+
+    // Insert the value group.
     m_vgroups.insert(m_vgroups.begin() + index, std::move(vgroup));
 }
 
 // declared in game.hh
 void attr_row::append_vgroup(attr_vgroup vgroup)
 {
-    if (m_columned) {
-        throw std::logic_error(
-            "game::attr_row::append_vgroup: row is columned"
-        );
-    }
-    if (vgroup.column_id() != -1) {
-        throw std::logic_error(
-            "game::attr_row::append_vgroup: value group has column id"
-        );
-    }
-    if (vgroup.value_size() != m_value_size) {
-        throw std::logic_error(
-            "game::attr_row::append_vgroup: value size mismatch"
-        );
-    }
-    m_vgroups.push_back(std::move(vgroup));
+    insert_vgroup(m_vgroups.size(), std::move(vgroup));
 }
 
 // declared in game.hh
@@ -194,23 +171,6 @@ void attr_row::remove_vgroup_by_index(size_t index)
     if (index >= m_vgroups.size()) {
         throw std::logic_error(
             "game::attr_row::remove_vgroup_by_index: out of bounds"
-        );
-    }
-    m_vgroups.erase(m_vgroups.begin() + index);
-}
-
-// declared in game.hh
-void attr_row::remove_vgroup_by_id(int id)
-{
-    if (!m_columned) {
-        throw std::logic_error(
-            "game::attr_row::remove_vgroup_by_id: row is not columned"
-        );
-    }
-    auto index = find_vgroup_id(id);
-    if (index == SIZE_MAX) {
-        throw std::logic_error(
-            "game::attr_row::remove_vgroup_by_id: no such value group"
         );
     }
     m_vgroups.erase(m_vgroups.begin() + index);
