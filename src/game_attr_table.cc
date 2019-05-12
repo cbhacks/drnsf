@@ -297,7 +297,131 @@ void attr_table::import_file(const util::blob &data)
 // declared in game.hh
 util::blob attr_table::export_file() const
 {
-    return {};
+    util::blob data(16 + 8 * m_rows.size());
+
+    util::binwriter w_header;
+    w_header.begin();
+
+    // Skip the initial 16 bytes, we will determine these later.
+    w_header.skip(16);
+
+    // Format each row descriptor and body.
+    for (size_t i = 0; i < m_rows.size(); i++) {
+        const auto &row = m_rows[i];
+
+        if (data.size() > 0xFFFF)
+            throw res::export_error("game::attr_table: too much data");
+
+        // Determine whether or not this row is jagged. If not, also determine
+        // the per-vgroup value count.
+        bool is_jagged;
+        size_t uniform_value_count;
+        if (row.vgroup_count() == 0) {
+            is_jagged = false;
+            uniform_value_count = 0;
+        } else {
+            is_jagged = false;
+            uniform_value_count = row.get_vgroup_by_index(0).count();
+            for (auto &&vgroup : row) {
+                if (vgroup.count() != uniform_value_count) {
+                    is_jagged = true;
+                    break;
+                }
+            }
+        }
+
+        // Determine the type and flags for this row.
+        uint8_t type_flags = row.type();
+        if (i == m_rows.size() - 1)
+            type_flags |= 0x80;
+        if (is_jagged)
+            type_flags |= 0x40;
+        if (row.is_columned())
+            type_flags |= 0x20;
+
+        if (row.value_size() > 0xFF)
+            throw res::export_error("game::attr_table: row value size too big");
+        if (row.vgroup_count() > 0xFFFF)
+            throw res::export_error("game::attr_table: too many value groups");
+
+        // Write the row descriptor.
+        w_header.write_u16(row.id());
+        w_header.write_u16(data.size() - 12);
+        w_header.write_u8(type_flags);
+        w_header.write_u8(row.value_size());
+        w_header.write_u16(row.vgroup_count());
+
+        // Begin formatting the body data for this row.
+        util::binwriter w_body;
+        w_body.begin();
+
+        // Write the value counts for each value group. If the row is jagged,
+        // each value group has its own value count. Otherwise, a single value
+        // count (`uniform_value_count' above) is shared for all value groups.
+        //
+        // Strangely, this means that a non-jagged zero-group row takes more
+        // space than a jagged zero-group row. Normally, a zero-group row should
+        // not exist at all, but this is supported by DRNSF.
+        if (is_jagged) {
+            for (auto &&vgroup : row) {
+                if (vgroup.count() > 0xFFFF)
+                    throw res::export_error("game::attr_table: too many values");
+
+                w_body.write_u16(vgroup.count());
+            }
+        } else {
+            if (uniform_value_count > 0xFFFF)
+                throw res::export_error("game::attr_table: too many values");
+
+            w_body.write_u16(uniform_value_count);
+        }
+
+        // For a columned row, write the column ID's for each value group.
+        if (row.is_columned()) {
+            for (auto &&vgroup : row) {
+                if (vgroup.column_id() > 0xFFFF) {
+                    throw res::export_error(
+                        "game::attr_table: vgroup column ID too large"
+                    );
+                }
+
+                w_body.write_u16(vgroup.column_id());
+            }
+        }
+
+        // Pad to align to a 4-byte boundary between the vgroup metadata and
+        // the actual value data.
+        w_body.pad(4);
+
+        // Write the actual values.
+        for (auto &&vgroup : row) {
+            for (auto &&value : vgroup) {
+                w_body.write_bytes(value);
+            }
+        }
+
+        // Pad to align to a 4-byte boundary after each row.
+        w_body.pad(4);
+
+        // Append the body data to the end of the result blob.
+        auto body = w_body.end();
+        data.insert(data.end(), body.begin(), body.end());
+    }
+
+    // Copy the header to the result.
+    auto header = w_header.end();
+    std::memcpy(data.data(), header.data(), header.size());
+
+    // Write the initial 16 header bytes which were initially skipped.
+    w_header.begin();
+    w_header.write_u32(data.size());
+    w_header.write_u32(0);
+    w_header.write_u32(0);
+    w_header.write_u32(m_rows.size());
+    header = w_header.end();
+    std::memcpy(data.data(), header.data(), header.size());
+
+    return data;
 }
 
 }

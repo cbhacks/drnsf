@@ -277,6 +277,15 @@ public:
     // Removes the value group at the specified index. The index must be within
     // the bounds of the row's value group array or an exception is thrown.
     void remove_vgroup_by_index(size_t index);
+
+    // (func) begin, end
+    // Functions for iterating over the value groups in the row.
+    auto begin() const {
+        return m_vgroups.begin();
+    }
+    auto end() const {
+        return m_vgroups.end();
+    }
 };
 
 /*
