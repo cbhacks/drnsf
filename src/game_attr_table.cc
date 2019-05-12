@@ -230,7 +230,7 @@ void attr_table::import_file(const util::blob &data)
             );
         }
 
-        attr_row row(descriptor.id, descriptor.value_size, is_columned);
+        attr_row row(descriptor.id, type, descriptor.value_size, is_columned);
         std::vector<uint16_t> group_column_ids(descriptor.group_count);
         std::vector<uint16_t> group_value_counts(descriptor.group_count);
 

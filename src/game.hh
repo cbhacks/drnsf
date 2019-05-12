@@ -134,6 +134,11 @@ private:
     // The attribute ID of this row.
     int m_id;
 
+    // (var) m_type
+    // The attribute type of attribute this row. This is a 5-bit value which
+    // determines how the value data should be interpreted.
+    int m_type;
+
     // (var) m_value_size
     // The size, in bytes, of each value contained within the value groups in
     // this row.
@@ -152,16 +157,19 @@ private:
 
 public:
     // (explicit ctor)
-    // Constructs a new attribute row of the specified ID, value size, and
+    // Constructs a new attribute row of the specified ID, type, value size, and
     // columned status.
-    explicit attr_row(int id, size_t value_size, bool columned) :
-        m_id(id),
-        m_value_size(value_size),
-        m_columned(columned) {}
+    //
+    // The given type must be a 5-bit unsigned value or an exception is thrown.
+    explicit attr_row(int id, int type, size_t value_size, bool columned);
 
     // (func) id
     // Returns the attribute ID of this row.
     int id() const;
+
+    // (func) type
+    // Returns the attribute type of this row.
+    int type() const;
 
     // (func) value_size
     // Returns the value size of this row.

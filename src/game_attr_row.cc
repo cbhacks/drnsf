@@ -25,9 +25,25 @@ namespace drnsf {
 namespace game {
 
 // declared in game.hh
+attr_row::attr_row(int id, int type, size_t value_size, bool columned) :
+    m_id(id),
+    m_type(type),
+    m_value_size(value_size),
+    m_columned(columned)
+{
+    if (type < 0 || type > 0x1F)
+        throw std::logic_error("game::attr_row: type out of range");
+}
+// declared in game.hh
 int attr_row::id() const
 {
     return m_id;
+}
+
+// declared in game.hh
+int attr_row::type() const
+{
+    return m_type;
 }
 
 // declared in game.hh
