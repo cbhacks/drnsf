@@ -339,5 +339,78 @@ void field<util::blob>::frame()
     ImGui::PopStyleVar(2);
 }
 
+// declared in edit.hh
+void field<game::attr_table>::bind(const game::attr_table *object)
+{
+    m_object = object;
+
+    // Also apply the binding to the subfields.
+    if (object) {
+        m_row_fields = std::make_unique<field<game::attr_row>[]>(
+            object->row_count()
+        );
+        for (size_t i = 0; i < object->row_count(); i++) {
+            m_row_fields[i].bind(&object->get_row_by_index(i));
+            m_row_fields[i].on_change <<= [this, i](game::attr_row row) {
+                auto value = *m_object;
+
+                // Add the new row to the table. If the new row ID matches the
+                // old row ID, the old row will be overwritten. If the new row
+                // ID matches the ID of another existing row, that row will be
+                // overwritten. In any case, the old row is removed.
+                if (row.id() != value.get_row_by_index(i).id()) {
+                    // Remove the old row if the new row has a different ID.
+                    value.remove_row_by_index(i);
+                }
+                value.put_row(std::move(row));
+
+                on_change(value);
+            };
+        }
+    } else {
+        m_row_fields = nullptr;
+    }
+}
+
+// declared in edit.hh
+void field<game::attr_table>::frame()
+{
+    if (!m_object) {
+        ImGui::Text("--");
+        return;
+    }
+    auto &obj = *m_object;
+
+    ImGui::SmallButton("Add attribute");
+
+    ImGui::NextColumn();
+    ImGui::Indent();
+
+    for (size_t i = 0; i < obj.row_count(); i++) {
+        ImGui::PushID(i);
+        DRNSF_ON_EXIT { ImGui::PopID(); };
+
+        ImGui::Text("%4X", obj.get_row_by_index(i).id());
+        ImGui::NextColumn();
+
+        if (ImGui::SmallButton("Delete")) {
+            auto value = obj;
+            value.remove_row_by_index(i);
+            on_change(std::move(value));
+            break;
+        }
+        ImGui::SameLine();
+
+        ImGui::SmallButton("Reconfigure");
+        ImGui::SameLine();
+
+        m_row_fields[i].frame();
+        ImGui::NextColumn();
+    }
+
+    ImGui::Unindent();
+    ImGui::NextColumn();
+}
+
 }
 }

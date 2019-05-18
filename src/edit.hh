@@ -1738,6 +1738,41 @@ public:
 };
 
 /*
+ * edit::field
+ *   for game::attr_table
+ *
+ * This provides a specialized version of `edit::field' for `game::attr_table'.
+ * The field displays a subfield for each row within the table, and provides
+ * options to add, delete, or reconfigure the rows.
+ *
+ * For more details, see the non-specialized version of `edit::field'.
+ */
+template <>
+class field<game::attr_table> : private util::nocopy {
+private:
+    // (var) m_object
+    // See the non-specialized `edit::field' for details.
+    const game::attr_table *m_object;
+
+    // (var) m_row_fields
+    // The subfields for the table's rows.
+    std::unique_ptr<field<game::attr_row>[]> m_row_fields;
+
+public:
+    // (func) bind
+    // See the non-specialized `edit::field' for details.
+    void bind(const game::attr_table *object);
+
+    // (func) frame
+    // See the non-specialized `edit::field' for details.
+    void frame();
+
+    // (event) on_change
+    // See the non-specialized `edit::field' for details.
+    util::event<game::attr_table> on_change;
+};
+
+/*
  * edit::asset_metactl
  *
  * This widget displays basic information about an asset, such as its name and
