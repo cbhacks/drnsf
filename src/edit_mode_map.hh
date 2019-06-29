@@ -53,10 +53,21 @@ private:
         gfx::world *,
         std::unique_ptr<render::world_fig>> m_world_figs;
 
+    // (var) m_zone_figs
+    // FIXME explain
+    std::unordered_map<
+        game::zone *,
+        std::unique_ptr<render::zone_box_fig>> m_zone_figs;
+
     // (var) m_world_tracker
     // Tracks the appearance and disappearance of `gfx::world' assets to apply
     // those changes to the `m_world_figs' collection.
     res::tree_tracker<gfx::world> m_world_tracker;
+
+    // (var) m_zone_tracker
+    // Tracks the appearance and disappearance of `game::zone' assets to apply
+    // those changes to the `m_zone_figs' collection.
+    res::tree_tracker<game::zone> m_zone_tracker;
 
     // (handler) h_project_change
     // Hooks the editor context's project change event to update the view for

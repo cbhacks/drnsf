@@ -47,17 +47,33 @@ mainctl::mainctl(
         m_world_figs.erase(world);
     };
 
+    m_zone_tracker.on_acquire <<= [this](game::zone *zone) {
+        auto fig = new render::zone_box_fig(*this);
+        m_zone_figs.emplace(
+            zone,
+            std::unique_ptr<render::zone_box_fig>(fig)
+        );
+        fig->set_visible(true);
+        fig->set_zone(zone);
+    };
+    m_zone_tracker.on_lose <<= [this](game::zone *zone) {
+        m_zone_figs.erase(zone);
+    };
+
     h_project_change <<= [this](const std::shared_ptr<res::project> &proj) {
         if (proj) {
             m_world_tracker.set_base(proj->get_asset_root());
+            m_zone_tracker.set_base(proj->get_asset_root());
         } else {
             m_world_tracker.set_base(nullptr);
+            m_zone_tracker.set_base(nullptr);
         }
     };
     h_project_change.bind(m_ctx.on_project_change);
 
     if (m_ctx.get_proj()) {
         m_world_tracker.set_base(m_ctx.get_proj()->get_asset_root());
+        m_zone_tracker.set_base(m_ctx.get_proj()->get_asset_root());
     }
 
     m_reticle.set_visible(true);

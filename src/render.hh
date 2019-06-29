@@ -29,6 +29,7 @@
 #include <unordered_set>
 #include "res.hh"
 #include "gfx.hh"
+#include "game.hh"
 #include "gui.hh"
 
 namespace drnsf {
@@ -603,6 +604,72 @@ public:
 
     using model_fig::get_visible;
     using model_fig::set_visible;
+};
+
+/*
+ * render::zone_box_fig
+ *
+ * This figure draws a wireframe box outlining the boundaries of a zone based
+ * on its position and size.
+ *
+ * The zone is given directly by pointer. Any code which uses this class must
+ * ensure that the zone pointer is valid or null at all times.
+ */
+class zone_box_fig : private figure {
+private:
+    // (var) m_zone
+    // A pointer to the zone used by this figure. This may be null, in which
+    // case rendering will not occur.
+    game::zone *m_zone = nullptr;
+
+    // (var) m_matrix
+    // The model matrix for this figure. The view and projection matrix come
+    // from the viewport during a `draw' call.
+    glm::mat4 m_matrix{1.0f};
+
+    // (func) draw
+    // Implements `figure::draw'.
+    void draw(const scene::env &e) override;
+
+    // (handler) h_zone_x_change,
+    //           h_zone_y_change,
+    //           h_zone_z_change,
+    //           h_zone_x_size_change,
+    //           h_zone_y_size_change,
+    //           h_zone_z_size_change
+    // Hook's the zone's position and size property change events so that the
+    // figure can be updated when the zone's space changes in size or position.
+    decltype(decltype(game::zone::p_x)::on_change)::watch
+        h_zone_x_change;
+    decltype(decltype(game::zone::p_y)::on_change)::watch
+        h_zone_y_change;
+    decltype(decltype(game::zone::p_z)::on_change)::watch
+        h_zone_z_change;
+    decltype(decltype(game::zone::p_x_size)::on_change)::watch
+        h_zone_x_size_change;
+    decltype(decltype(game::zone::p_y_size)::on_change)::watch
+        h_zone_y_size_change;
+    decltype(decltype(game::zone::p_z_size)::on_change)::watch
+        h_zone_z_size_change;
+
+public:
+    // (explicit ctor)
+    // Constructs the figure. Initially, it does not reference any zone.
+    explicit zone_box_fig(scene &scene);
+
+    // (func) get_zone, set_zone
+    // Gets or sets the game::zone reference used by this figure. This may be a
+    // null pointer, in which case nothing will be drawn.
+    game::zone * const &get_zone() const;
+    void set_zone(game::zone *zone);
+
+    // (func) get_matrix, set_matrix
+    // Gets or sets the model matrix (m_matrix above).
+    const glm::mat4 &get_matrix() const;
+    void set_matrix(glm::mat4 matrix);
+
+    using figure::get_visible;
+    using figure::set_visible;
 };
 
 }
