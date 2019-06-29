@@ -29,6 +29,10 @@
 #include <vector>
 #include "res.hh"
 
+#if USE_GL
+#include "gl.hh"
+#endif
+
 namespace drnsf {
 namespace game {
 
@@ -388,6 +392,201 @@ public:
     auto end() const {
         return m_rows.end();
     }
+};
+
+/*
+ * game::zone
+ *
+ * FIXME explain
+ */
+class zone : public res::asset {
+    friend class res::asset;
+
+private:
+    // (explicit ctor)
+    // FIXME explain
+    explicit zone(res::project &proj) :
+        asset(proj) {}
+
+public:
+    // (typedef) ref
+    // FIXME explain
+    using ref = res::ref<zone>;
+
+    // (const) octree_header_size
+    // The number of bytes in a ZDAT entry's second item before the octree. The
+    // octree's non-leaf nodes use offsets relative to the start of the item,
+    // so this must be subtracted out to retrieve a proper index.
+    static constexpr size_t octree_header_size = 36;
+
+    // (prop) x, y, z
+    // The position of this zone's origin, in map units.
+    DEFINE_APROP(x, int32_t, 0);
+    DEFINE_APROP(y, int32_t, 0);
+    DEFINE_APROP(z, int32_t, 0);
+
+    // (prop) x_size, y_size, z_size
+    // The size of this zone, in map units. The space occupied by the zone is
+    // an axis-aligned 3D rectangle from (x, y, z) to (x + x_size, y + y_size,
+    // z + z_size), i.e. the smallest axis-aligned bounding box containing
+    // these two points.
+    DEFINE_APROP(x_size, int32_t, 0);
+    DEFINE_APROP(y_size, int32_t, 0);
+    DEFINE_APROP(z_size, int32_t, 0);
+
+    // (prop) x_res, y_res, z_res
+    // The resolution of this zone's octree data for each axis. See `octree'
+    // below for more details.
+    DEFINE_APROP(x_res, int, 0);
+    DEFINE_APROP(y_res, int, 0);
+    DEFINE_APROP(z_res, int, 0);
+
+    // (prop) octree_root
+    // The root node of the octree (see below).
+    DEFINE_APROP(octree_root, uint16_t, 0);
+
+    // (prop) octree
+    // A complex tree structure which defines this zone's static collidable
+    // geometry. For a given axis N, the space occupied by the zone is bisected
+    // up to `N_res' times (into up to `2 ** N_res' sized subregions). Each
+    // subregion ---- FIXME
+    //
+    // Each tree node may have any of the following values:
+    //
+    // 00h:
+    //   Leaf node; no collision (i.e. air, underwater, etc)
+    //
+    // Not 00h, with low bit set:
+    //   Leaf node; the value determines how collision with this space works.
+    //
+    // Not 00h, with low bit clear:
+    //   Non-leaf node; the value rightshifted by one is the index of a list of
+    //   the child nodes (either 1, 2, 4, or 8 child nodes)
+    //
+    // FIXME explain
+    //
+    // Some game levels have additional static collidable geometry (e.g. VCOL)
+    // which is handled separately from the zone octree structure.
+    DEFINE_APROP(octree, std::vector<uint16_t>);
+
+    // (func) import_item1
+    // Imports the second-item data for a ZDAT entry into this zone asset.
+    void import_item1(TRANSACT, const util::blob &data);
+
+    // (func) export_item1
+    // Exports the second-item data for a ZDAT entry from this zone asset.
+    util::blob export_item1() const;
+
+#if USE_GL
+    // (var) m_octree_texture
+    // A GL texture object which should be a GL_TEXTURE_3D of a flattened (3D,
+    // not 2D; but not in a tree format) representation of the zone's collision
+    // octree. The game::zone object will clear the `ok' flag on this texture
+    // whenever the octree's data or resolution is changed, however it does not
+    // build or upload any image to this texture object. Users must provide the
+    // texture object's configuration and image data.
+    gl::texture m_octree_texture;
+
+protected:
+    // (func) on_prop_change
+    // Reacts to property changes to invalidate any necessary GL objects.
+    void on_prop_change(void *prop) noexcept override
+    {
+        if (prop == &p_octree) {
+            m_octree_texture.ok = false;
+        }
+    }
+#endif
+};
+
+}
+
+namespace reflect {
+
+// reflection info for game::zone
+template <>
+struct asset_type_info<game::zone> {
+    using base_type = res::asset;
+
+    static constexpr const char *name = "game::zone";
+    static constexpr int prop_count = 1;
+};
+template <>
+struct asset_prop_info<game::zone, 0> {
+    using type = int32_t;
+
+    static constexpr const char *name = "x";
+    static constexpr auto ptr = &game::zone::p_x;
+};
+template <>
+struct asset_prop_info<game::zone, 1> {
+    using type = int32_t;
+
+    static constexpr const char *name = "y";
+    static constexpr auto ptr = &game::zone::p_y;
+};
+template <>
+struct asset_prop_info<game::zone, 2> {
+    using type = int32_t;
+
+    static constexpr const char *name = "z";
+    static constexpr auto ptr = &game::zone::p_z;
+};
+template <>
+struct asset_prop_info<game::zone, 3> {
+    using type = int32_t;
+
+    static constexpr const char *name = "x_size";
+    static constexpr auto ptr = &game::zone::p_x_size;
+};
+template <>
+struct asset_prop_info<game::zone, 4> {
+    using type = int32_t;
+
+    static constexpr const char *name = "y_size";
+    static constexpr auto ptr = &game::zone::p_y_size;
+};
+template <>
+struct asset_prop_info<game::zone, 5> {
+    using type = int32_t;
+
+    static constexpr const char *name = "z_size";
+    static constexpr auto ptr = &game::zone::p_z_size;
+};
+template <>
+struct asset_prop_info<game::zone, 6> {
+    using type = int;
+
+    static constexpr const char *name = "x_res";
+    static constexpr auto ptr = &game::zone::p_x_res;
+};
+template <>
+struct asset_prop_info<game::zone, 7> {
+    using type = int;
+
+    static constexpr const char *name = "y_res";
+    static constexpr auto ptr = &game::zone::p_y_res;
+};
+template <>
+struct asset_prop_info<game::zone, 8> {
+    using type = int;
+
+    static constexpr const char *name = "z_res";
+    static constexpr auto ptr = &game::zone::p_z_res;
+};
+template <>
+struct asset_prop_info<game::zone, 9> {
+    using type = uint16_t;
+
+    static constexpr const char *name = "octree_root";
+    static constexpr auto ptr = &game::zone::p_octree_root;
+};
+template <>
+struct asset_prop_info<game::zone, 10> {
+    using type = std::vector<uint16_t>;
+
+    static constexpr const char *name = "octree";
+    static constexpr auto ptr = &game::zone::p_octree;
 };
 
 }

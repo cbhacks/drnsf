@@ -35,8 +35,15 @@ void zdat_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
     if (items.size() < 2)
         throw res::import_error("nsf::zdat_v2: bad item count");
 
+    // Create the zone for this entry.
+    game::zone::ref zone = get_proj().get_asset_root() / "zones" / get_eid().str();
+    zone.create(TS, get_proj());
+    set_zone(TS, zone);
+
     set_item0(TS, items[0]);
-    set_item1(TS, items[1]);
+
+    // Import the zone position, size, and collision octree.
+    zone->import_item1(TS, items[1]);
 
     std::vector<game::attr_table> member_tables;
 
@@ -56,7 +63,7 @@ std::vector<util::blob> zdat_v2::export_entry(uint32_t &out_type) const
     std::vector<util::blob> items(2);
 
     items[0] = get_item0();
-    items[1] = get_item1();
+    items[1] = get_zone()->export_item1();
 
     for (auto &&member_table : get_member_tables()) {
         items.push_back(member_table.export_file());

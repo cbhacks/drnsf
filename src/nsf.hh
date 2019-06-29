@@ -374,12 +374,9 @@ public:
     // worlds, colors, music, etc.
     DEFINE_APROP(item0, util::blob);
 
-    // (prop) item1
-    // Raw data for the second item.
-    //
-    // This item specifies the physical layout of the zone, including its
-    // location, size, resolution, and (static, non-object) collision.
-    DEFINE_APROP(item1, util::blob);
+    // (prop) zone
+    // FIXME explain
+    DEFINE_APROP(zone, game::zone::ref);
 
     // (prop) member_tables
     // Attribute tables defining the camera rail segments and objects.
@@ -611,10 +608,10 @@ struct asset_prop_info<nsf::zdat_v2, 0> {
 };
 template <>
 struct asset_prop_info<nsf::zdat_v2, 1> {
-    using type = util::blob;
+    using type = game::zone::ref;
 
-    static constexpr const char *name = "item1";
-    static constexpr auto ptr = &nsf::zdat_v2::p_item1;
+    static constexpr const char *name = "zone";
+    static constexpr auto ptr = &nsf::zdat_v2::p_zone;
 };
 template <>
 struct asset_prop_info<nsf::zdat_v2, 2> {
