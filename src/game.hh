@@ -509,7 +509,7 @@ struct asset_type_info<game::zone> {
     using base_type = res::asset;
 
     static constexpr const char *name = "game::zone";
-    static constexpr int prop_count = 1;
+    static constexpr int prop_count = 10;
 };
 template <>
 struct asset_prop_info<game::zone, 0> {

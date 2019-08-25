@@ -55,6 +55,7 @@
     gfx::mesh,          \
     gfx::model,         \
     gfx::world,         \
+    game::zone,         \
     misc::raw_data,     \
     nsf::archive,       \
     nsf::spage,         \
