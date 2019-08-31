@@ -48,10 +48,10 @@ mainctl::mainctl(
     };
 
     m_zone_tracker.on_acquire <<= [this](game::zone *zone) {
-        auto fig = new render::zone_box_fig(*this);
+        auto fig = new render::zone_fig(*this);
         m_zone_figs.emplace(
             zone,
-            std::unique_ptr<render::zone_box_fig>(fig)
+            std::unique_ptr<render::zone_fig>(fig)
         );
         fig->set_visible(true);
         fig->set_zone(zone);

@@ -672,5 +672,142 @@ public:
     using figure::set_visible;
 };
 
+/*
+ * render::zone_octree_fig
+ *
+ * This figure draws a zone's collision octree.
+ *
+ * The zone is given directly by pointer. Any code which uses this class must
+ * ensure that the zone pointer is valid or null at all times.
+ */
+class zone_octree_fig : private figure {
+private:
+    // (var) m_zone
+    // A pointer to the zone used by this figure. This may be null, in which
+    // case rendering will not occur.
+    game::zone *m_zone = nullptr;
+
+    // (var) m_matrix
+    // The model matrix for this figure. The view and projection matrix come
+    // from the viewport during a `draw' call.
+    glm::mat4 m_matrix{1.0f};
+
+    // (func) draw
+    // Implements `figure::draw'.
+    void draw(const scene::env &e) override;
+
+    // (handler) h_zone_x_change,
+    //           h_zone_y_change,
+    //           h_zone_z_change,
+    //           h_zone_x_size_change,
+    //           h_zone_y_size_change,
+    //           h_zone_z_size_change
+    // Hook's the zone's position and size property change events so that the
+    // figure can be updated when the zone's space changes in size or position.
+    decltype(decltype(game::zone::p_x)::on_change)::watch
+        h_zone_x_change;
+    decltype(decltype(game::zone::p_y)::on_change)::watch
+        h_zone_y_change;
+    decltype(decltype(game::zone::p_z)::on_change)::watch
+        h_zone_z_change;
+    decltype(decltype(game::zone::p_x_size)::on_change)::watch
+        h_zone_x_size_change;
+    decltype(decltype(game::zone::p_y_size)::on_change)::watch
+        h_zone_y_size_change;
+    decltype(decltype(game::zone::p_z_size)::on_change)::watch
+        h_zone_z_size_change;
+
+    // (handler) h_zone_x_res_change,
+    //           h_zone_y_res_change,
+    //           h_zone_z_res_change,
+    //           h_zone_octree_root_change,
+    //           h_zone_octree_change
+    // Hooks the zone's octree property change events so that the figure can be
+    // updated when the zone's octree changes in form or content.
+    decltype(decltype(game::zone::p_x_res)::on_change)::watch
+        h_zone_x_res_change;
+    decltype(decltype(game::zone::p_y_res)::on_change)::watch
+        h_zone_y_res_change;
+    decltype(decltype(game::zone::p_z_res)::on_change)::watch
+        h_zone_z_res_change;
+    decltype(decltype(game::zone::p_octree_root)::on_change)::watch
+        h_zone_octree_root_change;
+    decltype(decltype(game::zone::p_octree)::on_change)::watch
+        h_zone_octree_change;
+
+public:
+    // (explicit ctor)
+    // Constructs the figure. Initially, it does not reference any zone.
+    explicit zone_octree_fig(scene &scene);
+
+    // (func) get_zone, set_zone
+    // Gets or sets the game::zone reference used by this figure. This may be a
+    // null pointer, in which case nothing will be drawn.
+    game::zone * const &get_zone() const;
+    void set_zone(game::zone *zone);
+
+    // (func) get_matrix, set_matrix
+    // Gets or sets the model matrix (m_matrix above).
+    const glm::mat4 &get_matrix() const;
+    void set_matrix(glm::mat4 matrix);
+
+    using figure::get_visible;
+    using figure::set_visible;
+};
+
+/*
+ * render::zone_fig
+ *
+ * This figure draws a zone's border box and collision octree.
+ *
+ * The zone is given directly by pointer. Any code which uses this class must
+ * ensure that the zone pointer is valid or null at all times.
+ */
+class zone_fig : private util::nocopy {
+private:
+    // (var) m_zone
+    // A pointer to the zone used by this figure. This may be null, in which
+    // case rendering will not occur.
+    game::zone *m_zone = nullptr;
+
+    // (var) m_matrix
+    // The model matrix for this figure. The view and projection matrix come
+    // from the viewport during a `draw' call.
+    glm::mat4 m_matrix{1.0f};
+
+    // (var) m_visible
+    // True if the figure is visible; false otherwise.
+    bool m_visible = false;
+
+    // (var) m_box_fig
+    // The figure which draws the border box of this zone.
+    zone_box_fig m_box_fig;
+
+    // (var) m_octree_fig
+    // The figure which draws the collision octree of this zone.
+    zone_octree_fig m_octree_fig;
+
+public:
+    // (explicit ctor)
+    // Constructs the figure. Initially, it does not reference any zone.
+    explicit zone_fig(scene &scene);
+
+    // (func) get_zone, set_zone
+    // Gets or sets the game::zone reference used by this figure. This may be a
+    // null pointer, in which case nothing will be drawn.
+    game::zone * const &get_zone() const;
+    void set_zone(game::zone *zone);
+
+    // (func) get_matrix, set_matrix
+    // Gets or sets the model matrix (m_matrix above).
+    const glm::mat4 &get_matrix() const;
+    void set_matrix(glm::mat4 matrix);
+
+    // (func) get_visible, set_visible
+    // Gets or sets the visibility of the figure.
+    const bool &get_visible() const;
+    void set_visible(bool visible);
+};
+
 }
 }

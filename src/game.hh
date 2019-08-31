@@ -478,22 +478,47 @@ public:
     util::blob export_item1() const;
 
 #if USE_GL
-    // (var) m_octree_texture
+    // (var) m_octree_tree_buffer
+    // A GL buffer object containing the data for p_octree. The game::zone
+    // object will clear the `ok' flag on the buffer when the property is
+    // changed, however it is up to users of this data to reupload the buffer
+    // object themselves when necessary.
+    gl::buffer m_octree_tree_buffer;
+
+    // (var) m_octree_tree_texture
+    // A GL texture object which should be a GL_TEXTURE_BUFFER pointing to the
+    // octree tree buffer. game::zone does not set up this connection or manage
+    // this object in any way. Users should check the `ok' flag and set it up if
+    // necessary.
+    gl::texture m_octree_tree_texture;
+
+    // (var) m_octree_flat_texture
     // A GL texture object which should be a GL_TEXTURE_3D of a flattened (3D,
-    // not 2D; but not in a tree format) representation of the zone's collision
-    // octree. The game::zone object will clear the `ok' flag on this texture
-    // whenever the octree's data or resolution is changed, however it does not
-    // build or upload any image to this texture object. Users must provide the
-    // texture object's configuration and image data.
-    gl::texture m_octree_texture;
+    // not 2D; but no longer in a tree format) representation of the zone's
+    // collision octree. The game::zone object will clear the `ok' flag on this
+    // texture whenever the octree's data, root node, or resolution is changed,
+    // however it does not build or upload any image to this texture object.
+    // Users must provide the texture object's configuration and image data.
+    //
+    // This texture should have a non-normalized unsigned 16-bit integer R8UI
+    // picture format. Each texel should hold the item1-offset of the node which
+    // defines that texel's space in the tree. This allows the texels to be
+    // related by node identity instead of just node value.
+    gl::texture m_octree_flat_texture;
 
 protected:
     // (func) on_prop_change
     // Reacts to property changes to invalidate any necessary GL objects.
     void on_prop_change(void *prop) noexcept override
     {
-        if (prop == &p_octree) {
-            m_octree_texture.ok = false;
+        if (prop == &p_x_res ||
+            prop == &p_y_res ||
+            prop == &p_z_res ||
+            prop == &p_octree_root) {
+            m_octree_flat_texture.ok = false;
+        } else if (prop == &p_octree) {
+            m_octree_tree_buffer.ok = false;
+            m_octree_flat_texture.ok = false;
         }
     }
 #endif

@@ -57,7 +57,7 @@ private:
     // FIXME explain
     std::unordered_map<
         game::zone *,
-        std::unique_ptr<render::zone_box_fig>> m_zone_figs;
+        std::unique_ptr<render::zone_fig>> m_zone_figs;
 
     // (var) m_world_tracker
     // Tracks the appearance and disappearance of `gfx::world' assets to apply
