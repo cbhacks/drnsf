@@ -274,9 +274,7 @@ public:
     // FIXME explain
     object(object &&src)
     {
-        using std::swap;
-        swap(m_id, src.m_id);
-        swap(ok, src.ok);
+        swap(*this, src);
     }
 
     // (dtor)
@@ -286,6 +284,19 @@ public:
         if (m_id != traits::null_value) {
             traits::destroy(m_id);
         }
+    }
+
+    // (move assignment operator)
+    // Transfers ownership of the other object's GL resource (and its `ok' flag)
+    // to this object.
+    //
+    // This object's original resource (if any) and ok flag are swapped into the
+    // other object. As this is a move-assignment operator, normally the other
+    // object will be destroyed, releasing the original resource.
+    object &operator =(object &&src)
+    {
+        swap(*this, src);
+        return *this;
     }
 
     // (func) reset
@@ -307,6 +318,15 @@ public:
             traits::create(m_id);
         }
         return m_id;
+    }
+
+    // (f-func) swap
+    // Swaps the owned GL resources and `ok' flags of two objects.
+    friend void swap(object &a, object &b)
+    {
+        using std::swap;
+        swap(a.m_id, b.m_id);
+        swap(a.ok, b.ok);
     }
 };
 
