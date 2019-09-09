@@ -329,6 +329,14 @@ public:
         return m_id;
     }
 
+    // (func) get
+    // Returns a reference to the internal GL handle. Unlike the conversion
+    // operator, a handle is not created if the current handle value is null.
+    typename traits::type get() const
+    {
+        return m_id;
+    }
+
     // (f-func) swap
     // Swaps the owned GL resources and `ok' flags of two objects.
     friend void swap(object &a, object &b)
