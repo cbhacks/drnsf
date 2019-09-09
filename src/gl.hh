@@ -277,6 +277,15 @@ public:
         swap(*this, src);
     }
 
+    // (explicit ctor)
+    // Constructs a new instance of this type with the given initial GL object.
+    // The newly constructed instance owns the given object and manages its
+    // lifetime.
+    explicit object(typename traits::type &&v)
+    {
+        m_id = v;
+    }
+
     // (dtor)
     // FIXME explain
     ~object()
@@ -495,6 +504,37 @@ void shader_source(
  * FIXME explain
  */
 void compile_shader(unsigned int sh);
+
+/*
+ * gl::sync_obj
+ * gl::sync_traits
+ *
+ * FIXME explain
+ */
+struct sync_traits : base_traits {
+    using type = GLsync;
+    constexpr static type null_value = nullptr;
+
+    static void create(type &v)
+    {
+        // No default creation available.
+    }
+    static void destroy(type v)
+    {
+        glDeleteSync(v);
+    }
+};
+using sync_obj = object<sync_traits>;
+
+/*
+ * gl::fence_sync
+ *
+ * Wrapper around glFenceSync returning a `gl::sync_obj'.
+ */
+inline sync_obj fence_sync()
+{
+    return sync_obj(glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0));
+}
 
 #ifdef DRNSF_FRONTEND_IMPLEMENTATION
 #if USE_X11
