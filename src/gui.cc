@@ -264,9 +264,16 @@ void run()
         // Draw all of the widgets which need to be redrawn.
         for (auto &&w : widget::s_all_widgets) {
             if (w->m_dirty) {
-                XClearWindow(g_display, w->m_handle);
-                w->on_draw();
-                w->m_dirty = false;
+                if (w->ready_to_draw()) {
+                    // Draw the widget and mark it as no longer invalidated.
+                    XClearWindow(g_display, w->m_handle);
+                    w->on_draw();
+                    w->m_dirty = false;
+                } else {
+                    // Defer drawing of this widget. The above `select' call
+                    // should not block.
+                    timeout = timeval{};
+                }
             }
         }
     }

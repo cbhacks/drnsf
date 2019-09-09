@@ -447,6 +447,21 @@ protected:
     // The default implementation performs no operation.
     virtual void on_resize(int width, int height) {}
 
+    // (func) ready_to_draw
+    // Called before attempting to draw the widget. If this function returns
+    // false, drawing for the widget will be deferred until it returns true.
+    //
+    // When drawing is deferred, the program's execution may spin on this
+    // function (consuming 100% CPU) while also updating workers and handling
+    // incoming events such as input events, close requests, resizes, etc.
+    //
+    // The purpose of this functionality is to prevent draw calls which would
+    // block from blocking all other processing.
+    virtual bool ready_to_draw() const
+    {
+        return true;
+    }
+
 #if USE_X11
     // (var) m_dirty
     // True if the widget needs to be redrawn. See on_draw below for more
@@ -581,6 +596,14 @@ private:
     // Derived types which override this function MUST call up to this base
     // implementation to ensure child widgets are moved resized appropriately.
     void on_resize(int width, int height) override;
+
+    // (func) ready_to_draw
+    // Forces the base implementation of ready_to_draw. Derived types may not
+    // override this function.
+    bool ready_to_draw() const final override
+    {
+        return widget::ready_to_draw();
+    }
 
 #if USE_X11
     // (func) on_draw

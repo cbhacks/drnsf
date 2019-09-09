@@ -40,6 +40,11 @@ private:
     // The configuration used for this viewport.
     camera m_camera;
 
+    // (var) m_sync
+    // A GL fence sync object used to defer viewport draw calls until the
+    // previous draw call has finished on the GPU.
+    gl::sync_obj m_sync;
+
     // (var) m_mouse1_down
     // True if the mouse button (primary/"left") is currently down on this
     // widget; false if not.
@@ -88,6 +93,7 @@ private:
     void mousewheel(int delta_y) override;
     void mousebutton(gui::mousebtn btn, bool down) override;
     void key(gui::keycode code, bool down) override;
+    bool ready_to_draw() const override;
     int work() noexcept override;
 
 public:
@@ -115,6 +121,18 @@ viewport::~viewport()
     set_scene(nullptr);
 
     delete M;
+}
+
+// declared above FIXME
+bool viewport::impl::ready_to_draw() const
+{
+    if (!m_sync.get())
+        return true;
+
+    if (glClientWaitSync(m_sync.get(), 0, 0) != GL_TIMEOUT_EXPIRED)
+        return true;
+
+    return false;
 }
 
 // declared above FIXME
@@ -207,6 +225,10 @@ void viewport::impl::draw_gl(int width, int height, unsigned int rbo)
     // Restore the default GL state.
     glDisable(GL_DEPTH_TEST);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+    // Setup the fence sync object to defer any future draw calls until the
+    // previously-issued GPU commands have finished.
+    m_sync = gl::fence_sync();
 }
 
 // declared above FIXME
