@@ -41,7 +41,7 @@ void main()
         break;
 
     case 1:
-        v_PositionInPlane = vec2(1.0, 0.0);
+        v_PositionInPlane = vec2(0.0, 1.0);
         break;
 
     case 2:
@@ -50,7 +50,7 @@ void main()
         break;
 
     case 4:
-        v_PositionInPlane = vec2(0.0, 1.0);
+        v_PositionInPlane = vec2(1.0, 0.0);
         break;
     }
 
@@ -65,8 +65,8 @@ void main()
         int layerID = planeID - u_Resolution.x - 1;
         v_LayerPosition = float(layerID) / float(u_Resolution.y);
         v_LayerVec = vec3(0.0, 1.0, 0.0);
-        v_PlaneXVec = vec3(1.0, 0.0, 0.0);
-        v_PlaneYVec = vec3(0.0, 0.0, 1.0);
+        v_PlaneXVec = vec3(0.0, 0.0, 1.0);
+        v_PlaneYVec = vec3(1.0, 0.0, 0.0);
     } else {
         int layerID = planeID - u_Resolution.x - u_Resolution.y - 2;
         v_LayerPosition = float(layerID) / float(u_Resolution.z);

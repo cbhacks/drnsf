@@ -37,16 +37,16 @@ out vec4 f_Color;
 void main()
 {
     vec3 stepping = 1.0 / vec3(u_Resolution);
-    uint nodeA = texture(u_FlatTex, v_PositionInTree + v_LayerPosition * v_LayerVec * stepping * 0.25).r;
-    uint nodeB = texture(u_FlatTex, v_PositionInTree - v_LayerPosition * v_LayerVec * stepping * 0.25).r;
 
     uint node;
-    if (nodeA != 0U) {
-        node = nodeA;
-    } else if (nodeB != 0U) {
-        node = nodeB;
+
+    if (gl_FrontFacing) {
+        node = texture(u_FlatTex, v_PositionInTree - v_LayerPosition * v_LayerVec * stepping * 0.25).r;
     } else {
-        node = 0U;
+        node = texture(u_FlatTex, v_PositionInTree + v_LayerPosition * v_LayerVec * stepping * 0.25).r;
+    }
+
+    if (node == 0U) {
         discard;
     }
 
