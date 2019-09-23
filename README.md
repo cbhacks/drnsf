@@ -67,8 +67,6 @@ these dependencies with:
 $ sudo apt install build-essential git cmake pkg-config libx11-dev libgl1-mesa-dev libepoxy-dev libcairo2-dev
 ```
 
-For __Debian Stretch__, you may need to install `cmake` from backports.
-
 Depending on your selected frontend and features, you may need more
 dependencies. See `docs/build_options.md` for more details.
 
