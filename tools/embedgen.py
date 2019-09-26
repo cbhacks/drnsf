@@ -37,8 +37,9 @@ def process_file(out, f):
 
         out.write('\n')
 
+    out.write('        0  // null terminator\n')
     out.write('    };\n')
-    out.write('    extern const std::size_t size = sizeof(data);\n\n')
+    out.write('    extern const std::size_t size = sizeof(data) - 1;\n\n')
 
 def process_dirname(out, dir_name):
     assert os.path.isdir(dir_name)
