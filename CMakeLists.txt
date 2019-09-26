@@ -57,6 +57,11 @@ if (FEATURE_INTERNAL_TEST)
     add_test (NAME internal_test COMMAND drnsf ":internal-test")
 endif ()
 
+# Option: FEATURE_SCRIPTING
+set (FEATURE_SCRIPTING ON CACHE BOOL
+    "Enable scripting. (requires python3 on target)"
+)
+
 function (forward_native_feature name)
     if (FEATURE_NATIVE_${name} AND CAN_USE_NATIVE_${name})
         set (USE_NATIVE_${name} ON PARENT_SCOPE)
@@ -224,6 +229,11 @@ add_executable (drnsf
     src/nsf_raw_entry.cc
     src/nsf_wgeo_v2.cc
 
+    $<$<BOOL:${FEATURE_SCRIPTING}>:
+        src/scripting.hh
+        src/scripting.cc
+    >
+
     $<TARGET_OBJECTS:imgui>
 
     src/embed_data.cc
@@ -322,6 +332,10 @@ configure_file (
 
 # Dependency: Python 3
 find_package (Python3 REQUIRED COMPONENTS Interpreter)
+if (FEATURE_SCRIPTING)
+    find_package (Python3 3.2 REQUIRED COMPONENTS Development)
+    target_link_libraries (drnsf PRIVATE Python3::Python)
+endif ()
 
 # Tool: embedgen
 # This command generates the drnsf_embed_data.hh file from the `data/'

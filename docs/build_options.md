@@ -22,6 +22,20 @@ If OFF, the `internal-test` command will not be available.
 
 The default is ON.
 
+## `FEATURE_SCRIPTING` ##
+This option determines if the scripting engine will be built.
+
+If ON, Python 3 will be a required runtime dependency. The Limited API
+is used to reduce ABI compatibility issues between different versions
+of the library on Windows.
+
+If OFF, all scripting capability will be unavailable.
+
+The default is ON.
+
+Regardless of setting, Python 3 is still a required build dependency
+to run some Python-based build tools.
+
 ## `FEATURE_NATIVE_MENU` ##
 This option determines if native menus should be used.
 

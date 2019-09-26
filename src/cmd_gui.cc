@@ -25,28 +25,40 @@
 #include "gui.hh"
 #include "gl.hh"
 
+#if FEATURE_SCRIPTING
+#include "scripting.hh"
+#endif
+
 namespace drnsf {
 namespace core {
 
 // FIXME explain
 int cmd_gui(cmdenv e)
 {
+    bool use_scripting = true;
+
     argparser o;
     o.add_opt("help", [&]{ e.help_requested = true; });
     o.alias_opt('h', "help");
+    o.add_opt("disable-scripting", [&]{ use_scripting = false; });
     o.begin(e.argv);
     o.end();
 
     if (e.help_requested) {
         std::cout << R"(Usage:
 
-    drnsf [:gui]
+    drnsf [:gui] [<options>]
 
 Runs the program in GUI mode, as most users would normally expect. This
 is the default subcommand used if none is given.
 
 At this time, no arguments are accepted by this subcommand. This may
 change in the future.
+
+The following options are available:
+
+    --disable-scripting
+        Disables the scripting engine (Python 3).
 )"
             << std::endl;
         return EXIT_SUCCESS;
@@ -59,6 +71,12 @@ change in the future.
 
     gl::init();
     DRNSF_ON_EXIT { gl::shutdown(); };
+
+#if FEATURE_SCRIPTING
+    if (use_scripting) {
+        scripting::init();
+    }
+#endif
 
     // Create the editor.
     edit::context ctx;

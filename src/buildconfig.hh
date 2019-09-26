@@ -58,3 +58,4 @@
 #cmakedefine USE_NATIVE_FILE_DIALOG 1
 
 #cmakedefine FEATURE_INTERNAL_TEST 1
+#cmakedefine FEATURE_SCRIPTING 1
