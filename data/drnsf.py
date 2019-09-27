@@ -18,4 +18,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-print('Hello, world!')
+def _startconsole():
+    def _threadproc():
+        import code
+        code.interact()
+    import threading
+    threading.Thread(target=_threadproc).start()
+
+_startconsole()  #FIXME temporary
