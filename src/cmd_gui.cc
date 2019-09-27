@@ -76,6 +76,7 @@ The following options are available:
     if (use_scripting) {
         scripting::init();
     }
+    DRNSF_ON_EXIT { scripting::shutdown(); };
 #endif
 
     // Create the editor.

@@ -37,16 +37,29 @@ namespace scripting {
  *
  * TODO - explain possible errors and resulting engine state
  *
- * After the first successful initialization, further calls to this function
- * are silently ignored.
+ * Calling this function while the engine is already initialized has no effect.
+ * Calling this function after the engine has failed to initialize or after it
+ * has been shutdown (`scripting::shutdown' below) throws an exception.
  */
 void init();
+
+/*
+ * scripting::shutdown
+ *
+ * Shuts down the scripting engine.
+ *
+ * Calls to this function are ignored unless the engine was previously
+ * successfully initialized. Once shutdown, the engine is no longer usable.
+ * This should only be called when the application is exiting.
+ */
+void shutdown() noexcept;
 
 /*
  * scripting::is_init
  *
  * Returns true if the scripting engine has been previously successfully
- * initialized by a call to `init'. Returns false otherwise.
+ * initialized by a call to `init' and has not been shutdown. Returns false
+ * otherwise.
  */
 bool is_init() noexcept;
 

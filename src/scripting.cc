@@ -40,16 +40,34 @@ DRNSF_DECLARE_EMBED(drnsf_py);
 namespace drnsf {
 namespace scripting {
 
-// (s-var) s_is_init
-// The initialization state of the scripting engine. True if initialized, false
-// otherwise.
-static bool s_is_init = false;
+// (s-var) s_init_state
+// The initialization state of the scripting engine.
+//
+// Possible values:
+//   - none:      The engine has not been initialized yet.
+//   - ready:     The engine initialized successfully and is ready for use.
+//   - failed:    The engine is currently initializing or has failed to do so.
+//   - finished:  The engine was initialized and then shutdown.
+static enum class init_state {
+    none,
+    ready,
+    failed,
+    finished
+} s_init_state = init_state::none;
 
 // declared in scripting.hh
 void init()
 {
-    if (s_is_init)
-        return;
+    if (s_init_state == init_state::ready)
+        return; // no-op
+    if (s_init_state == init_state::failed)
+        throw std::runtime_error("scripting::init: init previously failed");
+    if (s_init_state == init_state::finished)
+        throw std::runtime_error("scripting::init: already shutdown");
+
+    // Set the initialization state to 'failed'. If the function exits abruptly
+    // such as from a thrown exception, this will be the resulting state.
+    s_init_state = init_state::failed;
 
     // If this function fails, the entire process is killed unfortunately. This
     // is solved in PEP 587 which is not available in any stable builds at time
@@ -74,13 +92,24 @@ void init()
     }
     DRNSF_ON_EXIT { Py_DECREF(result); };
 
-    s_is_init = true;
+    s_init_state = init_state::ready;
+}
+
+// declared in scripting.hh
+void shutdown() noexcept
+{
+    if (s_init_state != init_state::ready)
+        return;
+
+    Py_Finalize();
+
+    s_init_state = init_state::finished;
 }
 
 // declared in scripting.hh
 bool is_init() noexcept
 {
-    return s_is_init;
+    return s_init_state == init_state::ready;
 }
 
 }
