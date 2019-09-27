@@ -35,6 +35,8 @@
 #include "common.hh"
 #include "scripting.hh"
 
+DRNSF_DECLARE_EMBED(drnsf_py);
+
 namespace drnsf {
 namespace scripting {
 
@@ -53,6 +55,24 @@ void init()
     // is solved in PEP 587 which is not available in any stable builds at time
     // of writing.
     Py_Initialize();
+
+    auto code = Py_CompileString(
+        reinterpret_cast<const char *>(embed::drnsf_py::data),
+        "drnsf.py",
+        Py_file_input
+    );
+    if (!code) {
+        PyErr_Print();
+        std::abort();
+    }
+    DRNSF_ON_EXIT { Py_DECREF(code); };
+
+    auto result = PyImport_ExecCodeModule("drnsf", code);
+    if (!result) {
+        PyErr_Print();
+        std::abort();
+    }
+    DRNSF_ON_EXIT { Py_DECREF(result); };
 
     s_is_init = true;
 }
