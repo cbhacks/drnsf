@@ -63,5 +63,24 @@ void shutdown() noexcept;
  */
 bool is_init() noexcept;
 
+/*
+ * scripting::lock
+ * scripting::unlock
+ *
+ * Called to lock or unlock scripting execution. While locked, any script which
+ * attempts to access native application objects from another thread will block
+ * until the lock is released.
+ *
+ * Lock and unlock are recursive. It is an error to call `unlock' when there
+ * is no active lock.
+ *
+ * These functions should only be called from the main thread.
+ *
+ * Calls to these functions are silently ignored if the scripting engine is not
+ * currently initialized.
+ */
+void lock() noexcept;
+void unlock();
+
 }
 }

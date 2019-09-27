@@ -22,6 +22,11 @@
 #define DRNSF_FRONTEND_IMPLEMENTATION
 #include "gui.hh"
 
+#if FEATURE_SCRIPTING
+// FIXME temporary hack until scripting is thread-safe
+#include "scripting.hh"
+#endif
+
 namespace drnsf {
 namespace gui {
 
@@ -105,7 +110,15 @@ void run()
             // In such a case, if there are pending events, we leave the fd set
             // in the fd_set above without calling select. This results in the
             // event handling section running again.
+#if FEATURE_SCRIPTING
+            // FIXME temporary hack until scripting is thread-safe
+            scripting::unlock();
+#endif
             int err = select(connfd + 1, &readfds, nullptr, nullptr, &timeout);
+#if FEATURE_SCRIPTING
+            // FIXME temporary hack until scripting is thread-safe
+            scripting::lock();
+#endif
             if (err == -1) {
                 // EINTR is a possible error if a signal interrupts the select()
                 // call. In this case, select can simply be called again.
@@ -305,6 +318,10 @@ void run()
         // is specified so that the function does not block if a previously
         // seen but unhandled event is pending, such as a deferred WM_PAINT
         // event from the previous loop.
+#if FEATURE_SCRIPTING
+            // FIXME temporary hack until scripting is thread-safe
+            scripting::unlock();
+#endif
         MsgWaitForMultipleObjectsEx(
             0,
             nullptr,
@@ -312,6 +329,10 @@ void run()
             QS_ALLEVENTS,
             MWMO_INPUTAVAILABLE
         );
+#if FEATURE_SCRIPTING
+            // FIXME temporary hack until scripting is thread-safe
+            scripting::lock();
+#endif
     }
 #else
 #error Unimplemented UI frontend code.

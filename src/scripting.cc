@@ -34,6 +34,7 @@
 
 #include "common.hh"
 #include "scripting.hh"
+#include <thread>
 
 DRNSF_DECLARE_EMBED(drnsf_py);
 
@@ -55,6 +56,15 @@ static enum class init_state {
     finished
 } s_init_state = init_state::none;
 
+// (s-var) s_lockcount
+// The number of locks (see `lock' and `unlock') currently held on the engine
+// by the main thread.
+static int s_lockcount = 0;
+
+// (s-var) s_main_threadstate
+// The main python thread state.
+static PyThreadState *s_main_threadstate;
+
 // declared in scripting.hh
 void init()
 {
@@ -74,6 +84,9 @@ void init()
     // of writing.
     Py_Initialize();
 
+    PyEval_InitThreads();
+    s_main_threadstate = PyThreadState_Get();
+
     auto code = Py_CompileString(
         reinterpret_cast<const char *>(embed::drnsf_py::data),
         "drnsf.py",
@@ -83,16 +96,22 @@ void init()
         PyErr_Print();
         std::abort();
     }
-    DRNSF_ON_EXIT { Py_DECREF(code); };
 
     auto result = PyImport_ExecCodeModule("drnsf", code);
     if (!result) {
         PyErr_Print();
         std::abort();
     }
-    DRNSF_ON_EXIT { Py_DECREF(result); };
+
+    Py_DECREF(code);
+    Py_DECREF(result);
+    PyEval_ReleaseThread(s_main_threadstate);
 
     s_init_state = init_state::ready;
+
+    // FIXME temporary hack until scripting is thread-safe
+    lock();
+    // this hack lock is released during select()/WaitForMulitipleObjectsEx()
 }
 
 // declared in scripting.hh
@@ -100,6 +119,9 @@ void shutdown() noexcept
 {
     if (s_init_state != init_state::ready)
         return;
+
+    // One final lock. This is never released.
+    lock();
 
     Py_Finalize();
 
@@ -110,6 +132,36 @@ void shutdown() noexcept
 bool is_init() noexcept
 {
     return s_init_state == init_state::ready;
+}
+
+// declared in scripting.hh
+void lock() noexcept
+{
+    if (s_init_state != init_state::ready)
+        return;
+    if (s_lockcount < 0)
+        std::abort();
+
+    if (s_lockcount == 0)
+        PyEval_AcquireThread(s_main_threadstate);
+
+    s_lockcount++;
+}
+
+// declared in scripting.hh
+void unlock()
+{
+    if (s_init_state != init_state::ready)
+        return;
+    if (s_lockcount < 0)
+        std::abort();
+    if (s_lockcount == 0)
+        throw std::runtime_error("scripting::unlock: not locked");
+
+    if (s_lockcount == 1)
+        PyEval_ReleaseThread(s_main_threadstate);
+
+    s_lockcount--;
 }
 
 }
