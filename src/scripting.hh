@@ -30,6 +30,17 @@ namespace drnsf {
 namespace scripting {
 
 /*
+ * scripting::handle
+ *
+ * Objects of this type are present as fields in some editor types to provide
+ * for two-way associative relations between native objects (owning the field)
+ * and scripting objects.
+ */
+struct handle {
+    void *p = nullptr;
+};
+
+/*
  * scripting::init
  *
  * Initializes the scripting engine. This prepares the Python 3 library for
