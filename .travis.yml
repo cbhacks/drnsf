@@ -29,6 +29,34 @@ matrix:
       env:
         - CC=/usr/bin/gcc-7
         - CXX=/usr/bin/g++-7
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-8
+            - libx11-dev
+            - libgl1-mesa-dev
+            - libepoxy-dev
+            - libcairo2-dev
+      env:
+        - CC=/usr/bin/gcc-8
+        - CXX=/usr/bin/g++-8
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-9
+            - libx11-dev
+            - libgl1-mesa-dev
+            - libepoxy-dev
+            - libcairo2-dev
+      env:
+        - CC=/usr/bin/gcc-9
+        - CXX=/usr/bin/g++-9
 script:
   - mkdir build
   - cd build
