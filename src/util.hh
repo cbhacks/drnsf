@@ -46,55 +46,6 @@ namespace util {
 using blob = std::vector<uint8_t>;
 
 /*
- * util::string_view
- *
- * This is a temporary replacement for `std::string_view' for implementations
- * which do not yet support this type.
- *
- * Only a few basic operations are supported.
- */
-class string_view {
-private:
-    const char *m_data;
-    size_t m_size;
-
-public:
-    string_view(const char *str) :
-        m_data(str)
-    {
-        m_size = std::strlen(str);
-    }
-
-    string_view(const char *ptr, size_t size) :
-        m_data(ptr),
-        m_size(size) {}
-
-    string_view(const std::string &str) :
-        m_data(str.data()),
-        m_size(str.size()) {}
-
-    const char *data() const
-    {
-        return m_data;
-    }
-
-    size_t size() const
-    {
-        return m_size;
-    }
-
-    const char *begin() const
-    {
-        return m_data;
-    }
-
-    const char *end() const
-    {
-        return m_data + m_size;
-    }
-};
-
-/*
  * util::nocopy
  *
  * This is a base class for any type which should not be copyable or movable.

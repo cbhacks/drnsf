@@ -159,7 +159,7 @@
     namespace name { \
         extern const unsigned char data[]; \
         extern const size_t size; \
-        const util::string_view str = { \
+        const std::string_view str = { \
             reinterpret_cast<const char *>(data), \
             size \
         }; \
