@@ -39,7 +39,7 @@ void do_options<res::asset>(res::asset *asset)
 {
     if (ImGui::Button("Delete asset")) {
         asset->get_proj().get_transact().run([&](TRANSACT) {
-            TS.describe("Delete '$'"_fmt(asset->get_name().full_path()));
+            TS.describe("Delete '$'"_fmt(asset->get_name().path()));
             asset->destroy(TS);
         });
 
@@ -90,7 +90,7 @@ void asset_metactl::frame()
         return;
     }
 
-    ImGui::Text("Name:     %s", m_name.full_path().c_str());
+    ImGui::Text("Name:     %s", m_name.path().c_str());
     ImGui::Separator();
 
     res::asset *asset = m_name.get();

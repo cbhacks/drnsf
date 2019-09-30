@@ -357,6 +357,16 @@ bool dynamic_call(F &&f, Arg *arg)
 }
 
 /*
+ * util::end
+ * util::end_t
+ *
+ * This type `end_t' and its one value `end' represent a reusable sentinel value
+ * and type for iterable objects.
+ */
+static struct {} end;
+using end_t = decltype(end);
+
+/*
  * util::range
  *
  * This function returns an instance of an object which represents an iterable

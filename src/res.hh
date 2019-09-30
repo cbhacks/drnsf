@@ -56,6 +56,7 @@ namespace res {
 // Forward declaration for use in res::atom.
 class asset;
 class project;
+template <typename F> class atom_iterable;
 
 /*
  * res::atom
@@ -79,54 +80,61 @@ private:
     explicit atom(nucleus *nuc) noexcept;
 
     // (func) get_internal_asset_ptr
-    // FIXME explain
+    // Returns a reference to the asset pointer held within the nucleus. Used
+    // by `res::asset' to handle changing atom bindings when renaming assets
+    // or creating/destroying them.
     asset *&get_internal_asset_ptr() const;
 
 public:
     // (s-func) make_root
-    // FIXME explain
+    // Creates a root atom referencing the specified project. Should not be
+    // called by any code except the project constructor.
     static atom make_root(project *proj);
 
     // (default ctor)
-    // FIXME explain
+    // Creates a null atom.
     atom() noexcept;
 
     // (conversion ctor)
-    // FIXME explain
+    // Creates a null atom.
     atom(nullptr_t) noexcept;
 
     // (copy ctor)
-    // FIXME explain
+    // Creates an atom as a copy of the given atom.
     atom(const atom &src) noexcept;
 
     // (move ctor)
-    // FIXME explain
+    // Creates an atom by moving from the given atom.
     atom(atom &&src) noexcept;
 
     // (dtor)
-    // FIXME explain
+    // Destroys the atom. This may destroy the nucleus as well, which would
+    // modify the parent atom's nucleus.
     ~atom() noexcept;
 
     // (assignment operator)
-    // FIXME explain
+    // Assigns a new value to the atom.
     atom &operator =(atom rhs);
 
     // (equal operator)
-    // FIXME explain
+    // Returns true if this atom is equal to the given atom (or is null for the
+    // nullptr case).
     bool operator ==(const atom &rhs) const noexcept;
     bool operator ==(nullptr_t) const noexcept;
 
     // (not-equal operator)
-    // FIXME explain
+    // Returns true if this atom is not equal to the given atom (or is not null
+    // for the nullptr case).
     bool operator !=(const atom &rhs) const noexcept;
     bool operator !=(nullptr_t) const noexcept;
 
     // (explicit conversion operator)
-    // FIXME explain
+    // Returns true if this atom is not null, or false otherwise. This allows
+    // it to be used as a condition in if statements, while statements, etc.
     explicit operator bool() const noexcept;
 
     // (not operator)
-    // FIXME explain
+    // Returns true if this atom is null.
     bool operator !() const noexcept;
 
     // (lesser operator)
@@ -134,68 +142,110 @@ public:
     bool operator <(const atom &rhs) const;
 
     // (path operator)
-    // FIXME explain
-    atom operator /(const char *s) const;
-    atom operator /(const std::string &s) const;
+    // Returns the child atom with the given name. For example, if the current
+    // atom is `/A/B' and the string given is "C", the result is atom `/A/B/C'.
+    //
+    // If no child atom with the given name exists, one is created.
+    atom operator /(std::string_view s) const;
 
     // (path append operator)
     // This operates as though `a /= b' was `a = a / b'.
-    atom &operator /=(const char *s);
-    atom &operator /=(const std::string &s);
+    atom &operator /=(std::string_view s);
 
     // (func) get
-    // FIXME explain
+    // Returns the asset associated with this atom; that is, the asset whose
+    // name is equal to this atom. If no such asset exists, returns null.
     asset *get() const;
 
     // (func) get_as<T>
-    // FIXME explain
+    // Returns the asset associated with this atom if its type is derived from
+    // `T'. Returns null if no asset is associated, or if the associated asset
+    // is not compatible with `T'.
     template <typename T>
     T *get_as() const
     {
+        static_assert(
+            std::is_base_of_v<asset, T>,
+            "Type T given for get_as<T> must derive from res::asset."
+        );
         return dynamic_cast<T*>(get());
     }
 
     // (func) is_a<T>
-    // FIXME explain
+    // Returns true if the asset associated with this atom is of a type derived
+    // from `T'. Returns false if the asset associated is not, or if there is
+    // no associated asset.
     template <typename T>
     bool is_a() const
     {
+        static_assert(
+            std::is_base_of_v<asset, T>,
+            "Type T given for is_a<T> must derive from res::asset."
+        );
         return (get_as<T>() != nullptr);
     }
 
-    // (func) name
-    // FIXME explain
-    std::string name() const;
+    // (func) basename
+    // Returns the name of this atom excluding the ancestral path leading to it
+    // from the root atom. For example, given the atom `/A/B/C', returns "C".
+    //
+    // If null, returns "[null]". If this is a root atom, an empty string is
+    // returned.
+    std::string basename() const;
 
-    // (func) full_path
-    // FIXME explain
-    std::string full_path() const;
+    // (func) dirname
+    // Returns the path leading up to this atom but excluding the name of the
+    // atom itself. For example, given the atom `/A/B/C', returns "/A/B".
+    //
+    // If null, returns "[null]". If this is a root atom, an empty string is
+    // returned.
+    std::string dirname() const;
+
+    // (func) path
+    // Returns the full path of the atom, including its name. For example,
+    // given the atom `/A/B/C', returns "/A/B/C".
+    //
+    // If null, returns "[null]". If this is a root atom, an empty string is
+    // returned.
+    std::string path() const;
 
     // (func) get_parent
-    // FIXME explain
+    // Returns this atom's parent atom, or null if this is a root atom.
     atom get_parent() const;
 
     // (func) get_depth
     // Returns this atom's distance from the root atom. For example:
     //
-    //   Asset name "foo" has depth 1.
+    //   Asset name `/foo' has depth 1.
     //
-    //   Asset name "foo/bar" has depth 2.
+    //   Asset name `/foo/bar' has depth 2.
     //
-    //   Asset name "foo/bar/baz" has depth 3
+    //   Asset name `/foo/bar/baz' has depth 3
     //
     // A root atom has a depth of zero.
     //
     // It is an error to call this method on a null atom.
     int get_depth() const;
 
-    // (func) get_children
-    // FIXME explain
-    std::vector<atom> get_children() const;
+    // (func) first_child
+    // Returns the first child of this atom, or null if this atom has no
+    // children.
+    atom first_child() const;
 
-    // (func) get_children_recursive
-    // FIXME explain
-    std::vector<atom> get_children_recursive() const;
+    // (func) next_sibling
+    // Returns this atom's next sibling, or null if this is the last sibling
+    // or it is an only child. For a root node, this always returns null.
+    atom next_sibling() const;
+
+    // (func) each_child
+    // Returns an iterable object which, when iterated, yields each of the
+    // child atoms of this atom.
+    auto each_child() const;
+
+    // (func) each_descendant
+    // Returns an iterable object which, when iterated, yields each descendant
+    // atom of this atom.
+    auto each_descendant() const;
 
     // (func) get_proj
     // Gets the project pointer the root node was created with (see make_root).
@@ -203,8 +253,8 @@ public:
 
     // (func) is_descendant_of
     // Returns true if the atom is a descendant of the specified atom. For
-    // example, "foo/bar" is a descendant of "foo", but not of "snappy". "a/b/c"
-    // and "a/b/hello" are both descendants of "a/b" but not of eachother.
+    // example, `/foo/bar' is a descendant of `/foo', but not of `/hi'. `/a/b/c'
+    // and `/a/b/hello' are both descendants of `/a/b' but not of eachother.
     //
     // An atom is not a descendant of itself. All non-root atoms are descendants
     // of their tree's root atom, but not of the root atom of any other tree.
@@ -213,20 +263,110 @@ public:
     // be null, however, in which case the return value will be false.
     bool is_descendant_of(const atom &potential_ancestor) const;
 
-    // (func) get_asset_names
-    // FIXME explain
-    std::vector<atom> get_asset_names() const
-    {
-        return get_children_recursive();
-    }
-
     // (func) to_string
-    // FIXME explain
+    // Returns a textual representation of this atom for string formatting.
     friend std::string to_string(const atom &atom)
     {
-        return atom.full_path();
+        return atom.path();
     }
 };
+
+/*
+ * res::atom_iterator
+ *
+ * FIXME explain
+ */
+template <typename F>
+class atom_iterator {
+private:
+    atom m_current;
+    F m_f;
+
+public:
+    atom_iterator(atom start, F f) :
+        m_current(start),
+        m_f(f) {}
+
+    atom operator *() const
+    {
+        return m_current;
+    }
+
+    void operator ++()
+    {
+        if (!m_current)
+            throw std::runtime_error("res::atom_iterator: concluded");
+        m_current = m_f(m_current);
+    }
+
+    bool operator !=(util::end_t) const
+    {
+        return m_current != nullptr;
+    }
+};
+
+/*
+ * res::atom_iterable
+ *
+ * FIXME explain
+ */
+template <typename F>
+class atom_iterable {
+private:
+    atom m_start;
+    F m_f;
+
+public:
+    atom_iterable(atom start, F f) :
+        m_start(start),
+        m_f(f) {}
+
+    auto begin()
+    {
+        return atom_iterator(m_start, m_f);
+    }
+
+    auto end()
+    {
+        return util::end;
+    }
+};
+
+// declared previously in this file
+inline auto atom::each_child() const
+{
+    if (!m_nuc) {
+        throw std::logic_error("res::atom::each_child: atom is null");
+    }
+
+    return atom_iterable(first_child(), [](atom it) -> atom {
+        return it.next_sibling();
+    });
+}
+
+// declared previously in this file
+inline auto atom::each_descendant() const
+{
+    if (!m_nuc) {
+        throw std::logic_error("res::atom::each_descendant: atom is null");
+    }
+
+    return atom_iterable(first_child(), [*this](atom it) -> atom {
+        auto next = it.first_child();
+        if (next)
+            return next;
+
+        while (true) {
+            next = it.next_sibling();
+            if (next)
+                return next;
+
+            it = it.get_parent();
+            if (it == *this)
+                return nullptr;
+        }
+    });
+}
 
 /*
  * res::project
@@ -685,7 +825,7 @@ public:
             h_asset_appear.unbind();
             h_asset_disappear.unbind();
             report(m_base.get_as<T>(), false);
-            for (auto &&descendant : m_base.get_children_recursive()) {
+            for (auto &&descendant : m_base.each_descendant()) {
                 report(descendant.get_as<T>(), false);
             }
         }
@@ -698,7 +838,7 @@ public:
             h_asset_appear.bind(m_base.get_proj()->on_asset_appear);
             h_asset_disappear.bind(m_base.get_proj()->on_asset_disappear);
             report(m_base.get_as<T>(), true);
-            for (auto &&descendant : m_base.get_children_recursive()) {
+            for (auto &&descendant : m_base.each_descendant()) {
                 report(descendant.get_as<T>(), true);
             }
         }

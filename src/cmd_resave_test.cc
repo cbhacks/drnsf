@@ -89,7 +89,7 @@ static bool do_entry(TRANSACT, std::string filename, nsf::raw_entry::ref src)
             << filename
             << ": \033[46;30m  entry  \033[0m "
             << "resave \033[31mtype\033[0m mismatch on `"
-            << entry.full_path()
+            << entry.path()
             << "'."
             << std::endl;
     }
@@ -100,7 +100,7 @@ static bool do_entry(TRANSACT, std::string filename, nsf::raw_entry::ref src)
             << filename
             << ": \033[46;30m  entry  \033[0m "
             << "resave item mismatch on `"
-            << entry.full_path()
+            << entry.path()
             << "'."
             << std::endl;
     }
@@ -131,7 +131,7 @@ static bool do_pagelet(TRANSACT, std::string filename, misc::raw_data::ref src)
             << filename
             << ": \033[45;30m pagelet \033[0m "
             << "resave data mismatch on `"
-            << raw_entry.full_path()
+            << raw_entry.path()
             << "'."
             << std::endl;
     }
@@ -169,7 +169,7 @@ static bool do_page(TRANSACT, std::string filename, misc::raw_data::ref src)
                 << filename
                 << ": \033[43;30m  spage  \033[0m "
                 << "resave data mismatch on `"
-                << spage.full_path()
+                << spage.path()
                 << "'."
                 << std::endl;
         }
@@ -205,7 +205,7 @@ static bool do_nsf(TRANSACT, std::string filename, misc::raw_data::ref src)
             << filename
             << ": \033[41;30m archive \033[0m "
             << "resave data mismatch on `"
-            << archive.full_path()
+            << archive.path()
             << "'."
             << std::endl;
     }

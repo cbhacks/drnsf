@@ -25,25 +25,24 @@
 namespace drnsf {
 namespace res {
 
-// (internal class) nucleus_name_comparator
-// FIXME explain
-struct nucleus_name_comparator {
-    bool operator()(const char *lhs, const char *rhs) const
-    {
-        return (std::strcmp(lhs, rhs) < 0);
-    }
+// (internal type) root_info
+// Extra information block attached to each root.
+struct root_info {
+    // (var) m_proj
+    // The project which owns this root atom.
+    project *m_proj;
 };
 
 // (inner class) nucleus
 // FIXME explain
-struct atom::nucleus {
+struct alignas(root_info) atom::nucleus {
     // (var) m_refcount
     // FIXME explain
     int m_refcount;
 
     // (var) m_name
     // FIXME explain
-    const char *m_name;
+    std::string_view m_name;
 
     // (var) m_parent
     // FIXME explain
@@ -60,7 +59,12 @@ struct atom::nucleus {
 
     // (var) m_children
     // FIXME explain
-    std::map<const char *, nucleus *, nucleus_name_comparator> m_children;
+    std::map<std::string_view, nucleus *> m_children;
+
+    // (var) m_children_iter
+    // For non-root nodes, the iterator in the parent's child map referring to
+    // this node.
+    decltype(m_children)::iterator m_children_iter;
 };
 
 // declared in res.hh
@@ -84,12 +88,20 @@ asset *&atom::get_internal_asset_ptr() const
 // declared in res.hh
 atom atom::make_root(project *proj)
 {
-    auto nuc_space = operator new(sizeof(nucleus) + sizeof(project *));
+    auto nuc_space = operator new(sizeof(nucleus) + sizeof(root_info));
 
     nucleus *nuc;
+    root_info *info;
     try {
         nuc = new(nuc_space) nucleus;
     } catch (...) {
+        operator delete(nuc_space);
+        throw;
+    }
+    try {
+        info = new(static_cast<char *>(nuc_space) + sizeof(nucleus)) root_info;
+    } catch (...) {
+        nuc->~nucleus();
         operator delete(nuc_space);
         throw;
     }
@@ -98,7 +110,7 @@ atom atom::make_root(project *proj)
     nuc->m_depth = 0;
     nuc->m_parent = nullptr;
     nuc->m_asset = nullptr;
-    std::memcpy(nuc + 1, &proj, sizeof(project *));
+    info->m_proj = proj;
     return atom(nuc);
 }
 
@@ -137,7 +149,9 @@ atom::~atom() noexcept
     while (nuc && --nuc->m_refcount == 0) {
         nucleus *parent = nuc->m_parent;
         if (parent) {
-            parent->m_children.erase(nuc->m_name);
+            parent->m_children.erase(nuc->m_children_iter);
+        } else {
+            reinterpret_cast<root_info *>(nuc + 1)->~root_info();
         }
         nuc->~nucleus();
         operator delete(nuc);
@@ -195,23 +209,24 @@ bool atom::operator <(const atom &rhs) const
 }
 
 // declared in res.hh
-atom atom::operator /(const char *s) const
+atom atom::operator /(std::string_view s) const
 {
     if (!m_nuc) {
         throw std::logic_error("res::atom::(slash op): atom is null");
     }
 
-    auto name_len = std::strlen(s);
-    if (name_len == 0) {
+    if (s.size() == 0) {
         throw std::logic_error("res::atom::(slash op): string is empty");
     }
+
+    // TODO - check for invalid characters
 
     auto iter = m_nuc->m_children.find(s);
     if (iter != m_nuc->m_children.end()) {
         return atom(iter->second);
     }
 
-    auto newnuc_space = operator new(sizeof(nucleus) + name_len + 1);
+    auto newnuc_space = operator new(sizeof(nucleus) + s.size());
 
     nucleus *newnuc;
     try {
@@ -223,14 +238,15 @@ atom atom::operator /(const char *s) const
 
     auto name = static_cast<char *>(newnuc_space) + sizeof(nucleus);
     newnuc->m_refcount = 0;
-    newnuc->m_name = name;
+    newnuc->m_name = { name, s.size() };
     newnuc->m_depth = m_nuc->m_depth + 1;
     newnuc->m_parent = m_nuc;
     newnuc->m_asset = nullptr;
-    std::strcpy(name, s);
+    std::memcpy(name, s.data(), s.size());
 
     try {
-        m_nuc->m_children.insert({name, newnuc});
+        auto insert_result = m_nuc->m_children.insert({newnuc->m_name, newnuc});
+        newnuc->m_children_iter = insert_result.first;
     } catch (...) {
         newnuc->~nucleus();
         operator delete(newnuc_space);
@@ -243,20 +259,7 @@ atom atom::operator /(const char *s) const
 }
 
 // declared in res.hh
-atom atom::operator /(const std::string &s) const
-{
-    return operator /(s.c_str());
-}
-
-// declared in res.hh
-atom &atom::operator /=(const char *s)
-{
-    *this = *this / s;
-    return *this;
-}
-
-// declared in res.hh
-atom &atom::operator /=(const std::string &s)
+atom &atom::operator /=(std::string_view s)
 {
     *this = *this / s;
     return *this;
@@ -272,24 +275,38 @@ asset *atom::get() const
 }
 
 // declared in res.hh
-std::string atom::name() const
-{
-    if (!m_nuc) {
-        return "[null]";
-    } else {
-        return m_nuc->m_name;
-    }
-}
-
-// declared in res.hh
-std::string atom::full_path() const
+std::string atom::basename() const
 {
     if (!m_nuc) {
         return "[null]";
     } else if (!m_nuc->m_parent) {
         return "";
     } else {
-        return atom(m_nuc->m_parent).full_path() + "/" + m_nuc->m_name;
+        return std::string(m_nuc->m_name);
+    }
+}
+
+// declared in res.hh
+std::string atom::dirname() const
+{
+    if (!m_nuc) {
+        throw std::logic_error("[null]");
+    } else if (!m_nuc->m_parent) {
+        return "";
+    } else {
+        return get_parent().path();
+    }
+}
+
+// declared in res.hh
+std::string atom::path() const
+{
+    if (!m_nuc) {
+        return "[null]";
+    } else if (!m_nuc->m_parent) {
+        return "";
+    } else {
+        return get_parent().path() + "/" + std::string(m_nuc->m_name);
     }
 }
 
@@ -318,43 +335,39 @@ int atom::get_depth() const
 }
 
 // declared in res.hh
-std::vector<atom> atom::get_children() const
+atom atom::first_child() const
 {
     if (!m_nuc) {
-        throw std::logic_error("res::atom::get_children: atom is null");
+        throw std::logic_error("res::atom::first_child: atom is null");
     }
 
-    std::vector<atom> result;
-    for (auto &&kv : m_nuc->m_children) {
-        auto &&child = kv.second;
-        atom child_atom(child);
-        result.push_back(child_atom);
+    auto it = m_nuc->m_children.begin();
+    if (it == m_nuc->m_children.end()) {
+        return nullptr;
+    } else {
+        return atom(it->second);
     }
-    return result;
 }
 
 // declared in res.hh
-std::vector<atom> atom::get_children_recursive() const
+atom atom::next_sibling() const
 {
     if (!m_nuc) {
-        throw std::logic_error(
-            "res::atom::get_children_recursive: atom is null"
-        );
+        throw std::logic_error("res::atom::next_sibling: atom is null");
     }
 
-    std::vector<atom> result;
-    for (auto &&kv : m_nuc->m_children) {
-        auto &&child = kv.second;
-        atom child_atom(child);
-        result.push_back(child_atom);
-        auto subchildren = child_atom.get_children_recursive();
-        result.insert(
-            result.end(),
-            subchildren.begin(),
-            subchildren.end()
-        );
+    // Consider orphans (root atoms) as only children.
+    if (!m_nuc->m_parent) {
+        return nullptr;
     }
-    return result;
+
+    auto it = m_nuc->m_children_iter;
+    ++it;
+    if (it == m_nuc->m_parent->m_children.end()) {
+        return nullptr;
+    } else {
+        return atom(it->second);
+    }
 }
 
 // declared in res.hh
@@ -370,12 +383,11 @@ project *atom::get_proj() const
         top = top->m_parent;
     }
 
-    // Retrieve the project pointer stashed after the nucleus structure in
+    // Retrieve the root info block stashed after the nucleus structure in
     // memory.
-    project *proj;
-    std::memcpy(&proj, top + 1, sizeof(project *));
+    auto info = reinterpret_cast<root_info *>(top + 1);
 
-    return proj;
+    return info->m_proj;
 }
 
 // declared in res.hh
