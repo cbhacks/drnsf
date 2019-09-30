@@ -87,8 +87,6 @@
 #include "gtest/gtest.h"
 #endif
 
-#include "util.hh"
-
 /*
  * DRNSF_ON_EXIT
  *
@@ -203,6 +201,12 @@ using std::uint8_t;
 using std::uint16_t;
 using std::uint32_t;
 using std::uint64_t;
+
+}
+
+#include "util.hh"
+
+namespace drnsf {
 
 /*
  * (user-defined literal)
