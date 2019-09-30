@@ -44,7 +44,7 @@ namespace core {
 // its container's export function.
 bool equal_without_padding(const util::blob &lhs, const util::blob &rhs)
 {
-    const auto nonzero = [](util::byte x) { return x; };
+    const auto nonzero = [](uint8_t x) { return x; };
 
     auto mismatch = std::mismatch(
         lhs.begin(),

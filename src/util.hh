@@ -38,20 +38,12 @@ namespace drnsf {
 namespace util {
 
 /*
- * util::byte
- *
- * This is an alias for `unsigned char', but could be replaced with `std::byte'
- * in future versions.
- */
-using byte = unsigned char;
-
-/*
  * util::blob
  *
  * This is an alias for a byte vector. This is a common type, used to represent
  * raw data, raw items, etc.
  */
-using blob = std::vector<byte>;
+using blob = std::vector<uint8_t>;
 
 /*
  * util::string_view
