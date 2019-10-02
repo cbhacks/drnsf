@@ -333,7 +333,7 @@ configure_file (
 # Dependency: Python 3
 find_package (Python3 REQUIRED COMPONENTS Interpreter)
 if (FEATURE_SCRIPTING)
-    find_package (Python3 3.2 REQUIRED COMPONENTS Development)
+    find_package (Python3 3.3 REQUIRED COMPONENTS Development)
     target_link_libraries (drnsf PRIVATE Python3::Python)
 endif ()
 

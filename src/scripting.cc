@@ -25,7 +25,7 @@
 // Specify that we will be using the "limited" Python API from PEP 384. This is
 // important for ABI compatibility across minor revisions of the Python library
 // on Windows.
-#define Py_LIMITED_API
+#define Py_LIMITED_API 0x03030000
 
 // According to Python documentation, the Python header should be included
 // before any system and standard headers. This may preclude precompiled header
