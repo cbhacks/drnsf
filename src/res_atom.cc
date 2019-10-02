@@ -86,6 +86,20 @@ asset *&atom::get_internal_asset_ptr() const
 }
 
 // declared in res.hh
+bool atom::is_valid_char(int c) noexcept
+{
+    switch (c) {
+    case '_':
+    case '!':
+    case '=':
+    case '-':
+        return true;
+    default:
+        return std::isalnum(c);
+    }
+}
+
+// declared in res.hh
 atom atom::make_root(project *proj)
 {
     auto nuc_space = operator new(sizeof(nucleus) + sizeof(root_info));
@@ -219,7 +233,11 @@ atom atom::operator /(std::string_view s) const
         throw std::logic_error("res::atom::(slash op): string is empty");
     }
 
-    // TODO - check for invalid characters
+    for (auto c : s) {
+        if (!is_valid_char(c)) {
+            throw std::logic_error("res::atom::(slash op): invalid name");
+        }
+    }
 
     auto iter = m_nuc->m_children.find(s);
     if (iter != m_nuc->m_children.end()) {

@@ -86,6 +86,26 @@ private:
     asset *&get_internal_asset_ptr() const;
 
 public:
+    // (s-func) is_valid_char
+    // Returns true if the given character is a valid character for an atom
+    // name, or false otherwise.
+    //
+    // Valid characters are:
+    //
+    //   alphanumeric characters '0-9A-Za-z'
+    //
+    //   underscore '_'
+    //
+    //   exclamation mark '!'
+    //
+    //   equal sign '='
+    //
+    //   dash '-'
+    //
+    // The forward slash '/' is not valid in a name, but is used as a name
+    // separator and at the start of a path string.
+    static bool is_valid_char(int c) noexcept;
+
     // (s-func) make_root
     // Creates a root atom referencing the specified project. Should not be
     // called by any code except the project constructor.
