@@ -18,11 +18,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-def _startconsole():
-    def _threadproc():
+def startconsole():
+    def threadproc():
         import code
         code.interact()
     import threading
-    threading.Thread(target=_threadproc).start()
+    threading.Thread(target=threadproc).start()
 
-_startconsole()  #FIXME temporary
+startconsole()  #FIXME temporary

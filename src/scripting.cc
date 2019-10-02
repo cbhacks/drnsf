@@ -245,7 +245,7 @@ void init()
         std::abort();
     }
 
-    auto result = PyImport_ExecCodeModule("drnsf", code);
+    auto result = PyImport_ExecCodeModule("drnsf._nonnative", code);
     if (!result) {
         PyErr_Print();
         std::abort();
