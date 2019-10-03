@@ -148,7 +148,6 @@ void widget_im::draw_gl(int width, int height, unsigned int rbo)
         return;
     }
 
-    auto previous_im = ImGui::GetCurrentContext();
     ImGui::SetCurrentContext(m_im);
     ImDrawData *draw_data = ImGui::GetDrawData();
 
@@ -251,7 +250,7 @@ void widget_im::draw_gl(int width, int height, unsigned int rbo)
     glUseProgram(0);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-    ImGui::SetCurrentContext(previous_im);
+    ImGui::SetCurrentContext(nullptr);
 }
 
 // declared in gui.hh
@@ -417,7 +416,6 @@ int widget_im::work() noexcept
         m_io->DeltaTime = m_pending_time / 1000.0;
         m_pending_time = 0;
 
-        auto previous_im = ImGui::GetCurrentContext();
         ImGui::SetCurrentContext(m_im);
         ImGui::NewFrame();
 
@@ -437,7 +435,7 @@ int widget_im::work() noexcept
         ImGui::End();
 
         ImGui::Render();
-        ImGui::SetCurrentContext(previous_im);
+        ImGui::SetCurrentContext(nullptr);
 
         m_render_ready = true;
         m_remaining_time = 100;
@@ -465,8 +463,6 @@ widget_im::widget_im(container &parent, layout layout) :
     }
 
     m_im = ImGui::CreateContext(&s_font_atlas);
-    auto previous_im = ImGui::GetCurrentContext();
-    ImGui::SetCurrentContext(m_im);
     m_io = &ImGui::GetIO();
 
     m_io->IniFilename = "imgui.ini";
@@ -531,16 +527,13 @@ widget_im::widget_im(container &parent, layout layout) :
     style.Colors[ImGuiCol_ModalWindowDimBg]      = default_color;
     static_assert(ImGuiCol_COUNT == 48, "ImGui color palette has changed!");
 
-    ImGui::SetCurrentContext(previous_im);
+    ImGui::SetCurrentContext(nullptr);
 }
 
 // declared in gui.hh
 widget_im::~widget_im()
 {
-    auto previous_im = ImGui::GetCurrentContext();
-    ImGui::SetCurrentContext(m_im);
     ImGui::DestroyContext(m_im);
-    ImGui::SetCurrentContext(previous_im);
 }
 
 }
