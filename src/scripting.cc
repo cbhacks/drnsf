@@ -86,6 +86,50 @@ public:
 
 #define SLOT_FN(x) { (Py_##x), reinterpret_cast<void *>(x) }
 
+#define GETSET_RO(name) \
+    { \
+        const_cast<char *>(#name), \
+        reinterpret_cast<getter>(get_##name), \
+        nullptr, \
+        nullptr, \
+        nullptr \
+    }
+
+#define GETSET_RW(name) \
+    { \
+        const_cast<char *>(#name), \
+        reinterpret_cast<getter>(get_##name), \
+        reinterpret_cast<setter>(set_##name), \
+        nullptr, \
+        nullptr \
+    }
+
+#define METHOD(name, flags) \
+    { \
+        #name, \
+        reinterpret_cast<PyCFunction>(mth_##name), \
+        flags, \
+        nullptr \
+    }
+
+#define DECLARE_GETTER(type, name) \
+    static PyObject *get_##name(type *self, void *) noexcept
+
+#define DECLARE_SETTER(type, name) \
+    static PyObject *get_##name(type *self, PyObject *value, void *) noexcept
+
+#define DEFINE_GETTER(type, name) \
+    PyObject *type::get_##name(type *self, void *) noexcept
+
+#define DEFINE_SETTER(type, name) \
+    PyObject *type::get_##name(type *self, PyObject *value, void *) noexcept
+
+#define DECLARE_METHOD_NOARGS(type, name) \
+    static PyObject *mth_##name(type *self, PyObject *) noexcept
+
+#define DEFINE_METHOD_NOARGS(type, name) \
+    PyObject *type::mth_##name(type *self, PyObject *) noexcept
+
 // (internal type) scr_base
 // Base type for all scripting types defined below.
 struct scr_base : PyObject {
@@ -160,14 +204,22 @@ struct scr_project : scr_base {
         delete self;
     }
 
+    DECLARE_GETTER(scr_project, root);
+
     static void install()
     {
         if (type)
             return;
 
+        static PyGetSetDef getset[] = {
+            GETSET_RO(root),
+            {}
+        };
+
         static PyType_Slot slots[] = {
             SLOT_FN(tp_new),
             SLOT_FN(tp_dealloc),
+            { Py_tp_getset, getset },
             {}
         };
 
@@ -193,7 +245,301 @@ struct scr_project : scr_base {
     }
 };
 
+// (internal type) scr_atom
+// Scripting type for "Atom".
+struct scr_atom : scr_base {
+    using native_type = res::atom;
+
+    static inline PyTypeObject *type;
+
+    native_type v;
+
+    static native_type from_python(PyObject *obj)
+    {
+        if (obj == Py_None)
+            return nullptr;
+
+        if (Py_TYPE(obj) != type)
+            throw conversion_error("scr_atom: incompatible type");
+
+        return static_cast<scr_atom *>(obj)->v;
+    }
+
+    static PyObject *to_python(native_type value) noexcept
+    {
+        if (!value)
+            Py_RETURN_NONE;
+
+        auto obj = new(std::nothrow) scr_atom();
+        if (!obj)
+            return PyErr_NoMemory();
+        obj->ob_refcnt = 1;
+        obj->ob_type = type;
+        obj->v = value;
+        return obj;
+    }
+
+    static PyObject *tp_new(
+        PyObject *subtype,
+        PyObject *args,
+        PyObject *kwds) noexcept
+    {
+        const char *kwdnames[] = {
+            "path",
+            "project",
+            nullptr
+        };
+        const char *path;
+        scr_project *proj;
+        if (PyArg_ParseTupleAndKeywords(
+            args, kwds,
+            "sO!:Atom",
+            const_cast<char **>(kwdnames),
+            &path, scr_project::type, &proj)) {
+                try {
+                    auto obj = std::make_unique<scr_atom>();
+                    obj->ob_refcnt = 1;
+                    obj->ob_type = type;
+                    obj->v = proj->proj_p->get_asset_root();
+                    while (*path) {
+                        // Check for a leading slash
+                        if (path[0] != '/') {
+                            PyErr_SetString(
+                                PyExc_ValueError,
+                                "Atom(): path must have leading slash"
+                            );
+                            return nullptr;
+                        }
+
+                        // Remove the leading slash
+                        path++;
+
+                        auto next = std::strchr(path, '/');
+                        if (!next) {
+                            next = path + std::strlen(path);
+                        }
+
+                        if (path == next) {
+                            PyErr_SetString(
+                                PyExc_ValueError,
+                                "Atom(): path segments may not be zero-length"
+                            );
+                            return nullptr;
+                        }
+
+                        for (const char *p = path; p < next; p++) {
+                            if (!res::atom::is_valid_char(*p)) {
+                                PyErr_SetString(
+                                    PyExc_ValueError,
+                                    "Atom(): invalid character in path"
+                                );
+                                return nullptr;
+                            }
+                        }
+
+                        obj->v /= { path, size_t(next - path) };
+                        path = next;
+                    }
+                    return obj.release();
+                } catch (std::bad_alloc &) {
+                    return PyErr_NoMemory();
+                }
+        }
+
+        return nullptr;
+    }
+
+    static void tp_dealloc(scr_atom *self) noexcept
+    {
+        delete self;
+    }
+
+    static PyObject *tp_repr(scr_atom *self) noexcept
+    {
+        if (self->v.get_depth() == 0) {
+            return PyUnicode_FromString("<drnsf.Atom root>");
+        } else {
+            return PyUnicode_FromFormat(
+                "<drnsf.Atom \"%s\">",
+                self->v.path().c_str()
+            );
+        }
+    }
+
+    static PyObject *tp_str(scr_atom *self) noexcept
+    {
+        if (self->v.get_depth() == 0) {
+            return PyUnicode_FromString("(root)");
+        } else {
+            return PyUnicode_FromString(self->v.path().c_str());
+        }
+    }
+
+    static PyObject *tp_richcompare(PyObject *lhs, PyObject *rhs, int op)
+    {
+        if (op != Py_EQ && op != Py_NE)
+            Py_RETURN_NOTIMPLEMENTED;
+
+        bool equal;
+        try {
+            equal = from_python(lhs) == from_python(rhs);
+        } catch (conversion_error &) {
+            Py_RETURN_NOTIMPLEMENTED;
+        }
+
+        PyObject *result;
+        if (op == Py_EQ)
+            result = equal ? Py_True : Py_False;
+        else
+            result = !equal ? Py_True : Py_False;
+
+        Py_INCREF(result);
+        return result;
+    }
+
+    static PyObject *nb_true_divide(scr_atom *self, PyObject *rhs)
+    {
+        if (Py_TYPE(rhs) != &PyUnicode_Type)
+            Py_RETURN_NOTIMPLEMENTED;
+
+        auto bytes = PyUnicode_AsUTF8String(rhs);
+        if (!bytes)
+            return nullptr;
+        DRNSF_ON_EXIT { Py_DECREF(bytes); };
+
+        std::string_view str(
+            PyBytes_AsString(bytes),
+            PyBytes_Size(bytes)
+        );
+        if (str.size() == 0) {
+            PyErr_SetString(
+                PyExc_ValueError,
+                "divide: atom name may not be zero-length"
+            );
+            return nullptr;
+        }
+        for (auto c : str) {
+            if (!res::atom::is_valid_char(c)) {
+                PyErr_SetString(
+                    PyExc_ValueError,
+                    "divide: invalid character in name"
+                );
+                return nullptr;
+            }
+        }
+
+        return to_python(self->v / str);
+    }
+
+    DECLARE_GETTER(scr_atom, parent);
+    DECLARE_GETTER(scr_atom, basename);
+    DECLARE_GETTER(scr_atom, dirname);
+    DECLARE_GETTER(scr_atom, path);
+
+    DECLARE_METHOD_NOARGS(scr_atom, firstchild);
+    DECLARE_METHOD_NOARGS(scr_atom, nextsibling);
+
+    static void install()
+    {
+        if (type)
+            return;
+
+        static PyGetSetDef getset[] = {
+            GETSET_RO(parent),
+            GETSET_RO(basename),
+            GETSET_RO(dirname),
+            GETSET_RO(path),
+            {}
+        };
+
+        static PyMethodDef methods[] = {
+            METHOD(firstchild, METH_NOARGS),
+            METHOD(nextsibling, METH_NOARGS),
+            {}
+        };
+
+        static PyType_Slot slots[] = {
+            SLOT_FN(tp_new),
+            SLOT_FN(tp_dealloc),
+            SLOT_FN(tp_repr),
+            SLOT_FN(tp_str),
+            SLOT_FN(tp_richcompare),
+            SLOT_FN(nb_true_divide),
+            { Py_tp_getset, getset },
+            { Py_tp_methods, methods },
+            {}
+        };
+
+        static PyType_Spec spec = {
+            "drnsf.Atom",
+            sizeof(scr_atom),
+            0,
+            0,
+            slots
+        };
+
+        auto type_o = PyType_FromSpec(&spec);
+        type = reinterpret_cast<PyTypeObject *>(type_o);
+        if (!type) {
+            PyErr_Print();
+            std::abort();
+        }
+
+        if (PyDict_SetItemString(s_dict, "Atom", type_o) == -1) {
+            PyErr_Print();
+            std::abort();
+        }
+    }
+};
+
+DEFINE_GETTER(scr_project, root)
+{
+    return scr_atom::to_python(self->proj_p->get_asset_root());
+}
+
+DEFINE_GETTER(scr_atom, parent)
+{
+    if (self->v.get_depth() == 0)
+        Py_RETURN_NONE;
+
+    return scr_atom::to_python(self->v.get_parent());
+}
+
+DEFINE_GETTER(scr_atom, basename)
+{
+    return PyUnicode_FromString(self->v.basename().c_str());
+}
+
+DEFINE_GETTER(scr_atom, dirname)
+{
+    return PyUnicode_FromString(self->v.dirname().c_str());
+}
+
+DEFINE_GETTER(scr_atom, path)
+{
+    return PyUnicode_FromString(self->v.path().c_str());
+}
+
+DEFINE_METHOD_NOARGS(scr_atom, firstchild)
+{
+    return scr_atom::to_python(self->v.first_child());
+}
+
+DEFINE_METHOD_NOARGS(scr_atom, nextsibling)
+{
+    return scr_atom::to_python(self->v.next_sibling());
+}
+
 #undef SLOT_FN
+#undef GETSET_RO
+#undef GETSET_RW
+#undef METHOD
+#undef DECLARE_GETTER
+#undef DECLARE_SETTER
+#undef DEFINE_GETTER
+#undef DEFINE_SETTER
+#undef DECLARE_METHOD_NOARGS
+#undef DEFINE_METHOD_NOARGS
 
 }
 
@@ -234,6 +580,7 @@ void init()
     Py_INCREF(s_dict);
 
     scr_project::install();
+    scr_atom::install();
 
     auto code = Py_CompileString(
         reinterpret_cast<const char *>(embed::drnsf_py::data),

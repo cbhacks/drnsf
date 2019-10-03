@@ -18,6 +18,29 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import drnsf
+from drnsf import *
+
+def extend(target):
+    def decorator(f):
+        setattr(target, f.__name__, f)
+        return f
+    return decorator
+
+@extend(Atom)
+def eachchild(self):
+    c = self.firstchild()
+    while c is not None:
+        yield c
+        c = c.nextsibling()
+
+@extend(Atom)
+def eachdescendant(self):
+    for c in self.eachchild():
+        yield c
+        for cd in c.eachdescendant():
+            yield cd
+
 def startconsole():
     def threadproc():
         import code
