@@ -44,6 +44,7 @@ matrix:
         - CC=/usr/bin/gcc-9
         - CXX=/usr/bin/g++-9
 script:
+  - sudo chmod 000 /opt/pyenv #workaround for cmake FindPython3 pyenv trouble
   - mkdir build
   - cd build
   - cmake ..
