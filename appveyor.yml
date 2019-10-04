@@ -17,7 +17,6 @@ before_build:
   - if %PLATFORM%==x64 (set cmake_opts= -G"Visual Studio 15 2017 Win64")
   - set cmake_opts=%cmake_opts% -DAUTOMATIC_DEPS=ON
   - set cmake_opts=%cmake_opts% -DSTATIC_MSVC_RUNTIME=ON
-  - set cmake_opts=%cmake_opts% -DPYTHON_EXECUTABLE="C:\Python36\python.exe"
   - mkdir build
   - cd build
   - cmake .. %cmake_opts%

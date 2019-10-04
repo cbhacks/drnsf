@@ -127,7 +127,7 @@ void link_program(unsigned int prog)
 // declared in gl.hh
 void shader_source(
     unsigned int sh,
-    std::initializer_list<util::string_view> sources)
+    std::initializer_list<std::string_view> sources)
 {
     std::vector<const char *>  source_ptrs;
     std::vector<int>           source_lens;
