@@ -334,7 +334,14 @@ configure_file (
 find_package (Python3 REQUIRED COMPONENTS Interpreter)
 if (FEATURE_SCRIPTING)
     find_package (Python3 3.3 REQUIRED COMPONENTS Development)
-    target_link_libraries (drnsf PRIVATE Python3::Python)
+    if (MSVC)
+        # For MSVC, the library will be linked by special compiler pragmas
+        # provided from pyconfig.h (via Python.h).
+        target_include_directories (drnsf PRIVATE ${Python3_INCLUDE_DIRS})
+        target_link_directories (drnsf PRIVATE ${Python3_LIBRARY_DIRS})
+    else ()
+        target_link_libraries (drnsf PRIVATE Python3::Python)
+    endif()
 endif ()
 
 # Tool: embedgen

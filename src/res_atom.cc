@@ -20,6 +20,7 @@
 
 #include "common.hh"
 #include <cstring>
+#include <cctype>
 #include "res.hh"
 
 namespace drnsf {

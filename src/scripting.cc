@@ -30,7 +30,16 @@
 // According to Python documentation, the Python header should be included
 // before any system and standard headers. This may preclude precompiled header
 // support for 'common.hh' in this file on some C++ implementations.
+//
+// On MSVC, we disable _DEBUG to prevent Py_DEBUG and other similar macros from
+// being defined, as they are incompatible with Py_LIMITED_API.
+#if defined(_MSC_VER) && defined(_DEBUG)
+#undef _DEBUG
 #include <Python.h>
+#define _DEBUG
+#else
+#include <Python.h>
+#endif
 
 #include "common.hh"
 #include "scripting.hh"

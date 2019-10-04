@@ -343,7 +343,7 @@ public:
 
     auto begin()
     {
-        return atom_iterator(m_start, m_f);
+        return atom_iterator<F>(m_start, m_f);
     }
 
     auto end()
@@ -352,6 +352,18 @@ public:
     }
 };
 
+/*
+ * res::make_iterable
+ *
+ * Constructs an atom_iterable from the given start and functor. Workaround for
+ * MSVC which does not support inferring F when constructing atom_iterable<F>.
+ */
+template <typename F>
+inline auto make_iterable(atom start, F f)
+{
+    return atom_iterable<F>(start, f);
+}
+
 // declared previously in this file
 inline auto atom::each_child() const
 {
@@ -359,7 +371,7 @@ inline auto atom::each_child() const
         throw std::logic_error("res::atom::each_child: atom is null");
     }
 
-    return atom_iterable(first_child(), [](atom it) -> atom {
+    return make_iterable(first_child(), [](atom it) -> atom {
         return it.next_sibling();
     });
 }
@@ -371,7 +383,7 @@ inline auto atom::each_descendant() const
         throw std::logic_error("res::atom::each_descendant: atom is null");
     }
 
-    return atom_iterable(first_child(), [*this](atom it) -> atom {
+    return make_iterable(first_child(), [base = *this](atom it) -> atom {
         auto next = it.first_child();
         if (next)
             return next;
@@ -382,7 +394,7 @@ inline auto atom::each_descendant() const
                 return next;
 
             it = it.get_parent();
-            if (it == *this)
+            if (it == base)
                 return nullptr;
         }
     });
