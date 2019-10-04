@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.12)
 project (DRNSF VERSION 0.0)
 
 # Option: FRONTEND
@@ -321,13 +321,13 @@ configure_file (
 )
 
 # Dependency: Python 3
-find_package (PythonInterp 3 REQUIRED)
+find_package (Python3 REQUIRED COMPONENTS Interpreter)
 
 # Tool: embedgen
 # This command generates the drnsf_embed_data.hh file from the `data/'
 # directory so that it can be added to the exectuable.
 add_custom_target (embed_data_dir
-    COMMAND "${PYTHON_EXECUTABLE}"
+    COMMAND "${Python3_EXECUTABLE}"
     "${CMAKE_CURRENT_SOURCE_DIR}/tools/embedgen.py"
     "${CMAKE_CURRENT_SOURCE_DIR}/data"
     "${GEN_INCLUDE_DIR}/drnsf_embed_data.hh"

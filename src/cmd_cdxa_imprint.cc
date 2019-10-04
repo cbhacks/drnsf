@@ -33,7 +33,7 @@ namespace core {
 // FIXME explain
 int cmd_cdxa_imprint(cmdenv e)
 {
-    util::byte sysinfo[37632];
+    uint8_t sysinfo[37632];
     bool sysinfo_set = false;
 
     argparser o;
