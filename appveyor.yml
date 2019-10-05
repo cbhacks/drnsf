@@ -23,7 +23,9 @@ before_build:
 build_script:
   - cmake --build . --config %CONFIGURATION%
   - if %PLATFORM%==x86 (copy C:\Python37\python3.dll .\%CONFIGURATION%\python3.dll)
+  - if %PLATFORM%==x86 (copy C:\Python37\python37.dll .\%CONFIGURATION%\python37.dll)
   - if %PLATFORM%==x64 (copy C:\Python37-x64\python3.dll .\%CONFIGURATION%\python3.dll)
+  - if %PLATFORM%==x64 (copy C:\Python37-x64\python37.dll .\%CONFIGURATION%\python37.dll)
   - '%CONFIGURATION%\drnsf ":internal-test"'
 after_build:
   - mkdir pkg
