@@ -42,6 +42,10 @@
 
 set -e
 
+# Uncomment a mirror, if desired.
+#DRDEP_MIRROR="http://dep-files.drnsf.cbhacks.com/libs/"
+#DRDEP_MIRROR="https://github.com/cbhacks/drnsf-dep-files/raw/master/libs/"
+
 if [ -z "${ARCH}" ]; then
     echo 'You must set $ARCH when running this script!'
     echo 'More details can be found in the script comments.'
@@ -105,11 +109,21 @@ patch_lib() {
     rm -rf patch_lib_dir
 }
 
+download() {
+    upstream_name="$2"
+    desired_name="${3-$2}"
+    if [ -z "${DRDEP_MIRROR}" ]; then
+        wget "$1${upstream_name}" -O "${desired_name}"
+    else
+        wget "${DRDEP_MIRROR}${desired_name}" -O "${desired_name}"
+    fi
+}
+
 do_zlib()
 {(
     echo "Downloading zlib source..."
     cd "${DRDEP_BUILD_DIR}"
-    wget http://zlib.net/zlib-1.2.11.tar.xz
+    download "http://zlib.net/" zlib-1.2.11.tar.xz
 
     echo "Verifying downloaded file with SHA512..."
     echo "b7f50ada138c7f93eb7eb1631efccd1d9f03a5e77b6c13c8b757017b2d462e19d2d3e01c50fad60a4ae1bc86d431f6f94c72c11ff410c25121e571953017cb67  zlib-1.2.11.tar.xz" | sha512sum -c --strict
@@ -148,7 +162,7 @@ do_libpng()
 {(
     echo "Downloading libpng source..."
     cd "${DRDEP_BUILD_DIR}"
-    wget "ftp://ftp-osl.osuosl.org/pub/libpng/src/libpng16/libpng-1.6.34.tar.xz"
+    download "ftp://ftp-osl.osuosl.org/pub/libpng/src/libpng16/" libpng-1.6.34.tar.xz
 
     echo "Verifying downloaded file with SHA512..."
     echo "89407c5abc1623faaa3992fc1e4a62def671d9a7401108dfceee895d5f16fe7030090bea89b34a36d377d8e6a5d40046886991f663ce075d1a2d31bf9eaf3c51  libpng-1.6.34.tar.xz" | sha512sum -c --strict
@@ -177,7 +191,7 @@ do_pixman()
 {(
     echo "Downloading pixman source..."
     cd "${DRDEP_BUILD_DIR}"
-    wget "https://www.cairographics.org/releases/pixman-0.34.0.tar.gz"
+    download "https://www.cairographics.org/releases/" pixman-0.34.0.tar.gz
 
     echo "Verifying downloaded file with SHA512..."
     echo "81caca5b71582b53aaac473bc37145bd66ba9acebb4773fa8cdb51f4ed7fbcb6954790d8633aad85b2826dd276bcce725e26e37997a517760e9edd72e2669a6d  pixman-0.34.0.tar.gz" | sha512sum -c --strict
@@ -204,7 +218,7 @@ do_cairo()
 {(
     echo "Downloading cairo source..."
     cd "${DRDEP_BUILD_DIR}"
-    wget "https://www.cairographics.org/releases/cairo-1.14.12.tar.xz"
+    download "https://www.cairographics.org/releases/" cairo-1.14.12.tar.xz
 
     echo "Verifying downloaded file with SHA512..."
     echo "ede6e75ae95605bf5c4b3859b1824cf125c4a2a35a67d38244cc70951ca44b1d4fd7cf622953d3a7cb868fb5b00856ef6d68ee615276b76eec437641290b01e1  cairo-1.14.12.tar.xz" | sha512sum -c --strict
@@ -240,13 +254,13 @@ do_epoxy()
 
     echo "Downloading epoxy sources..."
     cd "${DRDEP_BUILD_DIR}"
-    wget "https://github.com/anholt/libepoxy/archive/v1.3.1.tar.gz"
+    download "https://github.com/anholt/libepoxy/archive/" v1.3.1.tar.gz libepoxy-1.3.1.tar.gz
 
     echo "Verifying downloaded file with SHA512..."
-    echo "7d83f01bbc6d2387e4e2ec8a94b05d6e7aa6d0513821a794d60544381a18874fa75ec1dfd2585824076708e2848ff8d5dc20e184af65a7cb602e7dfd010aaf53  v1.3.1.tar.gz" | sha512sum -c --strict
+    echo "7d83f01bbc6d2387e4e2ec8a94b05d6e7aa6d0513821a794d60544381a18874fa75ec1dfd2585824076708e2848ff8d5dc20e184af65a7cb602e7dfd010aaf53  libepoxy-1.3.1.tar.gz" | sha512sum -c --strict
 
     echo "Extracting epoxy source archive..."
-    tar xzf v1.3.1.tar.gz
+    tar xzf libepoxy-1.3.1.tar.gz
 
     echo "Building epoxy..."
     cd libepoxy-1.3.1
@@ -269,7 +283,7 @@ do_pkgconfig()
 {(
     echo "Downloading pkg-config sources..."
     cd "${DRDEP_BUILD_DIR}"
-    wget "https://pkg-config.freedesktop.org/releases/pkg-config-0.29.2.tar.gz"
+    download "https://pkg-config.freedesktop.org/releases/" pkg-config-0.29.2.tar.gz
 
     echo "Verifying downloaded file with SHA512..."
     echo "4861ec6428fead416f5cbbbb0bbad10b9152967e481d4b0ff2eb396a9f297f552984c9bb72f6864a37dcd8fca1d9ccceda3ef18d8f121938dbe4fdf2b870fe75  pkg-config-0.29.2.tar.gz" | sha512sum -c --strict
