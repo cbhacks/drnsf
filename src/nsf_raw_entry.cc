@@ -110,6 +110,11 @@ bool raw_entry::process_by_type(TRANSACT, game_ver ver)
         }
         break;
     case game_ver::crash3:
+        switch (get_type()) {
+        case 7:
+            process_as<zdat_v2>(TS);
+            return true;
+        }
         break;
     }
 
