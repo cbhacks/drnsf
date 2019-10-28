@@ -65,7 +65,7 @@ DRDEP_TEMP_DIR="$(mktemp -d)"
 trap 'rm -rf "${DRDEP_TEMP_DIR}"' EXIT
 echo "Operating in temporary directory: ${DRDEP_TEMP_DIR}"
 
-DRDEP_VERSION="20180506"
+DRDEP_VERSION="20191028"
 echo "Building package version: ${DRDEP_VERSION}"
 
 DRDEP_OUT_NAME="drnsf-dep-${DRDEP_VERSION}-${ARCH}"
@@ -149,6 +149,7 @@ do_zlib()
         -e 's/^includedir=\/include/includedir=${prefix}\/include/' \
         -i "${DRDEP_INSTALL_DIR}/lib/pkgconfig/zlib.pc"
     patch_lib zlib "${DRDEP_INSTALL_DIR}/lib/libz.dll.a"
+    strip "${DRDEP_INSTALL_DIR}/bin/zlib1.dll"
 
     echo "Packaging zlib binaries..."
     pkg bin/zlib1.dll
@@ -176,6 +177,7 @@ do_libpng()
     make
     DESTDIR="${DRDEP_INSTALL_DIR}" make install
     patch_lib libpng16 "${DRDEP_INSTALL_DIR}/lib/libpng16.dll.a"
+    strip "${DRDEP_INSTALL_DIR}/bin/libpng16-16.dll"
 
     echo "Packaging libpng binaries..."
     pkg bin/libpng16-16.dll
@@ -205,6 +207,7 @@ do_pixman()
     make
     DESTDIR="${DRDEP_INSTALL_DIR}" make install
     patch_lib pixman-1 "${DRDEP_INSTALL_DIR}/lib/libpixman-1.dll.a"
+    strip "${DRDEP_INSTALL_DIR}/bin/libpixman-1-0.dll"
 
     echo "Packaging pixman binaries..."
     pkg bin/libpixman-1-0.dll
@@ -232,6 +235,7 @@ do_cairo()
     make
     DESTDIR="${DRDEP_INSTALL_DIR}" make install
     patch_lib cairo "${DRDEP_INSTALL_DIR}/lib/libcairo.dll.a"
+    strip "${DRDEP_INSTALL_DIR}/bin/libcairo-2.dll"
 
     echo "Packaging cairo binaries..."
     pkg bin/libcairo-2.dll
@@ -268,6 +272,7 @@ do_epoxy()
     make
     DESTDIR="${DRDEP_INSTALL_DIR}" make install
     patch_lib epoxy "${DRDEP_INSTALL_DIR}/lib/libepoxy.dll.a"
+    strip "${DRDEP_INSTALL_DIR}/bin/libepoxy-0.dll"
 
     echo "Packaging epoxy binaries..."
     pkg bin/libepoxy-0.dll
