@@ -80,9 +80,8 @@ You may also choose another name if desired, however only the above
 options are available for automatic download in this version.
 
 There is no default. If this option has not been set, the build system
-will attempt to detect the architecture based on the name of the CMake
-generator you have selected. If this detection fails, you must provide
-your own value.
+will attempt to detect the architecture automatically. If the detection
+fails, you must provide your own value.
 
 ## `STATIC_MSVC_RUNTIME` ##
 _This option is only present for builds using an MSVC generator, such as

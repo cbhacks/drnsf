@@ -19,11 +19,25 @@
 #
 
 if (NOT DEFINED DRNSF_DEP_ARCH)
-    if ("${CMAKE_GENERATOR}" STREQUAL "Visual Studio 15 2017")
-        set (DRNSF_DEP_ARCH "i386")
-    elseif ("${CMAKE_GENERATOR}" STREQUAL "Visual Studio 15 2017 Win64")
-        set (DRNSF_DEP_ARCH "x86_64")
-    else ()
+    set (DRNSF_SUPPORTED_ARCHES
+        "i386"
+        "x86_64"
+    )
+
+    foreach (DRNSF_ATTEMPTED_ARCH IN LISTS DRNSF_SUPPORTED_ARCHES)
+        try_run (
+            DRNSF_ARCH_RUN_RESULT
+            DRNSF_ARCH_COMPILE_RESULT
+            "${CMAKE_BINARY_DIR}"
+            "${CMAKE_SOURCE_DIR}/tools/test_arch_${DRNSF_ATTEMPTED_ARCH}.c"
+        )
+        if ("${DRNSF_ARCH_COMPILE_RESULT}")
+            set (DRNSF_DEP_ARCH "${DRNSF_ATTEMPTED_ARCH}")
+            break ()
+        endif ()
+    endforeach()
+
+    if (NOT DEFINED DRNSF_DEP_ARCH)
         message (FATAL_ERROR
             "Failed to autodetect DRNSF_DEP_ARCH; see docs/build_options.md"
         )
