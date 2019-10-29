@@ -1939,6 +1939,8 @@ public:
     //
     // The specified base itself does not appear in the tree, and the user
     // cannot select it.
+    //
+    // When the base is changed, the node selection is cleared.
     const res::atom &get_base() const;
     void set_base(res::atom base);
 
