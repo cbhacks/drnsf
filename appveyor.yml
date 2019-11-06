@@ -52,12 +52,12 @@ after_build:
   - copy ..\extra\autodep_licenses\pixman.txt pkg\lib_licenses\pixman.txt
   - copy ..\extra\autodep_licenses\libpng.txt pkg\lib_licenses\libpng.txt
   - copy ..\extra\autodep_licenses\zlib.txt pkg\lib_licenses\zlib.txt
-  - 7z a drnsf.7z .\pkg\*
-  - move drnsf.7z ..\drnsf-%APPVEYOR_BUILD_NUMBER%-%APPVEYOR_REPO_COMMIT%-%PLATFORM%-%CONFIGURATION%.7z
+  - 7z a drnsf.zip .\pkg\*
+  - move drnsf.zip ..\drnsf-%APPVEYOR_BUILD_NUMBER%-%APPVEYOR_REPO_COMMIT%-%PLATFORM%-%CONFIGURATION%.zip
 test: off
 artifacts:
-  - path: drnsf-$(APPVEYOR_BUILD_NUMBER)-$(APPVEYOR_REPO_COMMIT)-$(PLATFORM)-$(CONFIGURATION).7z
-    name: DRNSF-FULL7Z
+  - path: drnsf-$(APPVEYOR_BUILD_NUMBER)-$(APPVEYOR_REPO_COMMIT)-$(PLATFORM)-$(CONFIGURATION).zip
+    name: DRNSF-FULLZIP
 deploy:
   - provider: S3
     access_key_id: $(DRNSF_S3DEPLOY_ACCESSKEY_ID)
@@ -66,7 +66,7 @@ deploy:
     region: us-east-1
     folder: appveyor/build-$(APPVEYOR_BUILD_NUMBER)
     max_error_retry: 2
-    artifact: DRNSF-FULL7Z
+    artifact: DRNSF-FULLZIP
     on:
       branch: master
       configuration: Release

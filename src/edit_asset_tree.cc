@@ -206,6 +206,7 @@ void asset_tree::set_base(res::atom base)
         return;
     }
 
+    on_select(nullptr);
     M->m_selected_node = nullptr;
     M->m_base = base;
     M->m_tracker.set_base(base);
