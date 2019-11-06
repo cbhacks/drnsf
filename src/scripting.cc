@@ -125,13 +125,13 @@ public:
     static PyObject *get_##name(type *self, void *) noexcept
 
 #define DECLARE_SETTER(type, name) \
-    static PyObject *get_##name(type *self, PyObject *value, void *) noexcept
+    static int set_##name(type *self, PyObject *value, void *) noexcept
 
 #define DEFINE_GETTER(type, name) \
     PyObject *type::get_##name(type *self, void *) noexcept
 
 #define DEFINE_SETTER(type, name) \
-    PyObject *type::get_##name(type *self, PyObject *value, void *) noexcept
+    int type::set_##name(type *self, PyObject *value, void *) noexcept
 
 #define DECLARE_METHOD_NOARGS(type, name) \
     static PyObject *mth_##name(type *self, PyObject *) noexcept
