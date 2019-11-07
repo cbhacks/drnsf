@@ -72,15 +72,14 @@ The following options are available:
     gl::init();
     DRNSF_ON_EXIT { gl::shutdown(); };
 
+    edit::context ctx;
+
 #if FEATURE_SCRIPTING
     if (use_scripting) {
-        scripting::init();
+        scripting::init(&ctx);
     }
     DRNSF_ON_EXIT { scripting::shutdown(); };
 #endif
-
-    // Create the editor.
-    edit::context ctx;
 
     edit::main_window wnd(ctx);
     wnd.show();

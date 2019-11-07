@@ -106,3 +106,10 @@ TBD
       a descendant of the project's root atom.
 
       The root atom cannot be the name of an asset.
+
+.. py:function:: getcontextproject()
+
+   Returns :py:class:`Project` or ``None``
+
+   Returns the project which is currently open in the user interface. Returns
+   ``None`` if there is no open project.

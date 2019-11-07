@@ -26,6 +26,11 @@
  * FIXME explain
  */
 
+// defined in edit.hh
+namespace drnsf::edit {
+    class context;
+}
+
 namespace drnsf {
 namespace scripting {
 
@@ -51,8 +56,11 @@ struct handle {
  * Calling this function while the engine is already initialized has no effect.
  * Calling this function after the engine has failed to initialize or after it
  * has been shutdown (`scripting::shutdown' below) throws an exception.
+ *
+ * If provided, ctxp should be a pointer to an `edit::context' object whose
+ * lifetime does not end until after the scripting engine is shutdown.
  */
-void init();
+void init(edit::context *ctxp = nullptr);
 
 /*
  * scripting::shutdown

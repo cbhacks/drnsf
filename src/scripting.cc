@@ -44,6 +44,7 @@
 #include "common.hh"
 #include "scripting.hh"
 #include "res.hh"
+#include "edit.hh"
 #include <thread>
 
 DRNSF_DECLARE_EMBED(drnsf_py);
@@ -82,6 +83,11 @@ static PyObject *s_module;
 // (s-var) s_dict
 // An owning pointer to the dict of the "drnsf" module.
 static PyObject *s_dict;
+
+// (s-var) s_ctxp
+// A pointer to the context the scripting engine was initialized against, or
+// null if there is no context.
+edit::context *s_ctxp;
 
 namespace {
 
@@ -501,6 +507,41 @@ struct scr_atom : scr_base {
     }
 };
 
+// (internal type) scr_globalfns
+// Non-instantiated type which contains global functions.
+struct scr_globalfns : scr_base {
+    static inline bool installed = false;
+
+    DECLARE_METHOD_NOARGS(scr_globalfns, getcontextproject);
+
+    static void install()
+    {
+        if (installed)
+            return;
+
+        static PyMethodDef methods[] = {
+            METHOD(getcontextproject, METH_NOARGS),
+            {}
+        };
+
+        for (auto p = methods; p->ml_name; p++) {
+            auto fn = PyCFunction_New(p, nullptr);
+            if (!fn) {
+                PyErr_Print();
+                std::abort();
+            }
+
+            if (PyDict_SetItemString(s_dict, p->ml_name, fn) == -1) {
+                PyErr_Print();
+                std::abort();
+            }
+            Py_DECREF(fn);
+        }
+
+        installed = true;
+    }
+};
+
 DEFINE_GETTER(scr_project, root)
 {
     return scr_atom::to_python(self->proj_p->get_asset_root());
@@ -539,6 +580,18 @@ DEFINE_METHOD_NOARGS(scr_atom, nextsibling)
     return scr_atom::to_python(self->v.next_sibling());
 }
 
+DEFINE_METHOD_NOARGS(scr_globalfns, getcontextproject)
+{
+    if (!s_ctxp)
+        Py_RETURN_NONE;
+
+    std::shared_ptr<res::project> proj_p;
+    // FIXME - run this section only on the main thread!
+    proj_p = s_ctxp->get_proj();
+    // FIXME - end above section
+    return scr_project::to_python(proj_p);
+}
+
 #undef SLOT_FN
 #undef GETSET_RO
 #undef GETSET_RW
@@ -553,7 +606,7 @@ DEFINE_METHOD_NOARGS(scr_atom, nextsibling)
 }
 
 // declared in scripting.hh
-void init()
+void init(edit::context *ctxp)
 {
     if (s_init_state == init_state::ready)
         return; // no-op
@@ -561,6 +614,8 @@ void init()
         throw std::runtime_error("scripting::init: init previously failed");
     if (s_init_state == init_state::finished)
         throw std::runtime_error("scripting::init: already shutdown");
+
+    s_ctxp = ctxp;
 
     // Set the initialization state to 'failed'. If the function exits abruptly
     // such as from a thrown exception, this will be the resulting state.
@@ -590,6 +645,7 @@ void init()
 
     scr_project::install();
     scr_atom::install();
+    scr_globalfns::install();
 
     auto code = Py_CompileString(
         reinterpret_cast<const char *>(embed::drnsf_py::data),
