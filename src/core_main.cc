@@ -30,7 +30,7 @@ extern int cmd_help(cmdenv e);
 extern int cmd_version(cmdenv e);
 extern int cmd_gui(cmdenv e);
 extern int cmd_internal_test(cmdenv e);
-extern int cmd_resave_test_crash2(cmdenv e);
+extern int cmd_resave_test(cmdenv e);
 extern int cmd_cdxa_imprint(cmdenv e);
 extern int cmd_dump_gl(cmdenv e);
 
@@ -49,7 +49,7 @@ extern const std::map<std::string, int (*)(cmdenv)> g_cmds = {
     { "version", cmd_version },
     { "gui", cmd_gui },
     { "internal-test", cmd_internal_test },
-    { "resave-test-crash2", cmd_resave_test_crash2 },
+    { "resave-test", cmd_resave_test },
     { "cdxa-imprint", cmd_cdxa_imprint },
     { "dump-gl", cmd_dump_gl }
 };

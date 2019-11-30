@@ -357,8 +357,9 @@ namespace menus {
  * edit::menus::mni_open
  *
  * File -> Open
- * Opens a file. (FIXME what kind?)
+ * Opens an NSF file for the given game.
  */
+template <nsf::game_ver GameVersion>
 class mni_open : private gui::menu::item {
 private:
     context &m_ctx;
@@ -366,7 +367,12 @@ private:
 
 public:
     explicit mni_open(gui::menu &menu, context &ctx) :
-        item(menu, "Open"),
+        item(menu,
+            GameVersion == nsf::game_ver::crash1 ? "Open (C1)" :
+            GameVersion == nsf::game_ver::crash2 ? "Open (C2)" :
+            GameVersion == nsf::game_ver::crash3 ? "Open (C3)" :
+            "Open (?)"
+        ),
         m_ctx(ctx) {}
 };
 
@@ -427,7 +433,9 @@ public:
 class mnu_file : private gui::menubar::item {
 private:
     context &m_ctx;
-    mni_open m_open{*this, m_ctx};
+    mni_open<nsf::game_ver::crash1> m_open_c1{*this, m_ctx};
+    mni_open<nsf::game_ver::crash2> m_open_c2{*this, m_ctx};
+    mni_open<nsf::game_ver::crash3> m_open_c3{*this, m_ctx};
     mni_save_as m_save_as{*this, m_ctx};
     mni_close m_close{*this, m_ctx};
     mni_exit m_exit{*this};
