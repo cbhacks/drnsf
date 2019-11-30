@@ -27,6 +27,12 @@
 namespace drnsf {
 namespace core {
 
+// (s-var) s_game_ver
+// The game version being loaded and unloaded.
+// FIXME - this maybe should not be global, in case subcommands can be run
+// simultaneously from scripts (or otherwise) in the future?
+static nsf::game_ver s_game_ver;
+
 // (s-func) equal_without_padding
 // Returns true if the two blobs given are equivalent after trimming all
 // trailing zero bytes from them, if any.
@@ -78,7 +84,7 @@ static bool do_entry(TRANSACT, std::string filename, nsf::raw_entry::ref src)
     auto in_items = src->get_items();
 
     nsf::entry::ref entry = src;
-    src->process_by_type(TS, nsf::game_ver::crash2);
+    src->process_by_type(TS, s_game_ver);
 
     uint32_t out_type;
     auto out_items = entry->export_entry(out_type);
@@ -218,20 +224,23 @@ static bool do_nsf(TRANSACT, std::string filename, misc::raw_data::ref src)
 }
 
 // FIXME explain
-int cmd_resave_test_crash2(cmdenv e)
+int cmd_resave_test(cmdenv e)
 {
     argparser o;
     o.add_opt("help", [&]{ e.help_requested = true; });
+    o.add_opt("c1", [&]{ s_game_ver = nsf::game_ver::crash1; });
+    o.add_opt("c2", [&]{ s_game_ver = nsf::game_ver::crash2; });
+    o.add_opt("c3", [&]{ s_game_ver = nsf::game_ver::crash3; });
     o.alias_opt('h', "help");
     o.begin(e.argv);
 
     if (e.help_requested) {
         std::cout << R"(Usage:
 
-    drnsf :resave-test-crash2 <file>...
+    drnsf :resave-test {--c1 | --c2 | --c3} <file>...
 
-Runs resave tests against the given Crash 2 NSF files. For each given
-file, DRNSF will import the NSF file and process it, then re-export the
+Runs resave tests against the given NSF files. For each given NSF file,
+DRNSF will import the NSF file and process it, then re-export the
 processed data. If there is any mismatch between the input and output
 data, messages will be printed for each such mismatch, and the program
 will exit with a failure code.
@@ -245,7 +254,13 @@ against a large set of pre-existing NSF files.
 Example usage:
 
     # Run resave checks against Snow Go and Piston It Away
-    drnsf :resave-test-crash2 S000000E.NSF S0000010.NSF
+    drnsf :resave-test --c2 S000000E.NSF S0000010.NSF
+
+    # Run resave checks against Dino Might!
+    drnsf :resave-test --c3 S0000010.NSF
+
+    # Run resave checks against various game versions
+    drnsf :resave-test --c2 crash2/*/*.NSF --c3 crash3/*/*.NSF
 )"
             << std::endl;
         return EXIT_SUCCESS;
@@ -253,8 +268,8 @@ Example usage:
 
     if (o.pump_eof()) {
         std::cerr
-            << "drnsf resave-test-crash2: No files specified.\n\n"
-            << "Try: drnsf :help resave-test-crash2"
+            << "drnsf resave-test: No files specified.\n\n"
+            << "Try: drnsf :help resave-test"
             << std::endl;
         return EXIT_FAILURE;
     }

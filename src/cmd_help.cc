@@ -132,8 +132,8 @@ The following subcommands are available:
     internal-test
         Run internal unit tests.
 
-    resave-test-crash2
-        Run resave consistency tests against C2 NSF files.
+    resave-test
+        Run resave consistency tests against NSF files.
 
     cdxa-imprint
         Overwrite the system info section of CD-XA BIN disc images.
@@ -143,7 +143,7 @@ The following subcommands are available:
 
 Example usage:
 
-    drnsf :resave-test-crash2 S000000E.NSF S0000010.NSF
+    drnsf :resave-test --c2 S000000E.NSF S0000010.NSF
 
 The default subcommand is `gui', which will be used if no subcommand was
 specified.
