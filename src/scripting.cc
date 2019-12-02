@@ -53,13 +53,13 @@ namespace drnsf {
 namespace scripting {
 
 // (s-var) s_init_state
-// The initialization state of the scripting engine.
+// The initialization state of the scripting runtime.
 //
 // Possible values:
-//   - none:      The engine has not been initialized yet.
-//   - ready:     The engine initialized successfully and is ready for use.
-//   - failed:    The engine is currently initializing or has failed to do so.
-//   - finished:  The engine was initialized and then shutdown.
+//   - none:      The runtime has not been initialized yet.
+//   - ready:     The runtime initialized successfully and is ready for use.
+//   - failed:    The runtime is currently initializing or has failed to do so.
+//   - finished:  The runtime was initialized and then shutdown.
 static enum class init_state {
     none,
     ready,
@@ -68,7 +68,7 @@ static enum class init_state {
 } s_init_state = init_state::none;
 
 // (s-var) s_lockcount
-// The number of locks (see `lock' and `unlock') currently held on the engine
+// The number of locks (see `lock' and `unlock') currently held on the runtime
 // by the main thread.
 static int s_lockcount = 0;
 
@@ -85,7 +85,7 @@ static PyObject *s_module;
 static PyObject *s_dict;
 
 // (s-var) s_ctxp
-// A pointer to the context the scripting engine was initialized against, or
+// A pointer to the context the scripting runtime was initialized against, or
 // null if there is no context.
 edit::context *s_ctxp;
 

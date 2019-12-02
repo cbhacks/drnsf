@@ -48,27 +48,27 @@ struct handle {
 /*
  * scripting::init
  *
- * Initializes the scripting engine. This prepares the Python 3 library for
+ * Initializes the scripting runtime. This prepares the Python 3 library for
  * usage and registers the 'drnsf' module along with its types and functions.
  *
- * TODO - explain possible errors and resulting engine state
+ * TODO - explain possible errors and resulting runtime state
  *
- * Calling this function while the engine is already initialized has no effect.
- * Calling this function after the engine has failed to initialize or after it
+ * Calling this function while the runtime is already initialized has no effect.
+ * Calling this function after the runtime has failed to initialize or after it
  * has been shutdown (`scripting::shutdown' below) throws an exception.
  *
  * If provided, ctxp should be a pointer to an `edit::context' object whose
- * lifetime does not end until after the scripting engine is shutdown.
+ * lifetime does not end until after the scripting runtime is shutdown.
  */
 void init(edit::context *ctxp = nullptr);
 
 /*
  * scripting::shutdown
  *
- * Shuts down the scripting engine.
+ * Shuts down the scripting runtime.
  *
- * Calls to this function are ignored unless the engine was previously
- * successfully initialized. Once shutdown, the engine is no longer usable.
+ * Calls to this function are ignored unless the runtime was previously
+ * successfully initialized. Once shutdown, the runtime is no longer usable.
  * This should only be called when the application is exiting.
  */
 void shutdown() noexcept;
@@ -76,7 +76,7 @@ void shutdown() noexcept;
 /*
  * scripting::is_init
  *
- * Returns true if the scripting engine has been previously successfully
+ * Returns true if the scripting runtime has been previously successfully
  * initialized by a call to `init' and has not been shutdown. Returns false
  * otherwise.
  */
@@ -95,7 +95,7 @@ bool is_init() noexcept;
  *
  * These functions should only be called from the main thread.
  *
- * Calls to these functions are silently ignored if the scripting engine is not
+ * Calls to these functions are silently ignored if the scripting runtime is not
  * currently initialized.
  */
 void lock() noexcept;
