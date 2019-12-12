@@ -84,6 +84,10 @@ static PyObject *s_module;
 // An owning pointer to the dict of the "drnsf" module.
 static PyObject *s_dict;
 
+// (s-var) s_nonnative_dict
+// An owning pointer to the dictionary for the "drnsf._nonnative" module.
+static PyObject *s_nonnative_dict;
+
 // (s-var) s_ctxp
 // A pointer to the context the scripting runtime was initialized against, or
 // null if there is no context.
@@ -657,14 +661,21 @@ void init(edit::context *ctxp)
         std::abort();
     }
 
-    auto result = PyImport_ExecCodeModule("drnsf._nonnative", code);
-    if (!result) {
+    auto nonnative_module = PyImport_ExecCodeModule("drnsf._nonnative", code);
+    Py_DECREF(code);
+    if (!nonnative_module) {
         PyErr_Print();
         std::abort();
     }
 
-    Py_DECREF(code);
-    Py_DECREF(result);
+    s_nonnative_dict = PyModule_GetDict(nonnative_module);
+    if (!s_nonnative_dict) {
+        PyErr_Print();
+        std::abort();
+    }
+    Py_INCREF(s_nonnative_dict);
+    Py_DECREF(nonnative_module);
+
     PyEval_ReleaseThread(s_main_threadstate);
 
     s_init_state = init_state::ready;
