@@ -76,10 +76,6 @@ static int s_lockcount = 0;
 // The main python thread state.
 static PyThreadState *s_main_threadstate;
 
-// (s-var) s_module
-// An owning pointer to the "drnsf" module.
-static PyObject *s_module;
-
 // (s-var) s_dict
 // An owning pointer to the dict of the "drnsf" module.
 static PyObject *s_dict;
@@ -633,14 +629,13 @@ void init(edit::context *ctxp)
     PyEval_InitThreads();
     s_main_threadstate = PyThreadState_Get();
 
-    s_module = PyImport_AddModule("drnsf");
-    if (!s_module) {
+    auto module = PyImport_AddModule("drnsf");
+    if (!module) {
         PyErr_Print();
         std::abort();
     }
-    Py_INCREF(s_module);
 
-    s_dict = PyModule_GetDict(s_module);
+    s_dict = PyModule_GetDict(module);
     if (!s_dict) {
         PyErr_Print();
         std::abort();
@@ -676,6 +671,7 @@ void init(edit::context *ctxp)
     Py_INCREF(s_nonnative_dict);
     Py_DECREF(nonnative_module);
 
+    Py_DECREF(module);
     PyEval_ReleaseThread(s_main_threadstate);
 
     s_init_state = init_state::ready;
