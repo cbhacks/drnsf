@@ -76,6 +76,20 @@ static int s_lockcount = 0;
 // The main python thread state.
 static PyThreadState *s_main_threadstate;
 
+// (s-var) s_moduledef
+// The definition for the "drnsf" module.
+static PyModuleDef s_moduledef = {
+    PyModuleDef_HEAD_INIT,
+    "drnsf",
+    nullptr,
+    0,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr,
+    nullptr
+};
+
 // (s-var) s_dict
 // An owning pointer to the dict of the "drnsf" module.
 static PyObject *s_dict;
@@ -88,6 +102,40 @@ static PyObject *s_nonnative_dict;
 // A pointer to the context the scripting runtime was initialized against, or
 // null if there is no context.
 edit::context *s_ctxp;
+
+// (s-func) drnsf_module_init
+// Initializes a new instance of the "drnsf" builtin module. This is used with
+// `PyImport_AppendInittab'.
+//
+// The initial "drnsf" module is created manually during runtime init; this
+// function is used to create new "drnsf" modules when "import drnsf" is used
+// in a Python subinterpreter (e.g. one made by `scripting::engine').
+PyObject *drnsf_module_init()
+{
+    auto module = PyModule_Create(&s_moduledef);
+    if (!module) {
+        return nullptr;
+    }
+
+    auto dict = PyModule_GetDict(module);
+    if (!dict) {
+        Py_DECREF(module);
+        return nullptr;
+    }
+
+    // Copy the existing dict into the new module dict.
+    Py_ssize_t p = 0;
+    PyObject *k;
+    PyObject *v;
+    while (PyDict_Next(s_dict, &p, &k, &v)) {
+        if (PyDict_SetItem(dict, k, v) == -1) {
+            Py_DECREF(module);
+            return nullptr;
+        }
+    }
+
+    return module;
+}
 
 namespace {
 
@@ -621,6 +669,14 @@ void init(edit::context *ctxp)
     // such as from a thrown exception, this will be the resulting state.
     s_init_state = init_state::failed;
 
+    // Setup builtin module initializers. This must be called prior to calling
+    // `Py_Initialize'.
+    int err = PyImport_AppendInittab("drnsf", drnsf_module_init);
+    if (err == -1) {
+        PyErr_Print();
+        std::abort();
+    }
+
     // If this function fails, the entire process is killed unfortunately. This
     // is solved in PEP 587 which is not available in any stable builds at time
     // of writing.
@@ -729,6 +785,79 @@ void unlock()
         PyEval_ReleaseThread(s_main_threadstate);
 
     s_lockcount--;
+}
+
+// declared in scripting.hh
+struct engine::impl
+{
+    // (var) m_interp
+    // A pointer to the subinterpreter thread associated with this engine. Each
+    // engine object has its own subinterpreter.
+    PyThreadState *m_interp;
+};
+
+// declared in scripting.hh
+engine::engine()
+{
+    if (s_init_state != init_state::ready) {
+        M = nullptr;
+        return;
+    }
+
+    lock();
+    DRNSF_ON_EXIT { unlock(); };
+
+    M = new impl;
+    try {
+        M->m_interp = Py_NewInterpreter();
+        PyThreadState_Swap(s_main_threadstate);
+    } catch (...) {
+        delete M;
+        throw;
+    }
+}
+
+// declared in scripting.hh
+engine::~engine()
+{
+    if (!M)
+        return;
+
+    lock();
+    PyThreadState_Swap(M->m_interp);
+    Py_EndInterpreter(M->m_interp);
+    PyThreadState_Swap(s_main_threadstate);
+    unlock();
+
+    delete M;
+}
+
+// declared in scripting.hh
+void engine::start_console()
+{
+    if (!M)
+        throw std::logic_error("scripting::engine::start_console: not init");
+
+    lock();
+    DRNSF_ON_EXIT { unlock(); };
+
+    PyThreadState_Swap(M->m_interp);
+    DRNSF_ON_EXIT { PyThreadState_Swap(s_main_threadstate); };
+
+    auto fn = PyDict_GetItemString(s_nonnative_dict, "startconsole");
+    if (!fn) {
+        // TODO
+        throw std::runtime_error("scripting::engine::start_console: bugged");
+    }
+    Py_INCREF(fn);
+    DRNSF_ON_EXIT { Py_DECREF(fn); };
+
+    auto result = PyObject_CallObject(fn, nullptr);
+    if (!result) {
+        // TODO - better exception
+        throw std::runtime_error("scripting::engine::start_console: bugged");
+    }
+    Py_DECREF(result);
 }
 
 }

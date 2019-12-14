@@ -79,6 +79,11 @@ The following options are available:
         scripting::init(&ctx);
     }
     DRNSF_ON_EXIT { scripting::shutdown(); };
+
+    scripting::engine console;
+    if (use_scripting) {
+        console.start_console();
+    }
 #endif
 
     edit::main_window wnd(ctx);

@@ -101,5 +101,36 @@ bool is_init() noexcept;
 void lock() noexcept;
 void unlock();
 
+/*
+ * scripting::engine
+ *
+ * FIXME explain
+ */
+class engine : private util::nocopy {
+private:
+    // inner implementation type
+    struct impl;
+
+    // (var) M
+    // Pointer to the internal implementation object. This is null if the engine
+    // was not actually constructed (i.e. the runtime was not initialized).
+    impl *M;
+
+public:
+    // (default ctor)
+    // Constructs a new scripting engine. If the runtime is not initialized when
+    // this object is constructed, no engine is allocated and the object is not
+    // meaningfully usable.
+    engine();
+
+    // (dtor)
+    // Destroys the scripting engine, if one was allocated at construction.
+    ~engine();
+
+    // (func) start_console
+    // Launches a new Python REPL.
+    void start_console();
+};
+
 }
 }

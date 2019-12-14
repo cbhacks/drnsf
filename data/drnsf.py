@@ -47,5 +47,3 @@ def startconsole():
         code.interact()
     import threading
     threading.Thread(target=threadproc).start()
-
-startconsole()  #FIXME temporary
