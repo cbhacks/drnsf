@@ -38,8 +38,7 @@ def eachchild(self):
 def eachdescendant(self):
     for c in self.eachchild():
         yield c
-        for cd in c.eachdescendant():
-            yield cd
+        yield from c.eachdescendant()
 
 def startconsole():
     def threadproc():
