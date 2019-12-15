@@ -76,11 +76,11 @@ The following options are available:
 
 #if FEATURE_SCRIPTING
     if (use_scripting) {
-        scripting::init(&ctx);
+        scripting::init();
     }
     DRNSF_ON_EXIT { scripting::shutdown(); };
 
-    scripting::engine console;
+    scripting::engine console(&ctx);
     if (use_scripting) {
         console.start_console();
     }

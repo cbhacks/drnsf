@@ -56,11 +56,8 @@ struct handle {
  * Calling this function while the runtime is already initialized has no effect.
  * Calling this function after the runtime has failed to initialize or after it
  * has been shutdown (`scripting::shutdown' below) throws an exception.
- *
- * If provided, ctxp should be a pointer to an `edit::context' object whose
- * lifetime does not end until after the scripting runtime is shutdown.
  */
-void init(edit::context *ctxp = nullptr);
+void init();
 
 /*
  * scripting::shutdown
@@ -119,7 +116,11 @@ public:
     // Constructs a new scripting engine. If the runtime is not initialized when
     // this object is constructed, no engine is allocated and the object is not
     // meaningfully usable.
-    engine();
+    //
+    // If provided, `ctx' should be a pointer to a context whose lifetime is no
+    // shorter than the lifetime of the engine. Various editor-related python
+    // functions will operate with regard to the given context.
+    engine(edit::context *ctx = nullptr);
 
     // (dtor)
     // Destroys the scripting engine, if one was allocated at construction.

@@ -98,11 +98,6 @@ static PyObject *s_dict;
 // An owning pointer to the dictionary for the "drnsf._nonnative" module.
 static PyObject *s_nonnative_dict;
 
-// (s-var) s_ctxp
-// A pointer to the context the scripting runtime was initialized against, or
-// null if there is no context.
-edit::context *s_ctxp;
-
 // (struct) engine_impl
 // Internal implementation type for `scripting::engine'. Members are kept in
 // this struct rather than the engine class so that the types need not be
@@ -110,6 +105,11 @@ edit::context *s_ctxp;
 // are not available in any other translation units.
 struct engine_impl
 {
+    // (var) m_ctx
+    // A pointer to the editor context associated with this engine, if any. This
+    // may be null.
+    edit::context *m_ctx;
+
     // (var) m_interp
     // A pointer to the subinterpreter thread associated with this engine. Each
     // engine object has its own subinterpreter.
@@ -659,12 +659,15 @@ DEFINE_METHOD_NOARGS(scr_atom, nextsibling)
 
 DEFINE_METHOD_NOARGS(scr_globalfns, getcontextproject)
 {
-    if (!s_ctxp)
+    auto engp = engine_impl::get();
+    if (!engp)
+        Py_RETURN_NONE;
+    if (!engp->m_ctx)
         Py_RETURN_NONE;
 
     std::shared_ptr<res::project> proj_p;
     // FIXME - run this section only on the main thread!
-    proj_p = s_ctxp->get_proj();
+    proj_p = engp->m_ctx->get_proj();
     // FIXME - end above section
     return scr_project::to_python(proj_p);
 }
@@ -683,7 +686,7 @@ DEFINE_METHOD_NOARGS(scr_globalfns, getcontextproject)
 }
 
 // declared in scripting.hh
-void init(edit::context *ctxp)
+void init()
 {
     if (s_init_state == init_state::ready)
         return; // no-op
@@ -691,8 +694,6 @@ void init(edit::context *ctxp)
         throw std::runtime_error("scripting::init: init previously failed");
     if (s_init_state == init_state::finished)
         throw std::runtime_error("scripting::init: already shutdown");
-
-    s_ctxp = ctxp;
 
     // Set the initialization state to 'failed'. If the function exits abruptly
     // such as from a thrown exception, this will be the resulting state.
@@ -817,7 +818,7 @@ void unlock()
 }
 
 // declared in scripting.hh
-engine::engine()
+engine::engine(edit::context *ctx)
 {
     if (s_init_state != init_state::ready) {
         M = nullptr;
@@ -829,6 +830,8 @@ engine::engine()
 
     M = new engine_impl;
     try {
+        M->m_ctx = ctx;
+
         M->m_interp = Py_NewInterpreter();
 
         auto module = PyImport_ImportModule("drnsf");
