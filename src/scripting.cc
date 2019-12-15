@@ -103,6 +103,19 @@ static PyObject *s_nonnative_dict;
 // null if there is no context.
 edit::context *s_ctxp;
 
+// (struct) engine_impl
+// Internal implementation type for `scripting::engine'. Members are kept in
+// this struct rather than the engine class so that the types need not be
+// declared in `scripting.hh'. This is important for Python C-API types, which
+// are not available in any other translation units.
+struct engine_impl
+{
+    // (var) m_interp
+    // A pointer to the subinterpreter thread associated with this engine. Each
+    // engine object has its own subinterpreter.
+    PyThreadState *m_interp;
+};
+
 // (s-func) drnsf_module_init
 // Initializes a new instance of the "drnsf" builtin module. This is used with
 // `PyImport_AppendInittab'.
@@ -788,15 +801,6 @@ void unlock()
 }
 
 // declared in scripting.hh
-struct engine::impl
-{
-    // (var) m_interp
-    // A pointer to the subinterpreter thread associated with this engine. Each
-    // engine object has its own subinterpreter.
-    PyThreadState *m_interp;
-};
-
-// declared in scripting.hh
 engine::engine()
 {
     if (s_init_state != init_state::ready) {
@@ -807,7 +811,7 @@ engine::engine()
     lock();
     DRNSF_ON_EXIT { unlock(); };
 
-    M = new impl;
+    M = new engine_impl;
     try {
         M->m_interp = Py_NewInterpreter();
         PyThreadState_Swap(s_main_threadstate);

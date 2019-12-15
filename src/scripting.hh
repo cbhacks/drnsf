@@ -106,15 +106,13 @@ void unlock();
  *
  * FIXME explain
  */
+struct engine_impl;
 class engine : private util::nocopy {
 private:
-    // inner implementation type
-    struct impl;
-
     // (var) M
     // Pointer to the internal implementation object. This is null if the engine
     // was not actually constructed (i.e. the runtime was not initialized).
-    impl *M;
+    engine_impl *M;
 
 public:
     // (default ctor)
