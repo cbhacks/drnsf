@@ -82,7 +82,7 @@ static PyModuleDef s_moduledef = {
     PyModuleDef_HEAD_INIT,
     "drnsf",
     nullptr,
-    0,
+    sizeof(engine_impl *),
     nullptr,
     nullptr,
     nullptr,
@@ -114,6 +114,22 @@ struct engine_impl
     // A pointer to the subinterpreter thread associated with this engine. Each
     // engine object has its own subinterpreter.
     PyThreadState *m_interp;
+
+    // (s-func) get
+    // Returns a pointer to the engine_impl associated with the current python
+    // subinterpreter, or null if not available.
+    static engine_impl *get()
+    {
+        auto module = PyState_FindModule(&s_moduledef);
+        if (!module)
+            return nullptr;
+
+        auto pp = PyModule_GetState(module);
+        if (!pp)
+            return nullptr;
+
+        return *static_cast<engine_impl **>(pp);
+    }
 };
 
 // (s-func) drnsf_module_init
@@ -814,6 +830,25 @@ engine::engine()
     M = new engine_impl;
     try {
         M->m_interp = Py_NewInterpreter();
+
+        auto module = PyImport_ImportModule("drnsf");
+        if (!module) {
+            // TODO - proper python exception grabbing
+            Py_EndInterpreter(M->m_interp);
+            PyThreadState_Swap(s_main_threadstate);
+            throw std::runtime_error("scripting::engine: python error");
+        }
+
+        auto pp = static_cast<engine_impl **>(PyModule_GetState(module));
+        if (!pp) {
+            // TODO - proper python exception grabbing
+            Py_EndInterpreter(M->m_interp);
+            PyThreadState_Swap(s_main_threadstate);
+            throw std::runtime_error("scripting::engine: module bugged");
+        }
+
+        *pp = M;
+
         PyThreadState_Swap(s_main_threadstate);
     } catch (...) {
         delete M;
