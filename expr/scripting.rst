@@ -94,6 +94,22 @@ Projects
 
 TBD
 
+At any point in time, one project may be the "active" project. Projects may be
+pushed onto a "project stack" to become the new active project, and then later
+popped to restore the previous active project. When the project stack is empty,
+the active project is whatever project is opened in the application UI.
+
+The project stack may be modified directly by the :py:func:`pushproject` and
+:py:func:`popproject` functions, or by using a project object in a *with* block
+as shown below:
+
+::
+
+  print(P())       # prints the UI project
+  with Project():
+      print(P())   # prints the new project created above
+  print(P())       # prints the UI project, again
+
 .. py:class:: Project()
 
    Constructs a new empty project.
@@ -111,9 +127,8 @@ TBD
 
    Returns :py:class:`Project` or ``None``
 
-   Returns the project at the top of the project stack (see :py:func:`pushproject`
-   and :py:func:`popproject`). If the project stack is empty, returns the same
-   as :py:func:`getcontextproject`.
+   Returns the "active" project. This is the top project of the project stack, or
+   the result of :py:func:`getcontextproject` if the project stack is empty.
 
 .. py:function:: getcontextproject()
 

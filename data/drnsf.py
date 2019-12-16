@@ -40,6 +40,14 @@ def eachdescendant(self):
         yield c
         yield from c.eachdescendant()
 
+@extend(Project)
+def __enter__(self):
+    pushproject(self)
+
+@extend(Project)
+def __exit__(self, exctype, excvalue, traceback):
+    popproject()
+
 def startconsole():
     def threadproc():
         import code
