@@ -110,6 +110,10 @@ struct engine_impl
     // may be null.
     edit::context *m_ctx;
 
+    // (var) m_project_stack
+    // FIXME explain
+    std::vector<std::shared_ptr<res::project>> m_project_stack;
+
     // (var) m_interp
     // A pointer to the subinterpreter thread associated with this engine. Each
     // engine object has its own subinterpreter.
@@ -219,8 +223,14 @@ public:
 #define DECLARE_METHOD_NOARGS(type, name) \
     static PyObject *mth_##name(type *self, PyObject *) noexcept
 
+#define DECLARE_METHOD_O(type, name) \
+    static PyObject *mth_##name(type *self, PyObject *arg) noexcept
+
 #define DEFINE_METHOD_NOARGS(type, name) \
     PyObject *type::mth_##name(type *self, PyObject *) noexcept
+
+#define DEFINE_METHOD_O(type, name) \
+    PyObject *type::mth_##name(type *self, PyObject *arg) noexcept
 
 // (internal type) scr_base
 // Base type for all scripting types defined below.
@@ -590,6 +600,9 @@ struct scr_globalfns : scr_base {
     static inline bool installed = false;
 
     DECLARE_METHOD_NOARGS(scr_globalfns, getcontextproject);
+    DECLARE_METHOD_O(scr_globalfns, pushproject);
+    DECLARE_METHOD_NOARGS(scr_globalfns, popproject);
+    DECLARE_METHOD_NOARGS(scr_globalfns, P);
 
     static void install()
     {
@@ -598,6 +611,9 @@ struct scr_globalfns : scr_base {
 
         static PyMethodDef methods[] = {
             METHOD(getcontextproject, METH_NOARGS),
+            METHOD(pushproject, METH_O),
+            METHOD(popproject, METH_NOARGS),
+            METHOD(P, METH_NOARGS),
             {}
         };
 
@@ -661,7 +677,9 @@ DEFINE_METHOD_NOARGS(scr_globalfns, getcontextproject)
 {
     auto engp = engine_impl::get();
     if (!engp)
+        // TODO - error
         Py_RETURN_NONE;
+
     if (!engp->m_ctx)
         Py_RETURN_NONE;
 
@@ -670,6 +688,65 @@ DEFINE_METHOD_NOARGS(scr_globalfns, getcontextproject)
     proj_p = engp->m_ctx->get_proj();
     // FIXME - end above section
     return scr_project::to_python(proj_p);
+}
+
+DEFINE_METHOD_O(scr_globalfns, pushproject)
+{
+    auto engp = engine_impl::get();
+    if (!engp)
+        // TODO - error
+        Py_RETURN_NONE;
+
+    std::shared_ptr<res::project> proj;
+    try {
+        proj = scr_project::from_python(arg);
+    } catch (conversion_error &) {
+        // TODO - error
+        Py_RETURN_NONE;
+    }
+
+    engp->m_project_stack.push_back(proj);
+
+    Py_RETURN_NONE;
+}
+
+DEFINE_METHOD_NOARGS(scr_globalfns, popproject)
+{
+    auto engp = engine_impl::get();
+    if (!engp)
+        // TODO - error
+        Py_RETURN_NONE;
+
+    if (engp->m_project_stack.empty())
+        // TODO - error
+        Py_RETURN_NONE;
+
+    engp->m_project_stack.pop_back();
+
+    Py_RETURN_NONE;
+}
+
+DEFINE_METHOD_NOARGS(scr_globalfns, P)
+{
+    auto engp = engine_impl::get();
+    if (!engp)
+        // TODO - error
+        Py_RETURN_NONE;
+
+    if (!engp->m_project_stack.empty()) {
+        return scr_project::to_python(engp->m_project_stack.back());
+    }
+
+    if (!engp->m_ctx)
+        Py_RETURN_NONE;
+
+    std::shared_ptr<res::project> proj_p;
+    // FIXME - run this section only on the main thread!
+    proj_p = engp->m_ctx->get_proj();
+    // FIXME - end above section
+    return scr_project::to_python(proj_p);
+
+    Py_RETURN_NONE;
 }
 
 #undef SLOT_FN

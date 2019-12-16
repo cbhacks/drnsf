@@ -107,9 +107,28 @@ TBD
 
       The root atom cannot be the name of an asset.
 
+.. py:function:: P()
+
+   Returns :py:class:`Project` or ``None``
+
+   Returns the project at the top of the project stack (see :py:func:`pushproject`
+   and :py:func:`popproject`). If the project stack is empty, returns the same
+   as :py:func:`getcontextproject`.
+
 .. py:function:: getcontextproject()
 
    Returns :py:class:`Project` or ``None``
 
    Returns the project which is currently open in the user interface. Returns
    ``None`` if there is no open project.
+
+.. py:function:: pushproject(project)
+
+   * *project* :py:class:`Project`
+
+   Pushes *project* onto the project stack.
+
+.. py:function:: popproject()
+
+   Pops the top project from the project stack. An error occurs if the project
+   stack is empty.
