@@ -40,6 +40,21 @@ def eachdescendant(self):
         yield c
         yield from c.eachdescendant()
 
+@extend(Atom)
+def eachatom(self):
+    yield self
+    yield from self.eachdescendant()
+
+@extend(Project)
+def eachatom(self):
+    return self.root.eachatom()
+
+@extend(drnsf)
+def eachatom():
+    p = P()
+    if p:
+        yield from p.eachatom()
+
 @extend(Project)
 def __enter__(self):
     pushproject(self)
