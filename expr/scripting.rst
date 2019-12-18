@@ -88,6 +88,33 @@ For example, given a project ``p``, both ``Atom('/A/B/C', p)`` and
 
       For a root node (:py:attr:`Project.root`), this always returns ``None``.
 
+   .. py:function:: eachchild()
+
+      Returns a generator which yields an atom for each child node of this
+      atom's node. Atoms are returned in lexicographical order. The addition or
+      removal of child nodes during enumeration is allowed.
+
+   .. py:function:: eachdescendant()
+
+      Returns a generator which yields an atom for each descendant node of this
+      atom's node. Atoms are returned in lexicographical order. The addition or
+      removal of descendant nodes during enumeration is allowed.
+
+   .. py:function:: eachatom()
+
+      Returns a generator which yields this Atom as well as an atom for each
+      descendant node. Descendant nodes are enumerated the same as in
+      :py:func:`eachdescendant`.
+
+.. py:function:: eachatom()
+
+   Returns a generator which yields an Atom for each node in the "active"
+   project's asset name tree, if any. This is the same as calling
+   *P().eachatom()*.
+
+   If there is no active project, instead returns a generator which yields
+   no values.
+
 
 Projects
 ========
@@ -122,6 +149,11 @@ as shown below:
       a descendant of the project's root atom.
 
       The root atom cannot be the name of an asset.
+
+   .. py:function:: eachatom()
+
+      Returns a generator which yields an Atom for each node in the project's asset
+      name tree. This is the same as calling *root.eachatom()*.
 
 .. py:function:: P()
 
