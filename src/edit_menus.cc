@@ -1,6 +1,6 @@
 //
 // DRNSF - An unofficial Crash Bandicoot level editor
-// Copyright (C) 2017-2019  DRNSF contributors
+// Copyright (C) 2017-2020  DRNSF contributors
 //
 // See the AUTHORS.md file for more details.
 //
@@ -26,7 +26,8 @@ namespace edit {
 namespace menus {
 
 // declared in edit.hh
-void mni_open::on_activate()
+template <nsf::game_ver GameVersion>
+void mni_open<GameVersion>::on_activate()
 {
     // Get the file to open from the user.
     std::string path;
@@ -96,7 +97,7 @@ void mni_open::on_activate()
                 entry = new_path;
                 p = new_path;
 
-                entry->process_by_type(TS, nsf::game_ver::crash2);
+                entry->process_by_type(TS, GameVersion);
             }
             spage->set_pagelets(TS, pagelets);
         }
@@ -324,6 +325,10 @@ void mni_new_window::on_activate()
 {
     m_ctx.make_window<mode_window>().show();
 }
+
+template class mni_open<nsf::game_ver::crash1>;
+template class mni_open<nsf::game_ver::crash2>;
+template class mni_open<nsf::game_ver::crash3>;
 
 }
 }
