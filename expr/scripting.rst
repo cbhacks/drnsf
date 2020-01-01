@@ -116,6 +116,15 @@ For example, given a project ``p``, both ``Atom('/A/B/C', p)`` and
       descendant node. Descendant nodes are enumerated the same as in
       :py:func:`eachdescendant`.
 
+   .. py:function:: eachasset(basetype=Asset)
+
+      Returns a generator which yields the asset associated with this atom's
+      node as well as each of the descendant nodes. Nodes with no associated
+      asset are excluded, but their descendants are still considered.
+
+      An optional ``basetype`` argument may be provided, in which case only the
+      assets of the given type or derived from that type are yielded.
+
 .. py:function:: eachatom()
 
    Returns a generator which yields an Atom for each node in the "active"
@@ -164,6 +173,13 @@ as shown below:
 
       Returns a generator which yields an Atom for each node in the project's asset
       name tree. This is the same as calling *root.eachatom()*.
+
+   .. py:function:: eachasset(basetype=Asset)
+
+      Returns a generator which yields each asset in the project.
+
+      An optional ``basetype`` argument may be provided, in which case only the
+      assets of the given type or derived from that type are yielded.
 
 .. py:function:: P()
 
@@ -219,3 +235,10 @@ TBD
 
       The name associated with this Asset. The returned atom's ``project`` and
       this asset's ``project`` are identical.
+
+.. py:function:: eachasset(basetype=Asset)
+
+   Returns a generator which yields each asset in the "active" project, if any.
+
+   If there is no active project, instead returns a generator which yields
+   no values.

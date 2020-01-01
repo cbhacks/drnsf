@@ -55,6 +55,23 @@ def eachatom():
     if p:
         yield from p.eachatom()
 
+@extend(Atom)
+def eachasset(self, basetype=Asset):\
+    # TODO - check basetype is a valid asset type
+    for n in self.eachatom():
+        if isinstance(n.asset, basetype):
+            yield n.asset
+
+@extend(Project)
+def eachasset(self, *args, **kwds):
+    return self.root.eachasset(*args, **kwds)
+
+@extend(drnsf)
+def eachasset(*args, **kwds):
+    p = P()
+    if p:
+        yield from p.eachasset(*args, **kwds)
+
 @extend(Project)
 def __enter__(self):
     pushproject(self)
