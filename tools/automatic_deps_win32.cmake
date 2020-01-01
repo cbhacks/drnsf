@@ -1,6 +1,6 @@
 #
 # DRNSF - An unofficial Crash Bandicoot level editor
-# Copyright (C) 2017-2019  DRNSF contributors
+# Copyright (C) 2017-2020  DRNSF contributors
 #
 # See the AUTHORS.md file for more details.
 #
@@ -19,20 +19,34 @@
 #
 
 if (NOT DEFINED DRNSF_DEP_ARCH)
-    if ("${CMAKE_GENERATOR}" STREQUAL "Visual Studio 15 2017")
-        set (DRNSF_DEP_ARCH "i386")
-    elseif ("${CMAKE_GENERATOR}" STREQUAL "Visual Studio 15 2017 Win64")
-        set (DRNSF_DEP_ARCH "x86_64")
-    else ()
+    set (DRNSF_SUPPORTED_ARCHES
+        "i386"
+        "x86_64"
+    )
+
+    foreach (DRNSF_ATTEMPTED_ARCH IN LISTS DRNSF_SUPPORTED_ARCHES)
+        try_run (
+            DRNSF_ARCH_RUN_RESULT
+            DRNSF_ARCH_COMPILE_RESULT
+            "${CMAKE_BINARY_DIR}"
+            "${CMAKE_SOURCE_DIR}/tools/test_arch_${DRNSF_ATTEMPTED_ARCH}.c"
+        )
+        if ("${DRNSF_ARCH_COMPILE_RESULT}")
+            set (DRNSF_DEP_ARCH "${DRNSF_ATTEMPTED_ARCH}")
+            break ()
+        endif ()
+    endforeach()
+
+    if (NOT DEFINED DRNSF_DEP_ARCH)
         message (FATAL_ERROR
             "Failed to autodetect DRNSF_DEP_ARCH; see docs/build_options.md"
         )
     endif ()
 endif ()
 
-set (DRNSF_DEP_VERSION "20180506")
-set (DRNSF_DEP_CHECKSUM_i386   "f40d3d7dc3ff4c1bc2d585928cff3c5031911d398443327fc58ac15d0b81b68c9f033efa0dcee432ff9a4447fca80e9fcbf029f0d35ac4ed6da56659e472e121")
-set (DRNSF_DEP_CHECKSUM_x86_64 "bdd541b32a43a1c7178b02b3a505da422f412db731327a69a4c2100540cda3607e31f3300d8338f23bea0758ee0fc52870f0ec2123982194f9c51b75ccb702d1")
+set (DRNSF_DEP_VERSION "20191028")
+set (DRNSF_DEP_CHECKSUM_i386   "1d142ee46cff151e3fb2c12de90cbb9c639c4e7c593d9c7de6fbc213d64cbdb9173efecf8942cf41659b0746d1ed6680cff456b98b77b63e59f19e09db4b9908")
+set (DRNSF_DEP_CHECKSUM_x86_64 "de3199c5f7f09daa8dea0b90cc2829a0b1a9575315bfa28d7efcd37670f3d46dc3333fc55c7376e1ea366a2d261f1f0d4ec82c87ce6761ad758e27b2afe84bc7")
 
 set (DRNSF_DEP_COPYFILES
     "libcairo-2.dll"

@@ -1,6 +1,6 @@
 //
 // DRNSF - An unofficial Crash Bandicoot level editor
-// Copyright (C) 2017-2019  DRNSF contributors
+// Copyright (C) 2017-2020  DRNSF contributors
 //
 // See the AUTHORS.md file for more details.
 //
@@ -206,6 +206,7 @@ void asset_tree::set_base(res::atom base)
         return;
     }
 
+    on_select(nullptr);
     M->m_selected_node = nullptr;
     M->m_base = base;
     M->m_tracker.set_base(base);

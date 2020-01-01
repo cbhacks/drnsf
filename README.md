@@ -1,5 +1,5 @@
 # DRNSF #
-__Copyright (C) 2017-2019  DRNSF contributors__
+__Copyright (C) 2017-2020  DRNSF contributors__
 
 DRNSF is an unofficial level editor for the original Crash Bandicoot
 video game trilogy.
