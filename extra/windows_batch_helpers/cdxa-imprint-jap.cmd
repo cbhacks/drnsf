@@ -2,7 +2,7 @@
 
 rem
 rem DRNSF - An unofficial Crash Bandicoot level editor
-rem Copyright (C) 2017-2019  DRNSF contributors
+rem Copyright (C) 2017-2020  DRNSF contributors
 rem
 rem See the AUTHORS.md file for more details.
 rem
