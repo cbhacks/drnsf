@@ -958,7 +958,7 @@ template <>
 struct asset_type_info<res::asset> {
     using base_type = void;
 
-    static constexpr const char *name = "res::asset";
+    static constexpr const char *name = "Asset";
     static constexpr int prop_count = 0;
 };
 

@@ -321,7 +321,7 @@ template <>
 struct asset_type_info<gfx::frame> {
     using base_type = res::asset;
 
-    static constexpr const char *name = "gfx::frame";
+    static constexpr const char *name = "Frame";
     static constexpr int prop_count = 4;
 };
 template <>
@@ -358,7 +358,7 @@ template <>
 struct asset_type_info<gfx::anim> {
     using base_type = res::asset;
 
-    static constexpr const char *name = "gfx::anim";
+    static constexpr const char *name = "Anim";
     static constexpr int prop_count = 1;
 };
 template <>
@@ -374,7 +374,7 @@ template <>
 struct asset_type_info<gfx::mesh> {
     using base_type = res::asset;
 
-    static constexpr const char *name = "gfx::mesh";
+    static constexpr const char *name = "Mesh";
     static constexpr int prop_count = 3;
 };
 template <>
@@ -404,7 +404,7 @@ template <>
 struct asset_type_info<gfx::model> {
     using base_type = res::asset;
 
-    static constexpr const char *name = "gfx::model";
+    static constexpr const char *name = "Model";
     static constexpr int prop_count = 2;
 };
 template <>
@@ -427,7 +427,7 @@ template <>
 struct asset_type_info<gfx::world> {
     using base_type = res::asset;
 
-    static constexpr const char *name = "gfx::world";
+    static constexpr const char *name = "World";
     static constexpr int prop_count = 4;
 };
 template <>

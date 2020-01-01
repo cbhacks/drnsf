@@ -78,7 +78,7 @@ template <>
 struct asset_type_info<misc::raw_data> {
     using base_type = res::asset;
 
-    static constexpr const char *name = "misc::raw_data";
+    static constexpr const char *name = "RawData";
     static constexpr int prop_count = 1;
 };
 template <>

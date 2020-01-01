@@ -354,7 +354,7 @@ template <>
 struct asset_type_info<nsf::archive> {
     using base_type = res::asset;
 
-    static constexpr const char *name = "nsf::archive";
+    static constexpr const char *name = "NSF";
     static constexpr int prop_count = 1;
 };
 template <>
@@ -370,7 +370,7 @@ template <>
 struct asset_type_info<nsf::spage> {
     using base_type = res::asset;
 
-    static constexpr const char *name = "nsf::spage";
+    static constexpr const char *name = "SPage";
     static constexpr int prop_count = 4;
 };
 template <>
@@ -407,7 +407,7 @@ template <>
 struct asset_type_info<nsf::entry> {
     using base_type = res::asset;
 
-    static constexpr const char *name = "nsf::entry";
+    static constexpr const char *name = "Entry";
     static constexpr int prop_count = 1;
 };
 template <>
@@ -423,7 +423,7 @@ template <>
 struct asset_type_info<nsf::raw_entry> {
     using base_type = nsf::entry;
 
-    static constexpr const char *name = "nsf::raw_entry";
+    static constexpr const char *name = "RawEntry";
     static constexpr int prop_count = 2;
 };
 template <>
@@ -446,7 +446,7 @@ template <>
 struct asset_type_info<nsf::wgeo_v2> {
     using base_type = nsf::entry;
 
-    static constexpr const char *name = "nsf::wgeo_v2";
+    static constexpr const char *name = "WGEOv2";
     static constexpr int prop_count = 13;
 };
 template <>
