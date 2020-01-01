@@ -537,6 +537,7 @@ struct scr_atom : scr_base {
     DECLARE_GETTER(scr_atom, basename);
     DECLARE_GETTER(scr_atom, dirname);
     DECLARE_GETTER(scr_atom, path);
+    DECLARE_GETTER(scr_atom, asset);
 
     DECLARE_METHOD_NOARGS(scr_atom, firstchild);
     DECLARE_METHOD_NOARGS(scr_atom, nextsibling);
@@ -551,6 +552,7 @@ struct scr_atom : scr_base {
             GETSET_RO(basename),
             GETSET_RO(dirname),
             GETSET_RO(path),
+            GETSET_RO(asset),
             {}
         };
 
@@ -588,6 +590,111 @@ struct scr_atom : scr_base {
         }
 
         if (PyDict_SetItemString(s_dict, "Atom", type_o) == -1) {
+            PyErr_Print();
+            std::abort();
+        }
+    }
+};
+
+// (internal type) scr_asset
+// Scripting type for asset types.
+struct scr_asset : scr_base {
+    using native_type = res::asset *;
+
+    static inline PyTypeObject *type;
+
+    native_type asset_p;
+
+    static native_type from_python(PyObject *obj)
+    {
+        if (obj == Py_None)
+            return nullptr;
+
+        if (Py_TYPE(obj) != type) // TODO - support subtypes
+            throw conversion_error("scr_asset: incompatible type");
+
+        return static_cast<scr_asset *>(obj)->asset_p;
+    }
+
+    static PyObject *to_python(native_type value) noexcept
+    {
+        if (!value)
+            Py_RETURN_NONE;
+
+        if (value->m_scripthandle.p) {
+            auto obj = static_cast<scr_asset *>(value->m_scripthandle.p);
+            Py_INCREF(obj);
+            return obj;
+        }
+
+        try {
+            auto obj = new scr_asset();
+            obj->ob_refcnt = 1;
+            obj->ob_type = type; // TODO - specific asset type
+            obj->asset_p = value;
+            obj->asset_p->m_scripthandle.p = obj;
+            obj->asset_p->m_scripthandle.dtor = [](void *p) noexcept {
+                auto obj = static_cast<scr_asset *>(p);
+                obj->asset_p = nullptr;
+            };
+            return obj;
+        } catch (std::bad_alloc &) {
+            return PyErr_NoMemory();
+        }
+    }
+
+    static PyObject *tp_new(
+        PyObject *subtype,
+        PyObject *args,
+        PyObject *kwds) noexcept
+    {
+        PyErr_SetString(PyExc_TypeError, "drnsf.Asset cannot be constructed");
+        return nullptr;
+    }
+
+    static void tp_dealloc(scr_asset *self) noexcept
+    {
+        self->asset_p->m_scripthandle = {};
+        delete self;
+    }
+
+    DECLARE_GETTER(scr_asset, project);
+    DECLARE_GETTER(scr_asset, name);
+
+    static void install()
+    {
+        if (type)
+            return;
+
+        static PyGetSetDef getset[] = {
+            GETSET_RO(project),
+            GETSET_RO(name),
+            {}
+        };
+
+        static PyType_Slot slots[] = {
+            SLOT_FN(tp_new),
+            SLOT_FN(tp_dealloc),
+            { Py_tp_getset, getset },
+            {}
+        };
+
+        static PyType_Spec spec = {
+            "drnsf.Asset",
+            sizeof(scr_asset),
+            0,
+            0,
+            slots
+        };
+
+        auto type_o = PyType_FromSpec(&spec);
+        type = reinterpret_cast<PyTypeObject *>(type_o);
+        if (!type) {
+            PyErr_Print();
+            std::abort();
+        }
+
+        if (PyDict_SetItemString(s_dict, "Asset", type_o) == -1) {
             PyErr_Print();
             std::abort();
         }
@@ -663,6 +770,11 @@ DEFINE_GETTER(scr_atom, path)
     return PyUnicode_FromString(self->v.path().c_str());
 }
 
+DEFINE_GETTER(scr_atom, asset)
+{
+    return scr_asset::to_python(self->v.get());
+}
+
 DEFINE_METHOD_NOARGS(scr_atom, firstchild)
 {
     return scr_atom::to_python(self->v.first_child());
@@ -671,6 +783,18 @@ DEFINE_METHOD_NOARGS(scr_atom, firstchild)
 DEFINE_METHOD_NOARGS(scr_atom, nextsibling)
 {
     return scr_atom::to_python(self->v.next_sibling());
+}
+
+DEFINE_GETTER(scr_asset, project)
+{
+    Py_RETURN_NONE;
+    // TODO
+}
+
+DEFINE_GETTER(scr_asset, name)
+{
+    Py_RETURN_NONE;
+    // TODO
 }
 
 DEFINE_METHOD_NOARGS(scr_globalfns, getcontextproject)
@@ -807,6 +931,7 @@ void init()
 
     scr_project::install();
     scr_atom::install();
+    scr_asset::install();
     scr_globalfns::install();
 
     auto code = Py_CompileString(
@@ -977,6 +1102,17 @@ void engine::start_console()
         throw std::runtime_error("scripting::engine::start_console: bugged");
     }
     Py_DECREF(result);
+}
+
+// declared in scripting.hh
+handle::~handle() noexcept
+{
+    lock();
+
+    if (dtor)
+        dtor(p);
+
+    unlock();
 }
 
 }

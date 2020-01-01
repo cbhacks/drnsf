@@ -71,6 +71,16 @@ For example, given a project ``p``, both ``Atom('/A/B/C', p)`` and
 
       For a root node (:py:attr:`Project.root`), this is an empty string.
 
+   .. py:attribute:: asset
+
+      *(read-only)* :py:class:`Asset`-derived type or ``None``
+
+      The asset whose name is the node associated with this atom. For example,
+      an asset whose name is ``/A/B/C/D`` could be reached from it's project
+      root via ``(project.root // '/A/B/C/D').asset``.
+
+      If this name is not associated with an asset, returns ``None``.
+
    .. py:function:: firstchild()
 
       Returns :py:class:`Atom` or ``None``
@@ -179,3 +189,33 @@ as shown below:
 
    Pops the top project from the project stack. An error occurs if the project
    stack is empty.
+
+
+Assets
+======
+
+TBD
+
+.. py:class:: Asset
+
+   Cannot be constructed.
+
+   An asset may become invalid at any time, for example if the asset is deleted
+   by the user or a script, or if the user undoes the transaction which created
+   the asset. Such an asset is unusable by any script; any access to any of the
+   below-described attributes or calling any of the below-described methods on
+   such an invalid asset will raise an error.
+
+   .. py:attribute:: project
+
+      *(read-only)* :py:class:`Project`
+
+      The project which this asset is a member of. This never changes for the
+      entire lifetime of the asset.
+
+   .. py:attribute:: name
+
+      *(read-only)* :py:class:`Atom`
+
+      The name associated with this Asset. The returned atom's ``project`` and
+      this asset's ``project`` are identical.

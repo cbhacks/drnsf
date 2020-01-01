@@ -43,6 +43,9 @@ namespace scripting {
  */
 struct handle {
     void *p = nullptr;
+    void (*dtor)(void *) noexcept = nullptr;
+
+    ~handle() noexcept;
 };
 
 /*

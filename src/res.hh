@@ -543,6 +543,13 @@ public:
     // (func) get_proj
     // FIXME explain
     project &get_proj() const;
+
+#if FEATURE_SCRIPTING
+    // (var) m_scripthandle
+    // An internal handle used by the scripting engine to maintain a two-way
+    // association between native objects (this) and scripting objects.
+    scripting::handle m_scripthandle;
+#endif
 };
 
 /*
