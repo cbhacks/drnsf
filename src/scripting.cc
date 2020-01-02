@@ -596,6 +596,67 @@ struct scr_atom : scr_base {
     }
 };
 
+// (internal type) scr_specificasset
+// Scripting type for various asset types.
+template <typename AssetType>
+struct scr_specificasset :
+    scr_specificasset<typename reflect::asset_type_info<AssetType>::base_type> {
+
+    static inline PyTypeObject *type;
+
+    using base_scr_specificasset = scr_specificasset<
+        typename reflect::asset_type_info<AssetType>::base_type>;
+
+    using base_scr_specificasset::tp_new;
+    using base_scr_specificasset::tp_dealloc;
+
+    static void install()
+    {
+        if (type)
+            return;
+
+        using type_info = reflect::asset_type_info<AssetType>;
+        using base_type = typename type_info::base_type;
+
+        static PyGetSetDef getset[] = {
+            {}
+        };
+
+        scr_specificasset<base_type>::install();
+
+        static PyType_Slot slots[] = {
+            SLOT_FN(tp_new),
+            SLOT_FN(tp_dealloc),
+            { Py_tp_getset, getset },
+            { Py_tp_base, scr_specificasset<base_type>::type },
+            {}
+        };
+
+        std::string type_fullname = "drnsf.";
+        type_fullname += type_info::name;
+
+        PyType_Spec spec = {
+            type_fullname.c_str(),
+            sizeof(scr_specificasset<base_type>),
+            0,
+            Py_TPFLAGS_BASETYPE,
+            slots
+        };
+
+        auto type_o = PyType_FromSpec(&spec);
+        type = reinterpret_cast<PyTypeObject *>(type_o);
+        if (!type) {
+            PyErr_Print();
+            std::abort();
+        }
+
+        if (PyDict_SetItemString(s_dict, type_info::name, type_o) == -1) {
+            PyErr_Print();
+            std::abort();
+        }
+    }
+};
+
 // (internal type) scr_asset
 // Scripting type for asset types.
 struct scr_asset : scr_base {
@@ -610,7 +671,7 @@ struct scr_asset : scr_base {
         if (obj == Py_None)
             return nullptr;
 
-        if (Py_TYPE(obj) != type) // TODO - support subtypes
+        if (!PyObject_IsInstance(obj, reinterpret_cast<PyObject *>(type)))
             throw conversion_error("scr_asset: incompatible type");
 
         return static_cast<scr_asset *>(obj)->asset_p;
@@ -627,10 +688,34 @@ struct scr_asset : scr_base {
             return obj;
         }
 
+        PyTypeObject *specific_type;
+
+        auto handler = [&](auto asset) {
+            specific_type = scr_specificasset<
+                std::remove_pointer_t<decltype(asset)>
+            >::type;
+        };
+
+        util::dynamic_call<
+            const decltype(handler) &,
+            res::asset,
+            gfx::frame,
+            gfx::anim,
+            gfx::mesh,
+            gfx::model,
+            gfx::world,
+            misc::raw_data,
+            nsf::archive,
+            nsf::spage,
+            nsf::raw_entry,
+            nsf::wgeo_v2,
+            nsf::entry,
+            res::asset>(handler, value);
+
         try {
             auto obj = new scr_asset();
             obj->ob_refcnt = 1;
-            obj->ob_type = type; // TODO - specific asset type
+            obj->ob_type = specific_type;
             obj->asset_p = value;
             obj->asset_p->m_scripthandle.p = obj;
             obj->asset_p->m_scripthandle.dtor = [](void *p) noexcept {
@@ -683,7 +768,7 @@ struct scr_asset : scr_base {
             "drnsf.Asset",
             sizeof(scr_asset),
             0,
-            0,
+            Py_TPFLAGS_BASETYPE,
             slots
         };
 
@@ -700,6 +785,9 @@ struct scr_asset : scr_base {
         }
     }
 };
+
+template <>
+struct scr_specificasset<res::asset> : scr_asset {};
 
 // (internal type) scr_globalfns
 // Non-instantiated type which contains global functions.
@@ -931,8 +1019,20 @@ void init()
 
     scr_project::install();
     scr_atom::install();
-    scr_asset::install();
     scr_globalfns::install();
+
+    scr_specificasset<gfx::frame>::install();
+    scr_specificasset<gfx::anim>::install();
+    scr_specificasset<gfx::mesh>::install();
+    scr_specificasset<gfx::model>::install();
+    scr_specificasset<gfx::world>::install();
+    scr_specificasset<misc::raw_data>::install();
+    scr_specificasset<nsf::archive>::install();
+    scr_specificasset<nsf::spage>::install();
+    scr_specificasset<nsf::raw_entry>::install();
+    scr_specificasset<nsf::wgeo_v2>::install();
+    scr_specificasset<nsf::entry>::install();
+    scr_specificasset<res::asset>::install();
 
     auto code = Py_CompileString(
         reinterpret_cast<const char *>(embed::drnsf_py::data),
