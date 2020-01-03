@@ -881,8 +881,11 @@ DEFINE_GETTER(scr_asset, project)
 
 DEFINE_GETTER(scr_asset, name)
 {
-    Py_RETURN_NONE;
-    // TODO
+    if (!self->asset_p)
+        // TODO - error
+        Py_RETURN_NONE;
+
+    return scr_atom::to_python(self->asset_p->get_name());
 }
 
 DEFINE_METHOD_NOARGS(scr_globalfns, getcontextproject)
