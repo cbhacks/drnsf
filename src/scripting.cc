@@ -294,7 +294,7 @@ struct scr_project : scr_base {
             return nullptr;
         }
         try {
-            return to_python(std::make_shared<res::project>());
+            return to_python(res::project::make());
         } catch (std::bad_alloc &) {
             return PyErr_NoMemory();
         }

@@ -405,7 +405,10 @@ inline auto atom::each_descendant() const
  *
  * FIXME explain
  */
-class project : private util::nocopy {
+class project :
+    private util::nocopy,
+    public std::enable_shared_from_this<project> {
+
     friend class asset;
 
 private:
@@ -421,11 +424,26 @@ private:
     // FIXME explain
     transact::nexus m_transact;
 
-public:
     // (default ctor)
-    // FIXME explain
+    // Constructs an empty project. This is private so that projects can only
+    // be created with an std::shared_ptr via the `make' method defined later
+    // in this class.
     project() :
         m_root(atom::make_root(this)) {}
+
+public:
+    // (func) make
+    // Creates a new empty project and returns a shared pointer to the project.
+    static std::shared_ptr<project> make()
+    {
+        auto self = new project();
+        try {
+            return std::shared_ptr<project>(self);
+        } catch (...) {
+            delete self;
+            throw;
+        }
+    }
 
     // (func) get_asset_root
     // FIXME explain

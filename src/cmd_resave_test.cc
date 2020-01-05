@@ -292,7 +292,8 @@ Example usage:
             nsf_file.read(nsf_data.data(), nsf_size);
             nsf_file.close();
 
-            res::project proj;
+            auto proj_p = res::project::make();
+            auto &proj = *proj_p;
             proj.get_transact().run([&](TRANSACT) {
                 misc::raw_data::ref nsfile = proj.get_asset_root() / "nsfile";
                 nsfile.create(TS, proj);

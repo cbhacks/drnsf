@@ -38,7 +38,7 @@ void mni_open<GameVersion>::on_activate()
     }
 
     // Create the new project to import into.
-    auto proj_p = std::make_shared<res::project>();
+    auto proj_p = res::project::make();
     auto &proj = *proj_p;
 
     proj.get_transact().run([&](TRANSACT) {
