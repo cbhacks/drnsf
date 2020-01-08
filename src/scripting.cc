@@ -666,6 +666,8 @@ struct scr_asset : scr_base {
 
     native_type asset_p;
 
+    std::shared_ptr<res::project> proj_p;
+
     static native_type from_python(PyObject *obj)
     {
         if (obj == Py_None)
@@ -716,11 +718,13 @@ struct scr_asset : scr_base {
             auto obj = new scr_asset();
             obj->ob_refcnt = 1;
             obj->ob_type = specific_type;
+            obj->proj_p = value->get_proj().shared_from_this();
             obj->asset_p = value;
             obj->asset_p->m_scripthandle.p = obj;
             obj->asset_p->m_scripthandle.dtor = [](void *p) noexcept {
                 auto obj = static_cast<scr_asset *>(p);
                 obj->asset_p = nullptr;
+                obj->proj_p = nullptr;
             };
             return obj;
         } catch (std::bad_alloc &) {
@@ -875,8 +879,11 @@ DEFINE_METHOD_NOARGS(scr_atom, nextsibling)
 
 DEFINE_GETTER(scr_asset, project)
 {
-    Py_RETURN_NONE;
-    // TODO
+    if (!self->proj_p)
+        // TODO - error
+        Py_RETURN_NONE;
+
+    return scr_project::to_python(self->proj_p);
 }
 
 DEFINE_GETTER(scr_asset, name)
