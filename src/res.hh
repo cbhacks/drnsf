@@ -528,6 +528,12 @@ public:
     // FIXME explain
     virtual ~asset() = default;
 
+    // (func) is_alive
+    // Returns true if this asset is currently alive, false otherwise. This is
+    // intended for use by scripts only; if an asset is not alive the C++ asset
+    // object backing it may be destroyed.
+    bool is_alive() const;
+
     // (func) assert_alive
     // FIXME explain
     void assert_alive() const;

@@ -883,12 +883,20 @@ DEFINE_GETTER(scr_asset, project)
         // TODO - error
         Py_RETURN_NONE;
 
+    if (!self->asset_p->is_alive())
+        // TODO - error
+        Py_RETURN_NONE;
+
     return scr_project::to_python(self->proj_p);
 }
 
 DEFINE_GETTER(scr_asset, name)
 {
     if (!self->asset_p)
+        // TODO - error
+        Py_RETURN_NONE;
+
+    if (!self->asset_p->is_alive())
         // TODO - error
         Py_RETURN_NONE;
 
