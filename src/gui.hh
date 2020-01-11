@@ -1122,6 +1122,110 @@ public:
 };
 
 /*
+ * gui::tabview
+ *
+ * FIXME explain
+ */
+class tabview : private composite {
+public:
+    // inner class defined later in this file
+    class page;
+
+private:
+    // (var) m_bar
+    // A 2D widget which implements the selectable list of tabs at the top of
+    // the tabview.
+    struct bar : widget_2d {
+        friend class tabview;
+        friend class tabview::page;
+
+        tabview &m_view;
+
+        int m_mouse_x = -1;
+
+        explicit bar(tabview &view, layout layout) :
+            widget_2d(view, layout),
+            m_view(view) {}
+
+        void mousemove(int x, int y) override;
+        void mouseleave() override;
+        void mousebutton(mousebtn btn, bool down) override;
+        void draw_2d(int width, int height, cairo_t *cr) override;
+    } m_bar;
+
+    // (var) m_pages
+    // The list of pointers to all of the contained tab pages.
+    std::vector<page *> m_pages;
+
+    // (var) m_active_page
+    // A pointer to the currently selected tab page. This is null if no tabs
+    // are available.
+    page *m_active_page = nullptr;
+
+public:
+    // (ctor)
+    // Constructs an empty tabview.
+    tabview(container &parent, layout layout);
+
+    using composite::show;
+    using composite::hide;
+    using composite::get_layout;
+    using composite::set_layout;
+    using composite::get_real_size;
+    using composite::get_screen_pos;
+};
+
+/*
+ * gui::tabview::page
+ *
+ * FIXME explain
+ */
+class tabview::page : private composite {
+    friend class tabview::bar;
+
+private:
+    // (var) m_view
+    // The tabview this page is a member of.
+    tabview &m_view;
+
+    // (var) m_visible
+    // True if this tab is visible, false otherwise. This is not the visibility
+    // of the tab page's contents; when false, the tab itself is not visible in
+    // the tabview's tab bar.
+    bool m_visible = false;
+
+    // (var) m_text
+    // The label text for this page's tab.
+    std::string m_text = "Tab";
+
+public:
+    using gui::composite::container;
+
+    // (explicit ctor)
+    // Constructs the tab page as an empty member of the given tabview. The
+    // lifetime of the page must not exceed the lifetime of the tabview.
+    //
+    // The page is initially invisible, and must be set visible to become
+    // available to the user.
+    explicit page(tabview &view);
+
+    // (dtor)
+    // Destroys the tab page and removes it from the tabview.
+    ~page();
+
+    // (func) get_visible, set_visible
+    // Gets or sets whether the tab is visible. Changing the visibility of a
+    // tab may trigger a change in the tabview's active tab selection.
+    bool get_visible() const;
+    void set_visible(bool visible);
+
+    // (func) get_text, set_text
+    // Gets or sets the text in the tab for this tab page.
+    std::string get_text() const;
+    void set_text(std::string text);
+};
+
+/*
  * gui::menu
  *
  * FIXME explain

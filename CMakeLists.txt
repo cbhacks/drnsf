@@ -151,6 +151,7 @@ add_executable (drnsf
     src/gui_widget_im.cc
     src/gui_label.cc
     src/gui_treeview.cc
+    src/gui_tabview.cc
     src/gui_menu.cc
     src/gui_menubar.cc
     src/gui_file_dialog.cc
