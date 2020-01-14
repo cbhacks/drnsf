@@ -2122,6 +2122,9 @@ public:
  *
  * See other files for individual asset tools:
  *
+ *  - New tool
+ *    edit_assettool_new.hh (edit::assettool_new)
+ *
  *  - Main tool
  *    edit_assettool_main.hh (edit::assettool_main)
  */

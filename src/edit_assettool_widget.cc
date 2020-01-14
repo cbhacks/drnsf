@@ -20,6 +20,7 @@
 
 #include "common.hh"
 #include "edit.hh"
+#include "edit_assettool_new.hh"
 #include "edit_assettool_main.hh"
 
 namespace drnsf {
@@ -61,6 +62,7 @@ assettool_widget::assettool_widget(
     m_tabview(*this, gui::layout::fill())
 {
     m_tabview.show();
+    add_tool<assettool_new::tool>();
     add_tool<assettool_main::tool>();
 }
 
