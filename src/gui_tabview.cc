@@ -192,10 +192,37 @@ void tabview::page::set_visible(bool visible)
     // it is becoming invisible.
     if (!m_visible && m_view.m_active_page == this) {
         hide();
-        m_view.m_active_page = nullptr;
 
-        // Invalidate the tab bar, as the active tab changed.
+        // Find the index of this tab in the tab list.
+        size_t i;
+        for (i = 0; m_view.m_pages[i] != this; i++);
+
+        // Switch to the closest previous tab which is visible.
+        for (size_t j = i - 1; j != SIZE_MAX; j--) {
+            if (!m_view.m_pages[j]->m_visible)
+                continue;
+
+            m_view.m_active_page = m_view.m_pages[j];
+            m_view.m_active_page->show();
+            m_view.m_bar.invalidate();
+            return;
+        }
+
+        // If none, switch to the closest next tab which is visible.
+        for (size_t j = i + 1; j < m_view.m_pages.size(); j++) {
+            if (!m_view.m_pages[j]->m_visible)
+                continue;
+
+            m_view.m_active_page = m_view.m_pages[j];
+            m_view.m_active_page->show();
+            m_view.m_bar.invalidate();
+            return;
+        }
+
+        // If none, there is no new active tab.
+        m_view.m_active_page = nullptr;
         m_view.m_bar.invalidate();
+        return;
     }
 
     // Switch the active tab to this one if no page is active and this one is
