@@ -351,6 +351,147 @@ public:
     ~mode_menuset();
 };
 
+/*
+ * edit::assettool
+ *
+ * FIXME explain
+ */
+class assettool : protected gui::composite {
+private:
+    // (var) m_name
+    // The asset name attached to this tool, or null if the tool is not set
+    // for use with any asset.
+    res::atom m_name;
+
+    // (var) m_available
+    // FIXME explain
+    bool m_available = false;
+
+    // TODO - watch for context project change
+
+protected:
+    // (var) m_ctx
+    // A reference to the context which this tool operates in.
+    context &m_ctx;
+
+    // (func) set_available
+    // Changes the availability of the tool. This should be called by a derived
+    // type when the atom changes or when the asset changes and the new atom or
+    // asset is not compatible with the tool. This may result in the tool
+    // becoming hidden or disabled.
+    void set_available(bool available);
+
+    // (event) on_name_change
+    // Raised when the asset name attached to this tool changes, such as from
+    // a call to `set_name()' or when the context's project changes.
+    util::event<res::atom> on_name_change;
+
+public:
+    // (explicit ctor)
+    // FIXME explain
+    explicit assettool(
+        gui::container &parent,
+        gui::layout layout,
+        context &ctx);
+
+    // (dtor)
+    // Destroys the tool and removes it from its container.
+    virtual ~assettool() = default;
+
+    // (func) get_title
+    // Gets the title of this asset tool. This could be used in a title bar,
+    // label, tab, list node, tree node, etc.
+    virtual std::string get_title() const
+    {
+        return "Untitled";
+    }
+
+    // (func) get_name, set_name
+    // Gets or sets the asset name this asset tool is attached to. This is
+    // likely to change the availability of the tool.
+    //
+    // The new atom, if not null, must be part of the context's current
+    // project. When the context project changes, the current atom is changed
+    // to null automatically.
+    res::atom get_name() const;
+    void set_name(res::atom name);
+
+    using composite::show;
+    using composite::hide;
+    using composite::get_layout;
+    using composite::set_layout;
+    using composite::get_real_size;
+    using composite::get_screen_pos;
+
+    // (event) on_availability_change
+    // Raised when the availability of the asset tool changes. This may occur
+    // because the atom was changed (set_name), or the asset associated with
+    // the current atom has changed.
+    util::event<bool> on_availability_change;
+};
+
+/*
+ * edit::assettool_widget
+ *
+ * FIXME explain
+ */
+class assettool_widget : private gui::composite {
+private:
+    // (var) m_ctx
+    // The editor context the asset tools operate within.
+    context &m_ctx;
+
+    // (var) m_name
+    // The asset name this widget's tools are attached to.
+    res::atom m_name;
+
+    // (var) m_tabview
+    // FIXME explain
+    gui::tabview m_tabview;
+
+    // (var) m_tool_tabs
+    // List of the tabview pages for each asset tool in the widget.
+    std::vector<std::unique_ptr<gui::tabview::page>> m_tool_tabs;
+
+    // (var) m_tools
+    // List of the asset tools present in this widget.
+    std::vector<std::unique_ptr<assettool>> m_tools;
+
+    // (func) add_tool
+    // Internal function to add a new tool tab object to the widget.
+    template <typename T>
+    void add_tool();
+
+    // TODO - watch for context project change
+
+public:
+    // (explicit ctor)
+    // Constructs the asset tool widget with the given layout and parent
+    // container. The tools list is populated with assettool objects.
+    explicit assettool_widget(
+        gui::container &parent,
+        gui::layout layout,
+        context &ctx);
+
+    // (func) get_name, set_name
+    // Gets or sets the asset name the widget's asset tools are attached to.
+    // Changing this name is likely to change the availability of the various
+    // tools, which may cause some tabs to change visibility.
+    //
+    // The new atom, if not null, must be part of the context's current
+    // project. When the context project changes, the current atom is changed
+    // to null automatically.
+    res::atom get_name() const;
+    void set_name(res::atom name);
+
+    using composite::show;
+    using composite::hide;
+    using composite::get_layout;
+    using composite::set_layout;
+    using composite::get_real_size;
+    using composite::get_screen_pos;
+};
+
 namespace menus {
 
 /*
@@ -1977,6 +2118,12 @@ public:
  *
  *  - Map mode
  *    edit_mode_map.hh (edit::mode_map)
+ *
+ *
+ * See other files for individual asset tools:
+ *
+ *  - Main tool
+ *    edit_assettool_main.hh (edit::assettool_main)
  */
 
 /*

@@ -49,7 +49,7 @@ private:
 
     // (var) m_body
     // The main editor for the tree's selected asset.
-    asset_mainctl m_body{ *this, gui::layout::grid(1, 2, 3, 0, 1, 1) };
+    assettool_widget m_body{ *this, gui::layout::grid(1, 2, 3, 0, 1, 1), m_ctx };
 
     // (handler) h_project_change
     // Hooks the editor context's project change event to update the mode for

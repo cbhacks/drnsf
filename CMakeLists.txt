@@ -188,6 +188,8 @@ add_executable (drnsf
     src/edit_context.cc
     src/edit_base_window.cc
     src/edit_mode_menuset.cc
+    src/edit_assettool.cc
+    src/edit_assettool_widget.cc
     src/edit_menus.cc
     src/edit_field.cc
     src/edit_asset_metactl.cc
@@ -202,6 +204,7 @@ add_executable (drnsf
     src/edit_mode_assets_mainctl.cc
     src/edit_mode_map.hh
     src/edit_mode_map_mainctl.cc
+    src/edit_assettool_main.hh
     src/edit_mode_window.cc
 
     src/transact.hh
