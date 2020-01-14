@@ -22,6 +22,7 @@
 #include "edit.hh"
 #include "edit_assettool_new.hh"
 #include "edit_assettool_main.hh"
+#include "edit_assettool_props.hh"
 
 namespace drnsf {
 namespace edit {
@@ -64,6 +65,7 @@ assettool_widget::assettool_widget(
     m_tabview.show();
     add_tool<assettool_new::tool>();
     add_tool<assettool_main::tool>();
+    add_tool<assettool_props::tool>();
 }
 
 // declared in edit.hh

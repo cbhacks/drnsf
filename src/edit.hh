@@ -2127,6 +2127,9 @@ public:
  *
  *  - Main tool
  *    edit_assettool_main.hh (edit::assettool_main)
+ *
+ *  - Properties tool
+ *    edit_assettool_props.hh (edit::assettool_props)
  */
 
 /*
