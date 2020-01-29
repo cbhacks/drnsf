@@ -206,6 +206,7 @@ add_executable (drnsf
     src/edit_mode_map_mainctl.cc
     src/edit_assettool_new.hh
     src/edit_assettool_main.hh
+    src/edit_assettool_3d.hh
     src/edit_assettool_props.hh
     src/edit_mode_window.cc
 

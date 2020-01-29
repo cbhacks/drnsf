@@ -2128,6 +2128,9 @@ public:
  *  - Main tool
  *    edit_assettool_main.hh (edit::assettool_main)
  *
+ *  - 3D model editing tool
+ *    edit_assettool_3d.hh (edit::assettool_3d)
+ *
  *  - Properties tool
  *    edit_assettool_props.hh (edit::assettool_props)
  */
