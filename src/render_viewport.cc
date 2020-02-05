@@ -40,6 +40,13 @@ private:
     // The configuration used for this viewport.
     camera m_camera;
 
+    // (var) m_colorbuffer
+    // Contains the rendering output of the attached scene. When the widget
+    // must be redrawn, this buffer is reused if possible. This prevents costly
+    // scene render calls when unnecessary, for example as another window is
+    // dragged across the viewport.
+    gl::renderbuffer m_colorbuffer;
+
     // (var) m_mouse1_down
     // True if the mouse button (primary/"left") is currently down on this
     // widget; false if not.
@@ -88,6 +95,7 @@ private:
     void mousewheel(int delta_y) override;
     void mousebutton(gui::mousebtn btn, bool down) override;
     void key(gui::keycode code, bool down) override;
+    void on_resize(int width, int height) override;
     int work() noexcept override;
 
 public:
@@ -120,92 +128,135 @@ viewport::~viewport()
 // declared above FIXME
 void viewport::impl::draw_gl(int width, int height, unsigned int rbo)
 {
-    // Prepare a depth buffer.
-    gl::renderbuffer depth_rbo;
-    glBindRenderbuffer(GL_RENDERBUFFER, depth_rbo);
-    glRenderbufferStorage(
-        GL_RENDERBUFFER,
-        GL_DEPTH_COMPONENT16,
-        width,
-        height
-    );
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    // Render the scene if necessary.
+    if (!m_colorbuffer.ok) {
+        // Prepare the color buffer.
+        glBindRenderbuffer(GL_RENDERBUFFER, m_colorbuffer);
+        glRenderbufferStorage(
+            GL_RENDERBUFFER,
+            GL_RGB8,
+            width,
+            height
+        );
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-    // Prepare the framebuffer for this render job.
-    gl::framebuffer fbo;
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+        // Prepare a depth buffer.
+        gl::renderbuffer depth_rbo;
+        glBindRenderbuffer(GL_RENDERBUFFER, depth_rbo);
+        glRenderbufferStorage(
+            GL_RENDERBUFFER,
+            GL_DEPTH_COMPONENT16,
+            width,
+            height
+        );
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+        // Prepare the framebuffer for this render job.
+        gl::framebuffer fbo;
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+        glFramebufferRenderbuffer(
+            GL_DRAW_FRAMEBUFFER,
+            GL_COLOR_ATTACHMENT0,
+            GL_RENDERBUFFER,
+            m_colorbuffer
+        );
+        glFramebufferRenderbuffer(
+            GL_DRAW_FRAMEBUFFER,
+            GL_DEPTH_ATTACHMENT,
+            GL_RENDERBUFFER,
+            depth_rbo
+        );
+
+        // Clear the buffers.
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        if (m_outer.m_scene) {
+            // Enable Z-buffer / depth testing.
+            glEnable(GL_DEPTH_TEST);
+            DRNSF_ON_EXIT { glDisable(GL_DEPTH_TEST); };
+
+            scene::env e;
+
+            // Build the projection matrix.
+            e.projection = glm::infinitePerspective(
+                glm::radians(80.0f),
+                static_cast<float>(width) / height,
+                200.0f
+            );
+            e.projection = glm::translate(
+                e.projection,
+                glm::vec3(0.0f, 0.0f, -200.0f)
+            );
+            e.projection *= glm::mat4(
+                1.0f, 0.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 1.0f, 0.0f,
+                0.0f, 1.0f, 0.0f, 0.0f,
+                0.0f, 0.0f, 0.0f, 1.0f
+            );
+
+            // Build the view matrix.
+            e.view = glm::translate(
+                glm::mat4(1.0f),
+                glm::vec3(0.0f, -m_camera.distance, 0.0f)
+            );
+            e.view = glm::rotate(
+                e.view,
+                glm::radians(m_camera.pitch),
+                glm::vec3(1.0f, 0.0f, 0.0f)
+            );
+            e.view = glm::rotate(
+                e.view,
+                glm::radians(90.0f),
+                glm::vec3(0.0f, 0.0f, 1.0f)
+            );
+            e.view = glm::rotate(
+                e.view,
+                glm::radians(m_camera.yaw),
+                glm::vec3(0.0f, 0.0f, 1.0f)
+            );
+            e.view_nomove = e.view;
+            e.view = glm::translate(e.view, m_camera.pivot);
+
+            // Render the visible figures in the scene.
+            m_outer.m_scene->draw(e);
+        }
+
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+        m_colorbuffer.ok = true;
+    }
+
+    // Prepare the final output framebuffer.
+    gl::framebuffer dest_fbo;
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dest_fbo);
     glFramebufferRenderbuffer(
         GL_DRAW_FRAMEBUFFER,
         GL_COLOR_ATTACHMENT0,
         GL_RENDERBUFFER,
         rbo
     );
+
+    // Copy the previously-rendered color buffer to the output.
+    gl::framebuffer src_fbo;
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, src_fbo);
     glFramebufferRenderbuffer(
-        GL_DRAW_FRAMEBUFFER,
-        GL_DEPTH_ATTACHMENT,
+        GL_READ_FRAMEBUFFER,
+        GL_COLOR_ATTACHMENT0,
         GL_RENDERBUFFER,
-        depth_rbo
+        m_colorbuffer
+    );
+    glBlitFramebuffer(
+        0, 0,
+        width, height,
+        0, 0,
+        width, height,
+        GL_COLOR_BUFFER_BIT,
+        GL_NEAREST
     );
 
-    // Clear the display and reset the depth buffer.
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // TODO - future highlighting/overlay etc
 
-    // Exit early if no scene is attached.
-    if (!m_outer.m_scene) {
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-        return;
-    }
-
-    // Enable Z-buffer / depth testing.
-    glEnable(GL_DEPTH_TEST);
-
-    scene::env e;
-
-    // Build the projection matrix.
-    e.projection = glm::infinitePerspective(
-        glm::radians(80.0f),
-        static_cast<float>(width) / height,
-        200.0f
-    );
-    e.projection = glm::translate(
-        e.projection,
-        glm::vec3(0.0f, 0.0f, -200.0f)
-    );
-    e.projection *= glm::mat4(
-        1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f
-    );
-
-    // Build the view matrix.
-    e.view = glm::translate(
-        glm::mat4(1.0f),
-        glm::vec3(0.0f, -m_camera.distance, 0.0f)
-    );
-    e.view = glm::rotate(
-        e.view,
-        glm::radians(m_camera.pitch),
-        glm::vec3(1.0f, 0.0f, 0.0f)
-    );
-    e.view = glm::rotate(
-        e.view,
-        glm::radians(90.0f),
-        glm::vec3(0.0f, 0.0f, 1.0f)
-    );
-    e.view = glm::rotate(
-        e.view,
-        glm::radians(m_camera.yaw),
-        glm::vec3(0.0f, 0.0f, 1.0f)
-    );
-    e.view_nomove = e.view;
-    e.view = glm::translate(e.view, m_camera.pivot);
-
-    // Render the visible figures in the scene.
-    m_outer.m_scene->draw(e);
-
-    // Restore the default GL state.
-    glDisable(GL_DEPTH_TEST);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
@@ -222,7 +273,7 @@ void viewport::impl::mousemove(int x, int y)
         if (m_camera.distance < camera::min_distance) {
             m_camera.distance = camera::min_distance;
         }
-        invalidate();//FIXME remove
+        m_outer.invalidate();//FIXME remove
     } else if (m_mouse1_down) {
         // Rotate if only "left" button is held.
 
@@ -233,7 +284,7 @@ void viewport::impl::mousemove(int x, int y)
         } else if (m_camera.pitch < -90.0f) {
             m_camera.pitch = -90.0f;
         }
-        invalidate();//FIXME remove
+        m_outer.invalidate();//FIXME remove
     } else if (m_mouse2_down) {
         // Rotate if only "right" button is held.
 
@@ -277,7 +328,7 @@ void viewport::impl::mousemove(int x, int y)
                 sin(radians(m_camera.pitch + 180))
         };
 
-        invalidate(); //FIXME remove
+        m_outer.invalidate(); //FIXME remove
     }
 
     m_mouse_x_prev = x;
@@ -291,7 +342,7 @@ void viewport::impl::mousewheel(int delta_y)
     if (m_camera.distance < camera::min_distance) {
         m_camera.distance = camera::min_distance;
     }
-    invalidate();//FIXME remove
+    m_outer.invalidate();//FIXME remove
 }
 
 // declared above FIXME
@@ -368,6 +419,12 @@ void viewport::impl::key(gui::keycode code, bool down)
 }
 
 // declared above FIXME
+void viewport::impl::on_resize(int width, int height)
+{
+    m_colorbuffer.ok = false;
+}
+
+// declared above FIXME
 int viewport::impl::work() noexcept
 {
     auto delta_ms = m_stopwatch.lap();
@@ -412,7 +469,7 @@ int viewport::impl::work() noexcept
 
         m_camera.pivot -= absolute_delta;
 
-        invalidate();
+        m_outer.invalidate();
         return 0;
     } else if (m_mouse2_down && !m_mouse1_down) {
         // WASDQE moves with respect to the camera's orientation if only the
@@ -439,7 +496,7 @@ int viewport::impl::work() noexcept
 
         m_camera.pivot -= relative_delta;
 
-        invalidate();
+        m_outer.invalidate();
         return 0;
     }
 
@@ -450,6 +507,7 @@ int viewport::impl::work() noexcept
 void viewport::invalidate()
 {
     M->invalidate();
+    M->m_colorbuffer.ok = false;
 }
 
 // declared in render.hh
