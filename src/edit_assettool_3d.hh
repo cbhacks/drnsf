@@ -58,6 +58,19 @@ private:
     // Tabview containing tabs for the various model editing subtools.
     gui::tabview m_tabview {*this, gui::layout::grid(0, 1, 1, 2, 1, 3) };
 
+    // (var) m_scene
+    // The 3D scene the below figures appear in. The viewport is attached to
+    // this scene.
+    render::scene m_scene;
+
+    // (var) m_framefig
+    // Figure which draws the vertices of the selected asset.
+    render::frameonly_fig m_framefig{m_scene};
+
+    // (var) m_meshframefig
+    // Figure which draws the faces of the selected asset.
+    render::meshframe_fig m_meshframefig{m_scene};
+
     // FIXME explain
     gui::tabview::page m_vtxtab{m_tabview};
     vertex_ctl m_vtxctl {m_vtxtab, gui::layout::fill() };
@@ -95,6 +108,11 @@ private:
     // Tracks the nsf::wgeo_v2 asset.
     res::tracker<nsf::wgeo_v2> m_wgeov2_tracker;
 
+    // (var) h_anim_frames_change
+    // Hooks the on_change event of the attached anim's `frames' property to
+    // track changes in the frame list.
+    util::event<>::watch h_anim_frames_change;
+
 public:
     // (explicit ctor)
     // FIXME explain
@@ -109,6 +127,10 @@ public:
         m_vtxctl.show();
         m_vtxtab.set_text("Vertex");
         m_vtxtab.set_visible(true);
+
+        m_vp.set_scene(&m_scene);
+        m_framefig.set_visible(true);
+        m_meshframefig.set_visible(true);
 
         on_name_change <<= [this](res::atom name) {
             m_tracker.set_name(name);
@@ -146,17 +168,28 @@ public:
         };
 
         m_frame_tracker.on_acquire <<= [this](gfx::frame *frame) {
-            // TODO
+            m_framefig.set_frame(frame);
+            m_meshframefig.set_frame(frame);
         };
         m_frame_tracker.on_lose <<= [this] {
-            // TODO
+            m_framefig.set_frame(nullptr);
+            m_meshframefig.set_frame(nullptr);
         };
 
         m_anim_tracker.on_acquire <<= [this](gfx::anim *anim) {
-            // FIXME m_frame_tracker.set_prop(&anim->p_frame);
+            h_anim_frames_change.bind(anim->p_frames.on_change);
+            h_anim_frames_change();
         };
         m_anim_tracker.on_lose <<= [this] {
-            // FIXME m_frame_tracker.set_prop(nullptr);
+            h_anim_frames_change.unbind();
+            m_frame_tracker.set_name(nullptr);
+        };
+
+        m_mesh_tracker.on_acquire <<= [this](gfx::mesh *mesh) {
+            m_meshframefig.set_mesh(mesh);
+        };
+        m_mesh_tracker.on_lose <<= [this] {
+            m_meshframefig.set_mesh(nullptr);
         };
 
         m_model_tracker.on_acquire <<= [this](gfx::model *model) {
@@ -180,6 +213,16 @@ public:
         };
         m_wgeov2_tracker.on_lose <<= [this] {
             m_world_tracker.set_prop(nullptr);
+        };
+
+        h_anim_frames_change <<= [this] {
+            auto anim = m_anim_tracker.get_name().get();
+            auto &frames = anim->get_frames();
+            if (frames.size() >= 1) {
+                m_frame_tracker.set_name(frames[0]);
+            } else {
+                m_frame_tracker.set_name(nullptr);
+            }
         };
     }
 
