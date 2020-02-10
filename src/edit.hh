@@ -367,7 +367,10 @@ private:
     // FIXME explain
     bool m_available = false;
 
-    // TODO - watch for context project change
+    // (var) h_context_project_change
+    // Hooks the context's on_project_change event to reset the asset tool's
+    // attached asset name when the project is closed or replaced.
+    decltype(context::on_project_change)::watch h_context_project_change;
 
 protected:
     // (var) m_ctx

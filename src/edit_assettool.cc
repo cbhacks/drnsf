@@ -42,6 +42,10 @@ assettool::assettool(
     composite(parent, layout),
     m_ctx(ctx)
 {
+    h_context_project_change <<= [this](const std::shared_ptr<res::project> &) {
+        set_name(nullptr);
+    };
+    h_context_project_change.bind(ctx.on_project_change);
 }
 
 // declared in edit.hh
