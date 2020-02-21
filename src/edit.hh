@@ -1110,6 +1110,9 @@ public:
 
     // (func) bind
     // See the non-specialized `edit::field' for details.
+    //
+    // If the current index is outside the bounds of the new binding, the
+    // index is changed and the `on_index_change' event is raised.
     void bind(const std::vector<T> *object)
     {
         m_object = object;
@@ -1120,10 +1123,46 @@ public:
             // it to point at the final element.
             if (m_index >= m_object->size()) {
                 m_index = m_object->size() - 1;
+                on_index_change(m_index);
             }
             m_elem_field.bind(&m_object->operator [](m_index));
         } else {
             m_elem_field.bind(nullptr);
+        }
+    }
+
+    // (func) get_index, set_index
+    // Gets or sets the index of the currently selected element in the list.
+    //
+    // There are some constraints enforced on the current index, based on the
+    // list bound to the field:
+    //
+    //  - For an empty list, the index is always UINT_MAX.
+    //
+    //  - For a non-empty list, the index is always within the bounds of the
+    //  list.
+    //
+    //  - For an unbound field (no list), the index may have any value.
+    //
+    // When setting the index with `set_index', the given value is automatically
+    // constrained to the nearest acceptable value based on the above rules. If
+    // the constrained value is no different from the current index, no change
+    // occurs and the on_index_change event is not raised.
+    unsigned int get_index() const
+    {
+        return m_index;
+    }
+    void set_index(unsigned int index)
+    {
+        if (m_object && index >= m_object->size()) {
+            index = m_object->size() - 1;
+        }
+        if (index != m_index) {
+            m_index = index;
+            on_index_change(m_index);
+            if (m_object) {
+                m_elem_field.bind(&m_object->operator [](m_index));
+            }
         }
     }
 
@@ -1253,6 +1292,18 @@ public:
     // (event) on_change
     // See the non-specialized `edit::field' for details.
     util::event<std::vector<T>> on_change;
+
+    // (event) on_index_change
+    // This event is raised whenever the current index for the field changes,
+    // whether explicitly by `set_index' or by changing the binding of the
+    // field such that the new bound list does not have an element with the
+    // current index.
+    //
+    // As a special case, the index is always UINT_MAX for empty lists.
+    //
+    // This event is raised *before* the subfield's binding is updated in
+    // any case.
+    util::event<unsigned int> on_index_change;
 };
 
 /*
