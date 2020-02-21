@@ -522,6 +522,12 @@ private:
     // The asset name this object is tracking.
     ref<T> m_name;
 
+    // (var) m_active
+    // True between invoking on_appear and on_disappear. This variable is used
+    // to prevent double-reporting when the tracker is given a name that is
+    // still calling its on_asset_appear handlers.
+    bool m_active = false;
+
     // (handler) h_asset_appear, h_asset_disappear
     // Hooks the on_asset_appear and on_asset_disappear events of m_name's
     // associated project to track whenever an asset appears or disappears on
@@ -539,6 +545,9 @@ public:
                 return;
             if (!m_name.ok())
                 return;
+            if (m_active)
+                return; // Already reported
+            m_active = true;
             on_acquire(&static_cast<T &>(asset));
         };
         h_asset_disappear <<= [this](asset &asset) {
@@ -546,6 +555,9 @@ public:
                 return;
             if (!m_name.ok())
                 return;
+            if (!m_active)
+                return; // Already reported
+            m_active = false;
             on_lose();
         };
     }
@@ -563,7 +575,8 @@ public:
         if (m_name) {
             h_asset_appear.unbind();
             h_asset_disappear.unbind();
-            if (m_name.ok()) {
+            if (m_name.ok() && m_active) {
+                m_active = false;
                 on_lose();
             }
         }
@@ -572,7 +585,8 @@ public:
             h_asset_appear.bind(m_name.get_proj()->on_asset_appear);
             h_asset_disappear.bind(m_name.get_proj()->on_asset_disappear);
             auto asset = m_name.get();
-            if (asset) {
+            if (asset && !m_active) {
+                m_active = true;
                 on_acquire(asset);
             }
         }
