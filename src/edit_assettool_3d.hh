@@ -40,6 +40,8 @@ namespace assettool_3d {
 struct vertex_ctl : gui::widget_im {
     using widget_im::widget_im;
 
+    field<std::vector<gfx::vertex>> m_vertices;
+
     void frame() override;
 };
 
@@ -108,6 +110,11 @@ private:
     // Tracks the nsf::wgeo_v2 asset.
     res::tracker<nsf::wgeo_v2> m_wgeov2_tracker;
 
+    // (var) h_frame_vertices_change
+    // Hooks the on_change event of the attached frame's `vertices' property to
+    // track changes in the vertex list.
+    util::event<>::watch h_frame_vertices_change;
+
     // (var) h_anim_frames_change
     // Hooks the on_change event of the attached anim's `frames' property to
     // track changes in the frame list.
@@ -170,10 +177,14 @@ public:
         m_frame_tracker.on_acquire <<= [this](gfx::frame *frame) {
             m_framefig.set_frame(frame);
             m_meshframefig.set_frame(frame);
+            h_frame_vertices_change.bind(frame->p_vertices.on_change);
+            h_frame_vertices_change();
         };
         m_frame_tracker.on_lose <<= [this] {
             m_framefig.set_frame(nullptr);
             m_meshframefig.set_frame(nullptr);
+            h_frame_vertices_change.unbind();
+            m_vtxctl.m_vertices.bind(nullptr);
         };
 
         m_anim_tracker.on_acquire <<= [this](gfx::anim *anim) {
@@ -215,6 +226,12 @@ public:
             m_world_tracker.set_prop(nullptr);
         };
 
+        h_frame_vertices_change <<= [this] {
+            m_vtxctl.m_vertices.bind(
+                &m_frame_tracker.get_name().get()->get_vertices()
+            );
+        };
+
         h_anim_frames_change <<= [this] {
             auto anim = m_anim_tracker.get_name().get();
             auto &frames = anim->get_frames();
@@ -232,9 +249,15 @@ public:
     }
 };
 
+// declared previously in this file
 inline void vertex_ctl::frame()
 {
-    ImGui::Text("TODO no options available yet");
+    ImGui::Columns(2);
+    ImGui::SetColumnOffset(1, (ImGui::CalcTextSize("F").x + 1) * 24);
+    ImGui::Text("Vertices");
+    ImGui::NextColumn();
+    m_vertices.frame();
+    ImGui::Columns(1);
 }
 
 }
