@@ -52,8 +52,14 @@ struct new_asset_ctl : new_asset_ctl<TailTypes...> {
                     return;
 
                 auto proj = m_name.get_proj();
-                proj->get_transact().run([&](TRANSACT) {
+                auto &nx = proj->get_transact();
+                if (nx.get_status() != transact::status::ready)
+                    return;
+
+                nx.run([&](TRANSACT) {
                     res::asset::create<HeadType>(TS, m_name, *proj);
+
+                    TS.describe("Create '$'"_fmt(m_name));
                 });
                 return;
             }
