@@ -1181,7 +1181,7 @@ public:
  * FIXME explain
  */
 class tabview::page : private composite {
-    friend class tabview::bar;
+    friend struct tabview::bar;
 
 private:
     // (var) m_view
