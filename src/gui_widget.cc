@@ -33,7 +33,7 @@ widget *widget::s_hover_widget = nullptr;
 
 // declared in gui.hh
 // FIXME move to gui_container.cc ?
-void container::apply_layouts()
+void real_container::apply_layouts()
 {
     int x, y, w, h;
     get_child_area(x, y, w, h);
@@ -82,13 +82,13 @@ void widget::apply_layout(int ctn_x, int ctn_y, int ctn_w, int ctn_h)
 
 // declared in gui.hh
 widget::widget(container &parent) :
-    m_parent(parent)
+    m_parent(parent.get_real_container())
 {
-    parent.m_widgets.insert(this);
+    m_parent.m_widgets.insert(this);
     try {
         s_all_widgets.insert(this);
     } catch (...) {
-        parent.m_widgets.erase(this);
+        m_parent.m_widgets.erase(this);
         throw;
     }
 }

@@ -333,6 +333,7 @@ public:
 
 // defined later in this file
 class container;
+class real_container;
 class window;
 
 /*
@@ -341,7 +342,7 @@ class window;
  * Common base class for all widget types.
  */
 class widget : public util::nocopy {
-    friend class container;
+    friend class real_container;
     friend class window;
     friend class composite;
     friend class widget_gl;
@@ -377,7 +378,7 @@ protected:
     // (var) m_parent
     // A reference to the container this widget exists inside of. All widgets
     // must exist within a container.
-    container &m_parent;
+    real_container &m_parent;
 
     // (var) m_layout
     // The layout area which defines the location and size of this widget
@@ -518,9 +519,24 @@ public:
 /*
  * gui::container
  *
+ * Abstract base class for objects which can contain widgets.
+ *
  * FIXME explain
  */
 class container : private util::nocopy {
+public:
+    // (pure func) get_real_container
+    // Returns a reference to the `real_container' object which actually
+    // holds the contained widget objects.
+    virtual real_container &get_real_container() = 0;
+};
+
+/*
+ * gui::real_container
+ *
+ * FIXME explain
+ */
+class real_container : public container {
     friend class widget;
 
 private:
@@ -554,6 +570,14 @@ public:
         int &ctn_y,
         int &ctn_w,
         int &ctn_h) = 0;
+
+    // (func) get_real_container
+    // Overrides the `container::get_real_container' function to return the
+    // object itself, since this is the real container.
+    real_container &get_real_container() final override
+    {
+        return *this;
+    }
 };
 
 /*
@@ -564,7 +588,7 @@ public:
  * Composite widgets do not receive any user input events such as mouse clicks,
  * mouse movement, or key presses.
  */
-class composite : private widget, public container {
+class composite : private widget, public real_container {
 private:
     // input events not available for this type of widget
     void mousemove(int x, int y) final override {}
@@ -622,7 +646,7 @@ class menubar;
  *
  * FIXME explain
  */
-class window : public container {
+class window : public real_container {
     friend class menubar;
     friend void run();
 
@@ -700,7 +724,7 @@ public:
  * WINAPI: This is a top-level window with WS_POPUP set and placed in the
  * topmost z-order (the window is "always on top").
  */
-class popup : public container {
+class popup : public real_container {
     friend void run();
 
 private:

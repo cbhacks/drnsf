@@ -92,7 +92,7 @@ widget_gl::widget_gl(container &parent, layout layout) :
     attr.colormap = cmap;
     m_handle = XCreateWindow(
         g_display,
-        parent.get_container_handle(),
+        parent.get_real_container().get_container_handle(),
         0, 0,
         1, 1,
         0,
@@ -243,7 +243,7 @@ widget_gl::widget_gl(container &parent, layout layout) :
         WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
         0, 0,
         0, 0,
-        HWND(parent.get_container_handle()),
+        HWND(parent.get_real_container().get_container_handle()),
         nullptr,
         GetModuleHandleW(nullptr),
         this
