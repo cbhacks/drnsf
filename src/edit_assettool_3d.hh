@@ -247,6 +247,34 @@ public:
             }
         };
 
+        m_vtxctl.m_vertices.on_change <<= [this](std::vector<gfx::vertex> vertices) {
+            auto frame_ref = m_frame_tracker.get_name();
+            if (!frame_ref)
+                return;
+
+            auto frame = frame_ref.get();
+            if (!frame)
+                return;
+
+            // Don't commit any changes if the transaction system is busy. This
+            // should only happen if the user is in the middle of a long-running
+            // asynchronous operation.
+            auto &nx = frame->get_proj().get_transact();
+            if (nx.get_status() != transact::status::ready) {
+                return;
+            }
+
+            nx.run([&](TRANSACT) {
+                // FIXME condense multiple consecutive changes of a single
+                // property into a single transaction
+                frame->set_vertices(TS, std::move(vertices));
+
+                TS.describe("Change vertices on '$'"_fmt(
+                    frame->get_name()
+                ));
+            });
+        };
+
         m_vtxctl.m_vertices.on_index_change <<= [this](unsigned int i) {
             m_highlight.set(m_framefig.vertex_marker, i);
         };
