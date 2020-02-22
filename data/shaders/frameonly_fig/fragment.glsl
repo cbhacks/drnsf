@@ -18,9 +18,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+uniform int u_MarkerID;
+
+flat in int v_VertexID;
+
 out vec4 f_Color;
+out ivec2 f_VertexMarking;
 
 void main()
 {
     f_Color = vec4(1.0,1.0,1.0,1.0);
+    f_VertexMarking = ivec2(u_MarkerID, v_VertexID);
 }

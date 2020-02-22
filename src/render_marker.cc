@@ -18,14 +18,35 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-uniform mat4 u_Matrix;
+#include "common.hh"
+#include "render.hh"
 
-in vec4 a_Position;
+namespace drnsf {
+namespace render {
 
-flat out int v_VertexID;
-
-void main()
+// declared in render.hh
+marker *marker::lookup_id(int id)
 {
-    gl_Position = u_Matrix * a_Position;
-    v_VertexID = gl_VertexID;
+    auto it = s_all_markers.find(id);
+    if (it != s_all_markers.end()) {
+        return it->second;
+    } else {
+        return nullptr;
+    }
+}
+
+// declared in render.hh
+marker::marker()
+{
+    m_id = s_next_id++;
+    s_all_markers.emplace(m_id, this);
+}
+
+// declared in render.hh
+marker::~marker()
+{
+    s_all_markers.erase(m_id);
+}
+
+}
 }

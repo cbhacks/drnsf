@@ -18,14 +18,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-uniform mat4 u_Matrix;
-
-in vec4 a_Position;
-
-flat out int v_VertexID;
+const vec2 VERTICES[4] = vec2[](
+    vec2(-1.0, -1.0),
+    vec2(+1.0, -1.0),
+    vec2(-1.0, +1.0),
+    vec2(+1.0, +1.0)
+);
 
 void main()
 {
-    gl_Position = u_Matrix * a_Position;
-    v_VertexID = gl_VertexID;
+    gl_Position = vec4(VERTICES[gl_VertexID], 0.0, 1.0);
 }

@@ -175,6 +175,7 @@ add_executable (drnsf
     src/render.hh
     src/render_scene.cc
     src/render_viewport.cc
+    src/render_marker.cc
     src/render_figure.cc
     src/render_reticle_fig.cc
     src/render_frameonly_fig.cc
@@ -183,6 +184,7 @@ add_executable (drnsf
     src/render_meshanim_fig.cc
     src/render_model_fig.cc
     src/render_world_fig.cc
+    src/render_highlight.cc
 
     src/edit.hh
     src/edit_context.cc

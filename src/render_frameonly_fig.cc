@@ -36,6 +36,10 @@ static gl::program s_prog;
 // The location of the "u_Matrix" shader uniform variable.
 static int s_matrix_uni;
 
+// (s-var) s_markerid_uni
+// The location of the "u_MarkerID" shader uniform variable.
+static int s_markerid_uni;
+
 // declared in render.hh
 void frameonly_fig::draw(const scene::env &e)
 {
@@ -73,11 +77,16 @@ void frameonly_fig::draw(const scene::env &e)
         glAttachShader(s_prog, fs);
         glBindAttribLocation(s_prog, 0, "a_Position");
         glBindFragDataLocation(s_prog, 0, "f_Color");
+        glBindFragDataLocation(s_prog, 1, "f_VertexMarking");
         gl::link_program(s_prog);
         s_matrix_uni = glGetUniformLocation(s_prog, "u_Matrix");
+        s_markerid_uni = glGetUniformLocation(s_prog, "u_MarkerID");
 
         s_prog.ok = true;
     }
+
+    GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    glDrawBuffers(2, buffers);
 
     glPointSize(4);
     DRNSF_ON_EXIT { glPointSize(1); };
@@ -99,6 +108,7 @@ void frameonly_fig::draw(const scene::env &e)
         m_frame->get_z_scale()
     ));
     glUniformMatrix4fv(s_matrix_uni, 1, false, &matrix[0][0]);
+    glUniform1i(s_markerid_uni, vertex_marker.id());
     glDrawArrays(GL_POINTS, 0, m_frame->get_vertices().size());
     glUseProgram(0);
 }

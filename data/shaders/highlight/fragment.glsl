@@ -18,14 +18,15 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-uniform mat4 u_Matrix;
+uniform isampler2D u_MarkingTexture;
+uniform ivec2 u_Marking;
 
-in vec4 a_Position;
-
-flat out int v_VertexID;
+out vec4 f_Color;
 
 void main()
 {
-    gl_Position = u_Matrix * a_Position;
-    v_VertexID = gl_VertexID;
+    if (texelFetch(u_MarkingTexture, ivec2(gl_FragCoord.xy), 0).xy != u_Marking)
+        discard;
+
+    f_Color = vec4(1.0, 0.5, 0.0, 0.8);
 }

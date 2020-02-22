@@ -158,6 +158,8 @@ void reticle_fig::draw(const scene::env &e)
         s_prog.ok = true;
     }
 
+    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
     glUseProgram(s_prog);
     auto matrix = e.projection * e.view_nomove * m_matrix;
     glUniformMatrix4fv(s_matrix_uni, 1, false, &matrix[0][0]);

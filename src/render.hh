@@ -57,6 +57,7 @@ struct camera {
 // defined later in this file
 class figure;
 class viewport;
+class highlight;
 
 /*
  * render::scene
@@ -119,6 +120,7 @@ public:
  */
 class viewport : private gui::composite {
     friend class scene;
+    friend class highlight;
 
 private:
     // inner class defined in render_viewport.cc
@@ -132,10 +134,19 @@ private:
     // A pointer to the attached scene, or null if no scene is attached.
     scene *m_scene = nullptr;
 
+    // (var) m_highlights
+    // Pointers to the highlight objects attached to the viewport. Changes
+    // to these can require a widget redraw but not a full 3D re-render.
+    std::vector<highlight *> m_highlights;
+
     // (func) invalidate
     // Used by `render::figure'. Marks the viewport's display as invalid
     // or "dirty" so that it will be re-rendered when necessary.
-    void invalidate();
+    //
+    // Also used by `render::highlight' with `keep_rbo = true'. This forces
+    // the widget to be redrawn, but does not require the scene to be rendered
+    // into the viewport's output buffers.
+    void invalidate(bool keep_rbo = false);
 
 public:
     // (ctor)
@@ -159,6 +170,44 @@ public:
     using composite::set_layout;
     using composite::get_real_size;
     using composite::get_screen_pos;
+};
+
+/*
+ * render::marker
+ *
+ * FIXME explain
+ */
+class marker : private util::nocopy {
+private:
+    // (s-var) s_all_markers
+    // A map of all markers by internal ID.
+    static inline std::unordered_map<int, marker *> s_all_markers;
+
+    // (s-var) s_next_id
+    // The id that the next marker will receive.
+    static inline int s_next_id = 1;
+
+    // (var) m_id
+    // A unique integer which identifies this object.
+    int m_id;
+
+public:
+    // (s-func) lookup_id
+    // Returns a pointer to the marker with the given unique ID, or null if no
+    // such marker exists.
+    static marker *lookup_id(int id);
+
+    // (default ctor)
+    // Constructs a new marker and assigns it a fresh ID.
+    marker();
+
+    // (dtor)
+    // Destroys the marker and releases its ID.
+    ~marker();
+
+    // (func) id
+    // Returns the internal ID for this marker.
+    int id() const { return m_id; }
 };
 
 /*
@@ -289,6 +338,10 @@ private:
         h_frame_z_scale_change;
 
 public:
+    // (var) vertex_marker
+    // Marks vertices by index.
+    marker vertex_marker;
+
     // (explicit ctor)
     // Constructs the figure. Initially, it does not reference any frame.
     explicit frameonly_fig(scene &scene);
@@ -603,6 +656,57 @@ public:
 
     using model_fig::get_visible;
     using model_fig::set_visible;
+};
+
+/*
+ * render::highlight
+ *
+ * FIXME explain
+ */
+class highlight : util::nocopy {
+    friend class viewport;
+
+private:
+    // (var) m_vp
+    // The viewport this highlight is attached to.
+    viewport &m_vp;
+
+    // (var) m_markings
+    // The marker-subindex pairs which this highlight applies to.
+    std::set<std::pair<int, int>> m_markings;
+
+    // (func) draw
+    // Applies the highlight over the existing color buffer contents. This is
+    // called by the viewport to apply the highlight.
+    void draw(unsigned int markingtexture);
+
+public:
+    // (explicit ctor)
+    // Constructs the highlight and attaches it to the given viewport. The
+    // viewport object must outlive the highlight.
+    //
+    // Highlights apply in the order in which they are created.
+    explicit highlight(viewport &vp);
+
+    // (dtor)
+    // Destroys the highlight and removes it from the viewport. This may
+    // invalidate the viewport.
+    ~highlight();
+
+    // (func) set
+    // Clears the existing selection and adds another marker and subindex
+    // to the highlight. The selection may outlive the marker object.
+    void set(marker &m, int subindex);
+
+    // (func) add
+    // Adds a marker and subindex to the highlight. If the specified pair
+    // is already in the highlight, no change occurs. The selection may
+    // outlive the marker object.
+    void add(marker &m, int subindex);
+
+    // (func) clear
+    // Clears the existing selection.
+    void clear();
 };
 
 }

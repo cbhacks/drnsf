@@ -365,6 +365,8 @@ void meshframe_fig::draw(const scene::env &e)
     );
     glUseProgram(0);
 
+    glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
     /* for (auto &&material : ? ? ?) not implemented yet */ {
         // Allocate space for the triangle vertices in the interrim VBO.
         glBindBuffer(GL_COPY_WRITE_BUFFER, s_interrim_vb);

@@ -73,6 +73,11 @@ private:
     // Figure which draws the faces of the selected asset.
     render::meshframe_fig m_meshframefig{m_scene};
 
+    // (var) m_highlight
+    // Highlight overlay for the 3D viewport to highlight the selected vertex,
+    // corner, face, etc.
+    render::highlight m_highlight{m_vp};
+
     // FIXME explain
     gui::tabview::page m_vtxtab{m_tabview};
     vertex_ctl m_vtxctl {m_vtxtab, gui::layout::fill() };
@@ -241,6 +246,11 @@ public:
                 m_frame_tracker.set_name(nullptr);
             }
         };
+
+        m_vtxctl.m_vertices.on_index_change <<= [this](unsigned int i) {
+            m_highlight.set(m_framefig.vertex_marker, i);
+        };
+        m_vtxctl.m_vertices.on_index_change(0);
     }
 
     std::string get_title() const override

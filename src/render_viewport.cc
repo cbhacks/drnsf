@@ -47,6 +47,14 @@ private:
     // dragged across the viewport.
     gl::renderbuffer m_colorbuffer;
 
+    // (var) m_markingtexture
+    // Contains the marker output of the attached scene. The contents of this
+    // texture are used to designate which object, model, world, vertex, corner,
+    // etc a given pixel in the output is associated with. This can be used for
+    // the purposes of e.g. a highlight overlay (`render::highlight') or mouse
+    // picking of objects in the 3D scene.
+    gl::texture m_markingtexture;
+
     // (var) m_mouse1_down
     // True if the mouse button (primary/"left") is currently down on this
     // widget; false if not.
@@ -140,6 +148,25 @@ void viewport::impl::draw_gl(int width, int height, unsigned int rbo)
         );
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
+        // Prepare the marking texture.
+        glBindTexture(GL_TEXTURE_2D, m_markingtexture);
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RG16I,
+            width,
+            height,
+            0,
+            GL_RG_INTEGER,
+            GL_UNSIGNED_BYTE,
+            nullptr
+        );
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
         // Prepare a depth buffer.
         gl::renderbuffer depth_rbo;
         glBindRenderbuffer(GL_RENDERBUFFER, depth_rbo);
@@ -160,6 +187,13 @@ void viewport::impl::draw_gl(int width, int height, unsigned int rbo)
             GL_RENDERBUFFER,
             m_colorbuffer
         );
+        glFramebufferTexture2D(
+            GL_DRAW_FRAMEBUFFER,
+            GL_COLOR_ATTACHMENT1,
+            GL_TEXTURE_2D,
+            m_markingtexture,
+            0
+        );
         glFramebufferRenderbuffer(
             GL_DRAW_FRAMEBUFFER,
             GL_DEPTH_ATTACHMENT,
@@ -168,6 +202,8 @@ void viewport::impl::draw_gl(int width, int height, unsigned int rbo)
         );
 
         // Clear the buffers.
+        GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+        glDrawBuffers(2, buffers);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         if (m_outer.m_scene) {
@@ -253,10 +289,12 @@ void viewport::impl::draw_gl(int width, int height, unsigned int rbo)
         GL_COLOR_BUFFER_BIT,
         GL_NEAREST
     );
-
-    // TODO - future highlighting/overlay etc
-
     glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
+    for (auto &highlight : m_outer.m_highlights) {
+        highlight->draw(m_markingtexture);
+    }
+
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
@@ -504,10 +542,12 @@ int viewport::impl::work() noexcept
 }
 
 // declared in render.hh
-void viewport::invalidate()
+void viewport::invalidate(bool keep_rbo)
 {
     M->invalidate();
-    M->m_colorbuffer.ok = false;
+    if (!keep_rbo) {
+        M->m_colorbuffer.ok = false;
+    }
 }
 
 // declared in render.hh
