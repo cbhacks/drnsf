@@ -117,9 +117,9 @@ void tabview::bar::mousebutton(mousebtn btn, bool down)
 
         if (m_mouse_x >= x1 && m_mouse_x < x2) {
             if (page != m_view.m_active_page) {
-                m_view.m_active_page->hide();
+                m_view.m_active_page->m_composite.hide();
                 m_view.m_active_page = page;
-                m_view.m_active_page->show();
+                m_view.m_active_page->m_composite.show();
                 invalidate();
             }
 
@@ -143,11 +143,11 @@ tabview::tabview(container &parent, layout layout) :
 
 // declared in gui.hh
 tabview::page::page(tabview &view) :
-    composite(view, {
+    m_view(view),
+    m_composite(view, {
         {{ 0.0f, 0 }, { 1.0f, 0 }},
         {{ 0.0f, 32 }, { 1.0f, 0 }}
-    }),
-    m_view(view)
+    })
 {
     m_view.m_pages.push_back(this);
 
@@ -191,7 +191,7 @@ void tabview::page::set_visible(bool visible)
     // Switch the active tab to another one if this page is the current one and
     // it is becoming invisible.
     if (!m_visible && m_view.m_active_page == this) {
-        hide();
+        m_composite.hide();
 
         // Find the index of this tab in the tab list.
         size_t i;
@@ -203,7 +203,7 @@ void tabview::page::set_visible(bool visible)
                 continue;
 
             m_view.m_active_page = m_view.m_pages[j];
-            m_view.m_active_page->show();
+            m_view.m_active_page->m_composite.show();
             m_view.m_bar.invalidate();
             return;
         }
@@ -214,7 +214,7 @@ void tabview::page::set_visible(bool visible)
                 continue;
 
             m_view.m_active_page = m_view.m_pages[j];
-            m_view.m_active_page->show();
+            m_view.m_active_page->m_composite.show();
             m_view.m_bar.invalidate();
             return;
         }
@@ -228,7 +228,7 @@ void tabview::page::set_visible(bool visible)
     // Switch the active tab to this one if no page is active and this one is
     // becoming visible.
     if (m_visible && !m_view.m_active_page) {
-        show();
+        m_composite.show();
         m_view.m_active_page = this;
 
         // Invalidate the tab bar, as the active tab changed.

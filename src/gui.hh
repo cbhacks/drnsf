@@ -1204,13 +1204,17 @@ public:
  *
  * FIXME explain
  */
-class tabview::page : private composite {
+class tabview::page : public container {
     friend struct tabview::bar;
 
 private:
     // (var) m_view
     // The tabview this page is a member of.
     tabview &m_view;
+
+    // (var) m_composite
+    // The composite widget which is the true parent of the tab page's widgets.
+    gui::composite m_composite;
 
     // (var) m_visible
     // True if this tab is visible, false otherwise. This is not the visibility
@@ -1223,8 +1227,6 @@ private:
     std::string m_text = "Tab";
 
 public:
-    using gui::composite::container;
-
     // (explicit ctor)
     // Constructs the tab page as an empty member of the given tabview. The
     // lifetime of the page must not exceed the lifetime of the tabview.
@@ -1247,6 +1249,14 @@ public:
     // Gets or sets the text in the tab for this tab page.
     std::string get_text() const;
     void set_text(std::string text);
+
+    // (func) get_real_container
+    // Returns a reference to the inner composite container object which will
+    // be the true parent of the widgets added to the page
+    real_container &get_real_container() final override
+    {
+        return m_composite;
+    }
 };
 
 /*
