@@ -713,7 +713,7 @@ private:
     // not bound to any object. The field does not directly modify this object,
     // however it may be modified by external code during the lifetime of the
     // binding.
-    const T *m_object;
+    const T *m_object = nullptr;
 
 public:
     // (func) bind
@@ -762,7 +762,7 @@ class field<T, std::enable_if_t<std::is_integral<T>::value>> :
 private:
     // (var) m_object
     // See the non-specialized `edit::field' for details.
-    const T *m_object;
+    const T *m_object = nullptr;
 
 public:
     // (func) bind
@@ -842,7 +842,7 @@ class field<T, std::enable_if_t<std::is_floating_point<T>::value>> :
 private:
     // (var) m_object
     // See the non-specialized `edit::field' for details.
-    const T *m_object;
+    const T *m_object = nullptr;
 
 public:
     // (func) bind
@@ -896,7 +896,7 @@ class field<nsf::eid> : private util::nocopy {
 private:
     // (var) m_object
     // See the non-specialized `edit::field' for details.
-    const nsf::eid *m_object;
+    const nsf::eid *m_object = nullptr;
 
 public:
     // (func) bind
@@ -959,7 +959,7 @@ class field<res::atom> : private util::nocopy {
 private:
     // (var) m_object
     // See the non-specialized `edit::field' for details.
-    const res::atom *m_object;
+    const res::atom *m_object = nullptr;
 
 public:
     // (func) bind
@@ -1000,7 +1000,7 @@ class field<res::ref<T>> : private field<res::atom> {
 private:
     // (var) m_object
     // See the non-specialized `edit::field' for details.
-    const res::ref<T> *m_object;
+    const res::ref<T> *m_object = nullptr;
 
 public:
     // (default ctor)
@@ -1080,7 +1080,7 @@ class field<std::vector<T>> : private util::nocopy {
 private:
     // (var) m_object
     // See the non-specialized `edit::field' for details.
-    const std::vector<T> *m_object;
+    const std::vector<T> *m_object = nullptr;
 
     // (var) m_elem_field
     // The `edit::field' which displays information about the selected element
@@ -1320,7 +1320,7 @@ class field<util::blob> : private util::nocopy {
 private:
     // (var) m_object
     // See the non-specialized `edit::field' for details.
-    const util::blob *m_object;
+    const util::blob *m_object = nullptr;
 
     // (var) m_selected_byte
     // The offset of the currently selected byte in the editor. This may be
@@ -1369,7 +1369,7 @@ class field<gfx::vertex> : private util::nocopy {
 private:
     // (var) m_object
     // See the non-specialized `edit::field' for details.
-    const gfx::vertex *m_object;
+    const gfx::vertex *m_object = nullptr;
 
     // (var) m_x_field, m_y_field, m_z_field
     // The subfields for X/Y/Z vertex components.
@@ -1506,7 +1506,7 @@ class field<gfx::color> : private util::nocopy {
 private:
     // (var) m_object
     // See the non-specialized `edit::field' for details.
-    const gfx::color *m_object;
+    const gfx::color *m_object = nullptr;
 
 public:
     // (func) bind
@@ -1608,7 +1608,7 @@ class field<gfx::corner> : private util::nocopy {
 private:
     // (var) m_object
     // See the non-specialized `edit::field' for details.
-    const gfx::corner *m_object;
+    const gfx::corner *m_object = nullptr;
 
     // (var) m_vertex_field, m_color_field
     // The subfields for the corner's components.
@@ -1694,7 +1694,7 @@ class field<gfx::triangle> : private util::nocopy {
 private:
     // (var) m_object
     // See the non-specialized `edit::field' for details.
-    const gfx::triangle *m_object;
+    const gfx::triangle *m_object = nullptr;
 
     // (var) m_corner_fields
     // The subfields for the three corner components.
@@ -1812,7 +1812,7 @@ class field<gfx::quad> : private util::nocopy {
 private:
     // (var) m_object
     // See the non-specialized `edit::field' for details.
-    const gfx::quad *m_object;
+    const gfx::quad *m_object = nullptr;
 
     // (var) m_corner_fields
     // The subfields for the four corner components.
