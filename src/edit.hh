@@ -1184,6 +1184,8 @@ public:
         }
         auto &obj = *m_object;
 
+        unsigned int index_at_start = m_index;
+
         ImGui::TextUnformatted("List of $"_fmt(obj.size()).c_str());
 
         // On the next row, display inputs for seeking through the list.
@@ -1287,6 +1289,10 @@ public:
         ImGui::NextColumn();
         ImGui::Unindent();
         ImGui::NextColumn();
+
+        if (index_at_start != m_index) {
+            on_index_change(m_index);
+        }
     }
 
     // (event) on_change
