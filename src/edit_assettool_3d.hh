@@ -279,6 +279,12 @@ public:
             m_highlight.set(m_framefig.vertex_marker, i);
         };
         m_vtxctl.m_vertices.on_index_change(0);
+
+        m_vp.on_click <<= [this](render::marker *marker, int subindex) {
+            if (marker && subindex) {
+                m_vtxctl.m_vertices.set_index(subindex);
+            }
+        };
     }
 
     std::string get_title() const override

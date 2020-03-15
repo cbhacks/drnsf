@@ -72,7 +72,7 @@ private:
     int m_mouse_y_prev;
 
     // (var) m_key_w_down, m_key_a_down, m_key_s_down, m_key_d_down,
-    //       m_key_q_down, m_key_e_down, m_key_shift_down
+    //       m_key_q_down, m_key_e_down, m_key_shift_down, m_key_ctrl_down
     // True if the respective key is currently down for this widget; false
     // otherwise.
     bool m_key_w_down = false;
@@ -82,6 +82,7 @@ private:
     bool m_key_q_down = false;
     bool m_key_e_down = false;
     bool m_key_shift_down = false;
+    bool m_key_ctrl_down = false;
 
     // (var) m_key_uarrow_down, m_key_darrow_down,
     //       m_key_larrow_down, m_key_rarrow_down
@@ -91,6 +92,11 @@ private:
     bool m_key_darrow_down = false;
     bool m_key_larrow_down = false;
     bool m_key_rarrow_down = false;
+
+    // (var) m_width, m_height
+    // The width and height of the color buffer and marking texture, if valid.
+    int m_width;
+    int m_height;
 
     // (var) m_stopwatch
     // A tool for measuring time for changes which apply over time, such as
@@ -138,6 +144,10 @@ void viewport::impl::draw_gl(int width, int height, unsigned int rbo)
 {
     // Render the scene if necessary.
     if (!m_colorbuffer.ok) {
+        // Store the framebuffer size.
+        m_width = width;
+        m_height = height;
+
         // Prepare the color buffer.
         glBindRenderbuffer(GL_RENDERBUFFER, m_colorbuffer);
         glRenderbufferStorage(
@@ -386,6 +396,39 @@ void viewport::impl::mousewheel(int delta_y)
 // declared above FIXME
 void viewport::impl::mousebutton(gui::mousebtn btn, bool down)
 {
+    // Handle ctrl-click.
+    if (m_key_ctrl_down && down) {
+        // Unable to handle if rendering was not done.
+        if (!m_colorbuffer.ok) {
+            return;
+        }
+
+        int marking[2];
+
+        gl::framebuffer fbo;
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+        glFramebufferTexture2D(
+            GL_READ_FRAMEBUFFER,
+            GL_COLOR_ATTACHMENT0,
+            GL_TEXTURE_2D,
+            m_markingtexture,
+            0
+        );
+        glReadPixels(
+            m_mouse_x_prev,
+            m_height - m_mouse_y_prev - 1,
+            1,
+            1,
+            GL_RG_INTEGER,
+            GL_INT,
+            marking
+        );
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
+        m_outer.on_click(marker::lookup_id(marking[0]), marking[1]);
+        return;
+    }
+
     switch (btn) {
     case gui::mousebtn::left:
         work();
@@ -449,6 +492,11 @@ void viewport::impl::key(gui::keycode code, bool down)
     case gui::keycode::r_shift:
         work();
         m_key_shift_down = down;
+        break;
+    case gui::keycode::l_ctrl:
+    case gui::keycode::r_ctrl:
+        work();
+        m_key_ctrl_down = down;
         break;
     default:
         // Silence gcc warning for -Wswitch.

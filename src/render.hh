@@ -57,6 +57,7 @@ struct camera {
 // defined later in this file
 class figure;
 class viewport;
+class marker;
 class highlight;
 
 /*
@@ -170,6 +171,13 @@ public:
     using composite::set_layout;
     using composite::get_real_size;
     using composite::get_screen_pos;
+
+    // (event) on_click
+    // Raised when the user ctrl-clicks on the 3d view. The first argument
+    // provided is a pointer to the marker at the pixel clicked on, if present,
+    // or null if no marker was drawn in that position, or the marker no longer
+    // exists. The second argument is the subindex.
+    util::event<marker *, int> on_click;
 };
 
 /*
