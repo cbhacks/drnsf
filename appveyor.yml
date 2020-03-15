@@ -22,7 +22,6 @@ before_build:
   - cmake .. %cmake_opts%
 build_script:
   - cmake --build . --config %CONFIGURATION%
-  - '%CONFIGURATION%\drnsf ":internal-test"'
 after_build:
   - mkdir pkg
   - copy .\%CONFIGURATION%\drnsf.exe pkg
@@ -50,7 +49,8 @@ after_build:
   - copy ..\extra\autodep_licenses\zlib.txt pkg\lib_licenses\zlib.txt
   - 7z a drnsf.zip .\pkg\*
   - move drnsf.zip ..\drnsf-%APPVEYOR_BUILD_NUMBER%-%APPVEYOR_REPO_COMMIT%-%PLATFORM%-%CONFIGURATION%.zip
-test: off
+test_script:
+  - '%CONFIGURATION%\drnsf ":internal-test"'
 artifacts:
   - path: drnsf-$(APPVEYOR_BUILD_NUMBER)-$(APPVEYOR_REPO_COMMIT)-$(PLATFORM)-$(CONFIGURATION).zip
     name: DRNSF-FULLZIP
