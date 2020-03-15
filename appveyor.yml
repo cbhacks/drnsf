@@ -49,8 +49,9 @@ after_build:
   - copy ..\extra\autodep_licenses\zlib.txt pkg\lib_licenses\zlib.txt
   - 7z a drnsf.zip .\pkg\*
   - move drnsf.zip ..\drnsf-%APPVEYOR_BUILD_NUMBER%-%APPVEYOR_REPO_COMMIT%-%PLATFORM%-%CONFIGURATION%.zip
+  - cd ..
 test_script:
-  - '%CONFIGURATION%\drnsf ":internal-test"'
+  - 'build\%CONFIGURATION%\drnsf ":internal-test"'
 artifacts:
   - path: drnsf-$(APPVEYOR_BUILD_NUMBER)-$(APPVEYOR_REPO_COMMIT)-$(PLATFORM)-$(CONFIGURATION).zip
     name: DRNSF-FULLZIP
@@ -66,3 +67,6 @@ deploy:
     on:
       branch: master
       configuration: Release
+on_failure:
+  - move drnsf-%APPVEYOR_BUILD_NUMBER%-%APPVEYOR_REPO_COMMIT%-%PLATFORM%-%CONFIGURATION%.zip drnsf-FAILED-%APPVEYOR_BUILD_NUMBER%-%APPVEYOR_REPO_COMMIT%-%PLATFORM%-%CONFIGURATION%.zip
+  - appveyor PushArtifact drnsf-FAILED-%APPVEYOR_BUILD_NUMBER%-%APPVEYOR_REPO_COMMIT%-%PLATFORM%-%CONFIGURATION%.zip
