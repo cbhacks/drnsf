@@ -109,7 +109,7 @@ void menubar::mouseleave()
 }
 
 // declared in gui.hh
-void menubar::mousebutton(mousebtn btn, bool down)
+void menubar::mousebutton(mousebtn btn, bool down, keymods mods)
 {
     if (btn != mousebtn::left || !down) return;
     if (m_hover_item && !m_open_item) {

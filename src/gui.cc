@@ -41,6 +41,17 @@ Atom g_xa_protocols;
 
 // declared in gui.hh
 Atom g_xa_delete_window;
+
+// (s-func) makemods
+// Constructs a keymods structure from a given X event `state' value.
+static keymods makemods(int state)
+{
+    keymods mods{};
+    mods.ctrl   = state & ControlMask;
+    mods.alt    = state & Mod1Mask;
+    mods.shift  = state & ShiftMask;
+    return mods;
+}
 #endif
 
 // declared in gui.hh
@@ -148,7 +159,8 @@ void run()
                         } else {
                             wdg->mousebutton(
                                 mousebtn(ev.xbutton.button),
-                                ev.type == ButtonPress
+                                ev.type == ButtonPress,
+                                makemods(ev.xbutton.state)
                             );
                         }
                         break;
@@ -164,7 +176,11 @@ void run()
                             nullptr
                         );
                         if (sym != NoSymbol) {
-                            wdg->key(keycode(sym), ev.type == KeyPress);
+                            wdg->key(
+                                keycode(sym),
+                                ev.type == KeyPress,
+                                makemods(ev.xkey.state)
+                            );
                         }
                         if (len > 0 && ev.type == KeyPress) {
                             wdg->text(buf);

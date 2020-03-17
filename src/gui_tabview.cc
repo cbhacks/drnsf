@@ -99,7 +99,7 @@ void tabview::bar::mouseleave()
 }
 
 // declared in gui.hh
-void tabview::bar::mousebutton(mousebtn btn, bool down)
+void tabview::bar::mousebutton(mousebtn btn, bool down, keymods mods)
 {
     if (!down)
         return;

@@ -194,6 +194,18 @@ enum class mousebtn : int {
 };
 
 /*
+ * gui::keymods
+ *
+ * Used to store the state of modifier keys (ctrl, shift, alt) for use in input
+ * events and callbacks.
+ */
+struct keymods {
+    bool ctrl;
+    bool alt;
+    bool shift;
+};
+
+/*
  * gui::layout
  *
  * FIXME explain
@@ -422,13 +434,13 @@ protected:
     // it will receive both a `mouseleave' call followed by a `mousemove' call.
     //
     // WINAPI: No grabbing occurs.
-    virtual void mousebutton(mousebtn btn, bool down) {}
+    virtual void mousebutton(mousebtn btn, bool down, keymods mods) {}
 
     // (func) key
     // Called when a key is pressed or released while this widget has focus.
     //
     // The default implementation performs no operation.
-    virtual void key(keycode code, bool down) {}
+    virtual void key(keycode code, bool down, keymods mods) {}
 
     // (func) text
     // Called when text is entered into the widget. This is different from key
@@ -594,8 +606,8 @@ private:
     void mousemove(int x, int y) final override {}
     void mouseleave() final override {}
     void mousewheel(int delta_y) final override {}
-    void mousebutton(mousebtn btn, bool down) final override {}
-    void key(keycode code, bool down) final override {}
+    void mousebutton(mousebtn btn, bool down, keymods mods) final override {}
+    void key(keycode code, bool down, keymods mods) final override {}
     void text(const char *str) final override {}
 
     // (func) on_resize
@@ -943,11 +955,11 @@ private:
 
     // (func) mousebutton
     // FIXME explain
-    void mousebutton(mousebtn btn, bool down) final override;
+    void mousebutton(mousebtn btn, bool down, keymods mods) final override;
 
     // (func) key
     // FIXME explain
-    void key(keycode code, bool down) final override;
+    void key(keycode code, bool down, keymods mods) final override;
 
     // (func) text
     // FIXME explain
@@ -1173,7 +1185,7 @@ private:
 
         void mousemove(int x, int y) override;
         void mouseleave() override;
-        void mousebutton(mousebtn btn, bool down) override;
+        void mousebutton(mousebtn btn, bool down, keymods mods) override;
         void draw_2d(int width, int height, cairo_t *cr) override;
     } m_bar;
 
@@ -1308,7 +1320,7 @@ private:
 
     // (func) mousebutton
     // Implements mousebutton for clicking to activate menu items.
-    void mousebutton(mousebtn btn, bool down) final override;
+    void mousebutton(mousebtn btn, bool down, keymods mods) final override;
 
 protected:
     // (pure func) close
@@ -1451,7 +1463,7 @@ private:
 
     // (func) mousebutton
     // Implements mouse click for clicking on menubar items.
-    void mousebutton(mousebtn btn, bool down) final override;
+    void mousebutton(mousebtn btn, bool down, keymods mods) final override;
 #endif
 
 public:

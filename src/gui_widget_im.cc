@@ -277,7 +277,7 @@ void widget_im::mousewheel(int delta_y)
 }
 
 // declared in gui.hh
-void widget_im::mousebutton(mousebtn btn, bool down)
+void widget_im::mousebutton(mousebtn btn, bool down, keymods mods)
 {
     switch (btn) {
     case mousebtn::left:
@@ -294,7 +294,7 @@ void widget_im::mousebutton(mousebtn btn, bool down)
 }
 
 // declared in gui.hh
-void widget_im::key(keycode code, bool down)
+void widget_im::key(keycode code, bool down, keymods mods)
 {
     switch (code) {
     case keycode::l_shift:

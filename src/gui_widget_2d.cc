@@ -94,6 +94,13 @@ widget_2d::widget_2d(container &parent, layout layout) :
         UINT uMsg,
         WPARAM wParam,
         LPARAM lParam) -> LRESULT {
+
+        // Get modifier key state.
+        keymods mods{};
+        mods.ctrl = (GetKeyState(VK_CTRL) < 0);
+        mods.alt = (GetKeyState(VK_MENU) < 0);
+        mods.shift = (GetKeyState(VK_SHIFT) < 0);
+
         auto wdg = reinterpret_cast<widget_2d *>(
             GetWindowLongPtrW(hwnd, GWLP_USERDATA)
         );
@@ -115,19 +122,19 @@ widget_2d::widget_2d(container &parent, layout layout) :
         if (uMsg == WM_LBUTTONDOWN || uMsg == WM_LBUTTONUP) {
             if (uMsg == WM_LBUTTONDOWN)
                 SetFocus(hwnd);
-            wdg->mousebutton(mousebtn::left, uMsg == WM_LBUTTONDOWN);
+            wdg->mousebutton(mousebtn::left, uMsg == WM_LBUTTONDOWN, mods);
             return 0;
         }
         if (uMsg == WM_RBUTTONDOWN || uMsg == WM_RBUTTONUP) {
             if (uMsg == WM_RBUTTONDOWN)
                 SetFocus(hwnd);
-            wdg->mousebutton(mousebtn::right, uMsg == WM_RBUTTONDOWN);
+            wdg->mousebutton(mousebtn::right, uMsg == WM_RBUTTONDOWN, mods);
             return 0;
         }
         if (uMsg == WM_MBUTTONDOWN || uMsg == WM_MBUTTONUP) {
             if (uMsg == WM_MBUTTONDOWN)
                 SetFocus(hwnd);
-            wdg->mousebutton(mousebtn::middle, uMsg == WM_MBUTTONDOWN);
+            wdg->mousebutton(mousebtn::middle, uMsg == WM_MBUTTONDOWN, mods);
             return 0;
         }
         if (uMsg == WM_MOUSEMOVE) {
@@ -156,7 +163,7 @@ widget_2d::widget_2d(container &parent, layout layout) :
                     MapVirtualKey((lParam >> 16) & 0xFF, MAPVK_VSC_TO_VK_EX)
                 );
             }
-            wdg->key(code, uMsg == WM_KEYDOWN);
+            wdg->key(code, uMsg == WM_KEYDOWN, mods);
             return 0;
         }
         if (uMsg == WM_CHAR) {

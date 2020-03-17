@@ -107,8 +107,8 @@ private:
     void draw_gl(int width, int height, unsigned int rbo) override;
     void mousemove(int x, int y) override;
     void mousewheel(int delta_y) override;
-    void mousebutton(gui::mousebtn btn, bool down) override;
-    void key(gui::keycode code, bool down) override;
+    void mousebutton(gui::mousebtn btn, bool down, gui::keymods mods) override;
+    void key(gui::keycode code, bool down, gui::keymods mods) override;
     void on_resize(int width, int height) override;
     int work() noexcept override;
 
@@ -394,10 +394,10 @@ void viewport::impl::mousewheel(int delta_y)
 }
 
 // declared above FIXME
-void viewport::impl::mousebutton(gui::mousebtn btn, bool down)
+void viewport::impl::mousebutton(gui::mousebtn btn, bool down, gui::keymods mods)
 {
     // Handle ctrl-click.
-    if (m_key_ctrl_down && down) {
+    if (mods.ctrl && down) {
         // Unable to handle if rendering was not done.
         if (!m_colorbuffer.ok) {
             return;
@@ -445,7 +445,7 @@ void viewport::impl::mousebutton(gui::mousebtn btn, bool down)
 }
 
 // declared above FIXME
-void viewport::impl::key(gui::keycode code, bool down)
+void viewport::impl::key(gui::keycode code, bool down, gui::keymods mods)
 {
     switch (code) {
     case gui::keycode::W:
