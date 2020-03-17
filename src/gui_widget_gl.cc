@@ -114,7 +114,7 @@ widget_gl::widget_gl(container &parent, layout layout) :
 
         // Get modifier key state.
         keymods mods{};
-        mods.ctrl = (GetKeyState(VK_CTRL) < 0);
+        mods.ctrl = (GetKeyState(VK_CONTROL) < 0);
         mods.alt = (GetKeyState(VK_MENU) < 0);
         mods.shift = (GetKeyState(VK_SHIFT) < 0);
 
