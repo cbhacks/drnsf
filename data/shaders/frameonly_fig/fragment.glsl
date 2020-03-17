@@ -27,6 +27,13 @@ out ivec2 f_VertexMarking;
 
 void main()
 {
+    float dist = length(gl_PointCoord - 0.5) * 2.0;
+
+    if (dist > 1.0)
+        discard;
+
+    gl_FragDepth = gl_FragCoord.z - 0.0001;
+
     f_Color = vec4(1.0,1.0,1.0,1.0);
     f_VertexMarking = ivec2(u_MarkerID, v_VertexID);
 }

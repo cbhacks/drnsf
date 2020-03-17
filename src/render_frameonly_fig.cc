@@ -88,7 +88,7 @@ void frameonly_fig::draw(const scene::env &e)
     GLenum buffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
     glDrawBuffers(2, buffers);
 
-    glPointSize(4);
+    glPointSize(8);
     DRNSF_ON_EXIT { glPointSize(1); };
 
     gl::vert_array vao;
