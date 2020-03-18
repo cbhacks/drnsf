@@ -281,7 +281,7 @@ public:
         m_vtxctl.m_vertices.on_index_change(0);
 
         m_vp.on_click <<= [this](render::marker *marker, int subindex) {
-            if (marker && subindex) {
+            if (marker) {
                 m_vtxctl.m_vertices.set_index(subindex);
             }
         };
