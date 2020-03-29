@@ -26,11 +26,12 @@ namespace drnsf {
 namespace util {
 
 // declared in util.hh
-binreader::binreader() :
+binreader::binreader(const read_dir read_dir) :
     m_data(nullptr),
     m_size(0),
     m_bitbuf(0),
-    m_bitbuf_len(0)
+    m_bitbuf_len(0),
+    m_read_dir(read_dir)
 {
 }
 
@@ -44,6 +45,8 @@ void binreader::begin(const unsigned char *data, size_t size)
 
     m_data = data;
     m_size = size;
+
+    m_data_base = m_data;
 }
 
 // declared in util.hh
@@ -59,7 +62,27 @@ void binreader::begin(const util::blob &data)
     } else {
         m_data = data.data();
         m_size = data.size();
+
+        m_data_base = m_data;
     }
+}
+
+void binreader::begin(const util::binwriter &writer, int offset)
+{
+    if (m_data)
+        throw std::logic_error("util::binreader::begin: already started");
+    if (!writer.m_data.size())
+        throw std::logic_error("util::binreader::begin: no writer data");
+
+    if (offset < 0)
+        offset += writer.m_data.size();
+    if (offset < 0 || offset > writer.m_data.size())
+        throw std::logic_error("util::binreader::begin: bad offset arg");
+
+    m_data = &writer.m_data[offset];
+    m_size = writer.m_data.size() - offset;
+
+    m_data_base = m_data;
 }
 
 // declared in util.hh
@@ -138,15 +161,34 @@ int64_t binreader::read_ubits(int bits)
     }
 
     std::int_fast64_t value;
-    if (bits <= m_bitbuf_len) {
-        value = m_bitbuf & ((1 << bits) - 1);
-        m_bitbuf >>= bits;
-        m_bitbuf_len -= bits;
-    } else {
-        value = m_bitbuf;
-        int bits_consumed = m_bitbuf_len;
-        m_bitbuf_len = 0;
-        value |= read_ubits(bits - bits_consumed) << bits_consumed;
+    if (m_read_dir == read_dir::rtl) {
+        if (bits <= m_bitbuf_len) {
+            value = m_bitbuf & ((1 << bits) - 1);
+            m_bitbuf >>= bits;
+            m_bitbuf_len -= bits;
+        }
+        else {
+            value = m_bitbuf;
+            int bits_consumed = m_bitbuf_len;
+            m_bitbuf_len = 0;
+            value |= read_ubits(bits - bits_consumed) << bits_consumed;
+        }
+    }
+    else if (m_read_dir == read_dir::ltr) {
+        if (bits <= m_bitbuf_len) {
+            value = (m_bitbuf & (256 - (1 << (8 - bits)))) >> (8 - bits);
+            m_bitbuf <<= bits;
+            m_bitbuf_len -= bits;
+        }
+        else {
+            int bits_consumed = m_bitbuf_len;
+            if (bits < 8)
+                value = m_bitbuf >> (8 - bits);
+            else
+                value = m_bitbuf << (bits - 8);
+            m_bitbuf_len = 0;
+            value |= read_ubits(bits - bits_consumed);
+        }
     }
     return value;
 }
@@ -178,6 +220,24 @@ int64_t binreader::read_sbits(int bits)
     value >>= 64 - bits;
 
     return value;
+}
+
+// declared in util.hh
+blob binreader::read_bytes(int bytes)
+{
+    if (bytes < 0)
+        throw std::logic_error("util::binreader::read_bytes: bad byte count");
+
+    if (!m_data)
+        throw std::logic_error("util::binreader::read_bytes: not started");
+
+    if (m_size < static_cast<unsigned int>(bytes))
+        throw std::logic_error("util::binreader::read_bytes: not enough data");
+
+    blob result(m_data, m_data + bytes);
+    m_data += bytes;
+    m_size -= bytes;
+    return result;
 }
 
 // declared in util.hh

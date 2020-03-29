@@ -30,27 +30,39 @@ void archive::import_file(TRANSACT, const util::blob &data)
 {
     assert_alive();
 
-    // Ensure the NSF size is a multiple of the page size (64K).
-    if (data.size() % page_size != 0)
-        throw res::import_error("nsf::archive: size not multiple of 64K");
+    std::vector<misc::raw_data::ref> pages;
 
-    int page_count = data.size() / page_size;
+    util::binreader r;
+    uint32_t offset = 0;
+    while (offset < data.size()) {
 
-    // Copy the data for each page as a new raw_data asset. The caller can
-    // later process these into standard or texture pages if desired.
-    std::vector<misc::raw_data::ref> pages(page_count);
-    for (auto &&i : util::range_of(pages)) {
-        auto &&page = pages[i];
+        // Read the magic number for this page.
+        r.begin(&data[offset], page_size);
+        auto magic = r.read_u16();
+        r.end_early();
+        
+        // Skip the page if it is compressed.
+        if (magic == 0x1234) {
+            auto &&page = pages.emplace_back();
+           
+            // Create the page asset.
+            auto index = pages.size();
+            page = get_name() / "page-$"_fmt(index);
+            page.create(TS, get_proj());
 
-        // Create the page asset.
-        page = get_name() / "page-$"_fmt(i);
-        page.create(TS, get_proj());
+            // Copy the page data into the asset.
+            page->set_data(TS, {
+                data.data() + offset,
+                data.data() + offset + page_size
+            });
 
-        // Copy the page data into the asset.
-        page->set_data(TS, {
-            data.data() + page_size * i,
-            data.data() + page_size * (i + 1)
-        });
+            offset += page_size;
+        }
+        else if (magic == 0x1235) {
+            size_t size;
+            decompress_spage(&data[offset], size);
+            offset += size; 
+        }
     }
 
     // Finish importing.
@@ -86,6 +98,64 @@ util::blob archive::export_file() const
     }
 
     return data;
+}
+
+util::blob archive::decompress_spage(const unsigned char *data, size_t &size) 
+{
+    util::binreader r(util::read_dir::ltr);
+    util::binwriter w;
+    
+    // Read the page header.
+    r.begin(data, 12);
+    auto magic   = r.read_u16();
+    auto padding = r.read_u16();
+    auto length  = r.read_u32();
+    auto skip    = r.read_u32();
+    r.end();
+
+    // Ensure the magic number is correct.
+    if (magic != 0x1235)
+        throw res::import_error("nsf::archive::decompress_spage: bad magic number");
+
+    // Decompress the page.
+    size = 12;
+    w.begin();
+    while (w.length() < length) {
+        r.begin(&data[size], 2);
+        auto fmt = r.read_ubits(1);
+        uint32_t seek, span;
+        if (fmt) {
+            seek = r.read_ubits(12);
+            span = r.read_ubits(3) + 3;
+            r.end_early();
+            if (span == 10) span = 64;    
+            r.begin(w, -seek);
+            size += 2;
+        }
+        else {
+            seek = 0xFFFFFFFF;
+            span = r.read_ubits(7);
+            r.end_early();
+            r.begin(&data[size + 1], span);
+            size += (1 + span);
+        }
+        while (seek < span) {
+            w.write_bytes(r.read_bytes(seek));
+            r.end();
+            span -= seek;
+            r.begin(w, -seek);
+        }
+        w.write_bytes(r.read_bytes(span));
+        r.end_early();
+    }
+    size += skip;
+
+    auto remainder = page_size - length;
+    r.begin(&data[size], remainder);
+    w.write_bytes(r.read_bytes(remainder));
+    r.end();
+    size += remainder; 
+    return w.end();
 }
 
 }

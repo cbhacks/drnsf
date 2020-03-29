@@ -523,6 +523,18 @@ inline auto reverse_of(T &container)
     return reverse_type(container);
 }
 
+class binwriter;
+
+/*
+ * util::readdir
+ *
+ * FIXME explain
+*/ 
+enum class read_dir {
+    rtl,
+    ltr
+};
+
 /*
  * util::binreader
  *
@@ -553,6 +565,8 @@ inline auto reverse_of(T &container)
  * supported, and an exception will be thrown.
  */
 class binreader : private nocopy {
+    friend class binwriter;
+
 private:
     // (var) m_data
     // FIXME explain
@@ -562,6 +576,10 @@ private:
     // FIXME explain
     size_t m_size;
 
+    // (var) m_data_base
+    // FIXME explain
+    const unsigned char* m_data_base;
+
     // (var) m_bitbuf
     // FIXME explain
     unsigned char m_bitbuf;
@@ -570,10 +588,14 @@ private:
     // FIXME explain
     int m_bitbuf_len;
 
+    // (var) m_read_dir
+    // Direction in which to read bits
+    read_dir m_read_dir;
+
 public:
     // (default ctor)
     // FIXME explain
-    binreader();
+    binreader(const read_dir read_dir = read_dir::rtl);
 
     // (func) begin
     // FIXME explain
@@ -582,6 +604,11 @@ public:
     // (func) begin
     // FIXME explain
     void begin(const util::blob &data);
+
+    // (func) begin
+    // Bind the reader at offset bytes from the start or end of the block bound by 
+    // the given writer. 
+    void begin(const util::binwriter &writer, int offset);
 
     // (func) end
     // FIXME explain
@@ -623,6 +650,10 @@ public:
     // FIXME explain
     int64_t read_sbits(int bits);
 
+    // (func) read_bytes
+    // Reads a given number of bytes and returns a vector of them.
+    blob read_bytes(int bytes);
+
     // (func) discard
     // FIXME explain
     void discard(int bytes);
@@ -640,6 +671,8 @@ public:
  * FIXME explain
  */
 class binwriter : private nocopy {
+    friend class binreader;
+
 private:
     // (var) m_active
     // FIXME explain
@@ -702,11 +735,19 @@ public:
     // fixme explain
     void write_sbits(int bits, int64_t value);
 
+    // (func) write_bytes
+    // Writes the given blob to the output buffer.
+    void write_bytes(util::blob data);
+
     // (func) pad
     // Writes zero-value bytes to the output buffer until the size of the buffer
     // is a multiple of the specified alignment. If the buffer size already
     // meets the given alignment requirements, no change occurs.
     void pad(int alignment);
+
+    // (func) length
+    // fixme explain
+    int length() { return m_data.size(); }
 };
 
 /*

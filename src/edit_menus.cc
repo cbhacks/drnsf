@@ -93,7 +93,8 @@ void mni_open<GameVersion>::on_activate()
                     proj.get_asset_root() /
                     "entries" /
                     entry->get_eid().str();
-                entry->rename(TS, new_path);
+                if (!new_path.get())
+                    entry->rename(TS, new_path);
                 entry = new_path;
                 p = new_path;
 

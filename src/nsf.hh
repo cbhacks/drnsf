@@ -151,6 +151,10 @@ public:
     // (func) export_file
     // FIXME explain
     util::blob export_file() const;
+
+    // (func) decompress_spage
+    // FIXME explain
+    static util::blob decompress_spage(const unsigned char *data, size_t &size);
 };
 
 /*
