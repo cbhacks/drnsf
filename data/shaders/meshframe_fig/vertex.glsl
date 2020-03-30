@@ -38,6 +38,14 @@ vec3 colorFetch(int i)
     return vec3(r, g, b);
 }
 
+vec3 intToRGB(int i)
+{
+    float r = ((i & 0xFF0000) >> 16) / 255.0;
+    float g = ((i & 0xFF00) >> 8) / 255.0;
+    float b = ((i & 0xFF) >> 0) / 255.0;
+    return vec3(r, g, b);
+}
+
 void main()
 {
     int x_i         = texelFetch(u_VertexList, a_VertexIndex * 5 + 0).r;
@@ -58,7 +66,10 @@ void main()
         v_Color *= colorFetch(a_ColorIndex);
     }
 
-    if (color_index >= 0 && color_index < u_ColorCount) {
+    if ((fx & 4) == 4) {
+        v_Color *= intToRGB(color_index);
+    }
+    else if (color_index >= 0 && color_index < u_ColorCount) {
         v_Color *= colorFetch(color_index);
     }
 }

@@ -37,6 +37,22 @@ namespace drnsf {
 namespace gfx {
 
 /*
+ * gfx::color
+ *
+ * FIXME explain
+ */
+struct color {
+    union {
+        struct {
+            unsigned char r;
+            unsigned char g;
+            unsigned char b;
+        };
+        unsigned char v[3];
+    };
+};
+
+/*
  * gfx::vertex
  *
  * FIXME explain
@@ -51,22 +67,9 @@ struct vertex {
         int v[3];
     };
     int fx;
-    int color_index;
-};
-
-/*
- * gfx::color
- *
- * FIXME explain
- */
-struct color {
     union {
-        struct {
-            unsigned char r;
-            unsigned char g;
-            unsigned char b;
-        };
-        unsigned char v[3];
+        int color_index;
+        color color;
     };
 };
 
