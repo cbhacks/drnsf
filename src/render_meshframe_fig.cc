@@ -69,8 +69,11 @@ gl::vert_array s_interrim_va;
 // This is the type of each vertex which is produced by the poly shader and
 // consumed as a set of vertex attributes by the vertex shader.
 struct interrim_vertex {
+    int index;
     int vertex_index;
     int color_index;
+    int texpage_index;
+    int texinfo_index;
 };
 
 }
@@ -83,6 +86,21 @@ void meshframe_fig::draw(const scene::env &e)
 
     if (!m_frame)
         return;
+
+    int texture_ids[8] = { 0 };
+    for (auto &&i : util::range_of(m_mesh->get_textures())) {
+        auto &texture = m_mesh->get_textures()[i];
+        if (!texture->m_texture.ok) {
+            glActiveTexture(GL_TEXTURE0 + texture->m_texture);
+            glBindTexture(GL_TEXTURE_2D, texture->m_texture);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8UI, 128, 128, 0, GL_RGBA_INTEGER, GL_UNSIGNED_BYTE, texture->get_texels().data());
+            glBindTexture(GL_TEXTURE_2D, 0);
+            texture->m_texture.ok = true;
+        }
+        texture_ids[i] = texture->m_texture;
+    }
 
     if (!s_triangle_prog.ok) {
         gl::vert_shader vs;
@@ -99,13 +117,24 @@ void meshframe_fig::draw(const scene::env &e)
         glBindAttribLocation(s_triangle_prog, 3, "ai_ColorIndex1");
         glBindAttribLocation(s_triangle_prog, 4, "ai_VertexIndex2");
         glBindAttribLocation(s_triangle_prog, 5, "ai_ColorIndex2");
+        glBindAttribLocation(s_triangle_prog, 6, "ai_TexpageIndex");
+        glBindAttribLocation(s_triangle_prog, 7, "ai_TexinfoIndex");
         const char *varyings[] = {
+            "ao_Index0",
             "ao_VertexIndex0",
             "ao_ColorIndex0",
+            "ao_TexpageIndex0",
+            "ao_TexinfoIndex0",
+            "ao_Index1",
             "ao_VertexIndex1",
             "ao_ColorIndex1",
+            "ao_TexpageIndex1",
+            "ao_TexinfoIndex1",
+            "ao_Index2",
             "ao_VertexIndex2",
-            "ao_ColorIndex2"
+            "ao_ColorIndex2",
+            "ao_TexpageIndex2",
+            "ao_TexinfoIndex2"
         };
         glTransformFeedbackVaryings(
             s_triangle_prog,
@@ -134,20 +163,40 @@ void meshframe_fig::draw(const scene::env &e)
         glBindAttribLocation(s_quad_prog, 4, "ai_VertexIndex2");
         glBindAttribLocation(s_quad_prog, 5, "ai_ColorIndex2");
         glBindAttribLocation(s_quad_prog, 6, "ai_VertexIndex3");
-        glBindAttribLocation(s_quad_prog, 7, "ai_ColorIndex3");
+        glBindAttribLocation(s_quad_prog, 7, "ai_ColorIndex3");        
+        glBindAttribLocation(s_quad_prog, 8, "ai_TexpageIndex");
+        glBindAttribLocation(s_quad_prog, 9, "ai_TexinfoIndex");
         const char *varyings[] = {
+            "ao_IndexA0",
             "ao_VertexIndexA0",
             "ao_ColorIndexA0",
+            "ao_TexpageIndexA0",
+            "ao_TexinfoIndexA0",
+            "ao_IndexA1",
             "ao_VertexIndexA1",
             "ao_ColorIndexA1",
+            "ao_TexpageIndexA1",
+            "ao_TexinfoIndexA1",
+            "ao_IndexA2",
             "ao_VertexIndexA2",
             "ao_ColorIndexA2",
+            "ao_TexpageIndexA2",
+            "ao_TexinfoIndexA2",
+            "ao_IndexB0",
             "ao_VertexIndexB0",
             "ao_ColorIndexB0",
+            "ao_TexpageIndexB0",
+            "ao_TexinfoIndexB0",
+            "ao_IndexB1",
             "ao_VertexIndexB1",
             "ao_ColorIndexB1",
+            "ao_TexpageIndexB1",
+            "ao_TexinfoIndexB1",
+            "ao_IndexB2",
             "ao_VertexIndexB2",
-            "ao_ColorIndexB2"
+            "ao_ColorIndexB2",
+            "ao_TexpageIndexB2",
+            "ao_TexinfoIndexB2"
         };
         glTransformFeedbackVaryings(
             s_quad_prog,
@@ -177,14 +226,18 @@ void meshframe_fig::draw(const scene::env &e)
 
         glAttachShader(s_main_prog, vs);
         glAttachShader(s_main_prog, fs);
-        glBindAttribLocation(s_main_prog, 0, "a_VertexIndex");
-        glBindAttribLocation(s_main_prog, 1, "a_ColorIndex");
+        glBindAttribLocation(s_main_prog, 0, "a_Index");
+        glBindAttribLocation(s_main_prog, 1, "a_VertexIndex");
+        glBindAttribLocation(s_main_prog, 2, "a_ColorIndex");
+        glBindAttribLocation(s_main_prog, 3, "a_TexpageIndex");
+        glBindAttribLocation(s_main_prog, 4, "a_TexinfoIndex");
         glBindFragDataLocation(s_main_prog, 0, "f_Color");
         gl::link_program(s_main_prog);
         s_matrix_uni = glGetUniformLocation(s_main_prog, "u_Matrix");
         glUseProgram(s_main_prog);
         glUniform1i(glGetUniformLocation(s_main_prog, "u_VertexList"), 0);
-        glUniform1i(glGetUniformLocation(s_main_prog, "u_ColorList"), 1);
+        glUniform1i(glGetUniformLocation(s_main_prog, "u_TexinfoList"), 1);
+        glUniform1i(glGetUniformLocation(s_main_prog, "u_ColorList"), 2);
         glUseProgram(0);
 
         s_main_prog.ok = true;
@@ -206,7 +259,7 @@ void meshframe_fig::draw(const scene::env &e)
             1,
             GL_INT,
             sizeof(interrim_vertex),
-            reinterpret_cast<void *>(offsetof(interrim_vertex, vertex_index))
+            reinterpret_cast<void *>(offsetof(interrim_vertex, index))
         );
         glEnableVertexAttribArray(1);
         glVertexAttribIPointer(
@@ -214,7 +267,31 @@ void meshframe_fig::draw(const scene::env &e)
             1,
             GL_INT,
             sizeof(interrim_vertex),
+            reinterpret_cast<void *>(offsetof(interrim_vertex, vertex_index))
+        );
+        glEnableVertexAttribArray(2);
+        glVertexAttribIPointer(
+            2,
+            1,
+            GL_INT,
+            sizeof(interrim_vertex),
             reinterpret_cast<void *>(offsetof(interrim_vertex, color_index))
+        );
+        glEnableVertexAttribArray(3);
+        glVertexAttribIPointer(
+            3,
+            1,
+            GL_INT,
+            sizeof(interrim_vertex),
+            reinterpret_cast<void *>(offsetof(interrim_vertex, texpage_index))
+        );
+        glEnableVertexAttribArray(4);
+        glVertexAttribIPointer(
+            4,
+            1,
+            GL_INT,
+            sizeof(interrim_vertex),
+            reinterpret_cast<void *>(offsetof(interrim_vertex, texinfo_index))
         );
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
@@ -281,6 +358,26 @@ void meshframe_fig::draw(const scene::env &e)
                 )
             );
         }
+        glEnableVertexAttribArray(6);
+        glVertexAttribIPointer(
+            6,
+            1,
+            GL_INT,
+            sizeof(gfx::triangle),
+            reinterpret_cast<void *>(
+                offsetof(gfx::triangle, tpag_index)
+            )
+        );
+        glEnableVertexAttribArray(7);
+        glVertexAttribIPointer(
+            7,
+            1,
+            GL_INT,
+            sizeof(gfx::triangle),
+            reinterpret_cast<void *>(
+                offsetof(gfx::triangle, tinf_index)
+            )
+        );
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
         m_mesh->m_triangles_va.ok = true;
@@ -327,6 +424,26 @@ void meshframe_fig::draw(const scene::env &e)
                 )
             );
         }
+        glEnableVertexAttribArray(8);
+        glVertexAttribIPointer(
+            8,
+            1,
+            GL_INT,
+            sizeof(gfx::quad),
+            reinterpret_cast<void *>(
+                offsetof(gfx::quad, tpag_index)
+            )
+        );
+        glEnableVertexAttribArray(9);
+        glVertexAttribIPointer(
+            9,
+            1,
+            GL_INT,
+            sizeof(gfx::quad),
+            reinterpret_cast<void *>(
+                offsetof(gfx::quad, tinf_index)
+            )
+        );
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
         m_mesh->m_quads_va.ok = true;
@@ -351,6 +468,25 @@ void meshframe_fig::draw(const scene::env &e)
         m_mesh->m_colors_texture.ok = true;
     }
 
+    if (!m_mesh->m_texinfos_buffer.ok) {
+        glBindBuffer(GL_COPY_WRITE_BUFFER, m_mesh->m_texinfos_buffer);
+        glBufferData(
+            GL_COPY_WRITE_BUFFER,
+            m_mesh->get_texinfos().size() * sizeof(gfx::texinfo),
+            m_mesh->get_texinfos().data(),
+            GL_STATIC_DRAW
+        );
+        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+        m_mesh->m_texinfos_buffer.ok = true;
+    }
+
+    if (!m_mesh->m_texinfos_texture.ok) {
+        glBindTexture(GL_TEXTURE_BUFFER, m_mesh->m_texinfos_texture);
+        glTexBuffer(GL_TEXTURE_BUFFER, GL_R32I, m_mesh->m_texinfos_buffer);
+        glBindTexture(GL_TEXTURE_BUFFER, 0);
+        m_mesh->m_texinfos_texture.ok = true;
+    }
+
     glUseProgram(s_main_prog);
     auto matrix = e.projection * e.view * m_matrix;
     matrix = glm::scale(matrix, glm::vec3(
@@ -362,6 +498,11 @@ void meshframe_fig::draw(const scene::env &e)
     glUniform1i(
         glGetUniformLocation(s_main_prog, "u_ColorCount"),
         m_mesh->get_colors().size()
+    );
+    glUniform1iv(
+        glGetUniformLocation(s_main_prog, "u_Textures"), 
+        8, 
+        texture_ids
     );
     glUseProgram(0);
 
@@ -392,14 +533,27 @@ void meshframe_fig::draw(const scene::env &e)
         // Run the main shader program to render the triangles.
         glUseProgram(s_main_prog);
         glBindVertexArray(s_interrim_va);
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_BUFFER, m_frame->m_vertices_texture);
         glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_BUFFER, m_mesh->m_texinfos_texture);
+        glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_BUFFER, m_mesh->m_colors_texture);
+        for (auto &&texture : m_mesh->get_textures()) {
+            glActiveTexture(GL_TEXTURE0 + texture->m_texture);
+            glBindTexture(GL_TEXTURE_2D, texture->m_texture);
+        }
         glActiveTexture(GL_TEXTURE0);
         glDrawArrays(GL_TRIANGLES, 0, m_mesh->get_triangles().size() * 3);
         glBindTexture(GL_TEXTURE_BUFFER, 0);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_BUFFER, 0);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_BUFFER, 0);
+        for (auto &&texture : m_mesh->get_textures()) {
+            glActiveTexture(GL_TEXTURE0 + texture->m_texture);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
         glActiveTexture(GL_TEXTURE0);
 
         // Allocate space for the quad vertices in the interrim VBO.
@@ -424,17 +578,30 @@ void meshframe_fig::draw(const scene::env &e)
         glDisable(GL_RASTERIZER_DISCARD);
         glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0);
 
-        // Run the main shader program again to render the quads.
+         // Run the main shader program again to render the quads.
         glUseProgram(s_main_prog);
         glBindVertexArray(s_interrim_va);
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_BUFFER, m_frame->m_vertices_texture);
         glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_BUFFER, m_mesh->m_texinfos_texture);
+        glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_BUFFER, m_mesh->m_colors_texture);
+        for (auto &&texture : m_mesh->get_textures()) {
+            glActiveTexture(GL_TEXTURE0 + texture->m_texture);
+            glBindTexture(GL_TEXTURE_2D, texture->m_texture);
+        }
         glActiveTexture(GL_TEXTURE0);
         glDrawArrays(GL_TRIANGLES, 0, m_mesh->get_quads().size() * 6);
         glBindTexture(GL_TEXTURE_BUFFER, 0);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_BUFFER, 0);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_BUFFER, 0);
+        for (auto &&texture : m_mesh->get_textures()) {
+            glActiveTexture(GL_TEXTURE0 + texture->m_texture);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
         glActiveTexture(GL_TEXTURE0);
 
         glUseProgram(0);

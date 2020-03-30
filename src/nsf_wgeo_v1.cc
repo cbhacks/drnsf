@@ -56,6 +56,49 @@ void wgeo_v1::import_entry(TRANSACT, const std::vector<util::blob> &items)
     }
     r.end_early();
 
+    std::vector<gfx::texinfo> texinfos(texinfo_count);
+    for (auto &&i : util::range_of(texinfos)) {
+        auto &texinfo = texinfos[i];
+        
+        r.begin(&item_info[0x40 + (i * 4)], 4);
+        auto cb         = r.read_ubits(8);
+        auto cg         = r.read_ubits(8);
+        auto cr         = r.read_ubits(8);
+        auto clut_x     = r.read_ubits(4);
+        r.discard_bits(1);
+        auto semi_trans = r.read_ubits(2);
+        auto type       = r.read_ubits(1);
+        r.end();
+
+        if (type == 1) {
+            if (i == texinfo_count-1) {
+                break;
+            }
+            r.begin(&item_info[0x40 + ((i+1) * 4)], 4);
+            auto y_offs       = r.read_ubits(5);
+            r.discard_bits(1);
+            auto clut_y       = r.read_ubits(7);
+            auto x_offs       = r.read_ubits(5);
+            auto segment      = r.read_ubits(2);
+            auto color_mode   = r.read_ubits(2);
+            auto region_index = r.read_ubits(10);
+            r.end();
+
+            texinfo.color_mode   = color_mode;
+            texinfo.segment      = segment;
+            texinfo.x_offs       = x_offs;
+            texinfo.y_offs       = y_offs;
+            texinfo.region_index = region_index;
+            texinfo.clut_x       = clut_x;
+            texinfo.clut_y       = clut_y;
+            texinfo.semi_trans   = semi_trans;
+        }
+        texinfo.type    = type;
+        texinfo.color.r = cr;
+        texinfo.color.g = cg;
+        texinfo.color.b = cb;
+    }
+
     // Ensure the triangle count is correct.
     if (triangle_count != item_triangles.size() / 8)
         throw res::import_error("nsf::wgeo_v1: bad triangle item size");
@@ -84,6 +127,9 @@ void wgeo_v1::import_entry(TRANSACT, const std::vector<util::blob> &items)
         triangle.v[0].color_index = -1;
         triangle.v[1].color_index = -1;
         triangle.v[2].color_index = -1;
+
+        triangle.tpag_index = tpag_index;
+        triangle.tinf_index = tinf_index;
 
         triangle.unk0 = triangle_unk0;
         triangle.unk1 = triangle_unk1;
@@ -126,6 +172,20 @@ void wgeo_v1::import_entry(TRANSACT, const std::vector<util::blob> &items)
     if (tpag_ref_count > 8)
         throw res::import_error("nsf::wgeo_v1: bad tpag ref count");
 
+    // Parse the tpag references.
+    std::vector<gfx::texture::ref> textures(tpag_ref_count);
+    for (auto &&i : util::range_of(textures)) {
+        auto &texture = textures[i];
+
+        res::atom t_name = get_proj().get_asset_root()
+            / "textures"
+            / "$"_fmt(eid(tpag_refs[i]));
+
+        texture = t_name;
+        if (!texture)
+            throw res::import_error("nsf::wgeo_v1: invalid tpag ref");
+    }    
+
     res::atom atom = get_proj().get_asset_root()
         / "scenery"
         / "$"_fmt(get_eid());
@@ -148,6 +208,8 @@ void wgeo_v1::import_entry(TRANSACT, const std::vector<util::blob> &items)
     gfx::mesh::ref mesh = atom / "mesh";
     mesh.create(TS, get_proj());
     mesh->set_triangles(TS, std::move(triangles));
+    mesh->set_texinfos(TS, std::move(texinfos));
+    mesh->set_textures(TS, std::move(textures));
 
     // Create the model for this scene.
     gfx::model::ref model = atom / "model";

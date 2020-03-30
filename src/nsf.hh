@@ -202,6 +202,46 @@ public:
 };
 
 /*
+ * nsf::tpage
+ *
+ * FIXME explain
+ */
+class tpage : public res::asset {
+    friend class res::asset;
+
+private:
+    // (explicit ctor)
+    // FIXME explain
+    explicit tpage(res::project &proj) :
+        asset(proj) {}
+
+public: 
+    // (typedef) ref
+    // FIXME explain
+    using ref = res::ref<tpage>;
+ 
+    // (prop) type
+    // FIXME explain
+    DEFINE_APROP(type, uint16_t);
+
+    // (prop) eid
+    // FIXME explain
+    DEFINE_APROP(eid, eid);
+
+    // (prop) entry_type
+    // FIXME explain
+    DEFINE_APROP(entry_type, uint32_t);
+
+    // (prop) texture
+    // FIXME explain
+    DEFINE_APROP(texture, gfx::texture::ref);
+
+    // (func) import_file
+    // FIXME explain
+    void import_file(TRANSACT, const util::blob &data);
+};
+
+/*
  * nsf::entry
  *
  * FIXME explain
@@ -487,6 +527,43 @@ struct asset_prop_info<nsf::raw_entry, 1> {
 
     static constexpr const char *name = "type";
     static constexpr auto ptr = &nsf::raw_entry::p_type;
+};
+
+// reflection info for nsf::tpage
+template <>
+struct asset_type_info<nsf::tpage> {
+    using base_type = res::asset;
+
+    static constexpr const char *name = "nsf::tpage";
+    static constexpr int prop_count = 4;
+};
+template <>
+struct asset_prop_info<nsf::tpage, 0> {
+    using type = uint16_t;
+
+    static constexpr const char *name = "type";
+    static constexpr auto ptr = &nsf::tpage::p_type;
+};
+template <>
+struct asset_prop_info<nsf::tpage, 1> {
+    using type = nsf::eid;
+
+    static constexpr const char *name = "eid";
+    static constexpr auto ptr = &nsf::tpage::p_eid;
+};
+template <>
+struct asset_prop_info<nsf::tpage, 2> {
+    using type = uint32_t;
+
+    static constexpr const char *name = "entry_type";
+    static constexpr auto ptr = &nsf::tpage::p_entry_type;
+};
+template <>
+struct asset_prop_info<nsf::tpage, 3> {
+    using type = gfx::texture::ref;
+
+    static constexpr const char *name = "texture";
+    static constexpr auto ptr = &nsf::tpage::p_texture;
 };
 
 // reflection info for nsf::wgeo_v1
