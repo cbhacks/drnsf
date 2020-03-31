@@ -194,9 +194,9 @@ void wgeo_v1::import_entry(TRANSACT, const std::vector<util::blob> &items)
     gfx::frame::ref frame = atom / "frame";
     frame.create(TS, get_proj());
     frame->set_vertices(TS, std::move(vertices));
-    frame->set_x_scale(TS, 16.0f);
-    frame->set_y_scale(TS, 16.0f);
-    frame->set_z_scale(TS, 16.0f);
+    frame->set_x_scale(TS, 8.0f);
+    frame->set_y_scale(TS, 8.0f);
+    frame->set_z_scale(TS, 8.0f);
 
     // Create the animation for this scene (just one frame, scenes are not
     // vertex-animated).
@@ -277,9 +277,9 @@ std::vector<util::blob> wgeo_v1::export_entry(uint32_t &out_type) const
         throw res::export_error("nsf::wgeo_v1: bad frame ref");
 
     // Check the scale to ensure it matches this format.
-    if (frame->get_x_scale() != 16.0f ||
-        frame->get_y_scale() != 16.0f ||
-        frame->get_z_scale() != 16.0f) {
+    if (frame->get_x_scale() != 8.0f ||
+        frame->get_y_scale() != 8.0f ||
+        frame->get_z_scale() != 8.0f) {
         // TODO - consider proximity tests instead of exact equality tests
         throw res::export_error("nsf::wgeo_v1: scale is invalid");
     }
