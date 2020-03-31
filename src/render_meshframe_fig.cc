@@ -453,7 +453,7 @@ void meshframe_fig::draw(const scene::env &e)
         glBindBuffer(GL_COPY_WRITE_BUFFER, m_mesh->m_colors_buffer);
         glBufferData(
             GL_COPY_WRITE_BUFFER,
-            m_mesh->get_colors().size() * sizeof(gfx::color),
+            m_mesh->get_colors().size() * sizeof(gfx::rgb888),
             m_mesh->get_colors().data(),
             GL_STATIC_DRAW
         );

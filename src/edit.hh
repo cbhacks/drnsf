@@ -1298,25 +1298,25 @@ public:
 
 /*
  * edit::field
- *   for gfx::color
+ *   for gfx::rgb888
  *
- * This provides a specialized version of `edit::field' for `gfx::color'. The
+ * This provides a specialized version of `edit::field' for `gfx::rgb888'. The
  * field provides sliders for each of the three color channels (RGB) and
  * displays the color to the user.
  *
  * For more details, see the non-specialized version of `edit::field'.
  */
 template <>
-class field<gfx::color> : private util::nocopy {
+class field<gfx::rgb888> : private util::nocopy {
 private:
     // (var) m_object
     // See the non-specialized `edit::field' for details.
-    const gfx::color *m_object;
+    const gfx::rgb888 *m_object;
 
 public:
     // (func) bind
     // See the non-specialized `edit::field' for details.
-    void bind(const gfx::color *object)
+    void bind(const gfx::rgb888 *object)
     {
         m_object = object;
     }
@@ -1395,7 +1395,7 @@ public:
 
     // (event) on_change
     // See the non-specialized `edit::field' for details.
-    util::event<gfx::color> on_change;
+    util::event<gfx::rgb888> on_change;
 };
 
 /*

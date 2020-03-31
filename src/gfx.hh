@@ -37,11 +37,11 @@ namespace drnsf {
 namespace gfx {
 
 /*
- * gfx::color
+ * gfx::rgb888
  *
  * FIXME explain
  */
-struct color {
+struct rgb888 {
     union {
         struct {
             unsigned char r;
@@ -69,7 +69,7 @@ struct vertex {
     int fx;
     union {
         int color_index;
-        color color;
+        rgb888 color;
     };
 };
 
@@ -82,7 +82,7 @@ struct texinfo {
     unsigned char type:1;
     unsigned char semi_trans:2;
     unsigned char y_offs:5;
-    color color;
+    rgb888 color;
     unsigned int color_mode:2;
     unsigned int segment:2;
     unsigned int x_offs:5;
@@ -266,7 +266,7 @@ public:
 
     // (prop) colors
     // FIXME explain
-    DEFINE_APROP(colors, std::vector<color>);
+    DEFINE_APROP(colors, std::vector<rgb888>);
 
     // (prop) texinfos
     // FIXME explain
@@ -458,7 +458,7 @@ struct asset_prop_info<gfx::mesh, 1> {
 };
 template <>
 struct asset_prop_info<gfx::mesh, 2> {
-    using type = std::vector<gfx::color>;
+    using type = std::vector<gfx::rgb888>;
 
     static constexpr const char *name = "colors";
     static constexpr auto ptr = &gfx::mesh::p_colors;
