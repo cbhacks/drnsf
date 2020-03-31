@@ -33,10 +33,23 @@ int bitfieldExtract(int a, int b, int c)
   return (a >> b) & mask;
 }
 
+ivec4 texelFetchFromPage(ivec2 coords)
+{
+    switch (v_TexpageIndex) {
+    case 0: return texelFetch(u_Textures[0], coords, 0);
+    case 1: return texelFetch(u_Textures[1], coords, 0);
+    case 2: return texelFetch(u_Textures[2], coords, 0);
+    case 3: return texelFetch(u_Textures[3], coords, 0);
+    case 4: return texelFetch(u_Textures[4], coords, 0);
+    case 5: return texelFetch(u_Textures[5], coords, 0);
+    case 6: return texelFetch(u_Textures[6], coords, 0);
+    case 7: return texelFetch(u_Textures[7], coords, 0);
+    }
+}
+
 vec4 sample16(ivec2 uv)
 {
-  ivec2 coords = ivec2(uv.x / 2, uv.y);
-  ivec4 texel = texelFetch(u_Textures[v_TexpageIndex], coords, 0);
+  ivec4 texel = texelFetchFromPage(ivec2(uv.x / 2, uv.y));
   int pixel = ((uv.x & 1) == 1) ? (texel.a << 8) + texel.b : (texel.g << 8) + texel.r;
 
   return vec4(
@@ -49,8 +62,7 @@ vec4 sample16(ivec2 uv)
 
 vec4 sample8(ivec2 uv, int clut_y) 
 {
-  ivec2 coords = ivec2(uv.x / 4, uv.y);
-  ivec4 texel = texelFetch(u_Textures[v_TexpageIndex], coords, 0);
+  ivec4 texel = texelFetchFromPage(ivec2(uv.x / 4, uv.y));
   int cindex = ((uv.x & 2) == 2) ? ((uv.x & 1) == 1) ? texel.a : texel.b 
                                  : ((uv.x & 1) == 1) ? texel.g : texel.r;
   
@@ -59,8 +71,7 @@ vec4 sample8(ivec2 uv, int clut_y)
 
 vec4 sample4(ivec2 uv, int clut_y, int clut_x)
 {
-  ivec2 coords = ivec2(uv.x / 8, uv.y);
-  ivec4 texel = texelFetch(u_Textures[v_TexpageIndex], coords, 0);
+  ivec4 texel = texelFetchFromPage(ivec2(uv.x / 8, uv.y));
   int cindex = ((uv.x & 4) == 4) ? 
         ((uv.x & 2) == 2) ? ((uv.x & 1) != 1) ? texel.a & 0xF : (texel.a >> 4) & 0xF
                           : ((uv.x & 1) != 1) ? texel.b & 0xF : (texel.b >> 4) & 0xF
