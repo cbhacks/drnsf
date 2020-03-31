@@ -42,8 +42,8 @@ void wgeo_v1::import_entry(TRANSACT, const std::vector<util::blob> &items)
     // Parse the info item (0).
     r.begin(item_info);
     auto world_x        = r.read_s32();
-    auto world_y        = r.read_s32();
     auto world_z        = r.read_s32();
+    auto world_y        = r.read_s32();
     auto triangle_count = r.read_u32();
     auto vertex_count   = r.read_u32();
     auto texinfo_count  = r.read_u32();
@@ -149,17 +149,17 @@ void wgeo_v1::import_entry(TRANSACT, const std::vector<util::blob> &items)
         auto cb = r.read_ubits(8);
         auto cg = r.read_ubits(8);
         auto cr = r.read_ubits(8);
-        auto z1 = r.read_ubits(8);
+        auto y1 = r.read_ubits(8);
         auto fx = r.read_ubits(1);
-        auto z2 = r.read_ubits(2);
+        auto y2 = r.read_ubits(2);
         auto x  = r.read_sbits(13);
-        auto z3 = r.read_sbits(3);
-        auto y  = r.read_sbits(13);
+        auto y3 = r.read_sbits(3);
+        auto z  = r.read_sbits(13);
         r.end();
 
         vertex.x = x;
-        vertex.y = y;
-        vertex.z = z1 | (z2 << 8) | (z3 << 10);
+        vertex.y = y1 | (y2 << 8) | (y3 << 10);
+        vertex.z = z;
 
         vertex.fx = fx | 4;
 
@@ -287,8 +287,8 @@ std::vector<util::blob> wgeo_v1::export_entry(uint32_t &out_type) const
     // Export the info item (0).
     w.begin();
     w.write_s32(world->get_x());
-    w.write_s32(world->get_y());
     w.write_s32(world->get_z());
+    w.write_s32(world->get_y());
     w.write_u32(mesh->get_triangles().size());
     w.write_u32(frame->get_vertices().size());
     w.write_u32(0); // for now
@@ -319,19 +319,19 @@ std::vector<util::blob> wgeo_v1::export_entry(uint32_t &out_type) const
             throw res::export_error("nsf::wgeo_v1: vertex x/y/z out of range");
         }
 
-        unsigned int z1 = z & 0xFF;
-        unsigned int z2 = (z >> 8) & 0x3;
-        signed int z3 = (z >> 10) & 0x7;
+        unsigned int y1 = y & 0xFF;
+        unsigned int y2 = (y >> 8) & 0x3;
+        signed int y3 = (y >> 10) & 0x7;
 
         w.write_ubits( 1, vertex.fx);
-        w.write_ubits( 2, z2);
-        w.write_ubits(13, y);
-        w.write_sbits( 3, z3);
+        w.write_ubits( 2, y2);
+        w.write_ubits(13, z);
+        w.write_sbits( 3, y3);
         w.write_sbits(13, x);
         w.write_ubits( 8, vertex.color.b);
         w.write_ubits( 8, vertex.color.g);
         w.write_ubits( 8, vertex.color.r);
-        w.write_ubits( 8, z1);
+        w.write_ubits( 8, y1);
     }
     w.pad(4);
     item_vertices = w.end();
