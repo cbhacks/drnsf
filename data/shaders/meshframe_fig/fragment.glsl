@@ -83,21 +83,22 @@ vec4 sample4(ivec2 uv, int clut_y, int clut_x)
 
 void main()
 {
-    if (v_Texinfo == 0) {
-        f_Color = vec4(v_Color, 1.0);
-    }
-    else {
+    f_Color = vec4(v_Color, 1.0);
+
+    if (v_Texinfo != 0) {
+        f_Color *= 2.0;
+
         int color_mode = bitfieldExtract(v_Texinfo, 0, 2);
         int clut_x = bitfieldExtract(v_Texinfo, 19, 4);
         int clut_y = bitfieldExtract(v_Texinfo, 23, 7);
         int page_width = 128 * (2 << (2 - color_mode));
         ivec2 texcoord = ivec2(v_Texcoord.x * page_width, v_Texcoord.y * 128);
         if (color_mode == 0) {
-        	f_Color = sample4(texcoord, clut_y, clut_x);
+            f_Color *= sample4(texcoord, clut_y, clut_x);
         } else if (color_mode == 1) {
-        	f_Color = sample8(texcoord, clut_y);
+            f_Color *= sample8(texcoord, clut_y);
         } else {
-            f_Color = sample16(texcoord);
+            f_Color *= sample16(texcoord);
         }
     }
 }
