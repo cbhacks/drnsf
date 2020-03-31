@@ -87,20 +87,19 @@ void meshframe_fig::draw(const scene::env &e)
     if (!m_frame)
         return;
 
-    int texture_ids[8] = { 0 };
+    // Bind and prepare all relevant texture pages.
     for (auto &&i : util::range_of(m_mesh->get_textures())) {
         auto &texture = m_mesh->get_textures()[i];
+        glActiveTexture(GL_TEXTURE3 + i);
+        glBindTexture(GL_TEXTURE_2D, texture->m_texture);
         if (!texture->m_texture.ok) {
-            glActiveTexture(GL_TEXTURE0 + texture->m_texture);
-            glBindTexture(GL_TEXTURE_2D, texture->m_texture);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8UI, 128, 128, 0, GL_RGBA_INTEGER, GL_UNSIGNED_BYTE, texture->get_texels().data());
-            glBindTexture(GL_TEXTURE_2D, 0);
             texture->m_texture.ok = true;
         }
-        texture_ids[i] = texture->m_texture;
     }
+    glActiveTexture(GL_TEXTURE0);
 
     if (!s_triangle_prog.ok) {
         gl::vert_shader vs;
@@ -238,6 +237,12 @@ void meshframe_fig::draw(const scene::env &e)
         glUniform1i(glGetUniformLocation(s_main_prog, "u_VertexList"), 0);
         glUniform1i(glGetUniformLocation(s_main_prog, "u_TexinfoList"), 1);
         glUniform1i(glGetUniformLocation(s_main_prog, "u_ColorList"), 2);
+        int texture_ids[8] = { 3, 4, 5, 6, 7, 8, 9, 10 };
+        glUniform1iv(
+            glGetUniformLocation(s_main_prog, "u_Textures"),
+            8,
+            texture_ids
+        );
         glUseProgram(0);
 
         s_main_prog.ok = true;
@@ -499,11 +504,6 @@ void meshframe_fig::draw(const scene::env &e)
         glGetUniformLocation(s_main_prog, "u_ColorCount"),
         m_mesh->get_colors().size()
     );
-    glUniform1iv(
-        glGetUniformLocation(s_main_prog, "u_Textures"), 
-        8, 
-        texture_ids
-    );
     glUseProgram(0);
 
     /* for (auto &&material : ? ? ?) not implemented yet */ {
@@ -539,10 +539,6 @@ void meshframe_fig::draw(const scene::env &e)
         glBindTexture(GL_TEXTURE_BUFFER, m_mesh->m_texinfos_texture);
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_BUFFER, m_mesh->m_colors_texture);
-        for (auto &&texture : m_mesh->get_textures()) {
-            glActiveTexture(GL_TEXTURE0 + texture->m_texture);
-            glBindTexture(GL_TEXTURE_2D, texture->m_texture);
-        }
         glActiveTexture(GL_TEXTURE0);
         glDrawArrays(GL_TRIANGLES, 0, m_mesh->get_triangles().size() * 3);
         glBindTexture(GL_TEXTURE_BUFFER, 0);
@@ -550,10 +546,6 @@ void meshframe_fig::draw(const scene::env &e)
         glBindTexture(GL_TEXTURE_BUFFER, 0);
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_BUFFER, 0);
-        for (auto &&texture : m_mesh->get_textures()) {
-            glActiveTexture(GL_TEXTURE0 + texture->m_texture);
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
         glActiveTexture(GL_TEXTURE0);
 
         // Allocate space for the quad vertices in the interrim VBO.
@@ -587,10 +579,6 @@ void meshframe_fig::draw(const scene::env &e)
         glBindTexture(GL_TEXTURE_BUFFER, m_mesh->m_texinfos_texture);
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_BUFFER, m_mesh->m_colors_texture);
-        for (auto &&texture : m_mesh->get_textures()) {
-            glActiveTexture(GL_TEXTURE0 + texture->m_texture);
-            glBindTexture(GL_TEXTURE_2D, texture->m_texture);
-        }
         glActiveTexture(GL_TEXTURE0);
         glDrawArrays(GL_TRIANGLES, 0, m_mesh->get_quads().size() * 6);
         glBindTexture(GL_TEXTURE_BUFFER, 0);
@@ -598,10 +586,6 @@ void meshframe_fig::draw(const scene::env &e)
         glBindTexture(GL_TEXTURE_BUFFER, 0);
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_BUFFER, 0);
-        for (auto &&texture : m_mesh->get_textures()) {
-            glActiveTexture(GL_TEXTURE0 + texture->m_texture);
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
         glActiveTexture(GL_TEXTURE0);
 
         glUseProgram(0);
@@ -612,6 +596,13 @@ void meshframe_fig::draw(const scene::env &e)
         glBufferData(GL_COPY_WRITE_BUFFER, 0, nullptr, GL_STREAM_COPY);
         glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
     }
+
+    // Unbind the texture pages.
+    for (auto &&i : util::range_of(m_mesh->get_textures())) {
+        glActiveTexture(GL_TEXTURE3 + i);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    glActiveTexture(GL_TEXTURE0);
 }
 
 // declared in render.hh
