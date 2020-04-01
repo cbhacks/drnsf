@@ -37,6 +37,22 @@ namespace drnsf {
 namespace gfx {
 
 /*
+ * gfx::rgb888
+ *
+ * FIXME explain
+ */
+struct rgb888 {
+    union {
+        struct {
+            unsigned char r;
+            unsigned char g;
+            unsigned char b;
+        };
+        unsigned char v[3];
+    };
+};
+
+/*
  * gfx::vertex
  *
  * FIXME explain
@@ -51,23 +67,28 @@ struct vertex {
         int v[3];
     };
     int fx;
-    int color_index;
+    union {
+        int color_index;
+        rgb888 color;
+    };
 };
 
 /*
- * gfx::color
+ * gfx::texinfo
  *
  * FIXME explain
  */
-struct color {
-    union {
-        struct {
-            unsigned char r;
-            unsigned char g;
-            unsigned char b;
-        };
-        unsigned char v[3];
-    };
+struct texinfo {
+    unsigned char type:1;
+    unsigned char semi_trans:2;
+    unsigned char y_offs:5;
+    rgb888 color;
+    unsigned int color_mode:2;
+    unsigned int segment:2;
+    unsigned int x_offs:5;
+    unsigned int region_index:10;
+    unsigned int clut_x:4;
+    unsigned int clut_y:7;
 };
 
 /*
@@ -167,6 +188,8 @@ struct corner {
  */
 struct triangle {
     corner v[3];
+    unsigned int tpag_index;
+    unsigned int tinf_index;
     unsigned int unk0;
     unsigned int unk1;
 };
@@ -178,8 +201,40 @@ struct triangle {
  */
 struct quad {
     corner v[4];
+    unsigned int tpag_index;
+    unsigned int tinf_index;
     unsigned int unk0;
     unsigned int unk1;
+};
+
+/*
+ * gfx::texture
+ *
+ * FIXME explain
+ */
+class texture : public res::asset {
+    friend class res::asset;    
+
+private:
+    // (explicit ctor)
+    // FIXME explain
+    explicit texture(res::project &proj) :
+        asset(proj) {}
+
+public:
+    // (typedef) ref
+    // FIXME explain
+    using ref = res::ref<texture>;
+
+    // (prop) texels
+    // FIXME explain
+    DEFINE_APROP(texels, util::blob);
+
+#if USE_GL
+    // (var) m_texture
+    // FIXME explain
+    gl::texture m_texture;
+#endif
 };
 
 /*
@@ -211,10 +266,18 @@ public:
 
     // (prop) colors
     // FIXME explain
-    DEFINE_APROP(colors, std::vector<color>);
+    DEFINE_APROP(colors, std::vector<rgb888>);
+
+    // (prop) texinfos
+    // FIXME explain
+    DEFINE_APROP(texinfos, std::vector<texinfo>);
+
+    // (prop) textures
+    // FIXME explain
+    DEFINE_APROP(textures, std::vector<texture::ref>);
 
 #if USE_GL
-    // (var) m_triangles_buffer, m_quads_buffer, m_colors_buffer
+    // (var) m_triangles_buffer, m_quads_buffer, m_colors_buffer, m_texinfos_buffer
     // GL buffer objects containing the data for p_triangles, p_quads, and
     // p_colors. The gfx::mesh object will clear the `ok' flags on each buffer
     // when its respective property is changed, however it is up to users of
@@ -222,6 +285,7 @@ public:
     gl::buffer m_triangles_buffer;
     gl::buffer m_quads_buffer;
     gl::buffer m_colors_buffer;
+    gl::buffer m_texinfos_buffer;
 
     // (var) m_triangles_va, m_quads_va
     // GL vertex array objects which should be configured for the triangles and
@@ -231,12 +295,13 @@ public:
     gl::vert_array m_triangles_va;
     gl::vert_array m_quads_va;
 
-    // (var) m_colors_texture
-    // A GL texture object which should be a GL_TEXTURE_BUFFER pointing to the
-    // colors buffer. gfx::mesh does not set up this connection or manage this
-    // object in any way. Users should check the `ok' flag and set it up if
-    // necessary.
+    // (var) m_colors_texture, m_texinfos_texture
+    // GL texture objects which should be GL_TEXTURE_BUFFERs pointing to the
+    // colors and texinfos buffers. gfx::mesh does not set up this connection 
+    // or manage these objects in any way. Users should check the `ok' flag and 
+    // set it up if necessary.
     gl::texture m_colors_texture;
+    gl::texture m_texinfos_texture;
 
 protected:
     // (func) on_prop_change
@@ -375,7 +440,7 @@ struct asset_type_info<gfx::mesh> {
     using base_type = res::asset;
 
     static constexpr const char *name = "gfx::mesh";
-    static constexpr int prop_count = 3;
+    static constexpr int prop_count = 5;
 };
 template <>
 struct asset_prop_info<gfx::mesh, 0> {
@@ -393,10 +458,24 @@ struct asset_prop_info<gfx::mesh, 1> {
 };
 template <>
 struct asset_prop_info<gfx::mesh, 2> {
-    using type = std::vector<gfx::color>;
+    using type = std::vector<gfx::rgb888>;
 
     static constexpr const char *name = "colors";
     static constexpr auto ptr = &gfx::mesh::p_colors;
+};
+template <>
+struct asset_prop_info<gfx::mesh, 3> {
+    using type = std::vector<gfx::texinfo>;
+
+    static constexpr const char *name = "texinfos";
+    static constexpr auto ptr = &gfx::mesh::p_texinfos;
+};
+template <>
+struct asset_prop_info<gfx::mesh, 4> {
+    using type = std::vector<gfx::texture::ref>;
+
+    static constexpr const char *name = "textures";
+    static constexpr auto ptr = &gfx::mesh::p_textures;
 };
 
 // reflection info for gfx::model
@@ -420,6 +499,22 @@ struct asset_prop_info<gfx::model, 1> {
 
     static constexpr const char *name = "mesh";
     static constexpr auto ptr = &gfx::model::p_mesh;
+};
+
+// reflection info for gfx::texture
+template <>
+struct asset_type_info<gfx::texture> {
+    using base_type = res::asset;
+
+    static constexpr const char *name = "gfx::texture";
+    static constexpr int prop_count = 1;
+};
+template <>
+struct asset_prop_info<gfx::texture, 0> {
+    using type = util::blob;
+
+    static constexpr const char *name = "texels";
+    static constexpr auto ptr = &gfx::texture::p_texels;
 };
 
 // reflection info for gfx::world

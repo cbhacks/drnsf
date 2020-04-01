@@ -146,6 +146,12 @@ void binwriter::write_sbits(int bits, int64_t value)
 }
 
 // declared in util.hh
+void binwriter::write_bytes(util::blob data)
+{
+    m_data.insert(m_data.end(), data.begin(), data.end());
+}
+
+// declared in util.hh
 void binwriter::pad(int alignment)
 {
     if (alignment <= 0) {
