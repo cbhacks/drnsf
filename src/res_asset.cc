@@ -80,6 +80,12 @@ void asset::create_impl(TRANSACT, atom name)
 }
 
 // declared in res.hh
+bool asset::is_alive() const
+{
+    return static_cast<bool>(m_name);
+}
+
+// declared in res.hh
 void asset::assert_alive() const
 {
     if (!m_name) {
