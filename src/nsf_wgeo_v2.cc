@@ -177,7 +177,7 @@ void wgeo_v2::import_entry(TRANSACT, const std::vector<util::blob> &items)
         throw res::import_error("nsf::wgeo_v2: bad color item size");
 
     // Parse the colors.
-    std::vector<gfx::color> colors(color_count);
+    std::vector<gfx::rgb888> colors(color_count);
     r.begin(item_colors);
     for (auto &&color : colors) {
         // TODO - explain color format here

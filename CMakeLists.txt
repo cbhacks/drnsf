@@ -225,8 +225,10 @@ add_executable (drnsf
     src/nsf_eid.cc
     src/nsf_archive.cc
     src/nsf_spage.cc
+    src/nsf_tpage.cc
     src/nsf_entry.cc
     src/nsf_raw_entry.cc
+    src/nsf_wgeo_v1.cc
     src/nsf_wgeo_v2.cc
 
     $<$<BOOL:${FEATURE_SCRIPTING}>:
