@@ -161,43 +161,37 @@ void nexus::redo()
 }
 
 // declared in transact.hh
+std::unique_ptr<teller> nexus::begin()
+{
+    if (m_status != status::ready) {
+        throw std::logic_error("transact::nexus::begin: busy");
+    }
+
+    auto ts = std::unique_ptr<teller>(new teller(*this));
+
+    m_status = status::busy;
+    on_status_change();
+
+    return ts;
+}
+
+// declared in transact.hh
 void nexus::run(std::function<void(TRANSACT)> fn)
 {
     if (m_status != status::ready) {
         throw std::logic_error("transact::nexus::run: busy");
     }
 
-    m_status = status::busy;
-    on_status_change();
-
     // Create the teller used to build this transaction. If this function
     // exits without committing the transaction, the teller will rollback
     // all of the changes automatically.
-    transact::teller ts;
+    auto ts = begin();
 
     // Run the functor given to the nexus.
-    fn(ts);
+    fn(*ts);
 
     // Commit the transaction.
-    auto t = ts.commit();
-
-    // Set this new transaction's next pointer to the current next-to-undo
-    // transaction, and set the next-to-undo to the new transaction.
-    //
-    // Given current transaction history (latest-first) {C, B, A} and a new
-    // transaction X being introduced:
-    //
-    // A <- B <- C <- (m_undo)
-    // becomes
-    // A <- B <- C <- X <- (m_undo)
-    m_undo.swap(t->m_next);
-    m_undo.swap(t);
-
-    // Clear all of the redo-able actions.
-    m_redo.reset(nullptr);
-
-    m_status = status::ready;
-    on_status_change();
+    ts->commit();
 }
 
 }

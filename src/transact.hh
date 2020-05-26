@@ -40,6 +40,9 @@
 namespace drnsf {
 namespace transact {
 
+// defined later in this file
+class nexus;
+
 /*
  * transact::operation
  *
@@ -251,6 +254,10 @@ class teller : private util::nocopy {
     friend class nexus;
 
 private:
+    // (var) m_nx
+    // The associated transaction system.
+    nexus &m_nx;
+
     // (var) m_done
     // FIXME explain
     bool m_done;
@@ -265,17 +272,19 @@ private:
 
     // (default ctor)
     // FIXME explain
-    teller();
+    explicit teller(nexus &nx);
 
+public:
     // (dtor)
-    // FIXME explain
+    // Releases the teller and its allocated resources. If the `commit' function
+    // was not called, this rolls back all of the ops and unlocks the nexus.
     ~teller();
 
     // (func) commit
-    // FIXME explain
-    std::unique_ptr<transaction> commit();
+    // Commits the transaction and unlocks the nexus. The teller is unusable
+    // after this call.
+    void commit();
 
-public:
     // (func) describe
     // FIXME explain
     void describe(std::string desc);
@@ -336,6 +345,8 @@ enum class status {
  * FIXME explain
  */
 class nexus : private util::nocopy {
+    friend class teller;
+
 private:
     // (var) m_status
     // FIXME explain
@@ -385,6 +396,12 @@ public:
     // (func) redo
     // FIXME explain
     void redo();
+
+    // (func) begin
+    // Begin building a new transaction. This returns a "teller" object which is
+    // used to build the transaction. The transaction is finished by calling the
+    // `commit' method on the teller, or aborted by simply destroying it.
+    std::unique_ptr<teller> begin();
 
     // (func) run
     // FIXME explain

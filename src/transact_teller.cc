@@ -25,7 +25,8 @@ namespace drnsf {
 namespace transact {
 
 // declared in transact.hh
-teller::teller() :
+teller::teller(nexus &nx) :
+    m_nx(nx),
     m_done(false),
     m_desc("[UNLABELED ACTION - REPORT BUG]")
 {
@@ -41,27 +42,50 @@ teller::~teller()
         for (auto &&op : m_ops) {
             op->execute();
         }
+
+        // Unlock the transaction system.
+        m_nx.m_status = status::ready;
+        m_nx.on_status_change();
     }
 }
 
 // declared in transact.hh
-std::unique_ptr<transaction> teller::commit()
+void teller::commit()
 {
     // Ensure this teller hasn't already committed its transaction.
     if (m_done) {
         throw std::logic_error("transact::teller::commit: already committed");
     }
 
-    // Mark this teller as complete.
-    m_done = true;
-
-    // Produce the resulting transaction object and return it.
-    return std::unique_ptr<transaction>(
+    // Produce the resulting transaction object.
+    auto t = std::unique_ptr<transaction>(
         new transaction(
             std::move(m_ops),
             m_desc
         )
     );
+
+    // Set this new transaction's next pointer to the current next-to-undo
+    // transaction, and set the next-to-undo to the new transaction.
+    //
+    // Given current transaction history (latest-first) {C, B, A} and a new
+    // transaction X being introduced:
+    //
+    // A <- B <- C <- (m_undo)
+    // becomes
+    // A <- B <- C <- X <- (m_undo)
+    m_nx.m_undo.swap(t->m_next);
+    m_nx.m_undo.swap(t);
+
+    // Clear all of the redo-able actions.
+    m_nx.m_redo.reset(nullptr);
+
+    // Mark this teller as complete.
+    m_done = true;
+
+    // Unlock the transaction system.
+    m_nx.m_status = status::ready;
+    m_nx.on_status_change();
 }
 
 // declared in transact.hh
