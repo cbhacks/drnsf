@@ -119,6 +119,11 @@ struct engine_impl
     // engine object has its own subinterpreter.
     PyThreadState *m_interp;
 
+    // (var) m_teller
+    // The teller for the currently building transaction, or null if not in a
+    // transact block.
+    std::unique_ptr<transact::teller> m_teller;
+
     // (s-func) get
     // Returns a pointer to the engine_impl associated with the current python
     // subinterpreter, or null if not available.
@@ -802,6 +807,9 @@ struct scr_globalfns : scr_base {
     DECLARE_METHOD_O(scr_globalfns, pushproject);
     DECLARE_METHOD_NOARGS(scr_globalfns, popproject);
     DECLARE_METHOD_NOARGS(scr_globalfns, P);
+    DECLARE_METHOD_NOARGS(scr_globalfns, begin);
+    DECLARE_METHOD_NOARGS(scr_globalfns, commit);
+    DECLARE_METHOD_NOARGS(scr_globalfns, rollback);
 
     static void install()
     {
@@ -813,6 +821,9 @@ struct scr_globalfns : scr_base {
             METHOD(pushproject, METH_O),
             METHOD(popproject, METH_NOARGS),
             METHOD(P, METH_NOARGS),
+            METHOD(begin, METH_NOARGS),
+            METHOD(commit, METH_NOARGS),
+            METHOD(rollback, METH_NOARGS),
             {}
         };
 
@@ -927,6 +938,10 @@ DEFINE_METHOD_O(scr_globalfns, pushproject)
         // TODO - error
         Py_RETURN_NONE;
 
+    if (engp->m_teller)
+        // TODO - error
+        Py_RETURN_NONE;
+
     std::shared_ptr<res::project> proj;
     try {
         proj = scr_project::from_python(arg);
@@ -944,6 +959,10 @@ DEFINE_METHOD_NOARGS(scr_globalfns, popproject)
 {
     auto engp = engine_impl::get();
     if (!engp)
+        // TODO - error
+        Py_RETURN_NONE;
+
+    if (engp->m_teller)
         // TODO - error
         Py_RETURN_NONE;
 
@@ -975,6 +994,78 @@ DEFINE_METHOD_NOARGS(scr_globalfns, P)
     proj_p = engp->m_ctx->get_proj();
     // FIXME - end above section
     return scr_project::to_python(proj_p);
+
+    Py_RETURN_NONE;
+}
+
+DEFINE_METHOD_NOARGS(scr_globalfns, begin)
+{
+    auto engp = engine_impl::get();
+    if (!engp)
+        // TODO - error
+        Py_RETURN_NONE;
+
+    if (engp->m_teller)
+        // TODO - error
+        Py_RETURN_NONE;
+
+    std::shared_ptr<res::project> proj_p;
+
+    if (!engp->m_project_stack.empty()) {
+        proj_p = engp->m_project_stack.back();
+    } else if (engp->m_ctx) {
+        // FIXME - run this section only on the main thread!
+        proj_p = engp->m_ctx->get_proj();
+        // FIXME - end above section
+    } else {
+        // TODO - error
+        Py_RETURN_NONE;
+    }
+
+    engp->m_project_stack.push_back(proj_p);
+    engp->m_teller = proj_p->get_transact().begin();
+    engp->m_teller->describe("Python code");
+
+    Py_RETURN_NONE;
+}
+
+DEFINE_METHOD_NOARGS(scr_globalfns, commit)
+{
+    auto engp = engine_impl::get();
+    if (!engp)
+        // TODO - error
+        Py_RETURN_NONE;
+
+    if (!engp->m_teller)
+        // TODO - error
+        Py_RETURN_NONE;
+
+    if (!engp)
+        // TODO - error
+        Py_RETURN_NONE;
+
+    engp->m_teller->commit();
+    engp->m_teller.reset();
+
+    engp->m_project_stack.pop_back();
+
+    Py_RETURN_NONE;
+}
+
+DEFINE_METHOD_NOARGS(scr_globalfns, rollback)
+{
+    auto engp = engine_impl::get();
+    if (!engp)
+        // TODO - error
+        Py_RETURN_NONE;
+
+    if (!engp->m_teller)
+        // TODO - error
+        Py_RETURN_NONE;
+
+    engp->m_teller.reset();
+
+    engp->m_project_stack.pop_back();
 
     Py_RETURN_NONE;
 }

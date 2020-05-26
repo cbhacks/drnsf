@@ -242,3 +242,54 @@ TBD
 
    If there is no active project, instead returns a generator which yields
    no values.
+
+
+Transactions
+============
+
+TBD
+
+.. py:function:: begin()
+
+   Begins a new transaction with the active project. This pushes the active
+   project to the project stack, as if by ``pushproject(P())``. During the
+   lifetime of the transaction, the project stack may not be manipulated. The
+   transaction is terminated by calling ``commit()`` or ``rollback()``.
+
+   If this function is called while there is no active project, an error is
+   raised.
+
+   If this function is called while there is a transaction already in progress,
+   an error is raised.
+
+   During the transaction's lifetime, the user is prohibited from performing
+   any other transaction-based operations such as modifying asset properties
+   or influencing the asset lifecycles.
+
+.. py:function:: commit()
+
+   Commits all of the changes made during the transaction, and terminates the
+   transaction. The changes within the transaction become a named work unit in
+   the user's Undo/Redo listing, and the user may undo the transaction at any
+   point in the future.
+
+   This also pops the project from the project stack which was pushed by the
+   ``begin()`` function.
+
+   If this function is called while there is no running transaction, an error
+   is raised.
+
+   (TBD error if attempting to commit foreign or managed transaction ?)
+
+.. py:function:: rollback()
+
+   Reverts all of the changes made during the transaction, and terminates the
+   transaction. The Undo/Redo listing is unaffected.
+
+   This also pops the project from the project stack which was pushed by the
+   ``begin()`` function.
+
+   If this function is called while there is no running transaction, an error
+   is raised.
+
+   (TBD error if attempting to commit foreign or managed transaction ?)
