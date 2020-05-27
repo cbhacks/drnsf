@@ -1524,6 +1524,63 @@ struct adapter<
         return scr_byreflist<T, Flavor>::from_python(obj);
     }
 };
+template <>
+struct adapter<gfx::rgb888, 0> {
+    static constexpr bool is_valid = true;
+
+    static constexpr bool has_to_python = true;
+    static constexpr bool has_to_python_byref = false;
+    static constexpr bool has_from_python = true;
+
+    static void install() {}
+
+    static PyObject *to_python(gfx::rgb888 value)
+    {
+        PyObject *result = PyTuple_New(3);
+        if (!result)
+            return nullptr;
+
+        for (int i = 0; i < 3; i++) {
+            PyObject *channel = PyLong_FromLong(value.v[i]);
+            if (!channel) {
+                Py_DECREF(result);
+                return nullptr;
+            }
+
+            PyTuple_SetItem(result, i, channel);
+        }
+
+        return result;
+    }
+
+    static gfx::rgb888 from_python(PyObject *obj)
+    {
+        if (!PyTuple_Check(obj)) {
+            throw conversion_error("adapter: color is not a tuple");
+        }
+        if (PyTuple_Size(obj) != 3) {
+            throw conversion_error("adapter: color tuple is not 3-value");
+        }
+
+        gfx::rgb888 result;
+
+        for (int i = 0; i < 3; i++) {
+            PyObject *channel = PyTuple_GetItem(obj, i);
+            long long value = PyLong_AsLongLong(channel);
+            if (PyErr_Occurred()) {
+                throw conversion_error("adapter: color channel conversion error");
+            }
+
+            if (value < 0 || value > 255) {
+                throw conversion_error("adatper: color channel out of range");
+            }
+
+            result.v[i] = value;
+        }
+
+        return result;
+    }
+};
 
 #undef SLOT_FN
 #undef GETSET_RO
