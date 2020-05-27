@@ -755,6 +755,8 @@ struct scr_asset : scr_base {
     DECLARE_GETTER(scr_asset, project);
     DECLARE_GETTER(scr_asset, name);
 
+    DECLARE_METHOD_NOARGS(scr_asset, destroy);
+
     static void install()
     {
         if (type)
@@ -766,10 +768,16 @@ struct scr_asset : scr_base {
             {}
         };
 
+        static PyMethodDef methods[] = {
+            METHOD(destroy, METH_NOARGS),
+            {}
+        };
+
         static PyType_Slot slots[] = {
             SLOT_FN(tp_new),
             SLOT_FN(tp_dealloc),
             { Py_tp_getset, getset },
+            { Py_tp_methods, methods },
             {}
         };
 
@@ -912,6 +920,36 @@ DEFINE_GETTER(scr_asset, name)
         Py_RETURN_NONE;
 
     return scr_atom::to_python(self->asset_p->get_name());
+}
+
+DEFINE_METHOD_NOARGS(scr_asset, destroy)
+{
+    auto engp = engine_impl::get();
+    if (!engp)
+        // TODO - error
+        Py_RETURN_NONE;
+
+    if (!engp->m_teller)
+        // TODO - error
+        Py_RETURN_NONE;
+
+    TRANSACT = *engp->m_teller;
+
+    if (!self->asset_p)
+        // TODO - error
+        Py_RETURN_NONE;
+
+    if (!self->asset_p->is_alive())
+        // TODO - error
+        Py_RETURN_NONE;
+
+    try {
+        self->asset_p->destroy(TS);
+    } catch (std::bad_alloc &) {
+        return PyErr_NoMemory();
+    }
+
+    Py_RETURN_NONE;
 }
 
 DEFINE_METHOD_NOARGS(scr_globalfns, getcontextproject)

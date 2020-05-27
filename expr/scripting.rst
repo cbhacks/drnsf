@@ -9,6 +9,10 @@ Legend
 *(read-only)*
   * For attributes: the attribute cannot be set.
 
+*(transact)*
+  * For attributes: the attribute cannot be set except during a transaction.
+  * For functions: the function cannot be invoked except during a transaction.
+
 
 Atoms
 =====
@@ -235,6 +239,13 @@ TBD
 
       The name associated with this Asset. The returned atom's ``project`` and
       this asset's ``project`` are identical.
+
+   .. py:function:: destroy()
+
+      *(transact)*
+
+      Deletes the asset. Because of the undo/redo transaction system, this does
+      not necessarily release the memory resources occupied by the asset.
 
 .. py:function:: eachasset(basetype=Asset)
 
