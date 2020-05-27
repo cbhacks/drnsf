@@ -185,6 +185,18 @@ public:
     using runtime_error::runtime_error;
 };
 
+// (internal type) adapter
+// Adapter for template type `T' for use when accessing attributes, fields,
+// list elements, etc. Multiple flavors can exist, starting from 0.
+//
+// `E' parameter is provided only for SFINAE.
+template <typename T, int Flavor, typename E = void>
+struct adapter {
+    static constexpr bool is_valid = false;
+};
+// specializations are defined further below
+
+
 #define SLOT_FN(x) { (Py_##x), reinterpret_cast<void *>(x) }
 
 #define GETSET_RO(name) \
@@ -601,6 +613,14 @@ struct scr_atom : scr_base {
     }
 };
 
+// defined later in this file
+template <typename AssetType, int PropNum, int Flavor>
+PyObject *get_asset_prop(PyObject *obj, void *);
+
+// defined later in this file
+template <typename AssetType, int PropNum, int Flavor>
+int set_asset_prop(PyObject *obj, PyObject *value, void *);
+
 // (internal type) scr_specificasset
 // Scripting type for various asset types.
 template <typename AssetType>
@@ -609,11 +629,54 @@ struct scr_specificasset :
 
     static inline PyTypeObject *type;
 
+    using asset_type_info = reflect::asset_type_info<AssetType>;
+
+    template <int PropNum>
+    using asset_prop_info = reflect::asset_prop_info<AssetType, PropNum>;
+
     using base_scr_specificasset = scr_specificasset<
-        typename reflect::asset_type_info<AssetType>::base_type>;
+        typename asset_type_info::base_type>;
 
     using base_scr_specificasset::tp_new;
     using base_scr_specificasset::tp_dealloc;
+
+    static inline std::string type_fullname;
+    static inline std::vector<PyGetSetDef> getset;
+
+    template <int PropNum, int Flavor>
+    static void install_prop()
+    {
+        if constexpr (PropNum < asset_type_info::prop_count) {
+            using adp = adapter<typename asset_prop_info<PropNum>::type, Flavor>;
+
+            if constexpr (adp::is_valid) {
+                PyGetSetDef def{};
+
+                // Const cast required due to const-incorrectness in old version
+                // of Python C-API.
+                def.name = const_cast<char *>(asset_prop_info<PropNum>::name);
+
+                if constexpr (adp::has_to_python) {
+                    def.get = static_cast<getter>(
+                        get_asset_prop<AssetType, PropNum, Flavor>
+                    );
+                }
+
+                if constexpr (adp::has_from_python) {
+                    def.set = static_cast<setter>(
+                        set_asset_prop<AssetType, PropNum, Flavor>
+                    );
+                }
+
+                getset.push_back(def);
+                install_prop<PropNum, Flavor + 1>();
+            }
+
+            if constexpr (Flavor == 0) {
+                install_prop<PropNum + 1, 0>();
+            }
+        }
+    }
 
     static void install()
     {
@@ -623,21 +686,20 @@ struct scr_specificasset :
         using type_info = reflect::asset_type_info<AssetType>;
         using base_type = typename type_info::base_type;
 
-        static PyGetSetDef getset[] = {
-            {}
-        };
-
         scr_specificasset<base_type>::install();
+
+        install_prop<0, 0>();
+        getset.emplace_back();
 
         static PyType_Slot slots[] = {
             SLOT_FN(tp_new),
             SLOT_FN(tp_dealloc),
-            { Py_tp_getset, getset },
+            { Py_tp_getset, getset.data() },
             { Py_tp_base, scr_specificasset<base_type>::type },
             {}
         };
 
-        std::string type_fullname = "drnsf.";
+        type_fullname = "drnsf.";
         type_fullname += type_info::name;
 
         PyType_Spec spec = {
@@ -922,6 +984,69 @@ DEFINE_GETTER(scr_asset, name)
     return scr_atom::to_python(self->asset_p->get_name());
 }
 
+template <typename AssetType, int PropNum, int Flavor>
+PyObject *get_asset_prop(PyObject *obj, void *)
+{
+    using prop_type = typename reflect::asset_prop_info<AssetType, PropNum>::type;
+    auto self = static_cast<scr_asset *>(obj);
+
+    if (!self->asset_p)
+        // TODO - error
+        Py_RETURN_NONE;
+
+    if (!self->asset_p->is_alive())
+        // TODO - error
+        Py_RETURN_NONE;
+
+    auto asset = static_cast<AssetType *>(self->asset_p);
+    const auto &value =
+        (asset->*reflect::asset_prop_info<AssetType, PropNum>::ptr).get();
+
+    return adapter<prop_type, Flavor>::to_python(value);
+}
+
+template <typename AssetType, int PropNum, int Flavor>
+int set_asset_prop(PyObject *obj, PyObject *value, void *)
+{
+    using prop_type = typename reflect::asset_prop_info<AssetType, PropNum>::type;
+    auto self = static_cast<scr_asset *>(obj);
+
+    auto engp = engine_impl::get();
+    if (!engp)
+        // TODO - error
+        return 0;
+
+    if (!engp->m_teller)
+        // TODO - error
+        return 0;
+
+    TRANSACT = *engp->m_teller;
+
+    if (!self->asset_p)
+        // TODO - error
+        return 0;
+
+    if (!self->asset_p->is_alive())
+        // TODO - error
+        return 0;
+
+    auto asset = static_cast<AssetType *>(self->asset_p);
+    try {
+        (asset->*reflect::asset_prop_info<AssetType, PropNum>::ptr).set(
+            TS,
+            adapter<prop_type, Flavor>::from_python(value)
+        );
+    } catch (conversion_error &) {
+        // TODO - error
+        return 0;
+    } catch (std::bad_alloc &) {
+        PyErr_NoMemory();
+        return -1;
+    }
+
+    return 0;
+}
+
 DEFINE_METHOD_NOARGS(scr_asset, destroy)
 {
     auto engp = engine_impl::get();
@@ -1107,6 +1232,35 @@ DEFINE_METHOD_NOARGS(scr_globalfns, rollback)
 
     Py_RETURN_NONE;
 }
+
+// specializations for `adapter' type
+template <typename T>
+struct adapter<T, 0, std::enable_if_t<std::is_integral_v<T>>> {
+    static constexpr bool is_valid = true;
+
+    static constexpr bool has_to_python = true;
+    static constexpr bool has_from_python = true;
+
+    static PyObject *to_python(T value)
+    {
+        return PyLong_FromLongLong(value);
+    }
+
+    static T from_python(PyObject *obj)
+    {
+        long long value = PyLong_AsLongLong(obj);
+        if (PyErr_Occurred()) {
+            throw conversion_error("adapter: integral conversion error");
+        }
+
+        if (value < std::numeric_limits<T>::min())
+            throw conversion_error("adapter: integral out of range");
+        if (value > std::numeric_limits<T>::max())
+            throw conversion_error("adapter: integral out of range");
+
+        return T(value);
+    }
+};
 
 #undef SLOT_FN
 #undef GETSET_RO
