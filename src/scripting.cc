@@ -1411,7 +1411,9 @@ DEFINE_METHOD_NOARGS(scr_globalfns, begin)
         // FIXME - run this section only on the main thread!
         proj_p = engp->m_ctx->get_proj();
         // FIXME - end above section
-    } else {
+    }
+
+    if (!proj_p) {
         // TODO - error
         Py_RETURN_NONE;
     }
