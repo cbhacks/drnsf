@@ -196,6 +196,17 @@ struct adapter {
 };
 // specializations are defined further below
 
+// (internal type) accessor
+// Virtual base class for accessors. These are used by byref adapters to access
+// the referenced object, such as an asset property, a list element, a struct
+// member, etc.
+template <typename T>
+struct accessor {
+    virtual ~accessor() = default;
+
+    virtual const T &get() = 0;
+    virtual void set(T &&value) = 0;
+};
 
 #define SLOT_FN(x) { (Py_##x), reinterpret_cast<void *>(x) }
 
@@ -619,6 +630,10 @@ PyObject *get_asset_prop(PyObject *obj, void *);
 
 // defined later in this file
 template <typename AssetType, int PropNum, int Flavor>
+PyObject *get_asset_prop_byref(PyObject *obj, void *);
+
+// defined later in this file
+template <typename AssetType, int PropNum, int Flavor>
 int set_asset_prop(PyObject *obj, PyObject *value, void *);
 
 // (internal type) scr_specificasset
@@ -650,6 +665,8 @@ struct scr_specificasset :
             using adp = adapter<typename asset_prop_info<PropNum>::type, Flavor>;
 
             if constexpr (adp::is_valid) {
+                adp::install();
+
                 PyGetSetDef def{};
 
                 // Const cast required due to const-incorrectness in old version
@@ -659,6 +676,10 @@ struct scr_specificasset :
                 if constexpr (adp::has_to_python) {
                     def.get = static_cast<getter>(
                         get_asset_prop<AssetType, PropNum, Flavor>
+                    );
+                } else if constexpr (adp::has_to_python_byref) {
+                    def.get = static_cast<getter>(
+                        get_asset_prop_byref<AssetType, PropNum, Flavor>
                     );
                 }
 
@@ -868,6 +889,151 @@ struct scr_asset : scr_base {
 template <>
 struct scr_specificasset<res::asset> : scr_asset {};
 
+// (internal type) scr_byreflist
+// Scripting type for "ByRefList".
+template <typename T, int Flavor>
+struct scr_byreflist : scr_base {
+    using native_type = std::vector<T>;
+
+    static inline PyTypeObject *type;
+
+    std::unique_ptr<accessor<native_type>> acc;
+
+    static native_type from_python(PyObject *obj)
+    {
+        PyObject *iter = PyObject_GetIter(obj);
+        if (!iter) {
+            PyErr_Clear();
+            throw conversion_error("scr_byreflist: incompatible type");
+        }
+
+        DRNSF_ON_EXIT { Py_DECREF(iter); };
+
+        native_type result;
+
+        PyObject *value;
+        while ((value = PyIter_Next(iter))) {
+            DRNSF_ON_EXIT { Py_DECREF(value); };
+            result.push_back(adapter<T, Flavor>::from_python(value));
+        }
+        if (PyErr_Occurred()) {
+            PyErr_Clear();
+            throw conversion_error("scr_byreflist: iteration error");
+        }
+
+        return result;
+    }
+
+    static PyObject *to_python_byref(
+        std::unique_ptr<accessor<native_type>> acc) noexcept
+    {
+        auto obj = new(std::nothrow) scr_byreflist();
+        if (!obj)
+            return PyErr_NoMemory();
+        obj->ob_refcnt = 1;
+        obj->ob_type = type;
+        obj->acc = std::move(acc);
+        return obj;
+    }
+
+    static PyObject *tp_new(
+        PyObject *subtype,
+        PyObject *args,
+        PyObject *kwds) noexcept
+    {
+        PyErr_SetString(PyExc_TypeError, "drnsf.ByRefList cannot be constructed");
+        return nullptr;
+    }
+
+    static void tp_dealloc(scr_byreflist *self) noexcept
+    {
+        delete self;
+    }
+
+    static Py_ssize_t sq_length(scr_byreflist *self) noexcept
+    {
+        // TODO - accessor error
+        return self->acc->get().size();
+    }
+
+    static PyObject *sq_item(scr_byreflist *self, Py_ssize_t i) noexcept
+    {
+        // TODO - accessor error
+        const auto &list = self->acc->get();
+
+        if (i < 0 || size_t(i) >= list.size()) {
+            PyErr_SetString(PyExc_IndexError, "ByRefList index out of range");
+            return nullptr;
+        }
+
+        if constexpr (adapter<T, Flavor>::has_to_python) {
+            return adapter<T, Flavor>::to_python(list[i]);
+        } else {
+            // TODO - error
+            Py_RETURN_NONE;
+        }
+    }
+
+    static PyObject *sq_ass_item(
+        scr_byreflist *self,
+        Py_ssize_t i,
+        PyObject *value) noexcept
+    {
+        // TODO - accessor error
+        auto list = self->acc->get();
+
+        if (i < 0 || size_t(i) >= list.size()) {
+            PyErr_SetString(PyExc_IndexError, "ByRefList index out of range");
+            return nullptr;
+        }
+
+        if constexpr (adapter<T, Flavor>::has_from_python) {
+            // TODO - conversion error
+            list[i] = adapter<T, Flavor>::from_python(value);
+
+            // TODO - accessor error
+            self->acc->set(std::move(list));
+
+            Py_RETURN_NONE;
+        } else {
+            (void)value;
+
+            // TODO - error
+            Py_RETURN_NONE;
+        }
+    }
+
+    static void install()
+    {
+        if (type)
+            return;
+
+        static PyType_Slot slots[] = {
+            SLOT_FN(tp_new),
+            SLOT_FN(tp_dealloc),
+            SLOT_FN(sq_length),
+            SLOT_FN(sq_item),
+            SLOT_FN(sq_ass_item),
+            {}
+        };
+
+        static PyType_Spec spec = {
+            "drnsf.ByRefList",
+            sizeof(scr_byreflist),
+            0,
+            0,
+            slots
+        };
+
+        auto type_o = PyType_FromSpec(&spec);
+        type = reinterpret_cast<PyTypeObject *>(type_o);
+        if (!type) {
+            PyErr_Print();
+            std::abort();
+        }
+    }
+};
+
 // (internal type) scr_globalfns
 // Non-instantiated type which contains global functions.
 struct scr_globalfns : scr_base {
@@ -1003,6 +1169,71 @@ PyObject *get_asset_prop(PyObject *obj, void *)
         (asset->*reflect::asset_prop_info<AssetType, PropNum>::ptr).get();
 
     return adapter<prop_type, Flavor>::to_python(value);
+}
+
+template <typename AssetType, int PropNum, int Flavor>
+PyObject *get_asset_prop_byref(PyObject *obj, void *)
+{
+    using prop_type = typename reflect::asset_prop_info<AssetType, PropNum>::type;
+    auto self = static_cast<scr_asset *>(obj);
+
+    if (!self->asset_p)
+        // TODO - error
+        Py_RETURN_NONE;
+
+    if (!self->asset_p->is_alive())
+        // TODO - error
+        Py_RETURN_NONE;
+
+    auto asset = static_cast<AssetType *>(self->asset_p);
+
+    struct prop_accessor : accessor<prop_type> {
+        scr_asset *m_asset;
+        res::prop<prop_type> &m_prop;
+
+        prop_accessor(scr_asset *asset, res::prop<prop_type> &prop) :
+            m_asset(asset),
+            m_prop(prop)
+        {
+            Py_INCREF(m_asset);
+        }
+
+        ~prop_accessor()
+        {
+            Py_DECREF(m_asset);
+        }
+
+        const prop_type &get() override
+        {
+            if (!m_asset->asset_p)
+                throw 0; // FIXME
+            if (!m_asset->asset_p->is_alive())
+                throw 0; // FIXME
+            return m_prop.get();
+        }
+
+        void set(prop_type &&value) override
+        {
+            auto engp = engine_impl::get();
+            if (!engp)
+                throw 0; // FIXME
+            if (!engp->m_teller)
+                throw 0; // FIXME
+            if (!m_asset->asset_p)
+                throw 0; // FIXME
+            if (!m_asset->asset_p->is_alive())
+                throw 0; // FIXME
+            TRANSACT = *engp->m_teller;
+            m_prop.set(TS, std::move(value));
+        }
+    };
+
+    return adapter<prop_type, Flavor>::to_python_byref(
+        std::make_unique<prop_accessor>(
+            self,
+            asset->*reflect::asset_prop_info<AssetType, PropNum>::ptr
+        )
+    );
 }
 
 template <typename AssetType, int PropNum, int Flavor>
@@ -1239,7 +1470,10 @@ struct adapter<T, 0, std::enable_if_t<std::is_integral_v<T>>> {
     static constexpr bool is_valid = true;
 
     static constexpr bool has_to_python = true;
+    static constexpr bool has_to_python_byref = false;
     static constexpr bool has_from_python = true;
+
+    static void install() {}
 
     static PyObject *to_python(T value)
     {
@@ -1259,6 +1493,33 @@ struct adapter<T, 0, std::enable_if_t<std::is_integral_v<T>>> {
             throw conversion_error("adapter: integral out of range");
 
         return T(value);
+    }
+};
+template <typename T, int Flavor>
+struct adapter<
+    std::vector<T>,
+    Flavor,
+    std::enable_if_t<adapter<T, Flavor>::is_valid>> {
+
+    static constexpr bool is_valid = true;
+
+    static constexpr bool has_to_python = false;
+    static constexpr bool has_to_python_byref = true;
+    static constexpr bool has_from_python = adapter<T, Flavor>::has_from_python;
+
+    static void install()
+    {
+        scr_byreflist<T, Flavor>::install();
+    }
+
+    static PyObject *to_python_byref(std::unique_ptr<accessor<std::vector<T>>> acc)
+    {
+        return scr_byreflist<T, Flavor>::to_python_byref(std::move(acc));
+    }
+
+    static std::vector<T> from_python(PyObject *obj)
+    {
+        return scr_byreflist<T, Flavor>::from_python(obj);
     }
 };
 
