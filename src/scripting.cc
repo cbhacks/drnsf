@@ -1771,12 +1771,12 @@ void engine::start_console()
 // declared in scripting.hh
 handle::~handle() noexcept
 {
-    lock();
+    //lock(); FIXME
 
     if (dtor)
         dtor(p);
 
-    unlock();
+    //unlock(); FIXME
 }
 
 }
